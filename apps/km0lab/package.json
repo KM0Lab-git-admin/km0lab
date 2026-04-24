@@ -1,0 +1,11 @@
+{
+  "name": "km0lab",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node -e \"console.log('km0lab dev pendiente de migracion')\"",
+    "build": "node -e \"console.log('km0lab build pendiente de migracion')\"",
+    "lint": "node -e \"console.log('km0lab lint pendiente de migracion')\"",
+    "type:check": "node -e \"console.log('km0lab typecheck pendiente de migracion')\""
+  }
+}

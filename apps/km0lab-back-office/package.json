@@ -1,0 +1,11 @@
+{
+  "name": "km0lab-back-office",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node -e \"console.log('km0lab-back-office dev pendiente de migracion')\"",
+    "build": "node -e \"console.log('km0lab-back-office build pendiente de migracion')\"",
+    "lint": "node -e \"console.log('km0lab-back-office lint pendiente de migracion')\"",
+    "type:check": "node -e \"console.log('km0lab-back-office typecheck pendiente de migracion')\""
+  }
+}
