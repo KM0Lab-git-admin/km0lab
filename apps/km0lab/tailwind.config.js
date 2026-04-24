@@ -1,3 +1,5 @@
+const { hairlineWidth } = require('nativewind/theme')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
@@ -11,18 +13,66 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: '#0ea5e9',
-          foreground: '#ffffff',
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        placeholder: 'hsl(var(--placeholder))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        inverse: {
+          DEFAULT: 'hsl(var(--inverse))',
+          foreground: 'hsl(var(--inverse-foreground))',
         },
-        surface: {
-          DEFAULT: '#ffffff',
-          muted: '#f5f5f5',
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
-        content: {
-          DEFAULT: '#171717',
-          muted: '#737373',
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
         },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+          muted: 'hsl(var(--primary-muted))',
+          active: 'hsl(var(--primary-active))',
+          subtle: 'hsl(var(--primary-subtle))',
+          contrast: 'hsl(var(--primary-contrast))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+          active: 'hsl(var(--secondary-active))',
+          subtle: 'hsl(var(--secondary-subtle))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          foreground: 'hsl(var(--info-foreground))',
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+          subtle: 'hsl(var(--destructive-subtle))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+        },
+      },
+      borderWidth: {
+        hairline: hairlineWidth(),
       },
     },
   },
