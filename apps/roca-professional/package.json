@@ -1,0 +1,11 @@
+{
+  "name": "roca-professional",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node -e \"console.log('roca-professional dev pendiente de migracion')\"",
+    "build": "node -e \"console.log('roca-professional build pendiente de migracion')\"",
+    "lint": "node -e \"console.log('roca-professional lint pendiente de migracion')\"",
+    "type:check": "node -e \"console.log('roca-professional typecheck pendiente de migracion')\""
+  }
+}

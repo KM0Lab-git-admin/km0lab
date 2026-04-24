@@ -1,0 +1,9 @@
+{
+  "name": "@km0lab/app",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "lint": "node -e \"console.log('@km0lab/app lint pendiente de migracion')\"",
+    "type:check": "node -e \"console.log('@km0lab/app typecheck pendiente de migracion')\""
+  }
+}

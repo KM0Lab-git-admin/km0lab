@@ -1,0 +1,11 @@
+{
+  "name": "roca-back-office",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node -e \"console.log('roca-back-office dev pendiente de migracion')\"",
+    "build": "node -e \"console.log('roca-back-office build pendiente de migracion')\"",
+    "lint": "node -e \"console.log('roca-back-office lint pendiente de migracion')\"",
+    "type:check": "node -e \"console.log('roca-back-office typecheck pendiente de migracion')\""
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@km0lab/e2e",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node -e \"console.log('e2e pendiente de migracion')\""
+  }
+}
