@@ -9,5 +9,5 @@ coverage
 .eslintcache
 .expo
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local

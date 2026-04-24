@@ -1,12 +1,18 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": [
+    "packages/app/**/*.ts",
+    "packages/app/**/*.tsx",
+    "packages/components/**/*.ts",
+    "packages/components/**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "build",
     "dist",
     ".expo",
     ".turbo",
-    "**/node_modules"
+    "**/node_modules",
+    "apps/**"
   ]
 }
