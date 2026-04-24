@@ -5,6 +5,9 @@ dist
 build
 coverage
 .DS_Store
+*.tsbuildinfo
+.eslintcache
+.expo
 .env
 .env.*
 !.env.example

@@ -5,9 +5,11 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "type:check": "turbo run type:check",
-    "format": "turbo run format",
-    "validate": "turbo run lint type:check format"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate": "turbo run type:check lint && pnpm format:check"
   },
   "packageManager": "pnpm@10.19.0",
   "engines": {
@@ -15,6 +17,10 @@
     "pnpm": ">=8.6.5"
   },
   "devDependencies": {
+    "@km0lab/eslint-config": "workspace:*",
+    "@km0lab/jest-config": "workspace:*",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "~5.9.3"
   }

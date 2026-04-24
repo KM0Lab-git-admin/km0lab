@@ -1,5 +1,14 @@
 {
   "name": "@km0lab/eslint-config",
   "private": true,
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "main": "index.js",
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "eslint": "^9.36.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "5.2.0"
+  }
 }

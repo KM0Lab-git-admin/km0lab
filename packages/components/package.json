@@ -3,7 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "lint": "node -e \"console.log('@km0lab/ui lint pendiente de migracion')\"",
-    "type:check": "node -e \"console.log('@km0lab/ui typecheck pendiente de migracion')\""
+    "lint": "eslint .",
+    "lint:fix": "pnpm lint --fix",
+    "type:check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@km0lab/eslint-config": "workspace:*",
+    "eslint": "^9.36.0",
+    "typescript": "~5.9.3"
   }
 }

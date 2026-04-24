@@ -9,9 +9,13 @@
       "cache": false,
       "persistent": true
     },
-    "type:check": {},
+    "type:check": {
+      "dependsOn": ["^type:check"]
+    },
     "lint": {},
-    "format": {},
+    "lint:fix": {
+      "cache": false
+    },
     "clean": {
       "cache": false
     }
