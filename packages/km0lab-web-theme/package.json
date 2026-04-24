@@ -1,0 +1,32 @@
+{
+  "name": "@km0lab/web-theme",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CSS y tokens KM0 (Tailwind CSS v4) portados desde km0lab-core; usar en apps web Next.js.",
+  "type": "module",
+  "exports": {
+    "./globals.css": "./src/globals.css"
+  },
+  "files": [
+    "src",
+    "fonts",
+    "tailwind.config.js",
+    "postcss.config.mjs"
+  ],
+  "peerDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@tailwindcss/postcss": {
+      "optional": true
+    },
+    "postcss": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": true
+    }
+  }
+}

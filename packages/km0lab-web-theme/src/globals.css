@@ -1,0 +1,922 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant portrait (@media (orientation: portrait));
+@custom-variant landscape (@media (orientation: landscape));
+
+/* === ANTIQUE OLIVE FONT FACES === */
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('/fonts/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('/fonts/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('/fonts/Antique-Olive-Std-Black_3861.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('/fonts/Antique-Olive-Std-Italic_3865.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antique Olive Std';
+  src: url('/fonts/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antique Olive Std';
+  src: url('/fonts/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* === BREAKPOINTS KM0 LAB - Custom Variants para Tailwind v4 === */
+/* Orden: Mobile First (de menor a mayor) */
+/* Cada breakpoint considera AMBOS: width Y height */
+/* Referencia: src/components/devtools/BreakpointIndicator.tsx */
+/* Uso: mobile-p:text-sm, laptop-short:flex-row, desktop:px-8, etc. */
+
+/* XS: fallback (< 375px width o < 375px height) - es el default, no necesita variant */
+
+/* MOBILE-P (Portrait): 375x667 - Base del diseño móvil */
+@custom-variant mobile-p (@media (min-width: 375px) and (min-height: 667px));
+
+/* MOBILE-L (Landscape): 667x375 - Móvil horizontal */
+@custom-variant mobile-l (@media (min-width: 667px) and (min-height: 375px));
+
+/* TABLET: 768x1024 - Tablet vertical */
+@custom-variant tablet (@media (min-width: 768px) and (min-height: 1024px));
+
+/* LAPTOP-SHORT: 1280x550 - Laptop con pantalla corta (cero scroll) */
+@custom-variant laptop-short (@media (min-width: 1280px) and (min-height: 550px));
+
+/* DESKTOP: 1440x900 - Escritorio estándar */
+@custom-variant desktop (@media (min-width: 1440px) and (min-height: 900px));
+
+/* ULTRA-WIDE: 1920x1080 - Pantallas grandes */
+@custom-variant ultra-wide (@media (min-width: 1920px) and (min-height: 1080px));
+
+/* === BREAKPOINT ESPECIAL: SHORT-LANDSCAPE === */
+/* Activa layout "side" SOLO en landscape con altura corta */
+/* Captura: 667x375 (móvil landscape), 1280x550 (laptop short) */
+/* NO captura: 1440x900, 1920x1080 (desktops con altura normal) */
+@custom-variant short-landscape (@media (orientation: landscape) and (max-height: 550px));
+
+/* === KM0 LAB THEME - Colores y extensiones para Tailwind v4 === */
+@theme {
+  /* Brand (semantico: tipo + color KM0) */
+  --color-brand: #174094;
+
+  /* KM0 Blue */
+  --color-km0-blue-50: #f0f4fd;
+  --color-km0-blue-100: #dadef8;
+  --color-km0-blue-200: #b5c3f0;
+  --color-km0-blue-300: #90a9e8;
+  --color-km0-blue-400: #6b8fd0;
+  --color-km0-blue-500: #4674b8;
+  --color-km0-blue-600: #2b5aa0;
+  --color-km0-blue-700: #174094;
+  --color-km0-blue-800: #132a50;
+  --color-km0-blue-900: #0f2040;
+
+  /* KM0 Beige */
+  --color-km0-beige-50: #fff9f0;
+  --color-km0-beige-100: #ffecd2;
+  --color-km0-beige-200: #fdeea9;
+  --color-km0-beige-300: #fbdb7e;
+  --color-km0-beige-400: #f9c853;
+  --color-km0-beige-500: #f7b528;
+  --color-km0-beige-600: #dca223;
+  --color-km0-beige-700: #c18f1e;
+  --color-km0-beige-800: #a67c19;
+  --color-km0-beige-900: #8b6914;
+
+  /* KM0 Yellow */
+  --color-km0-yellow-50: #fefaf0;
+  --color-km0-yellow-100: #fdf5da;
+  --color-km0-yellow-200: #fbe9b4;
+  --color-km0-yellow-300: #f9dd8e;
+  --color-km0-yellow-400: #f7d168;
+  --color-km0-yellow-500: #f5c542;
+  --color-km0-yellow-600: #dca223;
+  --color-km0-yellow-700: #c18f1e;
+  --color-km0-yellow-800: #a67c19;
+  --color-km0-yellow-900: #8b6914;
+
+  /* KM0 Coral */
+  --color-km0-coral-50: #ffe0db;
+  --color-km0-coral-100: #ffc2b7;
+  --color-km0-coral-200: #ffa394;
+  --color-km0-coral-300: #ff8570;
+  --color-km0-coral-400: #ff664d;
+  --color-km0-coral-500: #f73200;
+  --color-km0-coral-600: #dc2c00;
+  --color-km0-coral-700: #c12600;
+  --color-km0-coral-800: #a62000;
+  --color-km0-coral-900: #8b1a00;
+
+  /* Gaming Orange */
+  --color-gaming-orange-50: #fff7ed;
+  --color-gaming-orange-100: #ffedd5;
+  --color-gaming-orange-200: #fed7aa;
+  --color-gaming-orange-300: #fdba74;
+  --color-gaming-orange-400: #fb923c;
+  --color-gaming-orange-500: #ff8a00;
+  --color-gaming-orange-600: #ea580c;
+  --color-gaming-orange-700: #c2410c;
+  --color-gaming-orange-800: #9a3412;
+  --color-gaming-orange-900: #7c2d12;
+
+  /* Orange Light */
+  --color-orange-light-50: #fff8f1;
+  --color-orange-light-100: #feecdc;
+  --color-orange-light-200: #fdd5b9;
+  --color-orange-light-300: #fdba8c;
+  --color-orange-light-400: #ffb347;
+  --color-orange-light-500: #ff9500;
+  --color-orange-light-600: #f97316;
+  --color-orange-light-700: #c2410c;
+  --color-orange-light-800: #9a3412;
+  --color-orange-light-900: #7c2d12;
+
+  /* Orange Dark */
+  --color-orange-dark-50: #fef3f0;
+  --color-orange-dark-100: #fde4df;
+  --color-orange-dark-200: #fabfb7;
+  --color-orange-dark-300: #f69e91;
+  --color-orange-dark-400: #f1826f;
+  --color-orange-dark-500: #e6704f;
+  --color-orange-dark-600: #cc6600;
+  --color-orange-dark-700: #b85c00;
+  --color-orange-dark-800: #9a4d00;
+  --color-orange-dark-900: #7d3e00;
+
+  /* Neutral */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #2d2d2d;
+  --color-neutral-900: #1a1a1a;
+
+  /* KM0 Success */
+  --color-km0-success-50: #f0fdf4;
+  --color-km0-success-100: #dcfce7;
+  --color-km0-success-200: #c5f2c7;
+  --color-km0-success-300: #86efac;
+  --color-km0-success-400: #4ade80;
+  --color-km0-success-500: #00cc66;
+  --color-km0-success-600: #16a34a;
+  --color-km0-success-700: #15803d;
+  --color-km0-success-800: #166534;
+  --color-km0-success-900: #14532d;
+
+  /* Gaming Success */
+  --color-gaming-success-50: #f0fdf4;
+  --color-gaming-success-100: #dcfce7;
+  --color-gaming-success-200: #bbf7d0;
+  --color-gaming-success-300: #86efac;
+  --color-gaming-success-400: #4ade80;
+  --color-gaming-success-500: #00cc66;
+  --color-gaming-success-600: #16a34a;
+  --color-gaming-success-700: #15803d;
+  --color-gaming-success-800: #166534;
+  --color-gaming-success-900: #14532d;
+
+  /* Gaming Warning */
+  --color-gaming-warning-50: #fefaf0;
+  --color-gaming-warning-100: #fdf5da;
+  --color-gaming-warning-200: #fbe9b4;
+  --color-gaming-warning-300: #f9dd8e;
+  --color-gaming-warning-400: #f7d168;
+  --color-gaming-warning-500: #f5c542;
+  --color-gaming-warning-600: #d97706;
+  --color-gaming-warning-700: #b45309;
+  --color-gaming-warning-800: #92400e;
+  --color-gaming-warning-900: #78350f;
+
+  /* Gaming Fire */
+  --color-gaming-fire-50: #fef2f2;
+  --color-gaming-fire-100: #fee2e2;
+  --color-gaming-fire-200: #fecaca;
+  --color-gaming-fire-300: #fca5a5;
+  --color-gaming-fire-400: #f87171;
+  --color-gaming-fire-500: #ff4444;
+  --color-gaming-fire-600: #dc2626;
+  --color-gaming-fire-700: #b91c1c;
+  --color-gaming-fire-800: #991b1b;
+  --color-gaming-fire-900: #7f1d1d;
+
+  /* Gaming Gold */
+  --color-gaming-gold: #ffd700;
+
+  /* KM0 Teal */
+  --color-km0-teal-50: #F0FFFE;
+  --color-km0-teal-100: #CCFAF8;
+  --color-km0-teal-200: #80EAE4;
+  --color-km0-teal-300: #40D9D0;
+  --color-km0-teal-400: #00C7BC;
+  --color-km0-teal-500: #00B8A9;
+  --color-km0-teal-600: #009A8E;
+  --color-km0-teal-700: #007C72;
+  --color-km0-teal-800: #005E56;
+  --color-km0-teal-900: #00403B;
+
+  /* Spacing */
+  --spacing-header: 3rem;
+  --spacing-header-gap: 3rem;
+  --spacing-logo-padding: 0.875rem;
+  --spacing-1\.25: 0.3125rem;
+
+  /* Width */
+  --width-logo: 9.1875rem;
+  --width-logo-header: 4.125rem; /* TownHome header: logo escalado 0.25 */
+  --width-logo-entry: 12.25rem; /* Selección de idioma: h-9 (36px) con proporción sprite */
+  --width-slide: 20rem;
+  --width-slider-count-lg: 28rem;
+  --width-slider-count-xl: 32rem;
+
+  /* Height */
+  --height-logo: 2.125rem;
+  --height-logo-header: 0.75rem; /* TownHome header: logo escalado 0.25 */
+  --height-slide-container: 475px;
+
+  /* Max Width */
+  --max-width-header: 24rem;
+  --max-width-slide: 20rem;
+  --max-width-slider-count-lg: 28rem;
+  --max-width-slider-count-xl: 32rem;
+  --max-width-mobile-frame: 24rem;
+  --max-width-language-button: 315px;
+
+  /* Min Width */
+  --min-width-slide: 20rem;
+
+  /* Min Height */
+  --min-height-slide: 17.125rem;
+
+  /* Max Height */
+  --max-height-slide: 14rem;
+  --max-height-slider-container: 558px;
+  --max-height-slider-img: 65vh;
+  --max-height-slider-img-tall: 75vh;
+
+  /* Font Families: brand = Antique Olive (local en public/fonts/); fallback sistema. UI/body = sistema. */
+  --font-brand: 'Antique Olive', Impact, 'Arial Black', sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+
+  /* Background Image */
+  --background-image-gradient-app: linear-gradient(135deg, rgba(144, 169, 232, 0.4) 0%, rgba(255, 236, 210, 0.4) 100%);
+  --background-image-gradient-white-beige: linear-gradient(180deg, #ffffff 0%, #FFECD2 100%);
+  --background-image-gradient-mobile-frame: linear-gradient(to bottom right, rgba(144, 169, 232, 0.2) 0%, rgba(255, 236, 210, 0.2) 100%);
+
+  /* Border Radius */
+  --radius-mobile-frame: 1rem;
+  --radius-mobile-frame-lg: 1.25rem;
+
+  /* Animation Delay */
+  --animation-delay-200: 0.2s;
+  --animation-delay-400: 0.4s;
+
+  /* Floating Dots sizes */
+  --width-dot-sm: 6px;
+  --width-dot-md: 8px;
+  --width-dot-lg: 10px;
+  --width-dot-xl: 12px;
+
+  /* Colores semánticos para componentes UI */
+  --color-primary: #174094;
+  --color-primary-foreground: #ffffff;
+  --color-destructive: #ff4444;
+  --color-destructive-foreground: #ffffff;
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #1a1a1a;
+  --color-accent: #00b8a9;
+  --color-accent-foreground: #ffffff;
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #737373;
+  --color-ring: #174094;
+}
+
+:root {
+  /* === KM0 LAB TYPOGRAPHY SYSTEM === */
+  --font-family-brand: 'Antique Olive', Impact, 'Arial Black', sans-serif;
+  --font-family-ui: 'Inter', system-ui, sans-serif;
+  --font-family-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+
+  /* === KM0 LAB BACKGROUND SYSTEM === */
+  --gradient-app: linear-gradient(135deg, rgba(144, 169, 232, 0.4) 0%, rgba(255, 236, 210, 0.4) 100%);
+  /* Tokens de color (solo los necesarios aquí) */
+  --km0-beige-100: #ffecd2;
+
+  /* Font Sizes - Escala armoniosa basada en ratio 1.25 */
+  --font-size-xs: 0.75rem; /* 12px - Caption */
+  --font-size-sm: 0.875rem; /* 14px - Detail */
+  --font-size-base: 1rem; /* 16px - Paragraph 2 (base) */
+  --font-size-lg: 1.125rem; /* 18px - Paragraph 1 */
+  --font-size-xl: 1.25rem; /* 20px - Heading 6 */
+  --font-size-2xl: 1.5rem; /* 24px - Heading 5 */
+  --font-size-3xl: 1.75rem; /* 28px - Heading 4 */
+  --font-size-4xl: 2rem; /* 32px - Heading 3 */
+  --font-size-5xl: 2.5rem; /* 40px - Heading 2 */
+  --font-size-6xl: 3rem; /* 48px - Heading 1 */
+  --font-size-7xl: 5rem; /* 80px - Heading 0 (Display) */
+
+  /* Font Weights */
+
+  /* Logo Sprite Styles */
+  .logo-1 {
+    /* Tamaño del recorte (el tamaño del primer logo) */
+    width: 570.27px;
+    height: 103.87px;
+
+    /* Mostramos el SVG como sprite */
+    background-image: url('/assets/logos/Logos.svg');
+
+    /* MUY IMPORTANTE:
+       Hacemos que el fondo "valga" lo mismo que el viewBox del SVG,
+       así podemos usar las coordenadas tal cual en px. */
+    background-size: 1190.55px 841.89px;
+
+    /* Desplazamos el fondo para que se vea exactamente el primer logo */
+    background-position: -310.14px -183.48px;
+
+    background-repeat: no-repeat;
+  }
+
+  /* Escalado cómodo con una variable (opcional) */
+  .logo-1 {
+    --scale: 0.45720703125; /* base: igual que XS para todos los tamaños */
+    width: calc(570.27px * var(--scale));
+    height: calc(103.87px * var(--scale));
+    background-size: calc(1190.55px * var(--scale)) calc(841.89px * var(--scale));
+    background-position: calc(-310.14px * var(--scale)) calc(-183.48px * var(--scale));
+  }
+
+  /* Responsive scaling - considera TANTO ancho como alto, usa el más restrictivo */
+
+  /* Altura muy pequeña (xs) - siempre usa xs independientemente del ancho */
+  @media (max-height: 699px) {
+    .logo-1 {
+      --scale: 0.45720703125; /* xs: 45.72% - reducido 15% desde 53.79% */
+    }
+  }
+
+  /* Altura pequeña (sm) - requiere TANTO ancho sm+ COMO alto 700px+ */
+  @media (min-width: 480px) and (min-height: 700px) and (max-height: 799px) {
+    .logo-1 {
+      --scale: 0.45720703125; /* sm: igual a XS */
+    }
+  }
+
+  /* Altura media (md) - requiere TANTO ancho md+ COMO alto 800px+ */
+  @media (min-width: 768px) and (min-height: 800px) and (max-height: 899px) {
+    .logo-1 {
+      --scale: 0.45720703125; /* md: igual a XS */
+    }
+  }
+
+  /* Altura grande (lg) - requiere TANTO ancho lg+ COMO alto 900px+ */
+  @media (min-width: 1024px) and (min-height: 900px) and (max-height: 999px) {
+    .logo-1 {
+      --scale: 0.45720703125; /* lg: igual a XS */
+    }
+  }
+
+  /* Altura muy grande (xl) - requiere TANTO ancho xl+ COMO alto 1000px+ */
+  @media (min-width: 1280px) and (min-height: 1000px) {
+    .logo-1 {
+      --scale: 0.45720703125; /* xl: igual a XS */
+    }
+  }
+
+  /* Logo por contexto - sobrescribe media queries genéricas (mayor especificidad) */
+  .logo-context-onboarding.logo-1,
+  .logo-context-entry.logo-1 {
+    --scale: 0.3466; /* h-9 = 36px, igual que Lovable */
+  }
+  .logo-context-chat.logo-1 {
+    --scale: 0.25; /* más pequeño en header de chat */
+  }
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Line Heights - Optimizadas para legibilidad */
+  --line-height-tight: 1.1; /* Para headings grandes */
+  --line-height-snug: 1.25; /* Para headings medianos */
+  --line-height-normal: 1.5; /* Para body text */
+  --line-height-relaxed: 1.625; /* Para texto largo */
+  --line-height-loose: 2; /* Para casos especiales */
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+
+  /* Default radius */
+  --radius: 0.5rem;
+}
+
+/* === BASE STYLES === */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-family-ui);
+    font-feature-settings: 'cv03', 'cv04', 'cv11';
+    color: #1a1a1a;
+  }
+
+  /* Font Family Classes */
+  .font-brand {
+    font-family: var(--font-family-brand); /* Antique Olive Std */
+  }
+
+  .font-ui {
+    font-family: var(--font-family-ui); /* Inter para UI */
+  }
+
+  .font-body {
+    font-family: var(--font-family-body); /* Oakes Grotesk */
+  }
+}
+
+/* === KM0 LAB TYPOGRAPHY SYSTEM === */
+@layer base {
+  /* Display/Hero - 80px */
+  .display-text,
+  .heading-0 {
+    font-size: var(--font-size-7xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 1 - 48px */
+  h1:not([class*='text-']) {
+    font-size: var(--font-size-6xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 2 - 40px */
+  h2:not([class*='text-']) {
+    font-size: var(--font-size-5xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-snug);
+    letter-spacing: var(--letter-spacing-tight);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 3 - 32px */
+  h3:not([class*='text-']) {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-snug);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 4 - 28px */
+  h4:not([class*='text-']) {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-snug);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 5 - 24px */
+  h5:not([class*='text-']) {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Heading 6 - 20px */
+  h6:not([class*='text-']) {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    font-family: var(--font-family-brand);
+  }
+
+  /* Paragraph 1 - 18px */
+  .paragraph-1 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-body);
+  }
+
+  /* Paragraph 2 - 16px (Default) */
+  p:not([class*='text-']):not(.paragraph-1):not(.detail):not(.caption) {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-ui);
+  }
+
+  /* Detail - 14px */
+  .detail {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-body);
+  }
+
+  /* Caption - 12px */
+  .caption {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-snug);
+    font-family: var(--font-family-body);
+  }
+
+  /* Interface Elements */
+  label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-ui);
+  }
+
+  button:not([class*='text-']) {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-ui);
+  }
+
+  input,
+  textarea {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-ui);
+  }
+
+  small {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    font-family: var(--font-family-ui);
+  }
+}
+
+/* === LOGO ENTRY (selección de idioma: h-9) === */
+@layer utilities {
+  .w-logo-entry {
+    width: var(--width-logo-entry);
+  }
+}
+
+/* === TYPOGRAPHY UTILITIES === */
+@layer utilities {
+  /* Weight utilities */
+  .font-light {
+    font-weight: var(--font-weight-light);
+  }
+  .font-normal {
+    font-weight: var(--font-weight-normal);
+  }
+  .font-medium {
+    font-weight: var(--font-weight-medium);
+  }
+  .font-semibold {
+    font-weight: var(--font-weight-semibold);
+  }
+  .font-bold {
+    font-weight: var(--font-weight-bold);
+  }
+  .font-extrabold {
+    font-weight: var(--font-weight-extrabold);
+  }
+  .font-black {
+    font-weight: var(--font-weight-black);
+  }
+
+  /* Line height utilities */
+  .leading-tight {
+    line-height: var(--line-height-tight);
+  }
+  .leading-snug {
+    line-height: var(--line-height-snug);
+  }
+  .leading-normal {
+    line-height: var(--line-height-normal);
+  }
+  .leading-relaxed {
+    line-height: var(--line-height-relaxed);
+  }
+  .leading-loose {
+    line-height: var(--line-height-loose);
+  }
+
+  /* Letter spacing utilities */
+  .tracking-tight {
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  .tracking-normal {
+    letter-spacing: var(--letter-spacing-normal);
+  }
+  .tracking-wide {
+    letter-spacing: var(--letter-spacing-wide);
+  }
+  .tracking-wider {
+    letter-spacing: var(--letter-spacing-wider);
+  }
+
+  /* Text effects */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .adjustLetterSpacing {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* === GAMING EFFECTS === */
+@layer utilities {
+  /* Card effects for gaming components */
+  .km0-card-shadow {
+    box-shadow:
+      0 4px 12px rgba(23, 64, 148, 0.15),
+      0 2px 4px rgba(23, 64, 148, 0.1);
+  }
+
+  .gaming-card-shadow {
+    box-shadow:
+      0 4px 12px rgba(255, 138, 0, 0.25),
+      0 2px 4px rgba(255, 138, 0, 0.15);
+  }
+
+  .achievement-shadow {
+    box-shadow:
+      0 8px 20px rgba(255, 215, 0, 0.3),
+      0 4px 8px rgba(255, 215, 0, 0.2);
+  }
+
+  /* Hover animations */
+  .hover-lift {
+    transition:
+      transform 0.2s ease-out,
+      box-shadow 0.2s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-glow {
+    from {
+      box-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
+    }
+    to {
+      box-shadow:
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 30px rgba(255, 215, 0, 0.4);
+    }
+  }
+}
+
+/* === RESPONSIVE TYPOGRAPHY === */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+
+  .display-text,
+  .heading-0 {
+    font-size: 3.5rem; /* Smaller on mobile */
+  }
+
+  h1:not([class*='text-']) {
+    font-size: 2.25rem;
+  }
+
+  h2:not([class*='text-']) {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* === KM0 LAB UTILITIES === */
+@layer utilities {
+  .bg-gradient-app {
+    background: var(--gradient-app);
+  }
+
+  /* Blanco → KM0 Beige 100 */
+  .bg-gradient-white-beige {
+    background: linear-gradient(180deg, #ffffff 0%, var(--km0-beige-100) 100%);
+  }
+
+  /* Text utilities para cortes de línea seguros */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+  }
+
+  /* Animation delay utilities */
+  .animate-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animate-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  /* Language Selection animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out both;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes dot-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.9;
+    }
+  }
+
+  .animate-dot-pulse {
+    animation: dot-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* === SISTEMA ANTI-RECORTE: Altura disponible calculada === */
+  /* Calcula altura disponible restando header + footer + padding */
+  /* Valores conservadores que funcionan en todas las resoluciones */
+  .h-content-available {
+    height: calc(100dvh - clamp(150px, 20vh, 200px));
+  }
+
+  @media (min-width: 480px) {
+    .mobile-p\:h-content-available {
+      height: calc(100dvh - clamp(140px, 18vh, 180px));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .tablet\:h-content-available {
+      height: calc(100dvh - clamp(170px, 24vh, 220px));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .desktop\:h-content-available {
+      height: calc(100dvh - clamp(190px, 27vh, 240px));
+    }
+  }
+
+  /* === SISTEMA ANTI-RECORTE: Padding adaptativo genérico === */
+  .p-adaptive {
+    padding: clamp(8px, 1.5vw, 24px);
+  }
+
+  .p-adaptive-sm {
+    padding: clamp(6px, 1.2vw, 20px);
+  }
+
+  .p-adaptive-lg {
+    padding: clamp(12px, 2vw, 32px);
+  }
+
+  /* === SISTEMA ANTI-RECORTE: Gap adaptativo genérico === */
+  .gap-adaptive {
+    gap: clamp(8px, 1.5vh, 24px);
+  }
+
+  .gap-adaptive-sm {
+    gap: clamp(6px, 1.2vh, 20px);
+  }
+
+  .gap-adaptive-lg {
+    gap: clamp(12px, 2vh, 32px);
+  }
+}
+
+/* === FALLBACK DVH === */
+@layer utilities {
+  .min-h-dvh-fallback {
+    min-height: 100vh;
+  }
+  .h-dvh-fallback {
+    height: 100vh;
+  }
+  .max-h-dvh-fallback {
+    max-height: 100vh;
+  }
+}
+
+@supports (height: 100dvh) {
+  .min-h-dvh-fallback {
+    min-height: 100dvh;
+  }
+  .h-dvh-fallback {
+    height: 100dvh;
+  }
+  .max-h-dvh-fallback {
+    max-height: 100dvh;
+  }
+}
+
+/* === OVERRIDES POR CONTEXTO (al final para ganar por cascada) === */
+/* TownHome header: logo mas pequeno que el nombre del pueblo */
+.town-home-header-logo .logo-1 {
+  --scale: 0.25;
+}
