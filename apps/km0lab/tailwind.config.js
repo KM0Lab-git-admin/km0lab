@@ -39,6 +39,8 @@ module.exports = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
           muted: 'hsl(var(--primary-muted))',
+          accent: 'hsl(var(--primary-accent))',
+          'accent-muted': 'hsl(var(--primary-accent-muted))',
           active: 'hsl(var(--primary-active))',
           subtle: 'hsl(var(--primary-subtle))',
           contrast: 'hsl(var(--primary-contrast))',
@@ -70,9 +72,26 @@ module.exports = {
           DEFAULT: 'hsl(var(--warning))',
           foreground: 'hsl(var(--warning-foreground))',
         },
+        purple: {
+          DEFAULT: 'hsl(var(--purple))',
+          foreground: 'hsl(var(--purple-foreground))',
+        },
       },
       borderWidth: {
         hairline: hairlineWidth(),
+      },
+      fontFamily: {
+        sans: ['System'],
+        'sans-italic': ['System'],
+        'sans-medium': ['System'],
+        'sans-semibold': ['System'],
+        'sans-bold': ['System'],
+      },
+      minHeight: {
+        textarea: '5rem',
+      },
+      spacing: {
+        'alert-icon-inset': '3.125rem',
       },
     },
   },

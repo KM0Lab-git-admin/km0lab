@@ -21,6 +21,8 @@
     --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
     --primary-muted: 214 95% 93%;
+    --primary-accent: 199 89% 48%;
+    --primary-accent-muted: 204 94% 86%;
     --primary-active: 221 83% 45%;
     --primary-subtle: 214 100% 97%;
     --primary-contrast: 224 76% 20%;
@@ -39,6 +41,8 @@
     --destructive-subtle: 0 96.3% 89.41%;
     --warning: 48 96.49% 88.82%;
     --warning-foreground: 25.96 90.48% 37.06%;
+    --purple: 269 100% 95%;
+    --purple-foreground: 271 81% 56%;
     --radius: 0.5rem;
   }
 }
