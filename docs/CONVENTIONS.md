@@ -170,37 +170,27 @@ Declaradas en `theme.extend.fontFamily`. Clases útiles:
 Cuando se incorporen fuentes reales de marca, reemplazar los valores en
 `tailwind.config.js` y cargar las fuentes en la app Expo (`expo-font`).
 
-### 5.3. Breakpoints de ancho (Tailwind estándar)
+### 5.3. Breakpoints oficiales
 
-| Breakpoint | Ancho mínimo | Dispositivo |
-|------------|--------------|-------------|
-| `xs`       | 360px        | Móvil pequeño |
-| `sm`       | 480px        | Móvil moderno |
-| `md`       | 768px        | Tablet |
-| `lg`       | 1024px       | Laptop |
-| `xl`       | 1280px       | Desktop |
-| `2xl`      | 1536px       | Pantalla grande |
+La maquetación del proyecto se define y valida en cuatro resoluciones exactas.
+Cada breakpoint requiere **orientación, ancho y alto** simultáneamente.
 
-### 5.4. Breakpoints con altura (proyecto)
+| Breakpoint | Orientación | Resolución base |
+|------------|-------------|-----------------|
+| `vertical-mobile` | Vertical | 375 × 667 |
+| `vertical-tablet` | Vertical | 768 × 1024 |
+| `horizontal-mobile` | Horizontal | 667 × 375 |
+| `horizontal-desktop` | Horizontal | 1280 × 550 |
 
-Requieren **ancho y alto** simultáneos. **La dimensión más restrictiva manda**.
-
-| Breakpoint | Ancho mínimo | Alto mínimo | Rango de alto | Logo scale |
-|------------|--------------|-------------|---------------|------------|
-| `xs`       | cualquiera   | —           | < 700px       | 45.72%     |
-| `sm-h`     | 480px+       | 700px+      | 700-799px     | 33.75%     |
-| `md-h`     | 768px+       | 800px+      | 800-899px     | 43.03%     |
-| `lg-h`     | 1024px+      | 900px+      | 900-999px     | 57.375%    |
-| `xl-h`     | 1280px+      | 1000px+     | 1000px+       | 63.75%     |
+Playwright debe capturar estas mismas cuatro resoluciones para comparar la
+maquetación local contra la referencia visual.
 
 Ejemplo:
 
 ```tsx
-<View className="py-2 md-h:py-6 lg-h:py-8" />
-<View className="w-slide md-h:w-96 lg-h:w-[28rem]" />
+<View className="py-2 vertical-tablet:py-6" />
+<View className="hidden horizontal-mobile:flex horizontal-desktop:flex" />
 ```
-
-Si la altura no llega, siempre cae a `xs`, independientemente del ancho.
 
 ---
 

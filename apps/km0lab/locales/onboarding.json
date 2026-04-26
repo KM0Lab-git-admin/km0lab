@@ -1,0 +1,88 @@
+{
+  "ui": {
+    "skip": { "ca": "SALTAR", "es": "SALTAR", "en": "SKIP" },
+    "start": { "ca": "INICI", "es": "INICIO", "en": "START" }
+  },
+  "slides": [
+    {
+      "id": 1,
+      "xp": 10,
+      "emoji": "🤝",
+      "color": "km0-yellow-300",
+      "title": {
+        "ca": "CONNECTA AMB VEÏNS",
+        "es": "CONECTA CON VECINOS",
+        "en": "CONNECT WITH NEIGHBORS"
+      },
+      "description": {
+        "ca": "Tu comerç local, més a prop que mai. Descobreix una nova forma d'interactuar amb els teus veïns i donar suport al comerç de proximitat al teu barri, tot des d'una única plataforma dissenyada per a tu.",
+        "es": "Tu comercio local, más cerca que nunca. Descubre una nueva forma de interactuar con tus vecinos y apoyar el comercio de proximidad en tu barrio, todo desde una única plataforma diseñada para ti.",
+        "en": "Your local commerce, closer than ever. Discover a new way to interact with your neighbors and support local businesses in your neighborhood, all from a single platform designed for you."
+      }
+    },
+    {
+      "id": 2,
+      "xp": 20,
+      "emoji": "🛒",
+      "color": "km0-teal-300",
+      "title": {
+        "ca": "DESCOBREIX EL MERCAT LOCAL",
+        "es": "DESCUBRE EL MERCADO LOCAL",
+        "en": "DISCOVER THE LOCAL MARKET"
+      },
+      "description": {
+        "ca": "Troba productes frescos i de proximitat al teu barri.",
+        "es": "Encuentra productos frescos y de proximidad en tu barrio.",
+        "en": "Find fresh, local products in your neighborhood."
+      }
+    },
+    {
+      "id": 3,
+      "xp": 30,
+      "emoji": "🎯",
+      "color": "km0-coral-300",
+      "title": {
+        "ca": "PARTICIPA EN ACTIVITATS",
+        "es": "PARTICIPA EN ACTIVIDADES",
+        "en": "JOIN ACTIVITIES"
+      },
+      "description": {
+        "ca": "Activitats per a tota la família, cada setmana.",
+        "es": "Actividades para toda la familia, cada semana.",
+        "en": "Activities for the whole family, every week."
+      }
+    },
+    {
+      "id": 4,
+      "xp": 40,
+      "emoji": "🏆",
+      "color": "km0-blue-300",
+      "title": {
+        "ca": "ACONSEGUEIX RECOMPENSES",
+        "es": "CONSIGUE RECOMPENSAS",
+        "en": "EARN REWARDS"
+      },
+      "description": {
+        "ca": "Guanya punts i bescanvia'ls per avantatges exclusius.",
+        "es": "Gana puntos y canjéalos por ventajas exclusivas.",
+        "en": "Earn points and redeem them for exclusive perks."
+      }
+    },
+    {
+      "id": 5,
+      "xp": 50,
+      "emoji": "📚",
+      "color": "km0-beige-300",
+      "title": {
+        "ca": "APRÈN I CREIX",
+        "es": "APRENDE Y CRECE",
+        "en": "LEARN AND GROW"
+      },
+      "description": {
+        "ca": "Formació i recursos per millorar cada dia.",
+        "es": "Formación y recursos para mejorar cada día.",
+        "en": "Training and resources to improve every day."
+      }
+    }
+  ]
+}

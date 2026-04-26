@@ -33,7 +33,9 @@ npx turbo run type:check lint
 pnpm --filter km0lab build:web
 ```
 
-Para arrancar dev: **usar `npx turbo run dev`**, no `npm run dev`.
+Para arrancar dev global: **usar `npx turbo run dev`**, no `npm run dev`.
+Si solo se necesita la app web de `km0lab`, usar
+**`pnpm --filter km0lab web`** para evitar levantar todo el monorepo.
 
 ---
 
@@ -96,11 +98,16 @@ Obligatorio cumplir TODAS:
 
 ### Breakpoints del proyecto
 
-Además de los anchos estándar de Tailwind (`xs 360`, `sm 480`, `md 768`, `lg 1024`,
-`xl 1280`, `2xl 1536`), el proyecto usa **breakpoints con altura**
-(`sm-h`, `md-h`, `lg-h`, `xl-h`). La **altura manda**: si la altura no alcanza,
-cae a `xs` aunque el ancho sea `xl`. Consulta `docs/CONVENTIONS.md` para la
-tabla completa.
+La maquetación se valida contra cuatro breakpoints oficiales, siempre con ancho
+y alto simultáneos:
+
+- `vertical-mobile` — 375 × 667.
+- `vertical-tablet` — 768 × 1024.
+- `horizontal-mobile` — 667 × 375.
+- `horizontal-desktop` — 1280 × 550.
+
+Playwright debe testear estas mismas cuatro resoluciones. Consulta
+`docs/CONVENTIONS.md` para la tabla completa.
 
 ---
 

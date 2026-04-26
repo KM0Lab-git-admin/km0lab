@@ -3,6 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "node -e \"console.log('e2e pendiente de migracion')\""
+    "dev": "node -e \"console.log('e2e pendiente de migracion')\"",
+    "visual:language": "node scripts/compare-language-screen.cjs",
+    "visual:onboarding": "node scripts/compare-onboarding-screen.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0"
   }
 }
