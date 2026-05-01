@@ -87,7 +87,7 @@ export default function OnboardingWebScreen() {
       router.back()
       return
     }
-    router.replace('/')
+    router.replace('/language-selection')
   }
 
   const handlePointerDown = (event: React.PointerEvent) => {
