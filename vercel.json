@@ -1,0 +1,5 @@
+{
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter km0lab build:web",
+  "outputDirectory": "apps/km0lab/dist"
+}
