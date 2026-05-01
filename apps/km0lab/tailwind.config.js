@@ -198,16 +198,16 @@ module.exports = {
       },
       screens: {
         'vertical-mobile': {
-          raw: '(orientation: portrait) and (min-width: 375px) and (min-height: 667px) and (max-width: 767px) and (max-height: 1023px)',
+          raw: '(orientation: portrait) and (max-width: 767px)',
         },
         'vertical-tablet': {
-          raw: '(orientation: portrait) and (min-width: 768px) and (min-height: 1024px)',
+          raw: '(orientation: portrait) and (min-width: 768px)',
         },
         'horizontal-mobile': {
-          raw: '(orientation: landscape) and (min-width: 667px) and (min-height: 375px) and (max-width: 1279px) and (max-height: 549px)',
+          raw: '(orientation: landscape) and (max-width: 1279px)',
         },
         'horizontal-desktop': {
-          raw: '(orientation: landscape) and (min-width: 1280px) and (min-height: 550px)',
+          raw: '(orientation: landscape) and (min-width: 1280px)',
         },
       },
       inset: {
