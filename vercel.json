@@ -1,5 +1,10 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm --filter km0lab build",
+  "outputDirectory": "apps/km0lab/dist",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter km0lab build:web",
-  "outputDirectory": "apps/km0lab/dist"
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
