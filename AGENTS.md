@@ -123,16 +123,36 @@ Obligatorio cumplir TODAS:
 
 ### Breakpoints del proyecto
 
-La maquetación se valida contra cuatro breakpoints oficiales, siempre con ancho
-y alto simultáneos:
+Hay que distinguir dos cosas:
+
+**1. Breakpoints CSS (rangos)** — definidos en `apps/km0lab/tailwind.config.js`
+como `screens`. Cubren rangos amplios de viewport y se aplican vía clases
+NativeWind:
+
+- `vertical-mobile` — `(orientation: portrait) and (max-width: 767px)`.
+- `vertical-tablet` — `(orientation: portrait) and (min-width: 768px)`.
+- `horizontal-mobile` — `(orientation: landscape) and (max-width: 1279px)`.
+- `horizontal-desktop` — `(orientation: landscape) and (min-width: 1280px)`.
+
+Toda combinación de orientación + ancho cae siempre en exactamente un
+breakpoint. Los umbrales (768 portrait y 1280 landscape) coinciden con los
+puntos canónicos de validación, así que los puntos canónicos quedan dentro
+del rango de su breakpoint.
+
+**2. Resoluciones canónicas de validación visual (Playwright)** — los cuatro
+puntos exactos contra los que se valida la maqueta:
 
 - `vertical-mobile` — 375 × 667.
 - `vertical-tablet` — 768 × 1024.
 - `horizontal-mobile` — 667 × 375.
 - `horizontal-desktop` — 1280 × 550.
 
-Playwright debe testear estas mismas cuatro resoluciones. Consulta
-`docs/CONVENTIONS.md` para la tabla completa.
+Playwright debe capturar exactamente estas cuatro resoluciones. La maqueta
+se diseña en estos cuatro puntos exactos, pero los estilos CSS cubren los
+rangos completos para que usuarios reales con resoluciones intermedias
+(p. ej. 1366 × 768) también se vean bien.
+
+Consulta `docs/CONVENTIONS.md` para la tabla completa.
 
 ---
 
