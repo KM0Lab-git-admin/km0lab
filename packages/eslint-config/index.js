@@ -35,8 +35,11 @@ module.exports = [
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/no-unescaped-entities': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
+      'react/jsx-key': 'error',
+      'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      'no-debugger': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'import/order': [
         'warn',
         {
