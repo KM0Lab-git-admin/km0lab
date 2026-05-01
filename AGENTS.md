@@ -278,13 +278,28 @@ Ejemplos válidos:
 - `docs(agents): actualiza reglas de estilos`
 - `refactor(app): simplifica capa de fetch`
 
-### 8.3. Reglas extra
+### 8.3. Push y PRs — política
+
+- **`main` está blindada**: NUNCA push directo. Solo recibe merges desde
+  `develop` vía PR aprobado por humano.
+- **`develop` permite push directo con criterio**:
+  - Cambios triviales (typo, ajuste de un fichero pequeño, fix de config,
+    actualizar copy, bump de versión menor): push directo OK.
+  - Cambios sustanciales (feature nueva, refactor multi-fichero, port de
+    pantalla completa, eliminación de archivos, cambios de schema, nueva
+    dependencia): rama + PR para que el humano revise antes de mergear.
+  - En la duda: rama + PR. Es preferible un PR de más que un commit
+    inesperado en develop.
+- Cada commit directo a develop debe pasar igualmente por:
+  - El CI (que se dispara también en push a develop, no solo en PR).
+  - El formato Conventional Commits sin excepciones.
+- Avisar al humano del commit en el chat en cuanto se haga, con SHA y
+  resumen de qué cambió.
+
+### 8.4. Reglas extra
 
 - No edites `git config` global.
 - No uses `--amend` ni `--force` salvo petición explícita.
-- No hagas push a `main` bajo ninguna circunstancia.
-- No hagas push a `develop` bajo ninguna circunstancia: siempre vía PR
-  desde una rama de trabajo.
 
 ## 9. Antes de cerrar una tarea
 
