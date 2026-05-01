@@ -1,11 +1,8 @@
 /**
  * @km0lab/app — utils
  *
- * Re-exports de los utils compartidos entre apps. Añadir aquí los utils nuevos
- * importándolos desde su archivo y exportándolos.
- *
- * Convención: un archivo por utils (kebab-case para ficheros de utils/data,
- * `useXxx.ts` para hooks).
+ * Helpers puros y módulos de configuración que no dependen del framework
+ * (formatDate, buildQuery, env validado…).
  */
 
-export {}
+export * from './env'

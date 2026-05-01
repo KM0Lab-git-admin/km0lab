@@ -7,6 +7,9 @@
     "lint:fix": "pnpm lint --fix",
     "type:check": "tsc --noEmit"
   },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
   "devDependencies": {
     "@km0lab/eslint-config": "workspace:*",
     "eslint": "^9.36.0",
