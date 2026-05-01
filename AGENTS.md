@@ -43,9 +43,10 @@ Si solo se necesita la app web de `km0lab`, usar
 
 | Tipo de archivo | Ubicación | Extensión |
 |---|---|---|
-| Pantalla / ruta de la app | `apps/km0lab/app/<segmento-kebab>/page.tsx` (o `index.tsx`) | `.tsx` |
+| Pantalla / ruta de la app | `apps/km0lab/app/<segmento-kebab>/index.tsx` | `.tsx` |
 | Layout de ruta | `apps/km0lab/app/.../_layout.tsx` | `.tsx` |
-| Componente específico de una app | `apps/km0lab/components/<Feature>/<Componente>.tsx` | `.tsx` |
+| Componente específico de una pantalla | `apps/km0lab/components/<Componente>.tsx` | `.tsx` |
+| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx` |
 | Componente compartido (UI) | `packages/components/ui/<nombre-kebab>.tsx` | `.tsx` |
 | Utilidad compartida | `packages/app/utils/<nombre>.ts` | `.ts` |
 | Hook compartido | `packages/app/hooks/use<Nombre>.ts` | `.ts` |
@@ -57,14 +58,38 @@ Si solo se necesita la app web de `km0lab`, usar
 Cada componente nuevo en `@km0lab/ui` **debe** exportarse en
 `packages/components/index.ts`.
 
+### Coherencia con Lovable
+
+Los componentes específicos de pantalla viven **planos** en
+`apps/km0lab/components/` con el **mismo nombre de archivo** que en el repo
+de Lovable. Solo se agrupan en una subcarpeta PascalCase cuando una pantalla
+tiene varios componentes auxiliares propios.
+
+Mapping fijo entre Lovable y producción:
+
+| Lovable (`src/`) | Producción |
+|---|---|
+| `components/<Componente>.tsx` | `apps/km0lab/components/<Componente>.tsx` |
+| `components/ui/<nombre>.tsx` | `packages/components/ui/<nombre>.tsx` |
+| `pages/<Pantalla>.tsx` | `apps/km0lab/app/<pantalla-kebab>/index.tsx` |
+| `hooks/use-<x>.tsx` | `packages/app/hooks/use-<x>.ts` |
+| `services/<x>.ts` | `packages/app/services/<x>.ts` |
+| `data/<x>.ts` | `packages/app/data/<x>.ts` |
+| `lib/utils.ts` | ya existe en `packages/components/lib/utils.tsx` |
+
+La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
+`/index.tsx` en producción. La conversión nunca se discute caso a caso.
+
 ---
 
 ## 3. Convenciones de nombres
 
-- **Carpetas de dominio / feature**: `kebab-case` (ej. `user-profile`).
 - **Archivos de componentes**:
   - En `packages/components/ui/*`: `kebab-case` (shadcn-style).
-  - En `apps/km0lab/components/*`: `PascalCase`.
+  - En `apps/km0lab/components/*`: `PascalCase`, planos por defecto.
+- **Carpetas de agrupación de componentes en `apps/km0lab/components/*`**:
+  `PascalCase` coincidiendo con el nombre del componente padre. Solo se crean
+  cuando una pantalla tiene varios componentes auxiliares propios.
 - **Hooks**: `useXxx` en `camelCase`.
 - **Utilidades**: `camelCase` (`formatDate.ts`, `buildQuery.ts`).
 - **Tipos** exportados: `PascalCase`, sin prefijo `I`.
@@ -201,35 +226,4 @@ Ejemplos válidos:
 - `feat(ui): añade componente avatar`
 - `fix(km0lab): corrige safe area en home`
 - `docs(agents): actualiza reglas de estilos`
-- `refactor(app): simplifica capa de fetch`
-
-Reglas extra:
-- No edites `git config`.
-- No uses `--amend` ni `--force` salvo petición explícita.
-- No hagas push a `main` sin confirmación humana si el cambio afecta a la build.
-
----
-
-## 9. Antes de cerrar una tarea
-
-Checklist obligatorio antes de pedir merge / terminar la tarea:
-
-- [ ] `npx turbo run type:check lint` sin errores.
-- [ ] `pnpm --filter km0lab build:web` en verde si tocaste UI o rutas.
-- [ ] Componentes nuevos exportados desde `packages/components/index.ts`.
-- [ ] Sin estilos inline ni clases arbitrarias.
-- [ ] Nombres de archivo y carpeta siguiendo esta guía.
-- [ ] Commit Conventional con subject ≤ 50 caracteres.
-- [ ] Nada de secretos en ficheros commiteados (`.env*.local` están ignorados).
-
----
-
-## 10. Qué NO hacer
-
-- No copiar componentes “en masa” desde otros repos sin entender sus dependencias.
-- No introducir una librería nueva sin justificación (peer weight, tamaño del
-  bundle, mantenimiento). Preferir lo que ya existe.
-- No mezclar sistemas de estilos (p. ej. StyleSheet.create + Tailwind).
-- No usar colores en hex o rgb en el markup; siempre tokens.
-- No romper la regla de solo dos entornos (`development`, `production`).
-- No crear documentación nueva en `.md` si no se pide.
+- `refac

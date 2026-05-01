@@ -17,7 +17,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-import { Km0Logo } from '../../components/LanguageSelection/Km0Logo'
+import { Km0Logo } from '../../components/Km0Logo'
 import onboarding from '../../locales/onboarding.json'
 
 const SLOT_PORTRAIT = 260
