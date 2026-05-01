@@ -1,16 +1,18 @@
-const { hairlineWidth } = require('nativewind/theme')
-
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  darkMode: 'class',
+export default {
+  darkMode: ['class'],
   content: [
-    './app/**/*.{js,jsx,ts,tsx}',
-    './components/**/*.{js,jsx,ts,tsx}',
+    './index.html',
+    './src/**/*.{js,jsx,ts,tsx}',
     '../../packages/components/**/*.{js,jsx,ts,tsx}',
     '../../packages/app/**/*.{js,jsx,ts,tsx}',
   ],
-  presets: [require('nativewind/preset')],
   theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: { '2xl': '1400px' },
+    },
     extend: {
       colors: {
         km0: {
@@ -77,18 +79,28 @@ module.exports = {
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
-        placeholder: 'hsl(var(--placeholder))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
-        'background-end': 'hsl(var(--background-end))',
         foreground: 'hsl(var(--foreground))',
-        inverse: {
-          DEFAULT: 'hsl(var(--inverse))',
-          foreground: 'hsl(var(--inverse-foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
@@ -98,154 +110,16 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-          muted: 'hsl(var(--primary-muted))',
-          accent: 'hsl(var(--primary-accent))',
-          'accent-muted': 'hsl(var(--primary-accent-muted))',
-          active: 'hsl(var(--primary-active))',
-          subtle: 'hsl(var(--primary-subtle))',
-          contrast: 'hsl(var(--primary-contrast))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-          active: 'hsl(var(--secondary-active))',
-          subtle: 'hsl(var(--secondary-subtle))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        info: {
-          DEFAULT: 'hsl(var(--info))',
-          foreground: 'hsl(var(--info-foreground))',
-        },
-        success: {
-          DEFAULT: 'hsl(var(--success))',
-          foreground: 'hsl(var(--success-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-          subtle: 'hsl(var(--destructive-subtle))',
-        },
-        warning: {
-          DEFAULT: 'hsl(var(--warning))',
-          foreground: 'hsl(var(--warning-foreground))',
-        },
-        purple: {
-          DEFAULT: 'hsl(var(--purple))',
-          foreground: 'hsl(var(--purple-foreground))',
-        },
-      },
-      borderWidth: {
-        hairline: hairlineWidth(),
       },
       fontFamily: {
-        brand: ['AntiqueOliveBlack', 'Antique Olive', 'System'],
-        ui: ['AntiqueOliveBold', 'Antique Olive', 'System'],
-        body: ['Inter', 'AntiqueOliveRoman', 'System'],
-        sans: ['AntiqueOliveRoman', 'System'],
-        'sans-italic': ['AntiqueOliveItalic', 'System'],
-        'sans-medium': ['AntiqueOliveCompact', 'System'],
-        'sans-semibold': ['AntiqueOliveBold', 'System'],
-        'sans-bold': ['AntiqueOliveBlack', 'System'],
+        brand: ["'Antique Olive'", 'Impact', 'Arial Black', 'sans-serif'],
+        ui: ["'Inter'", 'sans-serif'],
+        body: ["'DM Sans'", "'Inter'", 'sans-serif'],
       },
-      minHeight: {
-        textarea: '5rem',
-      },
-      maxWidth: {
-        'language-content': '24.375rem',
-        'language-content-sm': '35rem',
-        'language-card': '68.75rem',
-      },
-      spacing: {
-        'alert-icon-inset': '3.125rem',
-        'logo-w': '11.25rem',
-        'logo-h': '2.0625rem',
-        'logo-w-sm': '15rem',
-        'logo-h-sm': '3rem',
-        'logo-w-landscape': '13.75rem',
-        'logo-h-landscape': '2.75rem',
-        'logo-w-horizontal-mobile': '11.25rem',
-        'logo-h-horizontal-mobile': '2.25rem',
-        'language-content': '24.375rem',
-        'language-content-sm': '35rem',
-        'language-visual': '14.375rem',
-        'language-visual-sm': '21.25rem',
-        'language-ring': '12.5rem',
-        'language-ring-sm': '18.75rem',
-        'language-ring-landscape': '15rem',
-        'language-ring-landscape-wide': '18.75rem',
-        'language-ring-horizontal-mobile': '11.5rem',
-        'language-robot': '8.75rem',
-        'language-robot-sm': '13.125rem',
-        'language-robot-landscape': '10.5rem',
-        'language-robot-landscape-wide': '13.125rem',
-        'language-robot-horizontal-mobile': '8.125rem',
-        'language-card': '68.75rem',
-        'portrait-visual-offset': '3.0625rem',
-        'portrait-title-offset': '4.5625rem',
-        'portrait-cards-offset': '3.8125rem',
-        'dot-6': '0.375rem',
-        'dot-7': '0.4375rem',
-        'dot-8': '0.5rem',
-        'dot-9': '0.5625rem',
-        'dot-10': '0.625rem',
-        'dot-12': '0.75rem',
-      },
-      screens: {
-        'vertical-mobile': {
-          raw: '(orientation: portrait) and (max-width: 767px)',
-        },
-        'vertical-tablet': {
-          raw: '(orientation: portrait) and (min-width: 768px)',
-        },
-        'horizontal-mobile': {
-          raw: '(orientation: landscape) and (max-width: 1279px)',
-        },
-        'horizontal-desktop': {
-          raw: '(orientation: landscape) and (min-width: 1280px)',
-        },
-      },
-      inset: {
-        'dot-top-5': '5%',
-        'dot-top-10': '10%',
-        'dot-top-25': '25%',
-        'dot-top-45': '45%',
-        'dot-top-60': '60%',
-        'dot-top-75': '75%',
-        'dot-left-5': '5%',
-        'dot-left-8': '8%',
-        'dot-left-70': '70%',
-        'dot-left-88': '88%',
-        'dot-left-90': '90%',
-        'dot-left-92': '92%',
-        'ring-inner': '14%',
-      },
-      scale: {
-        82: '0.82',
-        104: '1.04',
-        109: '1.09',
-      },
-      opacity: {
-        45: '0.45',
-        55: '0.55',
-      },
-      boxShadow: {
-        'km0-card': '0 8px 24px -12px hsl(var(--km0-blue-700) / 0.35)',
-        'km0-card-hover': '0 24px 56px -8px hsl(var(--km0-blue-700) / 0.4)',
-        'km0-card-selected': '0 16px 40px -8px hsl(var(--km0-blue-700) / 0.25)',
-        'km0-landscape': '0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3)',
-      },
-      animation: {
-        float: 'float 3s ease-in-out infinite',
-        'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
-        'float-slow': 'float 3.4s ease-in-out infinite',
-        'float-slower': 'float 3.8s ease-in-out infinite',
-        'float-slowest': 'float 4.2s ease-in-out infinite',
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
         float: {
@@ -257,7 +131,29 @@ module.exports = {
           to: { opacity: '1', transform: 'translateY(0)' },
         },
       },
+      animation: {
+        float: 'float 3s ease-in-out infinite',
+        'float-slow': 'float 3.4s ease-in-out infinite',
+        'float-slower': 'float 3.8s ease-in-out infinite',
+        'float-slowest': 'float 4.2s ease-in-out infinite',
+        'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@tailwindcss/typography'),
+    /**
+     * Breakpoints oficiales del proyecto, alineados con producción y
+     * Playwright. Cubren rangos amplios sin condición de altura: toda
+     * combinación de orientación + ancho cae siempre en exactamente
+     * un breakpoint.
+     */
+    function ({ addVariant }) {
+      addVariant('vertical-mobile', '@media (orientation: portrait) and (max-width: 767px)')
+      addVariant('vertical-tablet', '@media (orientation: portrait) and (min-width: 768px)')
+      addVariant('horizontal-mobile', '@media (orientation: landscape) and (max-width: 1279px)')
+      addVariant('horizontal-desktop', '@media (orientation: landscape) and (min-width: 1280px)')
+    },
+  ],
 }

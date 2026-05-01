@@ -1,36 +1,20 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "strict": true,
-    "strictNullChecks": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": {
-      "@km0lab/app": ["../../packages/app/index.ts"],
-      "@km0lab/app/*": ["../../packages/app/*"],
-      "@km0lab/ui": ["../../packages/components/index.ts"],
-      "@km0lab/ui/*": ["../../packages/components/*"]
-    },
-    "jsx": "react-native",
-    "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "ES2022"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "incremental": true,
-    "noUncheckedIndexedAccess": true
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": ["node_modules", "build", "dist", ".expo", ".turbo"]
+  "include": ["src", "vite.config.ts", "capacitor.config.ts", "tailwind.config.js"],
+  "exclude": ["node_modules", "dist", "android", "ios"]
 }
