@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:assets": "node scripts/sync-assets.mjs",
-    "validate": "turbo run type:check lint && pnpm format:check"
+    "validate": "turbo run type:check lint && pnpm format:check",
+    "prepare": "lefthook install"
   },
   "packageManager": "pnpm@10.19.0",
   "engines": {
@@ -22,6 +23,7 @@
     "@km0lab/eslint-config": "workspace:*",
     "@km0lab/jest-config": "workspace:*",
     "eslint": "^9.36.0",
+    "lefthook": "^1.13.6",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "~5.9.3"

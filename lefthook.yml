@@ -1,0 +1,19 @@
+# https://lefthook.dev/configuration/
+
+# Solo afecta a archivos staged (no a todo el repo).
+# Para saltarse los hooks puntualmente: LEFTHOOK=0 git commit ...
+
+pre-commit:
+  parallel: true
+  commands:
+    format-check:
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,md,yml,yaml,css}"
+      run: pnpm prettier --check {staged_files}
+    lint:
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs}"
+      run: pnpm eslint {staged_files}
+
+pre-push:
+  commands:
+    type-check:
+      run: pnpm turbo run type:check
