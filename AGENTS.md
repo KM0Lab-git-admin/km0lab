@@ -17,25 +17,42 @@ Consulta `docs/CONVENTIONS.md` para detalles y ejemplos largos.
 - Estructura:
   - `apps/*` — aplicaciones.
   - `packages/*` — librerías compartidas.
-- App principal: **`apps/km0lab`** (Expo SDK 55 + React Native 0.83 +
-  React 19 + expo-router + NativeWind 4 + TypeScript ~5.9).
-- UI compartida: **`@km0lab/ui`** → `packages/components`.
-- Lógica compartida: **`@km0lab/app`** → `packages/app`.
-- Tema web (Next.js/Vite): **`@km0lab/web-theme`** → `packages/km0lab-web-theme`.
+- App principal: **`apps/km0lab`** (Vite + React 19 + Tailwind v3 +
+  shadcn/ui + Radix + Framer Motion + React Router DOM v7 +
+  TypeScript ~5.9). Capacitor preparado para builds móviles
+  (iOS/Android) cuando se necesiten — los shells nativos NO se
+  generan hasta que se ejecute `pnpm cap:add:android` / `pnpm
+  cap:add:ios`.
+- UI compartida: **`@km0lab/ui`** → `packages/components` (primitivos
+  shadcn web puros).
+- Lógica compartida: **`@km0lab/app`** → `packages/app` (incluye
+  `design-system/` con tokens y aiContext).
+- Tema web (Next.js/Vite): **`@km0lab/web-theme`** →
+  `packages/km0lab-web-theme` (en uso para back-office cuando se
+  active).
 - Solo existen entornos `development` y `production`.
 
 Comandos estándar (siempre desde la raíz del monorepo):
 
 ```bash
 pnpm install
-npx turbo run dev
+pnpm dev                       # arranca apps/km0lab con vite
+pnpm --filter km0lab build     # build de producción a apps/km0lab/dist
 npx turbo run type:check lint
-pnpm --filter km0lab build:web
 ```
 
-Para arrancar dev global: **usar `npx turbo run dev`**, no `npm run dev`.
-Si solo se necesita la app web de `km0lab`, usar
-**`pnpm --filter km0lab web`** para evitar levantar todo el monorepo.
+Para arrancar dev de toda la app: **`pnpm dev`** (usa Vite). Si quieres
+tareas turbo orquestadas (lint, type:check), `npx turbo run <task>`.
+
+Comandos Capacitor (cuando se necesiten builds móviles):
+
+```bash
+pnpm --filter km0lab cap:add:android      # genera apps/km0lab/android/
+pnpm --filter km0lab cap:add:ios          # genera apps/km0lab/ios/ (mac)
+pnpm --filter km0lab build && pnpm --filter km0lab cap:sync
+pnpm --filter km0lab cap:open:android     # abre Android Studio
+pnpm --filter km0lab cap:open:ios         # abre Xcode (mac)
+```
 
 ---
 
@@ -43,15 +60,15 @@ Si solo se necesita la app web de `km0lab`, usar
 
 | Tipo de archivo | Ubicación | Extensión |
 |---|---|---|
-| Pantalla / ruta de la app | `apps/km0lab/app/<segmento-kebab>/index.tsx` | `.tsx` |
-| Layout de ruta | `apps/km0lab/app/.../_layout.tsx` | `.tsx` |
-| Componente específico de una pantalla | `apps/km0lab/components/<Componente>.tsx` | `.tsx` |
-| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx` |
+| Pantalla / ruta de la app | `apps/km0lab/src/pages/<NombrePascal>.tsx` | `.tsx` |
+| Layout / wrapper de pantalla | `apps/km0lab/src/components/<Wrapper>.tsx` (p. ej. BrandedFrame) | `.tsx` |
+| Componente específico de una pantalla | `apps/km0lab/src/components/<Componente>.tsx` | `.tsx` |
+| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/src/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx` |
 | Componente compartido (UI) | `packages/components/ui/<nombre-kebab>.tsx` | `.tsx` |
 | Utilidad compartida | `packages/app/utils/<nombre>.ts` | `.ts` |
 | Hook compartido | `packages/app/hooks/use<Nombre>.ts` | `.ts` |
 | Icono compartido | `packages/components/icons/<nombre>.tsx` | `.tsx` |
-| Estilos CSS globales | `apps/km0lab/styles/global.css` | `.css` |
+| Estilos CSS globales | `apps/km0lab/src/styles/global.css` | `.css` |
 | Tokens de tema | `apps/km0lab/tailwind.config.js` (`theme.extend`) | `.js` |
 | Variables de entorno | `apps/km0lab/env/.env.development` / `.env.production` | — |
 
@@ -69,9 +86,9 @@ Mapping fijo entre Lovable y producción:
 
 | Lovable (`src/`) | Producción |
 |---|---|
-| `components/<Componente>.tsx` | `apps/km0lab/components/<Componente>.tsx` |
+| `components/<Componente>.tsx` | `apps/km0lab/src/components/<Componente>.tsx` |
 | `components/ui/<nombre>.tsx` | `packages/components/ui/<nombre>.tsx` |
-| `pages/<Pantalla>.tsx` | `apps/km0lab/app/<pantalla-kebab>/index.tsx` |
+| `pages/<Pantalla>.tsx` | `apps/km0lab/src/pages/<Pantalla>.tsx` |
 | `hooks/use-<x>.tsx` | `packages/app/hooks/use-<x>.ts` |
 | `services/<x>.ts` | `packages/app/services/<x>.ts` |
 | `data/<x>.ts` | `packages/app/data/<x>.ts` |
@@ -94,7 +111,9 @@ La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 - **Utilidades**: `camelCase` (`formatDate.ts`, `buildQuery.ts`).
 - **Tipos** exportados: `PascalCase`, sin prefijo `I`.
 - **Assets / iconos**: nombres en `kebab-case`.
-- **Rutas de Expo Router**: segmentos en `kebab-case`.
+- **Rutas de React Router**: paths en `kebab-case` (p. ej.
+  `/language-selection`, `/postal-code`). Archivos del page van en
+  `apps/km0lab/src/pages/<NombrePascal>.tsx`.
 
 No uses abreviaturas oscuras. Usa inglés para el código y los identificadores.
 La copy de producto puede ir en el idioma que indique la pantalla.
@@ -200,10 +219,12 @@ export type { WidgetProps }
 
 ---
 
-## 6. Pantallas (expo-router)
+## 6. Pantallas (React Router DOM)
 
-- Una ruta = un archivo dentro de `apps/km0lab/app/`.
-- Layouts comunes: `_layout.tsx` al nivel adecuado.
+- Una ruta = un archivo dentro de `apps/km0lab/src/pages/`.
+- Las rutas se declaran en `apps/km0lab/src/App.tsx` con `<Routes>`
+  y `<Route>`. Layout compartido: envolver en `<BrandedFrame>` (las
+  pantallas de marca) o componer libremente.
 - Cada pantalla debe contemplar: **loading**, **empty**, **error** y
   **estado feliz**.
 - La copy de producto no va hardcodeada en componentes de `@km0lab/ui`
