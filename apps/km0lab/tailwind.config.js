@@ -13,6 +13,21 @@ export default {
       padding: '2rem',
       screens: { '2xl': '1400px' },
     },
+    /**
+     * screens estándar de Tailwind. Lovable usa sm:/md: en algunos
+     * componentes portados; los conservamos para que esas clases
+     * funcionen. El AGENTS.md sigue prohibiendo su uso en código
+     * nuevo: usar los breakpoints semánticos del proyecto
+     * (vertical-mobile, vertical-tablet, horizontal-mobile,
+     * horizontal-desktop).
+     */
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         km0: {
@@ -144,16 +159,25 @@ export default {
     require('tailwindcss-animate'),
     require('@tailwindcss/typography'),
     /**
-     * Breakpoints oficiales del proyecto, alineados con producción y
-     * Playwright. Cubren rangos amplios sin condición de altura: toda
-     * combinación de orientación + ancho cae siempre en exactamente
-     * un breakpoint.
+     * Breakpoints oficiales del proyecto, alineados con Playwright.
+     * Cubren rangos amplios sin condición de altura: toda combinación
+     * de orientación + ancho cae siempre en exactamente un breakpoint.
+     *
+     * Adicionalmente exponemos aliases idénticos a los que usa el
+     * proyecto Lovable (short-landscape, wide-landscape, tablet-portrait)
+     * para que el código portado funcione sin reescribir cada clase.
+     * En código NUEVO en producción se prefieren los nombres oficiales.
      */
     function ({ addVariant }) {
       addVariant('vertical-mobile', '@media (orientation: portrait) and (max-width: 767px)')
       addVariant('vertical-tablet', '@media (orientation: portrait) and (min-width: 768px)')
       addVariant('horizontal-mobile', '@media (orientation: landscape) and (max-width: 1279px)')
       addVariant('horizontal-desktop', '@media (orientation: landscape) and (min-width: 1280px)')
+
+      // Aliases para compatibilidad con código portado de Lovable.
+      addVariant('short-landscape', '@media (orientation: landscape) and (max-width: 1279px)')
+      addVariant('wide-landscape', '@media (orientation: landscape) and (min-width: 1280px)')
+      addVariant('tablet-portrait', '@media (orientation: portrait) and (min-width: 768px)')
     },
   ],
 }
