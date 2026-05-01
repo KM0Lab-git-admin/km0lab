@@ -1,91 +1,29 @@
-import { cn } from '@km0lab/ui/lib/utils'
-import * as Slot from '@rn-primitives/slot'
-import { cva } from 'class-variance-authority'
-import { View } from 'react-native'
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-
-import { TextClassContext } from './text'
-
-import type { SlottableViewProps } from '@rn-primitives/types'
-import type { VariantProps } from 'class-variance-authority'
+import { cn } from "../lib/utils";
 
 const badgeVariants = cva(
-  'web:inline-flex items-center h-7 justify-center border border-border px-2.5 py-0.5 web:transition-colors web:focus:outline-none web:focus:ring-2 web:focus:ring-ring web:focus:ring-offset-2',
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary',
-        secondary: 'border-transparent bg-secondary',
-        warning: 'border-transparent bg-warning',
-        success: 'border-transparent bg-success',
-        destructive: 'border-transparent bg-destructive',
-        info: 'border-transparent bg-info',
-        accent: 'border-transparent bg-accent',
-        outline: 'text-foreground',
-        purple: 'border-transparent bg-purple',
-        'primary-muted': 'border-transparent bg-primary-accent-muted',
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
       },
     },
     defaultVariants: {
-      variant: 'default',
-    },
-  }
-)
-
-const badgeTextVariants = cva('text-xs text-center font-sans-medium', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      secondary: 'text-secondary-foreground',
-      warning: 'text-warning-foreground',
-      success: 'text-success-foreground',
-      destructive: 'text-destructive-foreground',
-      info: 'text-info-foreground',
-      accent: 'text-accent-foreground',
-      outline: 'text-foreground',
-      purple: 'text-purple-foreground',
-      'primary-muted': 'text-primary',
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: 'default',
-  },
-})
+);
 
-const badgeIconVariants = cva('', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      secondary: 'text-secondary-foreground',
-      warning: 'text-warning-foreground',
-      success: 'text-success-foreground',
-      destructive: 'text-destructive-foreground',
-      info: 'text-info-foreground',
-      accent: 'text-accent-foreground',
-      outline: 'text-foreground',
-      purple: 'text-purple-foreground',
-      'primary-muted': 'text-primary',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-})
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
-type BadgeProps = SlottableViewProps & VariantProps<typeof badgeVariants>
-type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>
-
-function Badge({ className, variant, asChild, ...props }: BadgeProps) {
-  const Component = asChild ? Slot.View : View
-  return (
-    <TextClassContext.Provider value={badgeTextVariants({ variant })}>
-      <Component
-        className={cn(badgeVariants({ variant }), className)}
-        {...props}
-      />
-    </TextClassContext.Provider>
-  )
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
-export { Badge, badgeVariants, badgeIconVariants, badgeTextVariants }
-export type { BadgeProps, BadgeVariant }
+export { Badge, badgeVariants };
