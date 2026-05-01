@@ -1,0 +1,21 @@
+{
+  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
+  "assets": [
+    {
+      "from": "src/assets/km0_robot_icon_v2.png",
+      "to": "apps/km0lab/assets/images/km0-robot.png"
+    },
+    {
+      "from": "src/assets/flags/flag-ca.svg",
+      "to": "apps/km0lab/assets/images/flags/flag-ca.svg"
+    },
+    {
+      "from": "src/assets/flags/flag-es.svg",
+      "to": "apps/km0lab/assets/images/flags/flag-es.svg"
+    },
+    {
+      "from": "src/assets/flags/flag-en.svg",
+      "to": "apps/km0lab/assets/images/flags/flag-en.svg"
+    }
+  ]
+}

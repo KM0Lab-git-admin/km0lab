@@ -300,7 +300,45 @@ Checklist obligatorio antes de pedir merge / terminar la tarea:
 
 ---
 
-## 10. Qué NO hacer
+## 10. Assets visuales (sincronización con Lovable)
+
+Los assets visuales (imágenes, iconos, banderas, ilustraciones) **viven
+como source of truth en el repo de Lovable** (`speak-spanish-easily`).
+En este repo se consumen sincronizados a `apps/km0lab/assets/` para que
+Expo pueda hacer `require()` estático en build.
+
+### 10.1. Cómo sincronizar
+
+```bash
+pnpm sync:assets
+```
+
+El script `scripts/sync-assets.mjs` lee `scripts/assets-manifest.json`,
+descarga cada asset desde el repo de Lovable y **sobrescribe** el
+destino local. Cualquier edición manual de los binarios en producción
+se perderá en la próxima ejecución.
+
+### 10.2. Cómo añadir un asset nuevo
+
+1. Subir el binario al repo de Lovable bajo `src/assets/`.
+2. Editar `scripts/assets-manifest.json` añadiendo una entrada `{from, to}`.
+3. Ejecutar `pnpm sync:assets`.
+4. Verificar el resultado en `apps/km0lab/assets/...` y commitear.
+
+### 10.3. Reglas duras
+
+- **PROHIBIDO** editar los binarios en `apps/km0lab/assets/` directamente:
+  modifícalos en Lovable y resincroniza.
+- **PROHIBIDO** committear configuración personal (paths absolutos del
+  sistema operativo, credenciales, comandos `curl` improvisados) en
+  ningún archivo del repo, incluido `.claude/settings.json`. Esa
+  configuración va en `.claude/settings.local.json` (gitignored).
+- **PROHIBIDO** usar `curl` u otros métodos ad-hoc para traer assets
+  desde Lovable: siempre vía `pnpm sync:assets`.
+
+---
+
+## 11. Qué NO hacer
 
 - No copiar componentes “en masa” desde otros repos sin entender sus dependencias.
 - No introducir una librería nueva sin justificación (peer weight, tamaño del
