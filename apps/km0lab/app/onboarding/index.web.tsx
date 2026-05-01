@@ -2,7 +2,7 @@ import { cn } from '@km0lab/ui/lib/utils'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
-import { Km0Logo } from '../../components/LanguageSelection/Km0Logo'
+import { Km0Logo } from '../../components/Km0Logo'
 import onboarding from '../../locales/onboarding.json'
 
 type Lang = 'ca' | 'es' | 'en'

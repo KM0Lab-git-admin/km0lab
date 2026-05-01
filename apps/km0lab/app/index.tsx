@@ -7,9 +7,9 @@ import { SafeAreaView, View } from 'react-native'
 import FlagCa from '../assets/images/flags/flag-ca.svg'
 import FlagEn from '../assets/images/flags/flag-en.svg'
 import FlagEs from '../assets/images/flags/flag-es.svg'
-import { FloatingDots } from '../components/LanguageSelection/FloatingDots'
-import { Km0Logo } from '../components/LanguageSelection/Km0Logo'
-import { LanguageCard } from '../components/LanguageSelection/LanguageCard'
+import { FloatingDots } from '../components/FloatingDots'
+import { Km0Logo } from '../components/Km0Logo'
+import { LanguageCard } from '../components/LanguageCard'
 
 const LANGUAGES = [
   {
