@@ -172,25 +172,47 @@ Cuando se incorporen fuentes reales de marca, reemplazar los valores en
 
 ### 5.3. Breakpoints oficiales
 
-La maquetación del proyecto se define y valida en cuatro resoluciones exactas.
-Cada breakpoint requiere **orientación, ancho y alto** simultáneamente.
+Conviene separar dos conceptos que comparten nombre pero son distintos:
 
-| Breakpoint | Orientación | Resolución base |
-|------------|-------------|-----------------|
-| `vertical-mobile` | Vertical | 375 × 667 |
-| `vertical-tablet` | Vertical | 768 × 1024 |
-| `horizontal-mobile` | Horizontal | 667 × 375 |
-| `horizontal-desktop` | Horizontal | 1280 × 550 |
+#### 5.3.1. Breakpoints CSS (rangos)
 
-Playwright debe capturar estas mismas cuatro resoluciones para comparar la
-maquetación local contra la referencia visual.
+Definidos en `apps/km0lab/tailwind.config.js` (sección `theme.extend.screens`).
+Cubren rangos amplios de viewport. Cualquier resolución cae siempre en
+exactamente un breakpoint (no hay "tierra de nadie"):
 
-Ejemplo:
+| Breakpoint | Media query |
+|------------|-------------|
+| `vertical-mobile` | `(orientation: portrait) and (max-width: 767px)` |
+| `vertical-tablet` | `(orientation: portrait) and (min-width: 768px)` |
+| `horizontal-mobile` | `(orientation: landscape) and (max-width: 1279px)` |
+| `horizontal-desktop` | `(orientation: landscape) and (min-width: 1280px)` |
+
+Se aplican vía clases NativeWind:
 
 ```tsx
 <View className="py-2 vertical-tablet:py-6" />
 <View className="hidden horizontal-mobile:flex horizontal-desktop:flex" />
 ```
+
+#### 5.3.2. Resoluciones canónicas de validación visual (Playwright)
+
+Los cuatro puntos exactos contra los que se diseña la maqueta y se valida
+con Playwright. Cada uno está dentro del rango de su breakpoint:
+
+| Breakpoint | Resolución canónica |
+|------------|---------------------|
+| `vertical-mobile` | 375 × 667 |
+| `vertical-tablet` | 768 × 1024 |
+| `horizontal-mobile` | 667 × 375 |
+| `horizontal-desktop` | 1280 × 550 |
+
+La maqueta se piensa en estos cuatro puntos. Los estilos cubren los rangos
+completos para que usuarios reales con resoluciones intermedias (p. ej.
+1366 × 768, 1440 × 900) también se vean bien.
+
+Lovable y producción comparten la misma definición de breakpoints CSS para
+que la maquetación visual de Lovable coincida con lo que renderiza
+producción y lo que valida Playwright.
 
 ---
 

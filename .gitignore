@@ -11,3 +11,6 @@ coverage
 .env
 .env.local
 .env.*.local
+
+# Local-only Claude Code settings (la versionada NO se committea)
+.claude/settings.local.json

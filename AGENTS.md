@@ -123,16 +123,36 @@ Obligatorio cumplir TODAS:
 
 ### Breakpoints del proyecto
 
-La maquetación se valida contra cuatro breakpoints oficiales, siempre con ancho
-y alto simultáneos:
+Hay que distinguir dos cosas:
+
+**1. Breakpoints CSS (rangos)** — definidos en `apps/km0lab/tailwind.config.js`
+como `screens`. Cubren rangos amplios de viewport y se aplican vía clases
+NativeWind:
+
+- `vertical-mobile` — `(orientation: portrait) and (max-width: 767px)`.
+- `vertical-tablet` — `(orientation: portrait) and (min-width: 768px)`.
+- `horizontal-mobile` — `(orientation: landscape) and (max-width: 1279px)`.
+- `horizontal-desktop` — `(orientation: landscape) and (min-width: 1280px)`.
+
+Toda combinación de orientación + ancho cae siempre en exactamente un
+breakpoint. Los umbrales (768 portrait y 1280 landscape) coinciden con los
+puntos canónicos de validación, así que los puntos canónicos quedan dentro
+del rango de su breakpoint.
+
+**2. Resoluciones canónicas de validación visual (Playwright)** — los cuatro
+puntos exactos contra los que se valida la maqueta:
 
 - `vertical-mobile` — 375 × 667.
 - `vertical-tablet` — 768 × 1024.
 - `horizontal-mobile` — 667 × 375.
 - `horizontal-desktop` — 1280 × 550.
 
-Playwright debe testear estas mismas cuatro resoluciones. Consulta
-`docs/CONVENTIONS.md` para la tabla completa.
+Playwright debe capturar exactamente estas cuatro resoluciones. La maqueta
+se diseña en estos cuatro puntos exactos, pero los estilos CSS cubren los
+rangos completos para que usuarios reales con resoluciones intermedias
+(p. ej. 1366 × 768) también se vean bien.
+
+Consulta `docs/CONVENTIONS.md` para la tabla completa.
 
 ---
 
@@ -208,7 +228,37 @@ ESLint aplica esta regla; no la sobreescribas.
 
 ## 8. Git y commits
 
-Formato obligatorio (**Conventional Commits**):
+### 8.1. Modelo de ramas (GitFlow ligero)
+
+El repo sigue un GitFlow ligero, sin release branches ni hotfix branches:
+
+- **`main`** → estado estable / desplegado en producción. **Solo recibe
+  merges desde `develop`** cuando se decide release. Nunca commits directos.
+- **`develop`** → rama de integración. Aquí se acumulan los cambios
+  revisados pero aún no liberados a producción.
+- **`feature/*` · `refactor/*` · `fix/*` · `docs/*` · `chore/*` · `perf/*`
+  · `test/*`** → ramas de trabajo cortas. **Salen siempre de `develop`** y
+  mergean a `develop` vía PR.
+
+Reglas:
+
+- Antes de empezar trabajo:
+  ```
+  git checkout develop && git pull && git checkout -b <tipo>/<descripcion-corta>
+  ```
+- Los PR siempre apuntan a `develop`, nunca a `main`.
+- Los nombres de rama van en `kebab-case` tras el `/`
+  (`refactor/flatten-language-selection`, `feature/postal-code-screen`).
+- Una rama = un propósito. Si en mitad del trabajo aparece otra cosa, se
+  abre rama nueva.
+- El merge de `develop` → `main` es **decisión humana explícita**; ningún
+  agente lo hace de forma automática.
+- `main` debería estar protegida en GitHub (Settings → Branches): sin push
+  directo, sin force-push, solo merges desde `develop`.
+
+### 8.2. Conventional Commits
+
+Formato obligatorio:
 
 ```
 <type>(<scope>)!: <subject>
@@ -216,7 +266,7 @@ Formato obligatorio (**Conventional Commits**):
 
 - **Tipos**: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert.
 - **scope** (opcional): en `kebab-case` (`ui`, `km0lab`, `app`, `web-theme`,
-  `eslint-config`…).
+  `eslint-config`, `repo`, `agents`…).
 - **subject**: imperativo, minúsculas, sin punto final, **máximo 50 caracteres**.
 - Rompedores: añadir `!` y `BREAKING CHANGE:` en el cuerpo.
 - Referencias a issues: `Refs #123` / `Closes #456` en footer.
@@ -226,4 +276,74 @@ Ejemplos válidos:
 - `feat(ui): añade componente avatar`
 - `fix(km0lab): corrige safe area en home`
 - `docs(agents): actualiza reglas de estilos`
-- `refac
+- `refactor(app): simplifica capa de fetch`
+
+### 8.3. Reglas extra
+
+- No edites `git config` global.
+- No uses `--amend` ni `--force` salvo petición explícita.
+- No hagas push a `main` bajo ninguna circunstancia.
+- No hagas push a `develop` bajo ninguna circunstancia: siempre vía PR
+  desde una rama de trabajo.
+
+## 9. Antes de cerrar una tarea
+
+Checklist obligatorio antes de pedir merge / terminar la tarea:
+
+- [ ] `npx turbo run type:check lint` sin errores.
+- [ ] `pnpm --filter km0lab build:web` en verde si tocaste UI o rutas.
+- [ ] Componentes nuevos exportados desde `packages/components/index.ts`.
+- [ ] Sin estilos inline ni clases arbitrarias.
+- [ ] Nombres de archivo y carpeta siguiendo esta guía.
+- [ ] Commit Conventional con subject ≤ 50 caracteres.
+- [ ] Nada de secretos en ficheros commiteados (`.env*.local` están ignorados).
+
+---
+
+## 10. Assets visuales (sincronización con Lovable)
+
+Los assets visuales (imágenes, iconos, banderas, ilustraciones) **viven
+como source of truth en el repo de Lovable** (`speak-spanish-easily`).
+En este repo se consumen sincronizados a `apps/km0lab/assets/` para que
+Expo pueda hacer `require()` estático en build.
+
+### 10.1. Cómo sincronizar
+
+```bash
+pnpm sync:assets
+```
+
+El script `scripts/sync-assets.mjs` lee `scripts/assets-manifest.json`,
+descarga cada asset desde el repo de Lovable y **sobrescribe** el
+destino local. Cualquier edición manual de los binarios en producción
+se perderá en la próxima ejecución.
+
+### 10.2. Cómo añadir un asset nuevo
+
+1. Subir el binario al repo de Lovable bajo `src/assets/`.
+2. Editar `scripts/assets-manifest.json` añadiendo una entrada `{from, to}`.
+3. Ejecutar `pnpm sync:assets`.
+4. Verificar el resultado en `apps/km0lab/assets/...` y commitear.
+
+### 10.3. Reglas duras
+
+- **PROHIBIDO** editar los binarios en `apps/km0lab/assets/` directamente:
+  modifícalos en Lovable y resincroniza.
+- **PROHIBIDO** committear configuración personal (paths absolutos del
+  sistema operativo, credenciales, comandos `curl` improvisados) en
+  ningún archivo del repo, incluido `.claude/settings.json`. Esa
+  configuración va en `.claude/settings.local.json` (gitignored).
+- **PROHIBIDO** usar `curl` u otros métodos ad-hoc para traer assets
+  desde Lovable: siempre vía `pnpm sync:assets`.
+
+---
+
+## 11. Qué NO hacer
+
+- No copiar componentes “en masa” desde otros repos sin entender sus dependencias.
+- No introducir una librería nueva sin justificación (peer weight, tamaño del
+  bundle, mantenimiento). Preferir lo que ya existe.
+- No mezclar sistemas de estilos (p. ej. StyleSheet.create + Tailwind).
+- No usar colores en hex o rgb en el markup; siempre tokens.
+- No romper la regla de solo dos entornos (`development`, `production`).
+- No crear documentación nueva en `.md` si no se pide.

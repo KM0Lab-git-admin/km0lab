@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "Bundler",
@@ -18,11 +20,25 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "@km0lab/app": ["packages/app/index.ts"],
-      "@km0lab/app/*": ["packages/app/*"],
-      "@km0lab/ui": ["packages/components/index.ts"],
-      "@km0lab/ui/*": ["packages/components/*"]
+      "@km0lab/app": [
+        "packages/app/index.ts"
+      ],
+      "@km0lab/app/*": [
+        "packages/app/*"
+      ],
+      "@km0lab/ui": [
+        "packages/components/index.ts"
+      ],
+      "@km0lab/ui/*": [
+        "packages/components/*"
+      ]
     }
   },
-  "exclude": ["node_modules", "build", "dist", ".expo", ".turbo"]
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    ".expo",
+    ".turbo"
+  ]
 }
