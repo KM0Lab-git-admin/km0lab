@@ -215,7 +215,7 @@ export default function OnboardingScreen() {
           >
             <View
               {...panResponder.panHandlers}
-              className="relative min-h-80 flex-1 justify-center overflow-visible pb-8 vertical-tablet:min-h-96 vertical-tablet:pb-12"
+              className="relative min-h-80 flex-1 justify-center overflow-visible pb-8 web:cursor-grab web:select-none web:touch-none web:active:cursor-grabbing vertical-tablet:min-h-96 vertical-tablet:pb-12"
             >
               <View
                 className="absolute top-1/2 flex-row items-start"
@@ -390,7 +390,7 @@ export default function OnboardingScreen() {
           >
             <View
               {...panResponder.panHandlers}
-              className="relative min-h-0 flex-1 overflow-visible px-6 pb-18 horizontal-mobile:px-4 horizontal-mobile:pb-16"
+              className="relative min-h-0 flex-1 overflow-visible px-6 pb-18 web:cursor-grab web:select-none web:touch-none web:active:cursor-grabbing horizontal-mobile:px-4 horizontal-mobile:pb-16"
             >
               <View
                 className="absolute top-1/2 flex-row items-center"
