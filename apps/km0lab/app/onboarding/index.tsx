@@ -184,7 +184,7 @@ export default function OnboardingScreen() {
       router.back()
       return
     }
-    router.replace('/')
+    router.replace('/language-selection')
   }
 
   return (
