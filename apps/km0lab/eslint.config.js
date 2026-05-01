@@ -1,3 +1,3 @@
-const km0labConfig = require('@km0lab/eslint-config')
+import km0labConfig from '@km0lab/eslint-config'
 
-module.exports = [...km0labConfig]
+export default [...km0labConfig]
