@@ -45,7 +45,7 @@
     "lucide-react-native": "^0.546.0",
     "nativewind": "^4.2.2",
     "react": "19.2.0",
-    "react-native": "0.83.2",
+    "react-native": "0.83.6",
     "react-native-reanimated": "4.2.1",
     "react-native-svg": "15.15.3",
     "typescript": "~5.9.3"
