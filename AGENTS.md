@@ -22,7 +22,7 @@ Consulta `docs/CONVENTIONS.md` para detalles y ejemplos largos.
   TypeScript ~5.9). Capacitor preparado para builds móviles
   (iOS/Android) cuando se necesiten — los shells nativos NO se
   generan hasta que se ejecute `pnpm cap:add:android` / `pnpm
-  cap:add:ios`.
+cap:add:ios`.
 - UI compartida: **`@km0lab/ui`** → `packages/components` (primitivos
   shadcn web puros).
 - Lógica compartida: **`@km0lab/app`** → `packages/app` (incluye
@@ -58,19 +58,19 @@ pnpm --filter km0lab cap:open:ios         # abre Xcode (mac)
 
 ## 2. Dónde va cada cosa
 
-| Tipo de archivo | Ubicación | Extensión |
-|---|---|---|
-| Pantalla / ruta de la app | `apps/km0lab/src/pages/<NombrePascal>.tsx` | `.tsx` |
-| Layout / wrapper de pantalla | `apps/km0lab/src/components/<Wrapper>.tsx` (p. ej. BrandedFrame) | `.tsx` |
-| Componente específico de una pantalla | `apps/km0lab/src/components/<Componente>.tsx` | `.tsx` |
-| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/src/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx` |
-| Componente compartido (UI) | `packages/components/ui/<nombre-kebab>.tsx` | `.tsx` |
-| Utilidad compartida | `packages/app/utils/<nombre>.ts` | `.ts` |
-| Hook compartido | `packages/app/hooks/use<Nombre>.ts` | `.ts` |
-| Icono compartido | `packages/components/icons/<nombre>.tsx` | `.tsx` |
-| Estilos CSS globales | `apps/km0lab/src/styles/global.css` | `.css` |
-| Tokens de tema | `apps/km0lab/tailwind.config.js` (`theme.extend`) | `.js` |
-| Variables de entorno | `apps/km0lab/env/.env.development` / `.env.production` | — |
+| Tipo de archivo                                                   | Ubicación                                                           | Extensión |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------- | --------- |
+| Pantalla / ruta de la app                                         | `apps/km0lab/src/pages/<NombrePascal>.tsx`                          | `.tsx`    |
+| Layout / wrapper de pantalla                                      | `apps/km0lab/src/components/<Wrapper>.tsx` (p. ej. BrandedFrame)    | `.tsx`    |
+| Componente específico de una pantalla                             | `apps/km0lab/src/components/<Componente>.tsx`                       | `.tsx`    |
+| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/src/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx`    |
+| Componente compartido (UI)                                        | `packages/components/ui/<nombre-kebab>.tsx`                         | `.tsx`    |
+| Utilidad compartida                                               | `packages/app/utils/<nombre>.ts`                                    | `.ts`     |
+| Hook compartido                                                   | `packages/app/hooks/use<Nombre>.ts`                                 | `.ts`     |
+| Icono compartido                                                  | `packages/components/icons/<nombre>.tsx`                            | `.tsx`    |
+| Estilos CSS globales                                              | `apps/km0lab/src/styles/global.css`                                 | `.css`    |
+| Tokens de tema                                                    | `apps/km0lab/tailwind.config.js` (`theme.extend`)                   | `.js`     |
+| Variables de entorno                                              | `apps/km0lab/env/.env.development` / `.env.production`              | —         |
 
 Cada componente nuevo en `@km0lab/ui` **debe** exportarse en
 `packages/components/index.ts`.
@@ -84,18 +84,25 @@ tiene varios componentes auxiliares propios.
 
 Mapping fijo entre Lovable y producción:
 
-| Lovable (`src/`) | Producción |
-|---|---|
-| `components/<Componente>.tsx` | `apps/km0lab/src/components/<Componente>.tsx` |
-| `components/ui/<nombre>.tsx` | `packages/components/ui/<nombre>.tsx` |
-| `pages/<Pantalla>.tsx` | `apps/km0lab/src/pages/<Pantalla>.tsx` |
-| `hooks/use-<x>.tsx` | `packages/app/hooks/use-<x>.ts` |
-| `services/<x>.ts` | `packages/app/services/<x>.ts` |
-| `data/<x>.ts` | `packages/app/data/<x>.ts` |
-| `lib/utils.ts` | ya existe en `packages/components/lib/utils.tsx` |
+| Lovable (`src/`)              | Producción                                       |
+| ----------------------------- | ------------------------------------------------ |
+| `components/<Componente>.tsx` | `apps/km0lab/src/components/<Componente>.tsx`    |
+| `components/ui/<nombre>.tsx`  | `packages/components/ui/<nombre>.tsx`            |
+| `pages/<Pantalla>.tsx`        | `apps/km0lab/src/pages/<Pantalla>.tsx`           |
+| `hooks/use-<x>.tsx`           | `packages/app/hooks/use-<x>.ts`                  |
+| `services/<x>.ts`             | `packages/app/services/<x>.ts`                   |
+| `data/<x>.ts`                 | `packages/app/data/<x>.ts`                       |
+| `lib/utils.ts`                | ya existe en `packages/components/lib/utils.tsx` |
 
 La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 `/index.tsx` en producción. La conversión nunca se discute caso a caso.
+
+Este mapping lo automatiza `pnpm sync:lovable`
+(`scripts/sync-lovable.mjs` + `scripts/lovable-manifest.json`): deriva el
+destino, reescribe imports y verifica deps y breakpoints. Las reglas que
+Lovable debe cumplir para que el sync funcione están en
+`docs/LOVABLE-KNOWLEDGE.md` (se pegan en la Knowledge del proyecto de
+Lovable). Ver receta completa en `docs/PORTING-FROM-LOVABLE.md` §12.
 
 ---
 

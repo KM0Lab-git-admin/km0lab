@@ -8,22 +8,22 @@ Esta guía es **operativa**: pasos concretos, comandos exactos, anti-patrones ap
 
 ## 1. Contexto: por qué hay dos repos
 
-| Repo | Rol | Stack |
-|---|---|---|
-| **Lovable** — `KM0Lab-git-admin/speak-spanish-easily` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6 |
-| **Producción** — `KM0Lab-git-admin/km0lab` | App final, deploy a web (Vercel) y móvil (Capacitor) | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor (preparado, sin shells) |
+| Repo                                                  | Rol                                                           | Stack                                                                                                        |
+| ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Lovable** — `KM0Lab-git-admin/speak-spanish-easily` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                     |
+| **Producción** — `KM0Lab-git-admin/km0lab`            | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor (preparado, sin shells) |
 
 Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan **casi 1:1** al monorepo. Los componentes en `packages/components` (`@km0lab/ui`) se mantienen en sintonía con `src/components/ui/` de Lovable (estilo shadcn).
 
 **Source of truth por tipo de archivo:**
 
-| Tipo | Source of truth |
-|---|---|
-| Pantallas, componentes UI específicos, layout | Lovable. Producción es consumidor. |
-| Tokens del design system (`tokens.ts`, `aiContext.ts`) | Lovable. En producción viven en `packages/app/design-system/`. |
-| Assets visuales (PNG, SVG, fonts) | Lovable. Producción los sincroniza con `pnpm sync:assets` (ver §6). |
-| `tailwind.config.{ts,js}` | Espejo. Tienen que coincidir en variantes y tokens (ver §7.1). |
-| Lógica de negocio (hooks, services, integraciones API) | Producción. Lovable solo maqueta. |
+| Tipo                                                   | Source of truth                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------- |
+| Pantallas, componentes UI específicos, layout          | Lovable. Producción es consumidor.                                  |
+| Tokens del design system (`tokens.ts`, `aiContext.ts`) | Lovable. En producción viven en `packages/app/design-system/`.      |
+| Assets visuales (PNG, SVG, fonts)                      | Lovable. Producción los sincroniza con `pnpm sync:assets` (ver §6). |
+| `tailwind.config.{ts,js}`                              | Espejo. Tienen que coincidir en variantes y tokens (ver §7.1).      |
+| Lógica de negocio (hooks, services, integraciones API) | Producción. Lovable solo maqueta.                                   |
 
 ---
 
@@ -88,18 +88,18 @@ Coordina con el humano. La lista típica:
 
 Aplica este mapping sin pensarlo. Si dudas, mira la versión actual del Onboarding o Language como referencia.
 
-| Lovable (`src/`) | Producción |
-|---|---|
-| `pages/<Pantalla>.tsx` | `apps/km0lab/src/pages/<Pantalla>.tsx` (mismo nombre, PascalCase) |
-| `components/<Componente>.tsx` | `apps/km0lab/src/components/<Componente>.tsx` (mismo nombre) |
-| `components/ui/<nombre>.tsx` | `packages/components/ui/<nombre>.tsx` (mismo nombre kebab) |
-| `hooks/use-<x>.tsx` | `packages/app/hooks/use-<x>.ts` o `.tsx` (según contenido) |
-| `data/<x>.ts` | `apps/km0lab/src/data/<x>.ts` (si solo lo usa una pantalla) o `packages/app/data/<x>.ts` (si compartido) |
-| `services/<x>.ts` | `packages/app/services/<x>.ts` |
-| `lib/utils.ts` | ya existe en `apps/km0lab/src/lib/utils.ts` Y en `packages/components/lib/utils.ts` (ojo: dos copias por contexto) |
-| `assets/<archivo>.png` o `.svg` | `apps/km0lab/src/assets/images/<archivo>` (renombrado a kebab-case si tiene underscore) |
-| `assets/fonts/<archivo>.ttf` | `apps/km0lab/src/assets/fonts/<archivo>` (sin sufijos numéricos) |
-| `index.css` (variables CSS, fuentes) | `apps/km0lab/src/styles/global.css` |
+| Lovable (`src/`)                     | Producción                                                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `pages/<Pantalla>.tsx`               | `apps/km0lab/src/pages/<Pantalla>.tsx` (mismo nombre, PascalCase)                                                  |
+| `components/<Componente>.tsx`        | `apps/km0lab/src/components/<Componente>.tsx` (mismo nombre)                                                       |
+| `components/ui/<nombre>.tsx`         | `packages/components/ui/<nombre>.tsx` (mismo nombre kebab)                                                         |
+| `hooks/use-<x>.tsx`                  | `packages/app/hooks/use-<x>.ts` o `.tsx` (según contenido)                                                         |
+| `data/<x>.ts`                        | `apps/km0lab/src/data/<x>.ts` (si solo lo usa una pantalla) o `packages/app/data/<x>.ts` (si compartido)           |
+| `services/<x>.ts`                    | `packages/app/services/<x>.ts`                                                                                     |
+| `lib/utils.ts`                       | ya existe en `apps/km0lab/src/lib/utils.ts` Y en `packages/components/lib/utils.ts` (ojo: dos copias por contexto) |
+| `assets/<archivo>.png` o `.svg`      | `apps/km0lab/src/assets/images/<archivo>` (renombrado a kebab-case si tiene underscore)                            |
+| `assets/fonts/<archivo>.ttf`         | `apps/km0lab/src/assets/fonts/<archivo>` (sin sufijos numéricos)                                                   |
+| `index.css` (variables CSS, fuentes) | `apps/km0lab/src/styles/global.css`                                                                                |
 
 **Decisiones obligatorias al portar archivos:**
 
@@ -125,6 +125,7 @@ grep "^import" lovable/src/pages/X.tsx
 Para cada breakpoint que aparezca: verifica que está definido en `apps/km0lab/tailwind.config.js`. Si falta alguno, añádelo (ver §7.1).
 
 Para cada import:
+
 - Si es de `react`, `react-router-dom`, `framer-motion`, `lucide-react`, `clsx`: ya están en producción.
 - Si es de `@/components/...`, `@/lib/utils`, `@/data/...`, `@/assets/...`: verifica que el componente/dato/asset destino existe en producción. Si no, pórtalos primero (recursivamente).
 - Si es de un primitivo shadcn (`@/components/ui/X`): verifica que existe en `packages/components/ui/X.tsx`. Si no, pórtalo (ver §5).
@@ -173,6 +174,7 @@ pnpm dev                              # arranca http://localhost:5173
 Visita `http://localhost:5173/<x-kebab>` en navegador (NO en modo responsive de DevTools — ver §7.5).
 
 Verifica las **4 resoluciones canónicas** redimensionando la ventana real:
+
 - 375 × 667 (vertical-mobile)
 - 768 × 1024 (vertical-tablet)
 - 667 × 375 (horizontal-mobile)
@@ -277,6 +279,7 @@ Las fuentes Antique Olive ya están en producción. Si Lovable añade una fuente
 2. Añade el `@font-face` correspondiente en `apps/km0lab/src/styles/global.css`.
 
 Patrón:
+
 ```css
 @font-face {
   font-family: 'Antique Olive';
@@ -324,9 +327,9 @@ Sin Inter, todos los textos `font-body` y `font-ui` caen en fallback del sistema
 
 ### 7.3. Paths de fuentes Antique Olive son distintos en cada repo
 
-| Repo | Path |
-|---|---|
-| Lovable | `public/Antique-Olive-Std-<X>_<NNNN>.ttf` (servidos desde root público) |
+| Repo       | Path                                                                                |
+| ---------- | ----------------------------------------------------------------------------------- |
+| Lovable    | `public/Antique-Olive-Std-<X>_<NNNN>.ttf` (servidos desde root público)             |
 | Producción | `apps/km0lab/src/assets/fonts/Antique-Olive-Std-<X>.ttf` (servidos vía Vite import) |
 
 Cuando portas el `@font-face` de Lovable a producción, **cambia el `url()` a path relativo** (`../assets/fonts/...`) y **renombra el archivo** quitando el sufijo numérico (`Antique-Olive-Std-Black_3861.ttf` → `Antique-Olive-Std-Black.ttf`). Si dejas los nombres de Lovable o el path absoluto, las fuentes no cargan en producción.
@@ -345,10 +348,10 @@ Para QA visual usa **ventana real del navegador** redimensionada manualmente:
 
 ```js
 // en la consola del navegador:
-window.resizeTo(667, 375)   // horizontal-mobile
-window.resizeTo(375, 667)   // vertical-mobile
-window.resizeTo(768, 1024)  // vertical-tablet
-window.resizeTo(1280, 550)  // horizontal-desktop
+window.resizeTo(667, 375) // horizontal-mobile
+window.resizeTo(375, 667) // vertical-mobile
+window.resizeTo(768, 1024) // vertical-tablet
+window.resizeTo(1280, 550) // horizontal-desktop
 ```
 
 Si la pantalla se ve bien en ventana real pero mal en modo responsive, **es un falso positivo**. No corrijas el código basándote solo en el modo responsive.
@@ -358,6 +361,7 @@ Si la pantalla se ve bien en ventana real pero mal en modo responsive, **es un f
 Lovable es un editor visual con commits frecuentes. Entre tu sesión anterior y la actual, Lovable puede haber cambiado pantallas, componentes, tokens. **Siempre haz `git pull` en el repo de Lovable antes de portar** para tener la última versión.
 
 Verificación rápida:
+
 ```bash
 cd lovable && git fetch origin main
 git log HEAD..origin/main --oneline | head -10
@@ -407,10 +411,12 @@ En `localhost:5173/onboarding` a 667×375 (horizontal-mobile):
 ### Diagnóstico paso a paso
 
 **1. ¿El código es idéntico?**
+
 ```bash
 diff lovable/src/pages/Onboarding.tsx produccion/apps/km0lab/src/pages/Onboarding.tsx
 diff lovable/src/components/BrandedFrame.tsx produccion/apps/km0lab/src/components/BrandedFrame.tsx
 ```
+
 Resultado: cero diferencias. El código copiado era idéntico.
 
 **2. ¿Es problema de fuentes?**
@@ -468,3 +474,93 @@ Esta guía cubre el porte tal como funciona hoy. **Quedará desactualizada si**:
 - Se decide refactorizar Lovable para eliminar los aliases viejos (cambiaría §7.1).
 
 Cuando ocurra alguno de esos cambios, **actualiza este documento en el mismo PR** que introduzca el cambio. Documentación viva.
+
+---
+
+## 12. Sincronización automatizada: `pnpm sync:lovable`
+
+El porte manual de §4–§5 está automatizado en `scripts/sync-lovable.mjs`.
+El script aplica el mapping de §3, reescribe imports y ejecuta en
+automático los pre-checks de §2.4 (deps) y §4.1/§7.1 (breakpoints).
+
+### 12.1. Uso
+
+1. Declara los archivos a portar en `scripts/lovable-manifest.json`:
+
+```json
+{
+  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
+  "files": [
+    { "from": "src/pages/Rewards.tsx" },
+    { "from": "src/components/RewardCard.tsx" },
+    { "from": "src/components/ui/dialog.tsx" },
+    { "from": "src/services/rewardsService.ts" },
+    { "from": "src/data/rewards.ts", "to": "packages/app/data/rewards.ts" },
+    { "from": "src/locales/rewards.json" }
+  ]
+}
+```
+
+El destino se deriva solo; `"to"` explícito únicamente para excepciones
+(p. ej. data compartido que deba vivir en `packages/app/data` en lugar de
+`apps/km0lab/src/data`).
+
+2. Ejecuta primero en seco y revisa el informe:
+
+```bash
+pnpm sync:lovable -- --dry-run
+```
+
+3. Ejecuta en real, revisa el diff con git y completa los pasos manuales
+   que lista el script (ruta en `App.tsx`, `pnpm sync:assets` si hay
+   binarios, `pnpm lint:fix`, `pnpm validate`, QA visual en las 4
+   resoluciones):
+
+```bash
+pnpm sync:lovable
+```
+
+Con un checkout local del repo de Lovable (más rápido y sin depender de
+raw.githubusercontent): `pnpm sync:lovable -- --source ../lovable`.
+
+### 12.2. Qué hace y qué no hace
+
+**Hace automáticamente:**
+
+- Deriva destino según el mapping de §3 y sobrescribe (git = red de
+  seguridad; §7.7 queda cubierto porque el archivo se reemplaza entero).
+- Reescribe imports según la zona de destino: `@/components/ui/x` →
+  `@km0lab/ui`, `@/hooks|services/...` → `@km0lab/app` (en la app);
+  `@/lib/utils` → `../lib/utils` y `@/components/ui/x` → `./x` (en
+  primitivos ui); `@/hooks|services|data/...` → relativos (en
+  packages/app).
+- Añade los exports que falten a los barrels (`packages/components/index.ts`,
+  `packages/app/hooks/index.ts`, `packages/app/services/index.ts`).
+- Verifica que cada dependencia npm importada existe en el `package.json`
+  del destino; si falta, error con el comando `pnpm --filter ... add`.
+- Verifica que cada variante responsive usada (`sm:`, `wide-landscape:`,
+  `vertical-mobile:`, …) está definida en `apps/km0lab/tailwind.config.js`
+  (anti-patrón §7.1); si falta, error.
+- Detecta pantallas nuevas y recuerda el snippet de ruta para `App.tsx`.
+
+**No hace (queda para el humano/agente):**
+
+- Assets binarios (→ `pnpm sync:assets`, §6) y fuentes (§6.3).
+- Añadir la ruta en `App.tsx` y decidir data compartido vs. de pantalla.
+- Instalar dependencias que el informe marque como faltantes.
+- Validación (`pnpm validate`) y QA visual (§4.4, §8).
+- Cambios en `index.css`/tokens: siempre revisión manual.
+
+Si el script termina con errores (exit 1), los archivos SÍ se escriben
+para que puedas inspeccionarlos, pero **no commitees** hasta resolver
+cada `✗` del informe.
+
+### 12.3. Contrato con Lovable
+
+El sync solo es fiable si Lovable genera código dentro del contrato
+definido en `docs/LOVABLE-KNOWLEDGE.md` (estructura de carpetas, alias
+`@/`, imports de primitivos archivo a archivo, lista de deps aprobadas,
+copy en `locales/`). Ese documento se pega en `Settings → Knowledge` del
+proyecto de Lovable junto con el prompt pack de
+`packages/app/design-system/aiContext.ts`, y se actualiza en el mismo PR
+que cambie las reglas.

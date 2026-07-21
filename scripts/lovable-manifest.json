@@ -1,0 +1,5 @@
+{
+  "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; usa \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data).",
+  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
+  "files": []
+}

@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:assets": "node scripts/sync-assets.mjs",
+    "sync:lovable": "node scripts/sync-lovable.mjs",
     "validate": "turbo run type:check lint && pnpm format:check",
     "prepare": "lefthook install"
   },
