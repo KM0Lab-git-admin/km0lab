@@ -66,7 +66,11 @@ Reglas críticas (resumen; ante conflicto manda docs/KNOWLEDGE.md):
    src/integrations/, supabase/, src/design-system/, PreviewAll,
    DesignSystem, Components, DeviceShell, SimulatedDevice.
 10. Antes de dar una pantalla por terminada, pasa el checklist de
-    docs/KNOWLEDGE.md §9.
+    docs/KNOWLEDGE.md §10.
+11. Prompts no técnicos (PO/diseño): identifica tú el componente,
+    reformula el cambio en una frase no técnica y espera confirmación
+    antes de tocar código; solo el elemento señalado; ante decisiones
+    técnicas no actúes y deriva al desarrollador (docs/KNOWLEDGE.md §9).
 ```
 
 ---
@@ -260,7 +264,26 @@ datos reales (hoy: events-query, `eventquery.km0lab.com`). Reglas:
   copy dentro de `components/ui/`. Los datos bilingües de API se adaptan
   en el service (patrón `Record<Lang, string>`, ver `newsApi.ts`).
 
-## 9. Checklist antes de dar una pantalla por terminada
+## 9. Modo no técnico (Product Owner / diseño)
+
+Cuando un prompt describa un cambio en lenguaje no técnico (sin rutas de
+archivo ni clases CSS), actúa así:
+
+1. Identifica tú el componente y archivo afectados, y dilo.
+2. Antes de tocar código, reformula el cambio en UNA frase no técnica
+   (p. ej. "Voy a centrar las flechas del carrusel respecto a la
+   tarjeta, sin tocar el modo horizontal") y espera confirmación.
+3. Toca exclusivamente el elemento señalado.
+4. Aplica todas las reglas de este documento sin que te las pidan.
+5. Si el cambio exige una decisión técnica (dependencia nueva, tocar un
+   intocable, cambio estructural, conectar datos), NO lo hagas: explica
+   en lenguaje llano qué hace falta y sugiere pasarlo al desarrollador.
+
+Las capturas de pantalla con el elemento marcado valen como referencia
+de "dónde". El modo Visual Edit es la vía preferente para cambios
+visuales puntuales de quien no programa.
+
+## 10. Checklist antes de dar una pantalla por terminada
 
 - [ ] Se ve correcta en las 4 resoluciones canónicas.
 - [ ] Implementa los 4 estados (loading / empty / error / feliz).
