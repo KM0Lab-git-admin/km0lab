@@ -88,18 +88,23 @@ Coordina con el humano. La lista típica:
 
 Aplica este mapping sin pensarlo. Si dudas, mira la versión actual del Onboarding o Language como referencia.
 
-| Lovable (`src/`)                     | Producción                                                                                                         |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `pages/<Pantalla>.tsx`               | `apps/km0lab/src/pages/<Pantalla>.tsx` (mismo nombre, PascalCase)                                                  |
-| `components/<Componente>.tsx`        | `apps/km0lab/src/components/<Componente>.tsx` (mismo nombre)                                                       |
-| `components/ui/<nombre>.tsx`         | `packages/components/ui/<nombre>.tsx` (mismo nombre kebab)                                                         |
-| `hooks/use-<x>.tsx`                  | `packages/app/hooks/use-<x>.ts` o `.tsx` (según contenido)                                                         |
-| `data/<x>.ts`                        | `apps/km0lab/src/data/<x>.ts` (si solo lo usa una pantalla) o `packages/app/data/<x>.ts` (si compartido)           |
-| `services/<x>.ts`                    | `packages/app/services/<x>.ts`                                                                                     |
-| `lib/utils.ts`                       | ya existe en `apps/km0lab/src/lib/utils.ts` Y en `packages/components/lib/utils.ts` (ojo: dos copias por contexto) |
-| `assets/<archivo>.png` o `.svg`      | `apps/km0lab/src/assets/images/<archivo>` (renombrado a kebab-case si tiene underscore)                            |
-| `assets/fonts/<archivo>.ttf`         | `apps/km0lab/src/assets/fonts/<archivo>` (sin sufijos numéricos)                                                   |
-| `index.css` (variables CSS, fuentes) | `apps/km0lab/src/styles/global.css`                                                                                |
+| Lovable (`src/`)                       | Producción                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `pages/<Pantalla>.tsx`                 | `apps/km0lab/src/pages/<Pantalla>.tsx` (mismo nombre, PascalCase)                                                  |
+| `components/<Componente>.tsx`          | `apps/km0lab/src/components/<Componente>.tsx` (mismo nombre)                                                       |
+| `components/ui/<nombre>.tsx`           | `packages/components/ui/<nombre>.tsx` (mismo nombre kebab)                                                         |
+| `hooks/use-<x>.tsx`                    | `packages/app/hooks/use-<x>.ts` o `.tsx` (según contenido)                                                         |
+| `data/<x>.ts`                          | `apps/km0lab/src/data/<x>.ts` (si solo lo usa una pantalla) o `packages/app/data/<x>.ts` (si compartido)           |
+| `services/<x>.ts`                      | `packages/app/services/<x>.ts`                                                                                     |
+| `stores/<x>.ts`                        | `packages/app/stores/<x>.ts` (Zustand)                                                                             |
+| `machines/<x>.ts`                      | `packages/app/machines/<x>.ts` (XState)                                                                            |
+| `types/<x>.ts`                         | `packages/app/types/<x>.ts`                                                                                        |
+| `contexts/<X>.tsx`                     | `apps/km0lab/src/contexts/<X>.tsx`                                                                                 |
+| `lib/i18n.ts` (y otros `lib/` ≠ utils) | `packages/app/utils/<x>.ts`                                                                                        |
+| `lib/utils.ts`                         | ya existe en `apps/km0lab/src/lib/utils.ts` Y en `packages/components/lib/utils.ts` (ojo: dos copias por contexto) |
+| `assets/<archivo>.png` o `.svg`        | `apps/km0lab/src/assets/images/<archivo>` (renombrado a kebab-case si tiene underscore)                            |
+| `assets/fonts/<archivo>.ttf`           | `apps/km0lab/src/assets/fonts/<archivo>` (sin sufijos numéricos)                                                   |
+| `index.css` (variables CSS, fuentes)   | `apps/km0lab/src/styles/global.css`                                                                                |
 
 **Decisiones obligatorias al portar archivos:**
 
@@ -529,6 +534,14 @@ raw.githubusercontent): `pnpm sync:lovable -- --source ../lovable`.
 
 - Deriva destino según el mapping de §3 y sobrescribe (git = red de
   seguridad; §7.7 queda cubierto porque el archivo se reemplaza entero).
+- Rechaza piezas solo-Lovable (`src/integrations/`, `supabase/`,
+  `src/design-system/`, páginas y componentes del harness de preview) —
+  frontera definida en `docs/LOVABLE-KNOWLEDGE.md` §0.
+- Respeta los candados: los destinos listados en `"locked"` del manifest
+  (archivos cuya implementación real ya es propiedad de producción) no
+  se sobrescriben jamás; el intento produce error. Un path acabado en
+  `/` bloquea el directorio entero. Al conectar un service real, añade
+  su path a `locked` en el mismo PR.
 - Reescribe imports según la zona de destino: `@/components/ui/x` →
   `@km0lab/ui`, `@/hooks|services/...` → `@km0lab/app` (en la app);
   `@/lib/utils` → `../lib/utils` y `@/components/ui/x` → `./x` (en

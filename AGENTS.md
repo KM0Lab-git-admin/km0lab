@@ -92,7 +92,19 @@ Mapping fijo entre Lovable y producción:
 | `hooks/use-<x>.tsx`           | `packages/app/hooks/use-<x>.ts`                  |
 | `services/<x>.ts`             | `packages/app/services/<x>.ts`                   |
 | `data/<x>.ts`                 | `packages/app/data/<x>.ts`                       |
+| `stores/<x>.ts`               | `packages/app/stores/<x>.ts`                     |
+| `machines/<x>.ts`             | `packages/app/machines/<x>.ts`                   |
+| `types/<x>.ts`                | `packages/app/types/<x>.ts`                      |
+| `contexts/<X>.tsx`            | `apps/km0lab/src/contexts/<X>.tsx`               |
+| `lib/i18n.ts` (y otros lib/)  | `packages/app/utils/<x>.ts`                      |
 | `lib/utils.ts`                | ya existe en `packages/components/lib/utils.tsx` |
+
+No se sincronizan nunca (piezas solo-Lovable): `src/integrations/`,
+`supabase/`, `src/design-system/`, las páginas de preview (`PreviewAll`,
+`DesignSystem`, `Components`) y los componentes `DeviceShell` y
+`SimulatedDevice`. Los destinos listados en `"locked"` del manifest son
+propiedad de producción (implementación real) y el sync se niega a
+sobrescribirlos.
 
 La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 `/index.tsx` en producción. La conversión nunca se discute caso a caso.

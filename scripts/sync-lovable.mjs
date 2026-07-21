@@ -51,6 +51,19 @@ const ZONES = {
   },
 }
 
+/* Piezas solo-Lovable: harness de preview, integraciones del entorno
+ * Lovable y espejos que ya existen en producción. Excluidas del sync por
+ * contrato (docs/LOVABLE-KNOWLEDGE.md, frontera Lovable ↔ producción). */
+const NEVER_SYNC = [
+  /^src\/integrations\//,
+  /^src\/lib\/utils\.ts$/,
+  /^src\/design-system\//,
+  /^src\/pages\/(PreviewAll|DesignSystem|Components)\.tsx$/,
+  /^src\/components\/(DeviceShell|SimulatedDevice)\.tsx$/,
+  /^src\/test\//,
+  /^supabase\//,
+]
+
 const MAPPING = [
   {
     re: /^src\/components\/ui\/(.+)$/,
@@ -88,6 +101,35 @@ const MAPPING = [
     re: /^src\/locales\/(.+)$/,
     to: (m) => `apps/km0lab/src/locales/${m[1]}`,
     zone: 'app',
+  },
+  {
+    re: /^src\/stores\/(.+)$/,
+    to: (m) => `packages/app/stores/${m[1]}`,
+    zone: 'pkgApp',
+    barrelDir: 'packages/app/stores',
+  },
+  {
+    re: /^src\/machines\/(.+)$/,
+    to: (m) => `packages/app/machines/${m[1]}`,
+    zone: 'pkgApp',
+    barrelDir: 'packages/app/machines',
+  },
+  {
+    re: /^src\/types\/(.+)$/,
+    to: (m) => `packages/app/types/${m[1]}`,
+    zone: 'pkgApp',
+    barrelDir: 'packages/app/types',
+  },
+  {
+    re: /^src\/contexts\/(.+)$/,
+    to: (m) => `apps/km0lab/src/contexts/${m[1]}`,
+    zone: 'app',
+  },
+  {
+    re: /^src\/lib\/(.+)$/,
+    to: (m) => `packages/app/utils/${m[1]}`,
+    zone: 'pkgApp',
+    barrelDir: 'packages/app/utils',
   },
 ]
 
@@ -134,8 +176,11 @@ function rewriteSpecifier(spec, zone, report) {
 
   if (zone === 'app') {
     if (/^@\/components\/ui\//.test(spec)) return '@km0lab/ui'
-    if (/^@\/(hooks|services)\//.test(spec)) return '@km0lab/app'
-    return spec // @/components, @/assets, @/data, @/locales, @/lib/utils
+    if (/^@\/(hooks|services|stores|machines|types)\//.test(spec)) {
+      return '@km0lab/app'
+    }
+    if (spec !== '@/lib/utils' && /^@\/lib\//.test(spec)) return '@km0lab/app'
+    return spec // @/components, @/contexts, @/assets, @/data, @/lib/utils
   }
 
   if (zone === 'ui') {
@@ -149,8 +194,12 @@ function rewriteSpecifier(spec, zone, report) {
     return spec
   }
 
-  // zone === 'pkgApp' (hooks y services en packages/app)
-  const inner = spec.match(/^@\/(hooks|services|data)\/(.+)$/)
+  // zone === 'pkgApp' (hooks, services, stores, machines, types, utils)
+  const lib = spec.match(/^@\/lib\/(?!utils$)(.+)$/)
+  if (lib) return `../utils/${lib[1]}`
+  const inner = spec.match(
+    /^@\/(hooks|services|data|stores|machines|types)\/(.+)$/
+  )
   if (inner) {
     if (inner[1] === 'data') {
       report.warnings.push(
@@ -319,6 +368,10 @@ async function main() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
   const source = args.source ?? manifest.source
   const files = manifest.files ?? []
+  const locked = manifest.locked ?? []
+
+  const isLocked = (to) =>
+    locked.some((l) => to === l || to.startsWith(l.endsWith('/') ? l : `${l}/`))
 
   if (files.length === 0) {
     console.log(
@@ -339,7 +392,27 @@ async function main() {
   const newPages = []
 
   for (const entry of files) {
+    if (NEVER_SYNC.some((re) => re.test(entry.from))) {
+      console.log(`  · ${entry.from} ... EXCLUIDO`)
+      console.error(
+        '    pieza solo-Lovable (harness de preview, integración del ' +
+          'entorno o espejo ya existente): excluida del sync por contrato ' +
+          '(docs/LOVABLE-KNOWLEDGE.md)'
+      )
+      summary.fail += 1
+      continue
+    }
     const dest = mapDestination(entry)
+    if (dest && isLocked(dest.to)) {
+      console.log(`  · ${entry.from} ... BLOQUEADO`)
+      console.error(
+        `    destino ${dest.to} está en "locked" del manifest: producción ` +
+          'es propietaria de ese archivo (implementación real). Quitar el ' +
+          'candado es una decisión humana explícita.'
+      )
+      summary.fail += 1
+      continue
+    }
     if (!dest) {
       console.log(`  · ${entry.from} ... SIN MAPPING`)
       console.error(

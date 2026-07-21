@@ -1,5 +1,6 @@
 {
-  "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; usa \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data).",
+  "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas en files: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data). locked: destinos propiedad de producción (implementación real ya conectada); el sync se niega a sobrescribirlos — un path acabado en / bloquea el directorio entero.",
   "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
-  "files": []
+  "files": [],
+  "locked": []
 }
