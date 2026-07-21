@@ -1,24 +1,73 @@
 # Knowledge de Lovable — contrato de generación de código
 
-> **Qué es esto**: el texto que hay que pegar en el proyecto de Lovable
-> (`Settings → Knowledge`) para que TODO el código que genere sea
-> sincronizable automáticamente con el monorepo de producción `km0lab`
-> mediante `pnpm sync:lovable` (ver `docs/PORTING-FROM-LOVABLE.md` §12),
-> sin retoques manuales ni conflictos.
+> **Qué es esto**: las reglas que la IA de Lovable debe cumplir para que
+> TODO el código que genere sea sincronizable automáticamente con el
+> monorepo de producción `km0lab` mediante `pnpm sync:lovable` (ver
+> `docs/PORTING-FROM-LOVABLE.md` §12), sin retoques manuales ni
+> conflictos.
 >
-> **Cómo instalarlo**:
+> **Cómo se instala** (el campo Knowledge de Lovable admite máx. 10.000
+> caracteres, así que el contrato completo NO cabe pegado):
 >
-> 1. Copia todo el contenido a partir del separador `=== KNOWLEDGE ===`.
-> 2. Pégalo en `Settings → Knowledge` del proyecto de Lovable.
-> 3. Añade a continuación el prompt pack del design system: ejecuta
->    `generateAIContext()` de `packages/app/design-system/aiContext.ts`
->    y pega su salida debajo (tokens, paleta, tipografía, breakpoints).
-> 4. Cuando cambien estas reglas o los tokens, **actualiza la Knowledge
->    de Lovable en el mismo PR** que cambie este archivo.
+> 1. El contrato completo (todo lo que sigue a `=== KNOWLEDGE ===`) vive
+>    **dentro del repo de Lovable** como `docs/KNOWLEDGE.md`, donde su IA
+>    puede leerlo. Cuando cambie este archivo, replicar el cambio allí
+>    **en el mismo PR** (mismo cuerpo, con su cabecera propia).
+> 2. En `Settings → Knowledge` del proyecto de Lovable se pega SOLO el
+>    **bloque compacto** de la sección siguiente, que resume las reglas
+>    críticas y ordena leer `docs/KNOWLEDGE.md` y
+>    `src/design-system/tokens.ts` (el design system ya vive en el repo
+>    de Lovable; no hace falta pegar el prompt pack).
 >
 > **Recuerda** (lección de `PORTING-FROM-LOVABLE.md` §9): la Knowledge es
 > declarativa, no una garantía. El automatismo de sync verifica el código
 > real; si Lovable incumple una regla, el sync lo reporta como error.
+
+---
+
+## Bloque compacto para el campo Knowledge (≤10k caracteres)
+
+```
+Eres el entorno de prototipado de KM0 LAB. Tu código NO es desechable:
+se sincroniza automáticamente con el monorepo de producción. Las reglas
+completas y VINCULANTES están en docs/KNOWLEDGE.md de este repo: léelas
+antes de generar o modificar código y cúmplelas literalmente. El design
+system (tokens, breakpoints) está en src/design-system/tokens.ts.
+
+Reglas críticas (resumen; ante conflicto manda docs/KNOWLEDGE.md):
+1. Frontera: aquí vive lo que el usuario experimenta, con mocks o APIs
+   de solo lectura. Nada de secretos, escrituras a backends, auth real
+   ni BD. Ante la duda, deja la firma mock y avísame en el chat.
+2. Estructura fija de src/: pages/, components/ (+ ui/), hooks/,
+   services/, data/ (+ fixtures/), stores/, machines/, contexts/,
+   types/, lib/i18n.ts, assets/. No crees carpetas nuevas de primer
+   nivel.
+3. Estilos: SOLO tokens semánticos o paleta km0-*; prohibido hex/rgb y
+   estilos inline estáticos. Breakpoints: solo vertical-mobile:,
+   vertical-tablet:, horizontal-mobile:, horizontal-desktop:. Valida en
+   375x667, 768x1024, 667x375 y 1280x550.
+4. Componentes presentacionales, sin fetch: datos vía services tipados
+   (mock o API read-only validada con zod). Estado global en stores/
+   (Zustand), flujos complejos en machines/ (XState), datos remotos con
+   React Query. Toda pantalla implementa 4 estados:
+   loading/empty/error/feliz.
+5. Copy SOLO en lib/i18n.ts ({ ca, es, en }); nunca strings en JSX ni
+   copy en components/ui/.
+6. Imports siempre con @/; primitivos ui archivo a archivo
+   (@/components/ui/button), nunca barrels.
+7. INTOCABLES: lib/utils.ts, tailwind.config.ts, tokens existentes de
+   index.css, la API de los primitivos ui existentes, vite.config, y el
+   contrato de API verificado (services/apiClient.ts, apiSchemas.ts,
+   eventsApi.ts, newsApi.ts, data/fixtures/*): si falta un dato, pídelo
+   en el chat, no cambies los schemas.
+8. Dependencias: solo la lista aprobada de docs/KNOWLEDGE.md §8;
+   cualquier otra requiere aprobación humana en el chat.
+9. Piezas solo-Lovable, jamás importadas desde código de producto:
+   src/integrations/, supabase/, src/design-system/, PreviewAll,
+   DesignSystem, Components, DeviceShell, SimulatedDevice.
+10. Antes de dar una pantalla por terminada, pasa el checklist de
+    docs/KNOWLEDGE.md §9.
+```
 
 ---
 
