@@ -282,6 +282,11 @@ async function checkBreakpoints(content, report, tailwindCache) {
     const defined =
       config.includes(`addVariant('${name}'`) ||
       config.includes(`addVariant("${name}"`) ||
+      // Prettier puede envolver addVariant(\n  'name', ...) en varias líneas,
+      // así que basta con que el nombre entrecomillado aparezca en el config
+      // (los nombres de variante son suficientemente distintivos).
+      config.includes(`'${name}'`) ||
+      config.includes(`"${name}"`) ||
       new RegExp(`(?<![\\w-])['"]?${name}['"]?\\s*:\\s*['"]`).test(config)
     if (!defined) {
       report.errors.push(

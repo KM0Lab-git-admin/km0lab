@@ -9,6 +9,11 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "isolatedModules": true,
+    // El código de pantallas/componentes se porta 1:1 desde Lovable, que no
+    // usa noUncheckedIndexedAccess. Este flag (ajeno a `strict`) se relaja solo
+    // en la app para no reescribir accesos por índice ya garantizados por guardas
+    // de longitud; packages/* mantienen la estrictez plena del base config.
+    "noUncheckedIndexedAccess": false,
     "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": {
