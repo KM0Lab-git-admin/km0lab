@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "sync:assets": "node scripts/sync-assets.mjs",
     "sync:lovable": "node scripts/sync-lovable.mjs",
+    "design:doc": "node scripts/generate-design-doc.mjs",
     "validate": "turbo run type:check lint && pnpm format:check",
     "prepare": "lefthook install"
   },

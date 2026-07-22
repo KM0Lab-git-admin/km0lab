@@ -12,3 +12,8 @@
 
 export * from './tokens'
 export * from './aiContext'
+export * from './componentsCatalog'
+export * from './viewports'
+// tokens y componentsCatalog exportan sendos tipos `Breakpoint`
+// equivalentes; se fija el de tokens como canónico del barrel.
+export type { Breakpoint } from './tokens'
