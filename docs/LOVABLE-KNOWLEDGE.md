@@ -181,6 +181,12 @@ pantalla tenga varios componentes auxiliares propios.
   Onboarding, PostalCode) se mantienen. Los bloques anchos (carruseles)
   hacen scroll DENTRO de su contenedor; el cuerpo nunca desborda en
   horizontal.
+- **Desktop = teléfono centrado (app mobile-first).** KM0 LAB es una app
+  de móvil (Capacitor); desktop es superficie secundaria. En pantallas
+  anchas la app se presenta como un teléfono en vertical centrado sobre
+  el fondo (lo hace `DeviceShell`), NO como un layout de escritorio
+  propio. No construyas layouts desktop multicolumna salvo que se pida y
+  se justifique.
 - Animaciones con Framer Motion; iconos con lucide-react.
 
 ## 4. Qué puedes modificar y qué debes conservar
