@@ -1,58 +1,16 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { AlertTriangle, Loader2, MapPin, MapPinOff } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { lookupTown, t } from '@km0lab/app'
+import { motion, AnimatePresence } from 'framer-motion'
+import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import cityMap from '@/assets/images/km0-city-map.png'
+import cityMap from '@/assets/km0_city_map.png'
 import BrandedFrame from '@/components/BrandedFrame'
-
-type Lang = 'ca' | 'es' | 'en'
-
-const i18n = {
-  ca: {
-    title: 'INTRODUEIX EL TEU CODI POSTAL',
-    subtitle: 'Descobreix comerços i serveis al teu barri',
-    placeholder: '08001',
-    error: 'Només es permeten números',
-    notFound: 'No es reconeix aquest codi postal',
-    cta: 'CONTINUAR',
-  },
-  es: {
-    title: 'INTRODUCE TU CÓDIGO POSTAL',
-    subtitle: 'Descubre comercios y servicios en tu barrio',
-    placeholder: '08001',
-    error: 'Solo se permiten números',
-    notFound: 'No se reconoce este código postal',
-    cta: 'CONTINUAR',
-  },
-  en: {
-    title: 'ENTER YOUR POSTAL CODE',
-    subtitle: 'Discover shops and services in your neighborhood',
-    placeholder: '08001',
-    error: 'Only numbers are allowed',
-    notFound: 'This postal code is not recognized',
-    cta: 'CONTINUE',
-  },
-}
-
-const postalCodes: Record<string, string> = {
-  '08001': 'Barcelona',
-  '08380': 'Malgrat de Mar',
-  '08301': 'Mataró',
-  '08400': 'Granollers',
-  '08201': 'Sabadell',
-  '08221': 'Terrassa',
-  '08800': 'Vilanova i la Geltrú',
-  '08850': 'Gavà',
-  '08901': "L'Hospitalet de Llobregat",
-  '08940': 'Cornellà de Llobregat',
-}
+import { useLang } from '@/contexts/LangContext'
 
 const PostalCode = () => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const lang: Lang = (location.state?.lang as Lang) ?? 'es'
-  const t = i18n[lang]
+  const { lang } = useLang()
 
   const [value, setValue] = useState('')
   const [touched, setTouched] = useState(false)
@@ -60,26 +18,32 @@ const PostalCode = () => {
   const [validationResult, setValidationResult] = useState<
     'idle' | 'found' | 'not_found'
   >('idle')
+  const [resolvedTown, setResolvedTown] = useState<string | null>(null)
 
   const isNumeric = /^\d*$/.test(value)
   const isComplete = value.length === 5 && isNumeric
-  const cityName =
-    validationResult === 'found' ? (postalCodes[value] ?? null) : null
+  const cityName = validationResult === 'found' ? resolvedTown : null
   const showError = touched && !isNumeric
   const showNotFound = validationResult === 'not_found'
 
   useEffect(() => {
-    if (isComplete) {
-      setIsValidating(true)
-      setValidationResult('idle')
-      const timer = setTimeout(() => {
-        setIsValidating(false)
-        setValidationResult(postalCodes[value] ? 'found' : 'not_found')
-      }, 1200)
-      return () => clearTimeout(timer)
-    } else {
+    if (!isComplete) {
       setIsValidating(false)
       setValidationResult('idle')
+      setResolvedTown(null)
+      return
+    }
+    let cancelled = false
+    setIsValidating(true)
+    setValidationResult('idle')
+    lookupTown(value).then((town) => {
+      if (cancelled) return
+      setIsValidating(false)
+      setResolvedTown(town)
+      setValidationResult(town ? 'found' : 'not_found')
+    })
+    return () => {
+      cancelled = true
     }
   }, [value, isComplete])
 
@@ -90,14 +54,23 @@ const PostalCode = () => {
 
   const handleSubmit = () => {
     if (!isComplete || !cityName) return
-    navigate('/chat', { state: { lang, cityName, postalCode: value } })
+    // localStorage para que sobreviva recargas y se pueda leer desde Home/Login.
+    try {
+      localStorage.setItem('km0_postal_code', value)
+      localStorage.setItem('km0_town', cityName)
+    } catch {
+      /* localStorage puede fallar en modo privado */
+    }
+    navigate('/home')
   }
 
   return (
-    <BrandedFrame onBack={() => navigate(-1)} backAriaLabel="Back">
+    <BrandedFrame
+      onBack={() => navigate(-1)}
+      backAriaLabel={t('common.back', lang)}
+    >
       {/* ── PORTRAIT ─────────────────────────────────────── */}
-      <div className="w-full max-w-[390px] sm:max-w-[460px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 landscape:hidden flex-1 min-h-0 py-2">
-        {/* City illustration */}
+      <div className="w-full max-w-[390px] sm:max-w-[460px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 vertical-tablet:justify-between vertical-tablet:gap-0 landscape:hidden flex-1 min-h-0 py-2 vertical-tablet:py-5">
         <motion.div
           className="rounded-3xl overflow-hidden shadow-lg"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -111,7 +84,6 @@ const PostalCode = () => {
           />
         </motion.div>
 
-        {/* Title / City name */}
         <motion.div
           className="text-center px-2 min-h-[52px] flex items-center justify-center"
           initial={{ opacity: 0, y: 16 }}
@@ -139,16 +111,15 @@ const PostalCode = () => {
               transition={{ duration: 0.25 }}
             >
               <h1 className="font-brand font-bold text-2xl text-primary leading-tight mb-2 vertical-mobile:mb-3">
-                {t.title}
+                {t('postal.title', lang)}
               </h1>
               <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                {t.subtitle}
+                {t('postal.subtitle', lang)}
               </p>
             </motion.div>
           )}
         </motion.div>
 
-        {/* Input */}
         <motion.div
           className="flex flex-col gap-2 px-2"
           initial={{ opacity: 0, y: 16 }}
@@ -172,7 +143,7 @@ const PostalCode = () => {
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={5}
-              placeholder={t.placeholder}
+              placeholder={t('postal.placeholder', lang)}
               value={value}
               onChange={handleChange}
               className="flex-1 bg-transparent font-ui text-lg text-foreground placeholder:text-muted-foreground/50 outline-none"
@@ -181,7 +152,7 @@ const PostalCode = () => {
           {showError && (
             <div className="flex items-center gap-1.5 text-destructive font-ui text-sm px-1">
               <AlertTriangle size={14} />
-              <span>{t.error}</span>
+              <span>{t('postal.error_numeric', lang)}</span>
             </div>
           )}
           <AnimatePresence>
@@ -193,13 +164,12 @@ const PostalCode = () => {
                 className="flex items-center gap-1.5 text-destructive font-ui text-sm px-1"
               >
                 <AlertTriangle size={14} />
-                <span>{t.notFound}</span>
+                <span>{t('postal.error_notfound', lang)}</span>
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
 
-        {/* CTA */}
         <motion.div
           className="px-2"
           initial={{ opacity: 0, y: 16 }}
@@ -214,7 +184,7 @@ const PostalCode = () => {
             {isValidating ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              t.cta
+              t('common.continue', lang)
             )}
           </button>
         </motion.div>
@@ -222,7 +192,6 @@ const PostalCode = () => {
 
       {/* ── LANDSCAPE ────────────────────────────────────── */}
       <div className="hidden landscape:flex flex-1 min-h-0 w-full items-stretch gap-4 horizontal-desktop:gap-8">
-        {/* Left: city image */}
         <motion.div
           className="basis-[42%] shrink-0 min-w-0 rounded-2xl overflow-hidden shadow-lg flex items-center justify-center bg-km0-beige-100"
           initial={{ opacity: 0, x: -20 }}
@@ -236,7 +205,6 @@ const PostalCode = () => {
           />
         </motion.div>
 
-        {/* Right: title + input + CTA */}
         <motion.div
           className="flex-1 min-w-0 flex flex-col justify-center gap-3 horizontal-desktop:gap-5"
           initial={{ opacity: 0, x: 20 }}
@@ -263,16 +231,16 @@ const PostalCode = () => {
                 transition={{ duration: 0.25 }}
               >
                 <h1 className="font-brand font-bold text-base horizontal-desktop:text-2xl text-primary leading-tight mb-0.5 horizontal-desktop:mb-1">
-                  {t.title}
+                  {t('postal.title', lang)}
                 </h1>
                 <p className="font-body text-xs horizontal-desktop:text-sm text-muted-foreground leading-snug">
-                  {t.subtitle}
+                  {t('postal.subtitle', lang)}
                 </p>
               </motion.div>
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 border-dotted border border-slate-300">
             <div
               className={`flex items-center gap-2 horizontal-desktop:gap-3 rounded-2xl border px-3 horizontal-desktop:px-4 py-2.5 horizontal-desktop:py-3.5 shadow-sm transition-colors ${
                 showNotFound || showError
@@ -290,7 +258,7 @@ const PostalCode = () => {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={5}
-                placeholder={t.placeholder}
+                placeholder={t('postal.placeholder', lang)}
                 value={value}
                 onChange={handleChange}
                 className="flex-1 min-w-0 bg-transparent font-ui text-base horizontal-desktop:text-lg text-foreground placeholder:text-muted-foreground/50 outline-none"
@@ -299,7 +267,7 @@ const PostalCode = () => {
             {showError && (
               <div className="flex items-center gap-1.5 text-destructive font-ui text-xs px-1">
                 <AlertTriangle size={12} />
-                <span>{t.error}</span>
+                <span>{t('postal.error_numeric', lang)}</span>
               </div>
             )}
             <AnimatePresence>
@@ -311,7 +279,7 @@ const PostalCode = () => {
                   className="flex items-center gap-1.5 text-destructive font-ui text-xs px-1"
                 >
                   <AlertTriangle size={12} />
-                  <span>{t.notFound}</span>
+                  <span>{t('postal.error_notfound', lang)}</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -325,7 +293,7 @@ const PostalCode = () => {
             {isValidating ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              t.cta
+              t('common.continue', lang)
             )}
           </button>
         </motion.div>

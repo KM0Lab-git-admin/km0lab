@@ -1,16 +1,18 @@
+import { t, type Lang } from '@km0lab/app'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import flagCa from '@/assets/images/flags/flag-ca.svg'
-import flagEn from '@/assets/images/flags/flag-en.svg'
-import flagEs from '@/assets/images/flags/flag-es.svg'
-import robotPlaceholder from '@/assets/images/km0-robot.png'
+import flagCa from '@/assets/flags/flag-ca.svg'
+import flagEn from '@/assets/flags/flag-en.svg'
+import flagEs from '@/assets/flags/flag-es.svg'
+import robotPlaceholder from '@/assets/km0_robot_icon_v2.png'
 import BrandedFrame from '@/components/BrandedFrame'
 import FloatingDots from '@/components/FloatingDots'
 import LanguageCard from '@/components/LanguageCard'
+import { useLang } from '@/contexts/LangContext'
 
 const languages: {
-  id: string
+  id: Lang
   flag: string
   flagIsImage?: boolean
   name: string
@@ -37,17 +39,18 @@ const languages: {
     flagIsImage: true,
     name: 'English',
     description: 'Start in English',
-    disabled: true,
   },
 ]
 
 const Language = () => {
   const navigate = useNavigate()
+  const { lang, setLang } = useLang()
   const [selected, setSelected] = useState<string | null>(null)
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: Lang) => {
     setSelected(id)
-    setTimeout(() => navigate('/onboarding', { state: { lang: id } }), 300)
+    setLang(id)
+    setTimeout(() => navigate('/onboarding'), 300)
   }
 
   return (
@@ -70,13 +73,6 @@ const Language = () => {
           </div>
         </div>
 
-        <h2 className="text-center font-ui font-semibold text-base sm:text-xl text-km0-blue-700 shrink-0">
-          Escoge tu idioma
-        </h2>
-
-        {/* En vertical-mobile (375×667) reducimos altura de cards
-            (py-2 + flag más pequeña) para que las 3 quepan SIN scroll.
-            En sm+ recuperamos los tamaños originales. */}
         <div
           className="flex flex-col gap-2 sm:gap-4 shrink-0
             [&_button]:!py-2 [&_button]:!gap-3
@@ -90,16 +86,16 @@ const Language = () => {
             sm:[&_button_p:first-child]:!text-xl
             sm:[&_button_p:last-child]:!text-base"
         >
-          {languages.map((lang, i) => (
+          {languages.map((langOpt, i) => (
             <LanguageCard
-              key={lang.id}
-              flag={lang.flag}
-              flagIsImage={lang.flagIsImage}
-              name={lang.name}
-              description={lang.description}
-              selected={selected === lang.id}
-              disabled={lang.disabled}
-              onClick={() => handleSelect(lang.id)}
+              key={langOpt.id}
+              flag={langOpt.flag}
+              flagIsImage={langOpt.flagIsImage}
+              name={langOpt.name}
+              description={langOpt.description}
+              selected={selected === langOpt.id}
+              disabled={langOpt.disabled}
+              onClick={() => handleSelect(langOpt.id)}
               style={{ animationDelay: `${i * 0.1}s` }}
             />
           ))}
@@ -108,7 +104,6 @@ const Language = () => {
 
       {/* ── LANDSCAPE body ──────────────────────────────── */}
       <div className="hidden landscape:flex flex-1 min-h-0 w-full items-stretch">
-        {/* Columna izquierda: ilustración */}
         <div className="flex-1 relative flex items-center justify-center pr-6 horizontal-mobile:pr-4">
           <FloatingDots />
           <div className="relative aspect-square h-full max-h-[min(70%,360px)] horizontal-mobile:max-h-[60%] flex items-center justify-center">
@@ -122,10 +117,8 @@ const Language = () => {
           </div>
         </div>
 
-        {/* Divisor */}
         <div className="w-px bg-km0-yellow-500/60 self-stretch mx-2 horizontal-mobile:mx-1" />
 
-        {/* Columna derecha: tarjetas */}
         <div
           className="flex-1 flex flex-col justify-center gap-3 horizontal-mobile:gap-2 pl-6 horizontal-mobile:pl-4
             [&_button]:py-3 horizontal-mobile:[&_button]:py-2
@@ -139,16 +132,16 @@ const Language = () => {
             [&_button_p:last-child]:text-sm
             horizontal-mobile:[&_button_p:last-child]:text-xs"
         >
-          {languages.map((lang, i) => (
+          {languages.map((langOpt, i) => (
             <LanguageCard
-              key={lang.id}
-              flag={lang.flag}
-              flagIsImage={lang.flagIsImage}
-              name={lang.name}
-              description={lang.description}
-              selected={selected === lang.id}
-              disabled={lang.disabled}
-              onClick={() => handleSelect(lang.id)}
+              key={langOpt.id}
+              flag={langOpt.flag}
+              flagIsImage={langOpt.flagIsImage}
+              name={langOpt.name}
+              description={langOpt.description}
+              selected={selected === langOpt.id}
+              disabled={langOpt.disabled}
+              onClick={() => handleSelect(langOpt.id)}
               style={{ animationDelay: `${i * 0.1}s` }}
             />
           ))}
