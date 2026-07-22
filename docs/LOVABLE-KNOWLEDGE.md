@@ -167,8 +167,17 @@ pantalla tenga varios componentes auxiliares propios.
   uses `sm:`/`md:`/`lg:` ni aliases viejos (`wide-landscape:`,
   `short-landscape:`, `tablet-portrait:`) en código nuevo. No modifiques
   la definición de breakpoints: está espejada con producción y Playwright.
-- Diseña y valida cada pantalla en las 4 resoluciones canónicas:
-  375×667, 768×1024, 667×375 y 1280×550.
+- Diseña y valida cada pantalla en las resoluciones canónicas. En
+  portrait, valida SIEMPRE en horquilla de altura: 375×667 (el más bajo)
+  Y 390×844 (alto). Un solo alto de pantalla no basta: los gaps y
+  espacios estirados solo aparecen con altura extra.
+- **Estructura vertical que garantiza cualquier altura portrait**: cada
+  pantalla es una columna flex de `[cabecera shrink-0]` +
+  `[cuerpo flex-1 min-h-0 con el scroll]` + `[footer/tabs shrink-0]`. La
+  altura sobrante SIEMPRE la absorbe el scroll del cuerpo, NUNCA un gap.
+  Los heros/cabeceras tienen altura acotada (no crecen con el alto del
+  viewport). Con esto, si una pantalla se ve bien en 375×667, se ve bien
+  en cualquier portrait más alto por construcción.
 - **Layout canónico = columna portrait, centrada y limitada.** El diseño
   base es una sola columna portrait (375×667). En viewports más anchos
   (tablet, landscape, desktop) NO se reflowa a varias columnas: se
