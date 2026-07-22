@@ -17,11 +17,12 @@ mayoritariamente móvil, portrait. Corre en web (Vercel) y móvil
 
 ## 2. Arquitectura: tres repositorios
 
-| Repo                                        | Rol                                                                                      | Rama de trabajo |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------- |
-| **`KM0Lab-git-admin/km0lab`**               | Monorepo de producción (pnpm + Turbo). App final + docs de proceso (fuente de verdad).   | `develop`       |
-| **`KM0Lab-git-admin/speak-spanish-easily`** | Proyecto de **Lovable**: prototipado visual, source of truth de pantallas/diseño/assets. | `main`          |
-| **`KM0Lab-git-admin/events-query`**         | API de scraping (FastAPI): eventos y noticias del municipio. Solo se consume.            | `develop`       |
+| Repo                                        | Rol                                                                                             | Rama de trabajo |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------- |
+| **`KM0Lab-git-admin/km0lab`**               | Monorepo de producción (pnpm + Turbo). App final + docs de proceso (fuente de verdad).          | `develop`       |
+| **`KM0Lab-git-admin/speak-spanish-easily`** | Proyecto de **Lovable**: prototipado visual, source of truth de pantallas/diseño/assets.        | `main`          |
+| **`KM0Lab-git-admin/events-query`**         | API de scraping (FastAPI): eventos y noticias del municipio. Solo se consume.                   | `develop`       |
+| **`KM0Lab-git-admin/km0lab-api`**           | Backend de la app (FastAPI + MySQL): usuarios y auth. Lectura/escritura. Ver `docs/BACKEND.md`. | `develop`       |
 
 Stack real de la app (`apps/km0lab`): **Vite + React 19 + Tailwind v3 +
 shadcn/ui + Radix + React Router v7 + Capacitor**. (⚠️ Ver §6: el stack
@@ -76,16 +77,17 @@ identidad visual, para pasar a cualquier IA. Se regenera con
 - **Contrato de API** de events-query ya está en Lovable
   (`src/services/apiClient|apiSchemas|eventsApi|newsApi.ts`,
   `src/data/fixtures/`) — verificado contra la API real. NO tocar.
-- **Deuda 1**: `CLAUDE.md` (raíz de km0lab) todavía describe un stack
-  Expo/React Native antiguo que ya NO existe. `AGENTS.md` es el bueno;
-  si algo de CLAUDE.md contradice a AGENTS.md, gana AGENTS.md. Pendiente
-  de corregir.
+- **Backend de la app**: definido en `docs/BACKEND.md` y scaffoldeado en
+  el repo `km0lab-api` (FastAPI + MySQL, auth OTP email). Alcance MVP:
+  solo usuarios; puntos/QR/comercios/recompensas mockeados en la app.
 - **Deuda 2**: `packages/km0lab-web-theme/tailwind.config.js` tiene un
   comentario que rompe el parser de Prettier (falla `pnpm format:check`
   del repo entero). Ajeno a los cambios de proceso.
-- **Deuda 3**: en events-query, `/api/v1/news` y `/api/v1/events`
-  devuelven 500 en producción (pendiente de diagnosticar); el CORS para
-  dominios de Lovable está en `develop` pero sin desplegar.
+- ~~Deuda 1 (CLAUDE.md stack Expo)~~ — RESUELTA: CLAUDE.md alineado con
+  el stack real (Vite/React/Capacitor).
+- ~~Deuda 3 (events-query 500 + CORS)~~ — RESUELTA: `/api/v1/events` y
+  `/news` responden 200 y el CORS para dominios de Lovable está
+  desplegado. La Agenda ya consume el endpoint de lista real.
 
 ## 7. Prompt inicial para arrancar la nueva sesión
 
