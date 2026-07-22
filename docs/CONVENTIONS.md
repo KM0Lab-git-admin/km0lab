@@ -180,11 +180,11 @@ Definidos en `apps/km0lab/tailwind.config.js` (sección `theme.extend.screens`).
 Cubren rangos amplios de viewport. Cualquier resolución cae siempre en
 exactamente un breakpoint (no hay "tierra de nadie"):
 
-| Breakpoint | Media query |
-|------------|-------------|
-| `vertical-mobile` | `(orientation: portrait) and (max-width: 767px)` |
-| `vertical-tablet` | `(orientation: portrait) and (min-width: 768px)` |
-| `horizontal-mobile` | `(orientation: landscape) and (max-width: 1279px)` |
+| Breakpoint           | Media query                                        |
+| -------------------- | -------------------------------------------------- |
+| `vertical-mobile`    | `(orientation: portrait) and (max-width: 767px)`   |
+| `vertical-tablet`    | `(orientation: portrait) and (min-width: 768px)`   |
+| `horizontal-mobile`  | `(orientation: landscape) and (max-width: 1279px)` |
 | `horizontal-desktop` | `(orientation: landscape) and (min-width: 1280px)` |
 
 Se aplican vía clases NativeWind:
@@ -199,12 +199,12 @@ Se aplican vía clases NativeWind:
 Los cuatro puntos exactos contra los que se diseña la maqueta y se valida
 con Playwright. Cada uno está dentro del rango de su breakpoint:
 
-| Breakpoint | Resolución canónica |
-|------------|---------------------|
-| `vertical-mobile` | 375 × 667 |
-| `vertical-tablet` | 768 × 1024 |
-| `horizontal-mobile` | 667 × 375 |
-| `horizontal-desktop` | 1280 × 550 |
+| Breakpoint           | Resolución canónica |
+| -------------------- | ------------------- |
+| `vertical-mobile`    | 375 × 667           |
+| `vertical-tablet`    | 768 × 1024          |
+| `horizontal-mobile`  | 667 × 375           |
+| `horizontal-desktop` | 1280 × 550          |
 
 La maqueta se piensa en estos cuatro puntos. Los estilos cubren los rangos
 completos para que usuarios reales con resoluciones intermedias (p. ej.

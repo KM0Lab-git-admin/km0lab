@@ -1,27 +1,53 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import LanguageCard from "@/components/LanguageCard";
-import FloatingDots from "@/components/FloatingDots";
-import BrandedFrame from "@/components/BrandedFrame";
-import robotPlaceholder from "@/assets/images/km0-robot.png";
-import flagCa from "@/assets/images/flags/flag-ca.svg";
-import flagEs from "@/assets/images/flags/flag-es.svg";
-import flagEn from "@/assets/images/flags/flag-en.svg";
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import LanguageCard from '@/components/LanguageCard'
+import FloatingDots from '@/components/FloatingDots'
+import BrandedFrame from '@/components/BrandedFrame'
+import robotPlaceholder from '@/assets/images/km0-robot.png'
+import flagCa from '@/assets/images/flags/flag-ca.svg'
+import flagEs from '@/assets/images/flags/flag-es.svg'
+import flagEn from '@/assets/images/flags/flag-en.svg'
 
-const languages: {id: string; flag: string; flagIsImage?: boolean; name: string; description: string; disabled?: boolean;}[] = [
-  { id: "ca", flag: flagCa, flagIsImage: true, name: "Català", description: "Comença en català" },
-  { id: "es", flag: flagEs, flagIsImage: true, name: "Español", description: "Empieza en español" },
-  { id: "en", flag: flagEn, flagIsImage: true, name: "English", description: "Start in English", disabled: true },
-];
+const languages: {
+  id: string
+  flag: string
+  flagIsImage?: boolean
+  name: string
+  description: string
+  disabled?: boolean
+}[] = [
+  {
+    id: 'ca',
+    flag: flagCa,
+    flagIsImage: true,
+    name: 'Català',
+    description: 'Comença en català',
+  },
+  {
+    id: 'es',
+    flag: flagEs,
+    flagIsImage: true,
+    name: 'Español',
+    description: 'Empieza en español',
+  },
+  {
+    id: 'en',
+    flag: flagEn,
+    flagIsImage: true,
+    name: 'English',
+    description: 'Start in English',
+    disabled: true,
+  },
+]
 
 const Language = () => {
-  const navigate = useNavigate();
-  const [selected, setSelected] = useState<string | null>(null);
+  const navigate = useNavigate()
+  const [selected, setSelected] = useState<string | null>(null)
 
   const handleSelect = (id: string) => {
-    setSelected(id);
-    setTimeout(() => navigate("/onboarding", { state: { lang: id } }), 300);
-  };
+    setSelected(id)
+    setTimeout(() => navigate('/onboarding', { state: { lang: id } }), 300)
+  }
 
   return (
     <BrandedFrame>
@@ -50,7 +76,8 @@ const Language = () => {
         {/* En vertical-mobile (375×667) reducimos altura de cards
             (py-2 + flag más pequeña) para que las 3 quepan SIN scroll.
             En sm+ recuperamos los tamaños originales. */}
-        <div className="flex flex-col gap-2 sm:gap-4 shrink-0
+        <div
+          className="flex flex-col gap-2 sm:gap-4 shrink-0
             [&_button]:!py-2 [&_button]:!gap-3
             [&_button>span:first-child]:!w-10 [&_button>span:first-child]:!h-10
             [&_button>span:first-child>img]:!w-7 [&_button>span:first-child>img]:!h-7
@@ -60,7 +87,8 @@ const Language = () => {
             sm:[&_button>span:first-child]:!w-14 sm:[&_button>span:first-child]:!h-14
             sm:[&_button>span:first-child>img]:!w-11 sm:[&_button>span:first-child>img]:!h-11
             sm:[&_button_p:first-child]:!text-xl
-            sm:[&_button_p:last-child]:!text-base">
+            sm:[&_button_p:last-child]:!text-base"
+        >
           {languages.map((lang, i) => (
             <LanguageCard
               key={lang.id}
@@ -97,7 +125,8 @@ const Language = () => {
         <div className="w-px bg-km0-yellow-500/60 self-stretch mx-2 horizontal-mobile:mx-1" />
 
         {/* Columna derecha: tarjetas */}
-        <div className="flex-1 flex flex-col justify-center gap-3 horizontal-mobile:gap-2 pl-6 horizontal-mobile:pl-4
+        <div
+          className="flex-1 flex flex-col justify-center gap-3 horizontal-mobile:gap-2 pl-6 horizontal-mobile:pl-4
             [&_button]:py-3 horizontal-mobile:[&_button]:py-2
             [&_button]:px-4 horizontal-mobile:[&_button]:px-3
             [&_button>span:first-child]:w-11 [&_button>span:first-child]:h-11
@@ -107,7 +136,8 @@ const Language = () => {
             [&_button_p:first-child]:text-lg
             horizontal-mobile:[&_button_p:first-child]:text-base
             [&_button_p:last-child]:text-sm
-            horizontal-mobile:[&_button_p:last-child]:text-xs">
+            horizontal-mobile:[&_button_p:last-child]:text-xs"
+        >
           {languages.map((lang, i) => (
             <LanguageCard
               key={lang.id}
@@ -124,7 +154,7 @@ const Language = () => {
         </div>
       </div>
     </BrandedFrame>
-  );
-};
+  )
+}
 
-export default Language;
+export default Language

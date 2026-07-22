@@ -238,16 +238,16 @@
   --color-gaming-gold: #ffd700;
 
   /* KM0 Teal */
-  --color-km0-teal-50: #F0FFFE;
-  --color-km0-teal-100: #CCFAF8;
-  --color-km0-teal-200: #80EAE4;
-  --color-km0-teal-300: #40D9D0;
-  --color-km0-teal-400: #00C7BC;
-  --color-km0-teal-500: #00B8A9;
-  --color-km0-teal-600: #009A8E;
-  --color-km0-teal-700: #007C72;
-  --color-km0-teal-800: #005E56;
-  --color-km0-teal-900: #00403B;
+  --color-km0-teal-50: #f0fffe;
+  --color-km0-teal-100: #ccfaf8;
+  --color-km0-teal-200: #80eae4;
+  --color-km0-teal-300: #40d9d0;
+  --color-km0-teal-400: #00c7bc;
+  --color-km0-teal-500: #00b8a9;
+  --color-km0-teal-600: #009a8e;
+  --color-km0-teal-700: #007c72;
+  --color-km0-teal-800: #005e56;
+  --color-km0-teal-900: #00403b;
 
   /* Spacing */
   --spacing-header: 3rem;
@@ -294,9 +294,21 @@
   --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
 
   /* Background Image */
-  --background-image-gradient-app: linear-gradient(135deg, rgba(144, 169, 232, 0.4) 0%, rgba(255, 236, 210, 0.4) 100%);
-  --background-image-gradient-white-beige: linear-gradient(180deg, #ffffff 0%, #FFECD2 100%);
-  --background-image-gradient-mobile-frame: linear-gradient(to bottom right, rgba(144, 169, 232, 0.2) 0%, rgba(255, 236, 210, 0.2) 100%);
+  --background-image-gradient-app: linear-gradient(
+    135deg,
+    rgba(144, 169, 232, 0.4) 0%,
+    rgba(255, 236, 210, 0.4) 100%
+  );
+  --background-image-gradient-white-beige: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #ffecd2 100%
+  );
+  --background-image-gradient-mobile-frame: linear-gradient(
+    to bottom right,
+    rgba(144, 169, 232, 0.2) 0%,
+    rgba(255, 236, 210, 0.2) 100%
+  );
 
   /* Border Radius */
   --radius-mobile-frame: 1rem;
@@ -335,7 +347,11 @@
   --font-family-body: 'DM Sans', 'Inter', system-ui, sans-serif;
 
   /* === KM0 LAB BACKGROUND SYSTEM === */
-  --gradient-app: linear-gradient(135deg, rgba(144, 169, 232, 0.4) 0%, rgba(255, 236, 210, 0.4) 100%);
+  --gradient-app: linear-gradient(
+    135deg,
+    rgba(144, 169, 232, 0.4) 0%,
+    rgba(255, 236, 210, 0.4) 100%
+  );
   /* Tokens de color (solo los necesarios aquí) */
   --km0-beige-100: #ffecd2;
 
@@ -379,8 +395,10 @@
     --scale: 0.45720703125; /* base: igual que XS para todos los tamaños */
     width: calc(570.27px * var(--scale));
     height: calc(103.87px * var(--scale));
-    background-size: calc(1190.55px * var(--scale)) calc(841.89px * var(--scale));
-    background-position: calc(-310.14px * var(--scale)) calc(-183.48px * var(--scale));
+    background-size: calc(1190.55px * var(--scale))
+      calc(841.89px * var(--scale));
+    background-position: calc(-310.14px * var(--scale))
+      calc(-183.48px * var(--scale));
   }
 
   /* Responsive scaling - considera TANTO ancho como alto, usa el más restrictivo */
@@ -815,7 +833,8 @@
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
@@ -824,7 +843,8 @@
   }
 
   @keyframes dot-pulse {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
       opacity: 1;
     }

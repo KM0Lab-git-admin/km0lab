@@ -111,7 +111,8 @@ async function main() {
     port: STATIC_PORT,
     forceBuild: FORCE_BUILD,
   })
-  const localUrl = process.env.LOCAL_ONBOARDING_URL ?? `${server.url}${LOCAL_PATH}`
+  const localUrl =
+    process.env.LOCAL_ONBOARDING_URL ?? `${server.url}${LOCAL_PATH}`
 
   const browser = await chromium.launch()
   const results = []
