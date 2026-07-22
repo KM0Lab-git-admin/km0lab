@@ -40,6 +40,8 @@ export interface AppProfile {
 interface AppState {
   // session / profile
   session: AppSession | null
+  /** JWT del backend km0lab-api (Bearer). Null si no hay sesión. */
+  token: string | null
   /** Perfiles indexados por userId (multi-cuenta en el mismo dispositivo). */
   profiles: Record<string, AppProfile>
 
@@ -56,6 +58,7 @@ interface AppState {
   setLocation: (postalCode: string | null, town: string | null) => void
 
   setSession: (s: AppSession | null) => void
+  setToken: (t: string | null) => void
   setPendingOtp: (p: AppState['pendingOtp']) => void
 
   upsertProfile: (userId: string, patch: Partial<AppProfile>) => void
@@ -77,6 +80,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       session: null,
+      token: null,
       profiles: {},
       lang: 'es',
       postalCode: null,
@@ -90,6 +94,7 @@ export const useAppStore = create<AppState>()(
       setLocation: (postalCode, town) => set({ postalCode, town }),
 
       setSession: (s) => set({ session: s }),
+      setToken: (t) => set({ token: t }),
       setPendingOtp: (p) => set({ pendingOtp: p }),
 
       upsertProfile: (userId, patch) =>
@@ -101,7 +106,7 @@ export const useAppStore = create<AppState>()(
         }),
       getProfile: (userId) => get().profiles[userId] ?? null,
 
-      signOut: () => set({ session: null, pendingOtp: null }),
+      signOut: () => set({ session: null, token: null, pendingOtp: null }),
     }),
     {
       name: 'km0_app',
@@ -109,6 +114,7 @@ export const useAppStore = create<AppState>()(
       // No persistimos `pendingOtp` (es efímero del flujo OTP en curso).
       partialize: (s) => ({
         session: s.session,
+        token: s.token,
         profiles: s.profiles,
         lang: s.lang,
         postalCode: s.postalCode,

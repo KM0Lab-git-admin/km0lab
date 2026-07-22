@@ -11,5 +11,9 @@
     { "from": "src/pages/Language.tsx" },
     { "from": "src/pages/PostalCode.tsx" }
   ],
-  "locked": []
+  "locked": [
+    "packages/app/services/km0labClient.ts",
+    "packages/app/services/auth.ts",
+    "packages/app/services/profile.ts"
+  ]
 }
