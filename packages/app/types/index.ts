@@ -7,5 +7,6 @@
  * Convención: un archivo por types (kebab-case para ficheros de utils/data,
  * `useXxx.ts` para hooks).
  */
-
-export {}
+export * from './comercio'
+export * from './coupon'
+export * from './promo'

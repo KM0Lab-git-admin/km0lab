@@ -13,4 +13,6 @@ export * from './machines'
 export * from './utils'
 export * from './data'
 export * from './types'
-export * from './design-system'
+// El design-system se expone bajo namespace para no colisionar con nombres
+// de runtime (p. ej. `Breakpoint`). Consumir como `designSystem.X`.
+export * as designSystem from './design-system'

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import LanguageCard from '@/components/LanguageCard'
-import FloatingDots from '@/components/FloatingDots'
-import BrandedFrame from '@/components/BrandedFrame'
-import robotPlaceholder from '@/assets/images/km0-robot.png'
+
 import flagCa from '@/assets/images/flags/flag-ca.svg'
-import flagEs from '@/assets/images/flags/flag-es.svg'
 import flagEn from '@/assets/images/flags/flag-en.svg'
+import flagEs from '@/assets/images/flags/flag-es.svg'
+import robotPlaceholder from '@/assets/images/km0-robot.png'
+import BrandedFrame from '@/components/BrandedFrame'
+import FloatingDots from '@/components/FloatingDots'
+import LanguageCard from '@/components/LanguageCard'
 
 const languages: {
   id: string

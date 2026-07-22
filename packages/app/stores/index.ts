@@ -5,5 +5,4 @@
  * Añadir aquí los stores nuevos importándolos desde su archivo y
  * exportándolos.
  */
-
-export {}
+export * from './useAppStore'

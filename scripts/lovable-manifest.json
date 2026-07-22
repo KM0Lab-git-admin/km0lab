@@ -1,6 +1,41 @@
 {
   "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas en files: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data). locked: destinos propiedad de producción (implementación real ya conectada); el sync se niega a sobrescribirlos — un path acabado en / bloquea el directorio entero.",
   "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
-  "files": [],
+  "files": [
+    { "from": "src/lib/i18n.ts" },
+    { "from": "src/lib/postalCodes.ts" },
+    { "from": "src/contexts/LangContext.tsx" },
+    { "from": "src/types/comercio.ts" },
+    { "from": "src/types/coupon.ts" },
+    { "from": "src/types/promo.ts" },
+    { "from": "src/data/comercios.ts" },
+    { "from": "src/data/coupons.ts" },
+    {
+      "from": "src/data/mockPostalCodes.ts",
+      "to": "packages/app/data/mockPostalCodes.ts"
+    },
+    {
+      "from": "src/data/notifications.ts",
+      "to": "packages/app/data/notifications.ts"
+    },
+    { "from": "src/data/promos.ts" },
+    { "from": "src/data/redeemCoupons.ts" },
+    { "from": "src/stores/useAppStore.ts" },
+    { "from": "src/services/mock/auth.ts" },
+    { "from": "src/services/mock/profile.ts" },
+    { "from": "src/hooks/use-breakpoint.tsx" },
+    { "from": "src/hooks/use-mobile.tsx" },
+    { "from": "src/hooks/useAuth.ts" },
+    { "from": "src/hooks/useNotifications.ts" },
+    { "from": "src/hooks/useProfile.ts" },
+    { "from": "src/components/ui/toast.tsx" },
+    { "from": "src/components/ui/toaster.tsx" },
+    { "from": "src/components/ui/sonner.tsx" },
+    { "from": "src/components/ui/tooltip.tsx" },
+    {
+      "from": "src/hooks/use-toast.ts",
+      "to": "packages/components/ui/use-toast.ts"
+    }
+  ],
   "locked": []
 }

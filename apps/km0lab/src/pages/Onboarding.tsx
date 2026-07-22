@@ -1,7 +1,8 @@
+import { motion } from 'framer-motion'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useRef, useCallback, useLayoutEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { motion } from 'framer-motion'
+
 import BrandedFrame from '@/components/BrandedFrame'
 import { slides } from '@/data/onboardingSlides'
 import { cn } from '@/lib/utils'

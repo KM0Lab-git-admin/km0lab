@@ -1,5 +1,7 @@
-import { ReactNode } from 'react'
 import { ChevronLeft } from 'lucide-react'
+
+import type { ReactNode } from 'react'
+
 import Km0Logo from '@/components/Km0Logo'
 
 /**

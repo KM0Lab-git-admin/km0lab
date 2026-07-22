@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
-
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Loader2, MapPin, MapPinOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import cityMap from '@/assets/images/km0-city-map.png'
