@@ -1,21 +1,94 @@
 {
+  "$docs": "Sync de assets binarios Lovable -> produccion. Ver docs/PORTING-FROM-LOVABLE.md §6. Espejamos la estructura de src/assets de Lovable en apps/km0lab/src/assets (mismos nombres/rutas) porque el codigo portado importa esas rutas via @/assets. El script sobrescribe siempre.",
   "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
   "assets": [
     {
       "from": "src/assets/km0_robot_icon_v2.png",
-      "to": "apps/km0lab/assets/images/km0-robot.png"
+      "to": "apps/km0lab/src/assets/km0_robot_icon_v2.png"
+    },
+    {
+      "from": "src/assets/km0_city_map.png",
+      "to": "apps/km0lab/src/assets/km0_city_map.png"
+    },
+    {
+      "from": "src/assets/coupon-icon.png",
+      "to": "apps/km0lab/src/assets/coupon-icon.png"
+    },
+    {
+      "from": "src/assets/agenda-icon.png",
+      "to": "apps/km0lab/src/assets/agenda-icon.png"
+    },
+    {
+      "from": "src/assets/chat-mascot.png",
+      "to": "apps/km0lab/src/assets/chat-mascot.png"
+    },
+    {
+      "from": "src/assets/cityhall-icon.png",
+      "to": "apps/km0lab/src/assets/cityhall-icon.png"
+    },
+    {
+      "from": "src/assets/shop-icon.png",
+      "to": "apps/km0lab/src/assets/shop-icon.png"
+    },
+    {
+      "from": "src/assets/icon-star-rewards.png",
+      "to": "apps/km0lab/src/assets/icon-star-rewards.png"
+    },
+    {
+      "from": "src/assets/icon-gift.png",
+      "to": "apps/km0lab/src/assets/icon-gift.png"
+    },
+    {
+      "from": "src/assets/icon-hand-star.png",
+      "to": "apps/km0lab/src/assets/icon-hand-star.png"
+    },
+    {
+      "from": "src/assets/coat-malgrat.png",
+      "to": "apps/km0lab/src/assets/coat-malgrat.png"
+    },
+    {
+      "from": "src/assets/skyline-malgrat.png",
+      "to": "apps/km0lab/src/assets/skyline-malgrat.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-bakery.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-bakery.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-cafe.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-cafe.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-fashion.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-fashion.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-florist.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-florist.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-hardware.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-hardware.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-pharmacy.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-pharmacy.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-wine.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-wine.png"
     },
     {
       "from": "src/assets/flags/flag-ca.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-ca.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-ca.svg"
     },
     {
       "from": "src/assets/flags/flag-es.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-es.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-es.svg"
     },
     {
       "from": "src/assets/flags/flag-en.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-en.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-en.svg"
     }
   ]
 }
