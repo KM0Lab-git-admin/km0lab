@@ -95,12 +95,29 @@ propio `README.md`.
   `km0lab-api` (FastAPI + MySQL, auth OTP email). MVP: solo usuarios;
   puntos/QR/comercios/recompensas mockeados en la app.
 
-**Próximos pasos probables (el humano prioriza):**
+**⚠️ Tarea grande pendiente — portar TODO el frontend de Lovable:**
+
+El monorepo de producción solo tiene una fracción del frontend portada.
+La mayor parte de la app vive HOY solo en Lovable y hay que traerla al
+monorepo vía `pnpm sync:lovable`. Estado (aprox.):
+
+|                              | Producción (`apps/km0lab`)           | Lovable | Falta portar                                                                  |
+| ---------------------------- | ------------------------------------ | ------- | ----------------------------------------------------------------------------- |
+| Pantallas de producto        | 3 (Language, Onboarding, PostalCode) | ~13     | Home, Chat, Agenda, Noticias, EventosHoy, Login, CheckEmail, Evento, Profile… |
+| Componentes                  | 4                                    | ~30     | la mayoría                                                                    |
+| Primitivos ui (`@km0lab/ui`) | 11                                   | 49      | ~38                                                                           |
+
+El `sync:lovable` **nunca se ha ejecutado de verdad** (el
+`scripts/lovable-manifest.json` está vacío). Portar el frontend completo
+—declarando los archivos en el manifest y corriendo el sync por tandas,
+según `docs/PORTING-FROM-LOVABLE.md` §12— es LA tarea principal de la
+fase de producción. No se sincronizan las piezas solo-Lovable (preview
+harness, `integrations/`, `design-system/`); ver KNOWLEDGE.md §0.
+
+**Otros próximos pasos (el humano prioriza):**
 
 - Conectar la app a `km0lab-api` (capa de service + JWT en el store, en
   sustitución de `services/mock/auth.ts`).
-- Primer `pnpm sync:lovable` real (el manifest aún está vacío) portando
-  las pantallas cerradas → PR a `develop`.
 - SMTP real para OTP y despliegue de km0lab-api en Railway.
 - Capacitor: generar shells nativos y builds para stores.
 
