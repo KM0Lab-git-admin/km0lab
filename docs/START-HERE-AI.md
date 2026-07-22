@@ -15,7 +15,7 @@ por puntos/recompensas. Trilingüe (català por defecto, es, en). Uso
 mayoritariamente móvil, portrait. Corre en web (Vercel) y móvil
 (Capacitor).
 
-## 2. Arquitectura: tres repositorios
+## 2. Arquitectura: cuatro repositorios
 
 | Repo                                        | Rol                                                                                             | Rama de trabajo |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------- |
@@ -61,7 +61,7 @@ identidad visual, para pasar a cualquier IA. Se regenera con
 
 ## 5. Accesos que necesita la nueva sesión
 
-- **GitHub**: lectura/escritura en los tres repos del §2 (o solo lectura
+- **GitHub**: lectura/escritura en los cuatro repos del §2 (o solo lectura
   si únicamente va a guiar/consultar). En Claude Code web, añadirlos al
   scope de la sesión.
 - Ramas de trabajo del §2. Convención de commits y ramas: `AGENTS.md` §8.
@@ -97,6 +97,7 @@ Pégale esto a la nueva sesión de Claude (con los tres repos en su scope):
 > contexto completo está versionado en el repo `KM0Lab-git-admin/km0lab`.
 > Antes de nada, lee `docs/START-HERE-AI.md` y todos los documentos que
 > enlaza, en el orden indicado. Tengo también los repos
-> `speak-spanish-easily` (Lovable) y `events-query` (API) en el scope.
+> `speak-spanish-easily` (Lovable), `events-query` (API de eventos) y
+> `km0lab-api` (backend de la app) en el scope.
 > Cuando termines, hazme un resumen de en qué punto está el proyecto y
 > qué crees que es lo siguiente, y seguimos desde ahí.
