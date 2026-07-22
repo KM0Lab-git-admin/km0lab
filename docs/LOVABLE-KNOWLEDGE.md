@@ -169,6 +169,18 @@ pantalla tenga varios componentes auxiliares propios.
   la definición de breakpoints: está espejada con producción y Playwright.
 - Diseña y valida cada pantalla en las 4 resoluciones canónicas:
   375×667, 768×1024, 667×375 y 1280×550.
+- **Layout canónico = columna portrait, centrada y limitada.** El diseño
+  base es una sola columna portrait (375×667). En viewports más anchos
+  (tablet, landscape, desktop) NO se reflowa a varias columnas: se
+  renderiza la MISMA columna, centrada y con ancho máximo (~430px), y el
+  fondo rellena los laterales. Así todos los formatos heredan
+  automáticamente los cambios del portrait y ninguno se desincroniza. NO
+  crees layouts bespoke por orientación (un componente
+  `XxxLandscape` aparte) salvo que se pida explícitamente y se
+  justifique; las pantallas de marca que ya lo tienen (Language,
+  Onboarding, PostalCode) se mantienen. Los bloques anchos (carruseles)
+  hacen scroll DENTRO de su contenedor; el cuerpo nunca desborda en
+  horizontal.
 - Animaciones con Framer Motion; iconos con lucide-react.
 
 ## 4. Qué puedes modificar y qué debes conservar
