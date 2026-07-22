@@ -54,7 +54,12 @@ documenta `pnpm sync:lovable` (script + manifest + candados `locked`).
 identidad visual, para pasar a cualquier IA. Se regenera con
 `pnpm design:doc` (fuente: `packages/app/design-system/`). 6. `docs/BRIEF-HOME.md` — brief reutilizable para proponer pantallas. 7. `docs/spec-home-c.md` — spec de la Home en construcción (variant C).
 
-**Para trabajar con Product Owner / diseño (no técnicos):** 8. `docs/PROMPTS-PO.md` — plantilla de prompts no técnicos.
+**Backend (datos, auth):** 8. `docs/BACKEND.md` — arquitectura de los
+dos backends (events-query solo lectura + km0lab-api usuarios/auth),
+modelo de datos y flujo de auth OTP. El código de km0lab-api tiene su
+propio `README.md`.
+
+**Para trabajar con Product Owner / diseño (no técnicos):** 9. `docs/PROMPTS-PO.md` — plantilla de prompts no técnicos.
 
 **Prompts operativos** (en el repo de Lovable, `docs/`):
 `PROMPT-home-c.md`, `PROMPT-layout-portrait-first.md`.
@@ -70,28 +75,48 @@ identidad visual, para pasar a cualquier IA. Se regenera con
 
 ## 6. Estado actual y deudas conocidas
 
-- **En curso**: construcción de la Home "variant C" en Lovable por la
-  secuencia de 3 prompts de `docs/spec-home-c.md`. Portrait cerrado;
-  regla de layout portrait-first recién añadida para arreglar
-  landscape/tablet.
-- **Contrato de API** de events-query ya está en Lovable
+**Hecho / en marcha:**
+
+- **Home "variant C"** en construcción en Lovable por la secuencia de
+  `docs/spec-home-c.md`. La estructura y los dos estados (guest/
+  registered) están montados; confirmar con el humano el punto exacto de
+  los pasos 2 (PointsCard evolucionada, reward-welcome) y 3 (estados
+  forzables por query param).
+- **Reglas de layout** ya en KNOWLEDGE.md §3 y aplicadas: columna
+  portrait-first centrada; desktop = teléfono centrado (DeviceShell, no
+  layout desktop propio); validación portrait "en horquilla" (375×667 +
+  390×844). PreviewAll reducido en consecuencia.
+- **Agenda conectada a datos reales**: consume el endpoint de lista de
+  events-query (`GET /api/v1/events`) vía `services/eventsApi.listEvents`.
+- **Contrato de API** de events-query en Lovable
   (`src/services/apiClient|apiSchemas|eventsApi|newsApi.ts`,
   `src/data/fixtures/`) — verificado contra la API real. NO tocar.
 - **Backend de la app**: definido en `docs/BACKEND.md` y scaffoldeado en
-  el repo `km0lab-api` (FastAPI + MySQL, auth OTP email). Alcance MVP:
-  solo usuarios; puntos/QR/comercios/recompensas mockeados en la app.
-- **Deuda 2**: `packages/km0lab-web-theme/tailwind.config.js` tiene un
-  comentario que rompe el parser de Prettier (falla `pnpm format:check`
-  del repo entero). Ajeno a los cambios de proceso.
-- ~~Deuda 1 (CLAUDE.md stack Expo)~~ — RESUELTA: CLAUDE.md alineado con
-  el stack real (Vite/React/Capacitor).
-- ~~Deuda 3 (events-query 500 + CORS)~~ — RESUELTA: `/api/v1/events` y
-  `/news` responden 200 y el CORS para dominios de Lovable está
-  desplegado. La Agenda ya consume el endpoint de lista real.
+  `km0lab-api` (FastAPI + MySQL, auth OTP email). MVP: solo usuarios;
+  puntos/QR/comercios/recompensas mockeados en la app.
+
+**Próximos pasos probables (el humano prioriza):**
+
+- Conectar la app a `km0lab-api` (capa de service + JWT en el store, en
+  sustitución de `services/mock/auth.ts`).
+- Primer `pnpm sync:lovable` real (el manifest aún está vacío) portando
+  las pantallas cerradas → PR a `develop`.
+- SMTP real para OTP y despliegue de km0lab-api en Railway.
+- Capacitor: generar shells nativos y builds para stores.
+
+**Deuda abierta:**
+
+- `packages/km0lab-web-theme/tailwind.config.js` tiene un comentario que
+  rompe el parser de Prettier (falla `pnpm format:check` del repo
+  entero). Ajeno a los cambios de proceso.
+
+**Deudas resueltas** (histórico): CLAUDE.md alineado al stack real;
+events-query `/events` y `/news` responden 200 y su CORS para Lovable
+está desplegado.
 
 ## 7. Prompt inicial para arrancar la nueva sesión
 
-Pégale esto a la nueva sesión de Claude (con los tres repos en su scope):
+Pégale esto a la nueva sesión de Claude (con los cuatro repos en su scope):
 
 > Vas a ayudarme con KM0 LAB, una app de comercio de proximidad. El
 > contexto completo está versionado en el repo `KM0Lab-git-admin/km0lab`.
