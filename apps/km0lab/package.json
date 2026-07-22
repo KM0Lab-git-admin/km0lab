@@ -8,6 +8,7 @@
     "with-prod-env": "dotenv -e env/.env.production -c -- ",
     "dev": "pnpm with-dev-env vite",
     "build": "pnpm with-prod-env vite build",
+    "build:web": "pnpm build",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "pnpm lint --fix",

@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-/** Plantilla: en la app Next, amplía `content` con rutas de tu app (p. ej. ./src/**/*, ./app/**/*). */
+// Plantilla: en la app Next, amplia `content` con las rutas propias de la app.
 export default {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   plugins: [],
-};
+}

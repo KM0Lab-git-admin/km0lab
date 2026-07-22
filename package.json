@@ -2,7 +2,7 @@
   "name": "@km0lab/repo",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter km0lab web",
+    "dev": "pnpm --filter km0lab dev",
     "dev:all": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",

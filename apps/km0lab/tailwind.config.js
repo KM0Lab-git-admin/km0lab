@@ -125,6 +125,16 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-background))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          accent: 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          border: 'hsl(var(--sidebar-border))',
+          ring: 'hsl(var(--sidebar-ring))',
+        },
       },
       fontFamily: {
         brand: ["'Antique Olive'", 'Impact', 'Arial Black', 'sans-serif'],
@@ -145,6 +155,36 @@ export default {
           from: { opacity: '0', transform: 'translateY(16px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+        'pop-in': {
+          '0%': { transform: 'scale(0) rotate(-20deg)', opacity: '0' },
+          '60%': { transform: 'scale(1.15) rotate(8deg)', opacity: '1' },
+          '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+        },
+        'float-up': {
+          '0%': { transform: 'translateY(0) scale(0.8)', opacity: '0' },
+          '20%': { opacity: '1' },
+          '100%': { transform: 'translateY(-80px) scale(1.1)', opacity: '0' },
+        },
+        sparkle: {
+          '0%, 100%': { transform: 'scale(0)', opacity: '0' },
+          '50%': { transform: 'scale(1)', opacity: '1' },
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        },
+        'fade-in-overlay': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
       },
       animation: {
         float: 'float 3s ease-in-out infinite',
@@ -152,6 +192,13 @@ export default {
         'float-slower': 'float 3.8s ease-in-out infinite',
         'float-slowest': 'float 4.2s ease-in-out infinite',
         'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'pop-in': 'pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'float-up': 'float-up 1.4s ease-out forwards',
+        sparkle: 'sparkle 1.2s ease-in-out infinite',
+        wiggle: 'wiggle 0.4s ease-in-out 3',
+        'fade-in-overlay': 'fade-in-overlay 0.25s ease-out',
       },
     },
   },
@@ -169,15 +216,36 @@ export default {
      * En código NUEVO en producción se prefieren los nombres oficiales.
      */
     function ({ addVariant }) {
-      addVariant('vertical-mobile', '@media (orientation: portrait) and (max-width: 767px)')
-      addVariant('vertical-tablet', '@media (orientation: portrait) and (min-width: 768px)')
-      addVariant('horizontal-mobile', '@media (orientation: landscape) and (max-width: 1279px)')
-      addVariant('horizontal-desktop', '@media (orientation: landscape) and (min-width: 1280px)')
+      addVariant(
+        'vertical-mobile',
+        '@media (orientation: portrait) and (max-width: 767px)'
+      )
+      addVariant(
+        'vertical-tablet',
+        '@media (orientation: portrait) and (min-width: 768px)'
+      )
+      addVariant(
+        'horizontal-mobile',
+        '@media (orientation: landscape) and (max-width: 1279px)'
+      )
+      addVariant(
+        'horizontal-desktop',
+        '@media (orientation: landscape) and (min-width: 1280px)'
+      )
 
       // Aliases para compatibilidad con código portado de Lovable.
-      addVariant('short-landscape', '@media (orientation: landscape) and (max-width: 1279px)')
-      addVariant('wide-landscape', '@media (orientation: landscape) and (min-width: 1280px)')
-      addVariant('tablet-portrait', '@media (orientation: portrait) and (min-width: 768px)')
+      addVariant(
+        'short-landscape',
+        '@media (orientation: landscape) and (max-width: 1279px)'
+      )
+      addVariant(
+        'wide-landscape',
+        '@media (orientation: landscape) and (min-width: 1280px)'
+      )
+      addVariant(
+        'tablet-portrait',
+        '@media (orientation: portrait) and (min-width: 768px)'
+      )
     },
   ],
 }
