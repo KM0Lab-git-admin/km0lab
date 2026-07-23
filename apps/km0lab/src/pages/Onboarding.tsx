@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useRef, useCallback, useLayoutEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import { useLang } from '@/contexts/LangContext'
 import { slides } from '@/data/onboardingSlides'
 import { cn } from '@/lib/utils'
 
@@ -32,8 +33,10 @@ const getSlotLs = () => {
 
 const Onboarding = () => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const lang: Lang = (location.state?.lang as Lang) ?? 'es'
+  // Idioma desde el store global (useLang), igual que Lovable y que
+  // Language al hacer setLang. NO desde location.state (resto de un porte
+  // antiguo que dejaba el idioma perdido → siempre 'es').
+  const { lang } = useLang()
 
   const [current, setCurrent] = useState(0)
   const [dragOffset, setDragOffset] = useState(0)
