@@ -75,61 +75,64 @@ propio `README.md`.
 
 ## 6. Estado actual y deudas conocidas
 
-**Hecho / en marcha:**
+El frontend de Lovable ya está portado casi por completo al monorepo y la
+app **compila a producción** (`pnpm --filter km0lab build` verde). El porte
+se hizo por tandas con `pnpm sync:lovable` (+ ajustes manuales) sobre la rama
+`develop`; el histórico está en los commits `feat: porta …`.
 
-- **Home "variant C"** en construcción en Lovable por la secuencia de
-  `docs/spec-home-c.md`. La estructura y los dos estados (guest/
-  registered) están montados; confirmar con el humano el punto exacto de
-  los pasos 2 (PointsCard evolucionada, reward-welcome) y 3 (estados
-  forzables por query param).
-- **Reglas de layout** ya en KNOWLEDGE.md §3 y aplicadas: columna
-  portrait-first centrada; desktop = teléfono centrado (DeviceShell, no
-  layout desktop propio); validación portrait "en horquilla" (375×667 +
-  390×844). PreviewAll reducido en consecuencia.
-- **Agenda conectada a datos reales**: consume el endpoint de lista de
-  events-query (`GET /api/v1/events`) vía `services/eventsApi.listEvents`.
-- **Contrato de API** de events-query en Lovable
-  (`src/services/apiClient|apiSchemas|eventsApi|newsApi.ts`,
-  `src/data/fixtures/`) — verificado contra la API real. NO tocar.
-- **Backend de la app**: definido en `docs/BACKEND.md` y scaffoldeado en
-  `km0lab-api` (FastAPI + MySQL, auth OTP email). MVP: solo usuarios;
-  puntos/QR/comercios/recompensas mockeados en la app.
+**Hecho (en `develop`):**
 
-**⚠️ Tarea grande pendiente — portar TODO el frontend de Lovable:**
+- **Pantallas portadas** (`apps/km0lab/src/pages`): Language, Onboarding,
+  PostalCode, Home (con `forceAuthState` guest/registrado), Login, CheckEmail,
+  Profile, Agenda, Noticias, EventosHoy, Evento. Rutas declaradas en
+  `apps/km0lab/src/App.tsx` (árbol de providers de Lovable: QueryClient →
+  LangProvider → TooltipProvider → Toaster + SonnerToaster → BrowserRouter).
+- **Componentes** (~30) y **lógica compartida** en `@km0lab/app`: i18n
+  (`utils/i18n`), `LangContext`, store Zustand (`useAppStore`, con `token`
+  JWT persistido), hooks (`useAuth`, `useProfile`, `useNotifications`,
+  `use-breakpoint`, `use-mobile`), types y data. Primitivos de infra en
+  `@km0lab/ui` (toast/toaster/sonner/tooltip/use-toast).
+- **Backend real cableado (km0lab-api)**: `services/km0labClient` (Bearer JWT
+  y validación zod), `services/auth` (OTP request/verify) y `services/profile`
+  (`/users/me`) sustituyen a los mocks sin tocar pantallas. Bloqueados en
+  `locked` del manifest. Base URL en `VITE_KM0LAB_API_URL`.
+- **events-query**: `apiClient`/`apiSchemas`/`eventsApi`/`newsApi` portados;
+  el `apiClient` pega directo a `VITE_EVENTS_API_URL` (sin el proxy Supabase
+  de Lovable). Agenda/Noticias/EventosHoy/Evento consumen esos services.
 
-El monorepo de producción solo tiene una fracción del frontend portada.
-La mayor parte de la app vive HOY solo en Lovable y hay que traerla al
-monorepo vía `pnpm sync:lovable`. Estado (aprox.):
+**Pendiente:**
 
-|                              | Producción (`apps/km0lab`)           | Lovable | Falta portar                                                                  |
-| ---------------------------- | ------------------------------------ | ------- | ----------------------------------------------------------------------------- |
-| Pantallas de producto        | 3 (Language, Onboarding, PostalCode) | ~13     | Home, Chat, Agenda, Noticias, EventosHoy, Login, CheckEmail, Evento, Profile… |
-| Componentes                  | 4                                    | ~30     | la mayoría                                                                    |
-| Primitivos ui (`@km0lab/ui`) | 11                                   | 49      | ~38                                                                           |
+- **Chat** (pantalla + `chatMachine` + `VoiceRecorder` + `eventQueryApi`):
+  aparcado a propósito; se portará más adelante.
+- **Onboarding re-alineado**: la versión nueva de Lovable usa imágenes
+  servidas por el CDN interno de Lovable (`src/assets/onboarding/*.asset.json`
+  son punteros, no binarios), así que NO se pueden sincronizar con
+  `pnpm sync:assets`. Sigue la versión antigua (basada en emojis). Para
+  re-alinearla: subir esas imágenes a `speak-spanish-easily/src/assets/` como
+  binarios reales y volver a portar `Onboarding.tsx` + `onboardingSlides.ts`.
+- **Smoke-test del login OTP end-to-end**: requiere levantar km0lab-api en
+  local (Docker/MySQL); el flujo Login→CheckEmail apunta a `localhost:8000`.
+- **Deploy**: web a Vercel (poner `VITE_*` en el dashboard); km0lab-api a
+  Railway (cuenta, SMTP real y dominio). Capacitor/Android: `cap:add:android`,
+  firma y Play Console (iOS diferido, requiere Mac/CI macOS).
+- **QA visual** en las 4 resoluciones canónicas vs. Lovable publicado (§ de
+  `docs/PORTING-FROM-LOVABLE.md`) — no hecha aún (entorno sin navegador).
 
-El `sync:lovable` **nunca se ha ejecutado de verdad** (el
-`scripts/lovable-manifest.json` está vacío). Portar el frontend completo
-—declarando los archivos en el manifest y corriendo el sync por tandas,
-según `docs/PORTING-FROM-LOVABLE.md` §12— es LA tarea principal de la
-fase de producción. No se sincronizan las piezas solo-Lovable (preview
-harness, `integrations/`, `design-system/`); ver KNOWLEDGE.md §0.
+**Convenciones/decisiones tomadas durante el porte:**
 
-**Otros próximos pasos (el humano prioriza):**
+- **Assets**: se espeja la estructura de `src/assets` de Lovable en
+  `apps/km0lab/src/assets` (mismos nombres/rutas, algunos con underscore),
+  porque el código portado importa esas rutas y el sync no reescribe rutas de
+  assets. Se desvía del kebab de `AGENTS.md §3`; documentado en
+  `scripts/assets-manifest.json`.
+- **TypeScript**: `apps/km0lab` relaja `noUncheckedIndexedAccess` (ajeno a
+  `strict`, no usado por Lovable) para portar accesos por índice 1:1;
+  `packages/*` mantienen la estrictez plena.
 
-- Conectar la app a `km0lab-api` (capa de service + JWT en el store, en
-  sustitución de `services/mock/auth.ts`).
-- SMTP real para OTP y despliegue de km0lab-api en Railway.
-- Capacitor: generar shells nativos y builds para stores.
-
-**Deuda abierta:**
-
-- `packages/km0lab-web-theme/tailwind.config.js` tiene un comentario que
-  rompe el parser de Prettier (falla `pnpm format:check` del repo
-  entero). Ajeno a los cambios de proceso.
-
-**Deudas resueltas** (histórico): CLAUDE.md alineado al stack real;
-events-query `/events` y `/news` responden 200 y su CORS para Lovable
-está desplegado.
+**Deudas resueltas** (histórico): comentario que rompía Prettier en
+`km0lab-web-theme` (arreglado; repo formateado); `env.ts` migrado a Vite
+(`import.meta.env.VITE_*`); script `build:web` añadido; `dev` del root
+corregido; CLAUDE.md alineado al stack real.
 
 ## 7. Prompt inicial para arrancar la nueva sesión
 
