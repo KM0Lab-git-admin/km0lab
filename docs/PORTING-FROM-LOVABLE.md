@@ -488,45 +488,90 @@ El porte manual de §4–§5 está automatizado en `scripts/sync-lovable.mjs`.
 El script aplica el mapping de §3, reescribe imports y ejecuta en
 automático los pre-checks de §2.4 (deps) y §4.1/§7.1 (breakpoints).
 
+### 12.0. Contrato del manifest (obligatorio)
+
+`scripts/lovable-manifest.json` es el contrato de frontera entre Lovable
+(source of truth visual) y producción (owner de lógica real).
+
+Reglas duras:
+
+1. **Siempre se porta todo lo portable.** `files` lista el inventario
+   completo de páginas, componentes de pantalla, primitivos ui usados,
+   data, hooks, services y tipos que Lovable posee. No se sincroniza
+   “a trozos” ni por tanda ad-hoc: si Lovable tiene un archivo
+   portable y no está en `files`, es un bug del manifest.
+2. **Producción no se machaca.** `locked` lista destinos cuya
+   implementación real ya vive en km0lab. El sync se niega a
+   sobrescribirlos (error). Un path acabado en `/` bloquea el
+   directorio entero.
+3. **Fixes UI van primero a Lovable `main`.** Luego `pnpm sync:lovable`
+   los trae a `develop`. Nunca “parchear solo en producción” un
+   componente que Lovable posee: en el próximo sync se pierde.
+4. **Strict TS de producción es más duro que Lovable.** Lovable
+   compila con `strict: false`. Antes de sync, los archivos nuevos o
+   cambiados deben tipar limpio bajo el `tsconfig` de km0lab (nullish,
+   exhaustividad de `switch`, refs, etc.). Si falla, se corrige en
+   Lovable y se re-sincroniza.
+
+Candados actuales (`locked`):
+
+| Destino                                 | Por qué es de producción                                     |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `packages/app/services/km0labClient.ts` | Cliente HTTP real (JWT / API)                                |
+| `packages/app/services/apiClient.ts`    | Env real (`VITE_EVENTS_API_URL`); Lovable usa proxy Supabase |
+| `packages/app/services/auth.ts`         | OTP/JWT reales (no mock)                                     |
+| `packages/app/services/profile.ts`      | Perfil real                                                  |
+| `packages/app/stores/useAppStore.ts`    | Store real (sesión, token, notificaciones)                   |
+| `packages/app/hooks/useAuth.ts`         | Hook real sobre el store                                     |
+| `packages/app/hooks/useProfile.ts`      | Hook real sobre el store                                     |
+| `packages/app/utils/env.ts`             | Variables de entorno de producción                           |
+| `packages/app/data/notifications.ts`    | Datos/notificaciones de producción                           |
+
+Nunca se sincronizan (fuera de `files` a propósito):
+
+- `src/integrations/`, `supabase/`, `src/design-system/`
+- Preview / harness: `PreviewAll`, `DesignSystem`, `DeviceShell`,
+  `SimulatedDevice`, `ScreenFrame`, `SocialAuthButtons`, `VoiceRecorder`
+- `src/services/mock/*` (las firmas las cubren services locked)
+- `src/services/eventQueryApi.ts` y `src/services/types.ts` (duplican
+  `Evento`/`QueryResponse` de `apiSchemas` y llaman a Supabase)
+- `src/hooks/useAuth.ts`, `useProfile.ts`, `src/stores/useAppStore.ts`
+  (mocks; la implementación real está locked)
+- `src/hooks/use-toast.ts` (shim; la impl. va por `components/ui/use-toast.ts`)
+
+Al conectar un service/hook real nuevo: añádelo a `locked` en el mismo
+commit. Al añadir una pantalla/componente en Lovable: añádelo a `files`
+en el mismo sync.
+
 ### 12.1. Uso
 
-1. Declara los archivos a portar en `scripts/lovable-manifest.json`:
-
-```json
-{
-  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
-  "files": [
-    { "from": "src/pages/Rewards.tsx" },
-    { "from": "src/components/RewardCard.tsx" },
-    { "from": "src/components/ui/dialog.tsx" },
-    { "from": "src/services/rewardsService.ts" },
-    { "from": "src/data/rewards.ts", "to": "packages/app/data/rewards.ts" },
-    { "from": "src/locales/rewards.json" }
-  ]
-}
-```
-
-El destino se deriva solo; `"to"` explícito únicamente para excepciones
-(p. ej. data compartido que deba vivir en `packages/app/data` en lugar de
-`apps/km0lab/src/data`).
+1. Mantén `scripts/lovable-manifest.json` al día (`files` + `locked`).
+   Entrada típica: `{ "from": "src/pages/X.tsx" }`. El destino se deriva
+   solo; `"to"` explícito solo para excepciones (p. ej. data compartido
+   hacia `packages/app/data`).
 
 2. Ejecuta primero en seco y revisa el informe:
 
 ```bash
 pnpm sync:lovable -- --dry-run
+# con checkout local (recomendado):
+pnpm sync:lovable -- --dry-run --source ../speak-spanish-easily
 ```
 
-3. Ejecuta en real, revisa el diff con git y completa los pasos manuales
-   que lista el script (ruta en `App.tsx`, `pnpm sync:assets` si hay
-   binarios, `pnpm lint:fix`, `pnpm validate`, QA visual en las 4
-   resoluciones):
+3. Ejecuta en real, revisa el diff con git y completa los pasos
+   manuales que lista el script (ruta en `App.tsx` si hay pantalla
+   nueva, `pnpm sync:assets` si hay binarios, `pnpm lint:fix`,
+   `npx turbo run type:check lint`, QA idiomas / visual):
 
 ```bash
-pnpm sync:lovable
+pnpm sync:lovable -- --source ../speak-spanish-easily
 ```
 
-Con un checkout local del repo de Lovable (más rápido y sin depender de
-raw.githubusercontent): `pnpm sync:lovable -- --source ../lovable`.
+Smoke de idiomas tras sync (Language → Onboarding en ca/es/en):
+
+```bash
+pnpm --filter @km0lab/e2e qa:lang
+```
 
 ### 12.2. Qué hace y qué no hace
 
@@ -536,12 +581,8 @@ raw.githubusercontent): `pnpm sync:lovable -- --source ../lovable`.
   seguridad; §7.7 queda cubierto porque el archivo se reemplaza entero).
 - Rechaza piezas solo-Lovable (`src/integrations/`, `supabase/`,
   `src/design-system/`, páginas y componentes del harness de preview) —
-  frontera definida en `docs/LOVABLE-KNOWLEDGE.md` §0.
-- Respeta los candados: los destinos listados en `"locked"` del manifest
-  (archivos cuya implementación real ya es propiedad de producción) no
-  se sobrescriben jamás; el intento produce error. Un path acabado en
-  `/` bloquea el directorio entero. Al conectar un service real, añade
-  su path a `locked` en el mismo PR.
+  frontera definida en `docs/LOVABLE-KNOWLEDGE.md` §0 y en §12.0.
+- Respeta los candados `locked` (§12.0): no se sobrescriben jamás.
 - Reescribe imports según la zona de destino: `@/components/ui/x` →
   `@km0lab/ui`, `@/hooks|services/...` → `@km0lab/app` (en la app);
   `@/lib/utils` → `../lib/utils` y `@/components/ui/x` → `./x` (en
@@ -561,8 +602,12 @@ raw.githubusercontent): `pnpm sync:lovable -- --source ../lovable`.
 - Assets binarios (→ `pnpm sync:assets`, §6) y fuentes (§6.3).
 - Añadir la ruta en `App.tsx` y decidir data compartido vs. de pantalla.
 - Instalar dependencias que el informe marque como faltantes.
-- Validación (`pnpm validate`) y QA visual (§4.4, §8).
+- Validación (`pnpm validate` / `turbo type:check lint`) y QA (§4.4, §8,
+  `qa:lang`).
 - Cambios en `index.css`/tokens: siempre revisión manual.
+- Ampliar el store real cuando un hook sincronizado necesite campos
+  nuevos (p. ej. `notificationsLastSeenAt`): se hace a mano en el
+  archivo locked, no vía sync.
 
 Si el script termina con errores (exit 1), los archivos SÍ se escriben
 para que puedas inspeccionarlos, pero **no commitees** hasta resolver
@@ -577,3 +622,6 @@ copy en `locales/`). Ese documento se pega en `Settings → Knowledge` del
 proyecto de Lovable junto con el prompt pack de
 `packages/app/design-system/aiContext.ts`, y se actualiza en el mismo PR
 que cambie las reglas.
+
+Además: cualquier cambio de UI o copy que deba llegar a producción se
+commitea primero en Lovable `main`; producción solo consume vía sync.

@@ -49,6 +49,8 @@ BD, secretos, lógica de negocio). El automatismo es `pnpm sync:lovable`.
 (speak-spanish-easily) — el contrato de generación de código para
 Lovable: frontera, estructura, layout portrait-first, deps aprobadas. 4. `docs/PORTING-FROM-LOVABLE.md` — cómo se portan pantallas; §12
 documenta `pnpm sync:lovable` (script + manifest + candados `locked`).
+El contrato completo (portar todo lo portable, no machacar lógica
+real, fixes UI primero en Lovable) está en §12.0.
 
 **Diseño y producto:** 5. `docs/DESIGN-SYSTEM.md` — design system + catálogo de componentes +
 identidad visual, para pasar a cualquier IA. Se regenera con
@@ -75,48 +77,41 @@ propio `README.md`.
 
 ## 6. Estado actual y deudas conocidas
 
-El frontend de Lovable ya está portado casi por completo al monorepo y la
-app **compila a producción** (`pnpm --filter km0lab build` verde). El porte
-se hizo por tandas con `pnpm sync:lovable` (+ ajustes manuales) sobre la rama
-`develop`; el histórico está en los commits `feat: porta …`.
+El frontend de Lovable está sincronizado al monorepo vía
+`pnpm sync:lovable` con inventario completo en
+`scripts/lovable-manifest.json` (contrato §12.0 de
+`docs/PORTING-FROM-LOVABLE.md`). La app **compila a producción**
+(`pnpm --filter km0lab build` verde). Rama de integración: `develop`.
 
 **Hecho (en `develop`):**
 
-- **Pantallas portadas** (`apps/km0lab/src/pages`): Language, Onboarding,
-  PostalCode, Home (con `forceAuthState` guest/registrado), Login, CheckEmail,
-  Profile, Agenda, Noticias, EventosHoy, Evento. Rutas declaradas en
-  `apps/km0lab/src/App.tsx` (árbol de providers de Lovable: QueryClient →
-  LangProvider → TooltipProvider → Toaster + SonnerToaster → BrowserRouter).
-- **Componentes** (~30) y **lógica compartida** en `@km0lab/app`: i18n
-  (`utils/i18n`), `LangContext`, store Zustand (`useAppStore`, con `token`
-  JWT persistido), hooks (`useAuth`, `useProfile`, `useNotifications`,
-  `use-breakpoint`, `use-mobile`), types y data. Primitivos de infra en
-  `@km0lab/ui` (toast/toaster/sonner/tooltip/use-toast).
-- **Backend real cableado (km0lab-api)**: `services/km0labClient` (Bearer JWT
-  y validación zod), `services/auth` (OTP request/verify) y `services/profile`
-  (`/users/me`) sustituyen a los mocks sin tocar pantallas. Bloqueados en
-  `locked` del manifest. Base URL en `VITE_KM0LAB_API_URL`.
-- **events-query**: `apiClient`/`apiSchemas`/`eventsApi`/`newsApi` portados;
-  el `apiClient` pega directo a `VITE_EVENTS_API_URL` (sin el proxy Supabase
-  de Lovable). Agenda/Noticias/EventosHoy/Evento consumen esos services.
+- **Pantallas portadas** (`apps/km0lab/src/pages`): Language (vía Index),
+  Onboarding, PostalCode, Home (guest/registrado), Login, CheckEmail,
+  Profile, Agenda, Noticias, Evento. Rutas en `apps/km0lab/src/App.tsx`.
+  `EventosHoy` se eliminó (Lovable ya no la tiene).
+- **Componentes** (~30) y **lógica compartida** en `@km0lab/app`: i18n,
+  `LangContext`, store Zustand (`useAppStore` con token JWT +
+  `notificationsLastSeenAt`), hooks (`useAuth`, `useProfile`,
+  `useNotifications`, `useFeaturedPromos`, breakpoints), types y data.
+  Primitivos en `@km0lab/ui`.
+- **Backend real (km0lab-api)**: `km0labClient`, `auth`, `profile`
+  locked en el manifest. Base URL en `VITE_KM0LAB_API_URL`.
+- **events-query**: `apiSchemas`/`eventsApi`/`newsApi` sincronizados;
+  `apiClient` locked (pega a `VITE_EVENTS_API_URL`, sin proxy Supabase).
+- **Onboarding**: imágenes locales en `src/assets/onboarding/*.jpg`
+  (vía `pnpm sync:assets`). El idioma se lee del store (`useLang`).
+- **Smoke idiomas**: `pnpm --filter @km0lab/e2e qa:lang` (ca/es/en).
 
 **Pendiente:**
 
-- **Chat** (pantalla + `chatMachine` + `VoiceRecorder` + `eventQueryApi`):
-  aparcado a propósito; se portará más adelante.
-- **Onboarding re-alineado**: la versión nueva de Lovable usa imágenes
-  servidas por el CDN interno de Lovable (`src/assets/onboarding/*.asset.json`
-  son punteros, no binarios), así que NO se pueden sincronizar con
-  `pnpm sync:assets`. Sigue la versión antigua (basada en emojis). Para
-  re-alinearla: subir esas imágenes a `speak-spanish-easily/src/assets/` como
-  binarios reales y volver a portar `Onboarding.tsx` + `onboardingSlides.ts`.
-- **Smoke-test del login OTP end-to-end**: requiere levantar km0lab-api en
-  local (Docker/MySQL); el flujo Login→CheckEmail apunta a `localhost:8000`.
-- **Deploy**: web a Vercel (poner `VITE_*` en el dashboard); km0lab-api a
-  Railway (cuenta, SMTP real y dominio). Capacitor/Android: `cap:add:android`,
-  firma y Play Console (iOS diferido, requiere Mac/CI macOS).
-- **QA visual** en las 4 resoluciones canónicas vs. Lovable publicado (§ de
-  `docs/PORTING-FROM-LOVABLE.md`) — no hecha aún (entorno sin navegador).
+- **Chat** (pantalla + `chatMachine` + `VoiceRecorder` + query NL):
+  aparcado; quedan fuera del sync.
+- **Smoke-test del login OTP end-to-end**: requiere km0lab-api en local.
+- **Deploy**: web a Vercel (`VITE_*` en dashboard); km0lab-api a
+  Railway (cuenta, SMTP real y dominio). Capacitor/Android: shells
+  nativos, firma y Play Console (iOS diferido).
+- **QA visual** en las 4 resoluciones canónicas vs. Lovable publicado
+  (`pnpm --filter @km0lab/e2e visual:language|visual:onboarding`).
 
 **Convenciones/decisiones tomadas durante el porte:**
 
