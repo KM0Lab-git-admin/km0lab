@@ -16,7 +16,7 @@ import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
 
 const RESEND_COOLDOWN_SECONDS = 30
-const CODE_LENGTH = 4
+const CODE_LENGTH = 6
 
 interface LocationState {
   email?: string
@@ -24,7 +24,7 @@ interface LocationState {
 }
 
 /**
- * CheckEmail — Entrada de código OTP de 4 dígitos enviado por email.
+ * CheckEmail — Entrada de código OTP de 6 dígitos enviado por email.
  */
 const CheckEmail = () => {
   const navigate = useNavigate()

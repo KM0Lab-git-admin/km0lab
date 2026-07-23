@@ -111,9 +111,9 @@ const D = {
     en: 'Check your email',
   } as Dict,
   'otp.subtitle': {
-    ca: 'Hem enviat un codi de 4 dígits a',
-    es: 'Hemos enviado un código de 4 dígitos a',
-    en: 'We sent a 4-digit code to',
+    ca: 'Hem enviat un codi de 6 dígits a',
+    es: 'Hemos enviado un código de 6 dígitos a',
+    en: 'We sent a 6-digit code to',
   } as Dict,
   'otp.resend': {
     ca: 'Reenviar codi',
