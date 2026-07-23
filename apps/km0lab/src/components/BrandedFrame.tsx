@@ -37,6 +37,8 @@ interface BrandedFrameProps {
   onBack?: () => void
   /** Aria label para el back button (i18n responsabilidad de la pantalla) */
   backAriaLabel?: string
+  /** Si true, oculta el header con el logo (pantalla con su propio hero) */
+  hideHeader?: boolean
   /** Clases extra para el contenedor de contenido en portrait */
   portraitContentClassName?: string
   /** Clases extra para el contenedor de contenido en landscape */
@@ -47,6 +49,7 @@ const BrandedFrame = ({
   children,
   onBack,
   backAriaLabel = 'Back',
+  hideHeader = false,
   portraitContentClassName = '',
   landscapeContentClassName = '',
 }: BrandedFrameProps) => {
@@ -86,14 +89,16 @@ const BrandedFrame = ({
       >
         {/* Header — logo centrado con espacio reservado a los lados
             para que NUNCA se solape con el back button (incluso a 375px). */}
-        <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
-          {renderBackButton('left-4 w-10 h-10', 20)}
-          <Km0Logo className="h-9 w-auto max-w-full" />
-        </header>
+        {!hideHeader && (
+          <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
+            {renderBackButton('left-4 w-10 h-10', 20)}
+            <Km0Logo className="h-9 w-auto max-w-full" />
+          </header>
+        )}
 
         {/* Body — scroll interno si desborda, frame nunca se mueve */}
         <div
-          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto ${portraitContentClassName}`}
+          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName}`}
         >
           {children}
         </div>
@@ -114,14 +119,16 @@ const BrandedFrame = ({
         }}
       >
         {/* Header */}
-        <header className="relative shrink-0 flex items-center justify-center pt-3 horizontal-desktop:pt-5 pb-2 horizontal-desktop:pb-4 px-5">
-          {renderBackButton('left-3 horizontal-desktop:left-4 w-9 h-9', 20)}
-          <Km0Logo className="h-8 horizontal-desktop:h-11 w-auto" />
-        </header>
+        {!hideHeader && (
+          <header className="relative shrink-0 flex items-center justify-center pt-3 horizontal-desktop:pt-5 pb-2 horizontal-desktop:pb-4 px-5">
+            {renderBackButton('left-3 horizontal-desktop:left-4 w-9 h-9', 20)}
+            <Km0Logo className="h-8 horizontal-desktop:h-11 w-auto" />
+          </header>
+        )}
 
         {/* Body */}
         <div
-          className={`flex-1 min-h-0 flex w-full px-4 horizontal-desktop:px-6 pb-3 horizontal-desktop:pb-6 overflow-hidden ${landscapeContentClassName}`}
+          className={`flex-1 min-h-0 flex w-full px-4 horizontal-desktop:px-6 pb-3 horizontal-desktop:pb-6 overflow-hidden ${hideHeader ? 'pt-3 horizontal-desktop:pt-5' : ''} ${landscapeContentClassName}`}
         >
           {children}
         </div>

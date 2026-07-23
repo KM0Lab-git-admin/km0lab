@@ -1,0 +1,110 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "slug": "charlas",
+      "nombre_es": "Charlas",
+      "nombre_cat": "Xerrades",
+      "count": 3
+    },
+    {
+      "id": 9,
+      "slug": "cine",
+      "nombre_es": "Cine",
+      "nombre_cat": "Cinema",
+      "count": 0
+    },
+    {
+      "id": 1,
+      "slug": "cultura",
+      "nombre_es": "Cultura",
+      "nombre_cat": "Cultura",
+      "count": 7
+    },
+    {
+      "id": 2,
+      "slug": "deportes",
+      "nombre_es": "Deportes",
+      "nombre_cat": "Esports",
+      "count": 2
+    },
+    {
+      "id": 11,
+      "slug": "exposiciones",
+      "nombre_es": "Exposiciones",
+      "nombre_cat": "Exposicions",
+      "count": 0
+    },
+    {
+      "id": 15,
+      "slug": "ferias",
+      "nombre_es": "Ferias",
+      "nombre_cat": "Fires",
+      "count": 1
+    },
+    {
+      "id": 14,
+      "slug": "fiestas-mayores",
+      "nombre_es": "Fiestas mayores",
+      "nombre_cat": "Festes majors",
+      "count": 5
+    },
+    {
+      "id": 5,
+      "slug": "formacion",
+      "nombre_es": "Formación",
+      "nombre_cat": "Formació",
+      "count": 4
+    },
+    {
+      "id": 6,
+      "slug": "gastronomia",
+      "nombre_es": "Gastronomía",
+      "nombre_cat": "Gastronomia",
+      "count": 1
+    },
+    {
+      "id": 4,
+      "slug": "infantil",
+      "nombre_es": "Infantil",
+      "nombre_cat": "Infantil",
+      "count": 4
+    },
+    {
+      "id": 13,
+      "slug": "lectura",
+      "nombre_es": "Lectura",
+      "nombre_cat": "Lectura",
+      "count": 0
+    },
+    {
+      "id": 7,
+      "slug": "musica",
+      "nombre_es": "Música",
+      "nombre_cat": "Música",
+      "count": 5
+    },
+    {
+      "id": 8,
+      "slug": "naturaleza",
+      "nombre_es": "Naturaleza",
+      "nombre_cat": "Naturalesa",
+      "count": 0
+    },
+    {
+      "id": 3,
+      "slug": "ocio",
+      "nombre_es": "Ocio",
+      "nombre_cat": "Oci",
+      "count": 5
+    },
+    {
+      "id": 10,
+      "slug": "teatro",
+      "nombre_es": "Teatro",
+      "nombre_cat": "Teatre",
+      "count": 1
+    }
+  ],
+  "total": 15
+}

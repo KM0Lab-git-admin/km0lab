@@ -13,6 +13,10 @@ const Login = lazy(() => import('./pages/Login'))
 const CheckEmail = lazy(() => import('./pages/CheckEmail'))
 const Home = lazy(() => import('./pages/Home'))
 const Profile = lazy(() => import('./pages/Profile'))
+const Agenda = lazy(() => import('./pages/Agenda'))
+const Noticias = lazy(() => import('./pages/Noticias'))
+const EventosHoy = lazy(() => import('./pages/EventosHoy'))
+const Evento = lazy(() => import('./pages/Evento'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const queryClient = new QueryClient()
@@ -43,8 +47,11 @@ export default function App() {
                   element={<Home forceAuthState="guest" />}
                 />
                 <Route path="/profile" element={<Profile />} />
-                {/* Rutas del subsistema events-query (agenda, evento, noticias,
-                    hoy, chat) pendientes de su tanda. */}
+                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/noticias" element={<Noticias />} />
+                <Route path="/hoy" element={<EventosHoy />} />
+                <Route path="/evento" element={<Evento />} />
+                {/* Chat pendiente de su tanda. */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

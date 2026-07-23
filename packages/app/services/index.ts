@@ -11,3 +11,8 @@
 export * from './km0labClient'
 export * from './auth'
 export * from './profile'
+// apiClient es de bajo nivel (lo usan eventsApi/newsApi por ruta relativa);
+// no se re-exporta para evitar colisiones de ApiError/apiFetch con km0labClient.
+export * from './apiSchemas'
+export * from './eventsApi'
+export * from './newsApi'

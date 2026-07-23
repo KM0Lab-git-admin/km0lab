@@ -2,14 +2,19 @@
   "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas en files: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data). locked: destinos propiedad de producción (implementación real ya conectada); el sync se niega a sobrescribirlos — un path acabado en / bloquea el directorio entero.",
   "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
   "files": [
-    { "from": "src/pages/Index.tsx" },
-    { "from": "src/pages/Login.tsx" },
-    { "from": "src/pages/CheckEmail.tsx" },
-    { "from": "src/pages/Profile.tsx" },
-    { "from": "src/pages/Home.tsx" },
-    { "from": "src/pages/NotFound.tsx" },
-    { "from": "src/pages/Language.tsx" },
-    { "from": "src/pages/PostalCode.tsx" }
+    { "from": "src/services/apiClient.ts" },
+    { "from": "src/services/apiSchemas.ts" },
+    { "from": "src/services/eventsApi.ts" },
+    { "from": "src/services/newsApi.ts" },
+    { "from": "src/data/fixtures/categories.json" },
+    { "from": "src/data/fixtures/events-today.json" },
+    { "from": "src/data/fixtures/news.json" },
+    { "from": "src/data/fixtures/query.json" },
+    { "from": "src/components/EventCard.tsx" },
+    { "from": "src/pages/Agenda.tsx" },
+    { "from": "src/pages/Noticias.tsx" },
+    { "from": "src/pages/EventosHoy.tsx" },
+    { "from": "src/pages/Evento.tsx" }
   ],
   "locked": [
     "packages/app/services/km0labClient.ts",

@@ -1,0 +1,44 @@
+{
+  "data": [
+    {
+      "id": "d981284158e506fe00adc07973b5c3645d10a9e169ab69c6acd985eb3a887359",
+      "titulo_es": "Las actividades deportivas gratuitas para mujeres, del 15 de junio al 15 de septiembre",
+      "titulo_cat": "Les activitats esportives gratuïtes per a dones, del 15 de juny al 15 de setembre",
+      "cp": "08380",
+      "poblacion": "Malgrat de Mar",
+      "lugar": "Parc del Castell",
+      "es_gratuito": false,
+      "precio": 0.0,
+      "imagen_url": "/static/images/d981284158e506fe00adc07973b5c3645d10a9e169ab69c6acd985eb3a887359/00_e438cf054c40.jpg",
+      "hora_inicio": null,
+      "hora_fin": null,
+      "categorias": ["deportes"],
+      "imagenes": [
+        {
+          "url": "/static/images/d981284158e506fe00adc07973b5c3645d10a9e169ab69c6acd985eb3a887359/00_e438cf054c40.jpg",
+          "nombre_archivo": "00_e438cf054c40.jpg",
+          "tipo_archivo": "JPG",
+          "es_principal": true,
+          "orden": 0,
+          "ancho_px": 800,
+          "alto_px": 421,
+          "orientacion": "horizontal",
+          "url_original_externa": "https://cdn4.telesco.pe/file/FD6W40tqvpBSyjgoQisGNS3LRqkpJ6UxsxDDuoB8tEhDrzQqXpV2U2csur8Om6j5BybL0kK29u1ZwwPNXB07RhHpK3dYLvNmOOs10Cc-VN9t1TqtRWgXH28oaHSb5oa0eStwlZPq1ZVnWbg5Z7_HwMfyE1rM25NcNIryQU707xdo6dQeoyc1FN3bFDiDpkTGZh5oLhDCa8KdnQXDUp3zZAI-Hd4qWjqjnopGvxnKN7UVctNXGE3VsbHl-axFATpF6S0nA1GbPn06vR2K6f10ks1_om8Z1DEz-3uHKTmySE9kj9ndbP-dMXnIXLPq3UNC1x-3Ju4ggBGeUcvgR5_KuQ.jpg"
+        },
+        {
+          "url": "/static/images/d981284158e506fe00adc07973b5c3645d10a9e169ab69c6acd985eb3a887359/01_7541d2f2d1fb.jpg",
+          "nombre_archivo": "01_7541d2f2d1fb.jpg",
+          "tipo_archivo": "JPG",
+          "es_principal": false,
+          "orden": 1,
+          "ancho_px": 2375,
+          "alto_px": 1250,
+          "orientacion": "horizontal",
+          "url_original_externa": "https://www.ajmalgrat.cat/media/repository/noticies/2026/Noticies/WEBBannerEsports26.jpg"
+        }
+      ]
+    }
+  ],
+  "total": 1,
+  "fecha": "2026-07-21"
+}

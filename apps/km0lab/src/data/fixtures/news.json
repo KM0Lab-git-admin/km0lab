@@ -1,0 +1,40 @@
+{
+  "_nota": "Fixture SINTÉTICA (el endpoint /api/v1/news devuelve 500 en prod a 2026-07-21). Shape idéntico al handler _row_to_news de events-query. Sustituir por captura real cuando el endpoint funcione.",
+  "data": [
+    {
+      "id": "not_a1b2c3d4e5f6",
+      "ciudad": "Malgrat de Mar",
+      "titulo_cat": "L'Ajuntament obre les inscripcions del casal d'estiu",
+      "titulo_es": "El Ayuntamiento abre las inscripciones del casal de verano",
+      "cuerpo_cat": "A partir de dilluns es poden formalitzar les inscripcions al casal d'estiu municipal per a infants de 3 a 12 anys...",
+      "cuerpo_es": "A partir del lunes se pueden formalizar las inscripciones al casal de verano municipal para niños de 3 a 12 años...",
+      "resumen_cat": "Inscripcions obertes del casal d'estiu per a infants de 3 a 12 anys.",
+      "resumen_es": "Inscripciones abiertas del casal de verano para niños de 3 a 12 años.",
+      "tags_cat": ["famílies", "estiu", "educació"],
+      "tags_es": ["familias", "verano", "educación"],
+      "fecha_publicacion": "2026-07-18T09:30:00",
+      "imagen_principal_url": "https://eventquery.km0lab.com/static/images/casal-estiu.jpg",
+      "fuente_url_original": "https://www.ajmalgrat.cat/actualitat/noticies/casal-estiu",
+      "idioma_origen": "CAT"
+    },
+    {
+      "id": "not_f6e5d4c3b2a1",
+      "ciudad": "Malgrat de Mar",
+      "titulo_cat": "Tall de trànsit al passeig marítim aquest dissabte",
+      "titulo_es": "Corte de tráfico en el paseo marítimo este sábado",
+      "cuerpo_cat": "Amb motiu de la cursa popular, el passeig marítim restarà tancat al trànsit de 8 a 14 h...",
+      "cuerpo_es": "Con motivo de la carrera popular, el paseo marítimo permanecerá cerrado al tráfico de 8 a 14 h...",
+      "resumen_cat": "El passeig marítim tancat al trànsit dissabte de 8 a 14 h per la cursa popular.",
+      "resumen_es": "El paseo marítimo cerrado al tráfico el sábado de 8 a 14 h por la carrera popular.",
+      "tags_cat": ["mobilitat", "esports"],
+      "tags_es": ["movilidad", "deportes"],
+      "fecha_publicacion": "2026-07-17T14:00:00",
+      "imagen_principal_url": null,
+      "fuente_url_original": "https://www.ajmalgrat.cat/actualitat/noticies/tall-transit",
+      "idioma_origen": "CAT"
+    }
+  ],
+  "total": 2,
+  "limit": 20,
+  "offset": 0
+}
