@@ -103,9 +103,11 @@ van en **catalán** (contenido por defecto de la app) + variante ES vía i18n. M
 
 ## 5. Estado del código / repos
 
-- **Rama de este traspaso**: `claude/session-li6k16` en `KM0Lab-git-admin/km0lab`
-  (al día con `develop` + esta carpeta `docs/comercos/`).
-- **NO commitear en `develop`**: el PO trabaja en `develop` en paralelo. Usa tu rama.
+- **Ubicación**: esta carpeta `docs/comercos/` está en **`develop`** de
+  `KM0Lab-git-admin/km0lab` (y también en la rama `claude/session-li6k16`). Puedes
+  leerla directamente desde `develop`.
+- **Para código nuevo**: trabaja en tu propia rama. El PO trabaja en `develop` en
+  paralelo, así que evita commits de código que puedan colisionar (los docs no colisionan).
 - **Repos**: `km0lab` (producción, este repo), `speak-spanish-easily` (prototipo Lovable),
   `events-query` (API de eventos/noticias, read-only), `km0lab-api` (backend de la app).
   Detalle en `docs/START-HERE-AI.md` y `docs/BACKEND.md`.
