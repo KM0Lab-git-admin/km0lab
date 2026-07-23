@@ -10,6 +10,7 @@
  * `@/data/fixtures/` (query.json, events-today.json, categories.json).
  */
 import { apiFetch } from '../services/apiClient'
+import { absolutizeEventsAsset } from '../services/eventsAssets'
 import {
   queryResponseSchema,
   todayResponseSchema,
@@ -23,10 +24,6 @@ import {
   type EventoDetail,
   type EventImagen,
 } from '../services/apiSchemas'
-
-const EVENTS_BASE: string =
-  (import.meta.env.VITE_EVENTS_API_URL as string | undefined) ??
-  'https://eventquery.km0lab.com'
 
 /** Búsqueda en lenguaje natural (experiencia chat). Rate limit 30/min. */
 export async function queryEvents(
@@ -78,8 +75,7 @@ export interface AgendaEvent {
 }
 
 function toAbsoluteImage(url?: string | null): string | null {
-  if (!url) return null
-  return url.startsWith('http') ? url : `${EVENTS_BASE}${url}`
+  return absolutizeEventsAsset(url)
 }
 
 function adaptListEvent(item: EventsListItem, lang: 'es' | 'ca'): AgendaEvent {
