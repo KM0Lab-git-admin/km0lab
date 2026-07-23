@@ -26,7 +26,7 @@ export interface Slide {
   altCa: string
   altEs: string
   altEn: string
-  /** Fondo del Ã¡rea de imagen (token KM0 hsl). */
+  /** Fondo del área de imagen (token KM0 hsl). */
   color: string
   /** Ilustración local (import Vite → URL). */
   image: string
@@ -42,11 +42,11 @@ export const slides: Slide[] = [
     titleCa: 'Connecta amb el teu barri',
     titleEs: 'Conecta con tu barrio',
     titleEn: 'Connect with your neighborhood',
-    descCa: 'ComerÃ§os, serveis i activitats locals en un sol lloc.',
+    descCa: 'Comerços, serveis i activitats locals en un sol lloc.',
     descEs: 'Comercios, servicios y actividades locales en un solo lugar.',
     descEn: 'Local shops, services and activities in one place.',
-    altCa: "Dues persones saludant-se davant d'un comerÃ§ local de barri.",
-    altEs: 'Dos personas saludÃ¡ndose delante de un comercio local de barrio.',
+    altCa: "Dues persones saludant-se davant d'un comerç local de barri.",
+    altEs: 'Dos personas saludándose delante de un comercio local de barrio.',
     altEn: 'Two people high-fiving in front of a local neighborhood shop.',
     color: 'hsl(var(--km0-beige-100))',
     image: slide1,
@@ -59,7 +59,7 @@ export const slides: Slide[] = [
     titleCa: 'No et perdis res important',
     titleEs: 'No te pierdas nada importante',
     titleEn: "Don't miss anything important",
-    descCa: "Agenda d'esdeveniments, notÃ­cies i avisos del teu municipi.",
+    descCa: "Agenda d'esdeveniments, notícies i avisos del teu municipi.",
     descEs: 'Agenda de eventos, noticias y avisos de tu municipio.',
     descEn: 'Events, news and alerts from your town.',
     altCa: 'Calendari local amb activitats, mercat, cultura i esports.',
@@ -73,7 +73,7 @@ export const slides: Slide[] = [
     id: 'punts_recompenses',
     step: 3,
     xp: 10,
-    titleCa: 'Guanya punts i obtÃ© recompenses',
+    titleCa: 'Guanya punts i obté recompenses',
     titleEs: 'Gana puntos y consigue recompensas',
     titleEn: 'Earn points and get rewards',
     descCa:
@@ -93,11 +93,11 @@ export const slides: Slide[] = [
     id: 'assistent_247',
     step: 4,
     xp: 10,
-    titleCa: 'Assistent intelÂ·ligent 24/7',
+    titleCa: 'Assistent intel·ligent 24/7',
     titleEs: 'Asistente inteligente 24/7',
     titleEn: 'Smart assistant 24/7',
-    descCa: 'Responem els teus dubtes sobre trÃ mits, serveis i molt mÃ©s.',
-    descEs: 'Respondemos tus dudas sobre trÃ¡mites, servicios y mucho mÃ¡s.',
+    descCa: 'Responem els teus dubtes sobre tràmits, serveis i molt més.',
+    descEs: 'Respondemos tus dudas sobre trámites, servicios y mucho más.',
     descEn: 'We answer your questions about paperwork, services and much more.',
     altCa: "Assistent virtual KM0 responent preguntes des d'un ordinador.",
     altEs: 'Asistente virtual KM0 respondiendo preguntas desde un ordenador.',
@@ -110,17 +110,17 @@ export const slides: Slide[] = [
     id: 'municipi_sostenible',
     step: 5,
     xp: 10,
-    titleCa: 'Fem crÃ©ixer el nostre municipi',
+    titleCa: 'Fem créixer el nostre municipi',
     titleEs: 'Hagamos crecer nuestro municipio',
     titleEn: "Let's grow our town together",
     descCa:
-      'ColÂ·laborant, consumint local i participant, fem un municipi mÃ©s prÃ²sper i sostenible.',
+      'Col·laborant, consumint local i participant, fem un municipi més pròsper i sostenible.',
     descEs:
-      'Colaborando, consumiendo local y participando, hacemos un municipio mÃ¡s prÃ³spero y sostenible.',
+      'Colaborando, consumiendo local y participando, hacemos un municipio más próspero y sostenible.',
     descEn:
       'By collaborating, buying local and taking part, we build a more prosperous and sustainable town.',
     altCa:
-      'Escena de municipi viu amb comerÃ§ local, serveis, salut i sostenibilitat.',
+      'Escena de municipi viu amb comerç local, serveis, salut i sostenibilitat.',
     altEs:
       'Escena de municipio vivo con comercio local, servicios, salud y sostenibilidad.',
     altEn:
