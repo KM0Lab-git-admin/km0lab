@@ -4,14 +4,9 @@
  * Fuente única de verdad para sesión, perfil, idioma y ubicación
  * (CP + población). Persiste en `localStorage` bajo la clave `km0_app`.
  *
- * Notas de diseño:
- *  - Mientras estamos en fase de mock, los servicios `services/mock/*`
- *    leen y escriben a través de las acciones expuestas aquí
- *    (`setSession`, `setProfile`, …). Cuando llegue el backend real
- *    bastará con que esas mismas acciones se llamen desde el cliente
- *    real (Twilio + SQL en Railway).
- *  - React Query se sigue usando SOLO para datos remotos (eventos del
- *    chat / agenda). Nada local vive en React Query.
+ * Setup mínimo (guest):
+ *  - `langChosen` — idioma elegido explícitamente (sin eso, ninguna pantalla).
+ *  - `postalCode` (+ `town`) — sin eso no hay Home.
  */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -38,30 +33,25 @@ export interface AppProfile {
 }
 
 interface AppState {
-  // session / profile
   session: AppSession | null
   /** JWT del backend km0lab-api (Bearer). Null si no hay sesión. */
   token: string | null
   /** Perfiles indexados por userId (multi-cuenta en el mismo dispositivo). */
   profiles: Record<string, AppProfile>
 
-  // i18n + ubicación
   lang: Lang
+  /** true solo tras pasar por la pantalla de idioma. */
+  langChosen: boolean
   postalCode: string | null
   town: string | null
 
-  // pending OTP (entre `requestOtp` y `verifyOtp`)
   pendingOtp: { email: string; postal_code?: string; town?: string } | null
 
-  /**
-   * Notificaciones: timestamp ISO de la última vez que el usuario abrió el
-   * panel. Se compara contra `fecha_publicacion` de cada noticia para
-   * decidir si hay no leídas (ver useNotifications).
-   */
   notificationsLastSeenAt: string | null
 
-  // ─── actions ───────────────────────────────
   setLang: (l: Lang) => void
+  /** Elige idioma y marca la elección explícita (flujo inicial). */
+  chooseLang: (l: Lang) => void
   setLocation: (postalCode: string | null, town: string | null) => void
 
   setSession: (s: AppSession | null) => void
@@ -73,7 +63,10 @@ interface AppState {
 
   markNotificationsSeen: () => void
 
+  /** Cierra sesión autenticada (mantiene lang/CP locales). */
   signOut: () => void
+  /** Logout guest: borra setup local y vuelve al estado inicial. */
+  clearLocalSetup: () => void
 }
 
 const emptyProfile = (email: string | null = null): AppProfile => ({
@@ -85,13 +78,23 @@ const emptyProfile = (email: string | null = null): AppProfile => ({
   avatar_url: null,
 })
 
+const clearLegacyLocationKeys = () => {
+  try {
+    localStorage.removeItem('km0_postal_code')
+    localStorage.removeItem('km0_town')
+  } catch {
+    /* ignore */
+  }
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       session: null,
       token: null,
       profiles: {},
-      lang: 'es',
+      lang: 'ca',
+      langChosen: false,
       postalCode: null,
       town: null,
       pendingOtp: null,
@@ -101,7 +104,21 @@ export const useAppStore = create<AppState>()(
         if (!(LANGS as string[]).includes(l)) return
         set({ lang: l })
       },
-      setLocation: (postalCode, town) => set({ postalCode, town }),
+      chooseLang: (l) => {
+        if (!(LANGS as string[]).includes(l)) return
+        set({ lang: l, langChosen: true })
+      },
+      setLocation: (postalCode, town) => {
+        set({ postalCode, town })
+        if (postalCode && town) {
+          try {
+            localStorage.setItem('km0_postal_code', postalCode)
+            localStorage.setItem('km0_town', town)
+          } catch {
+            /* ignore */
+          }
+        }
+      },
 
       setSession: (s) => set({ session: s }),
       setToken: (t) => set({ token: t }),
@@ -120,20 +137,44 @@ export const useAppStore = create<AppState>()(
         set({ notificationsLastSeenAt: new Date().toISOString() }),
 
       signOut: () => set({ session: null, token: null, pendingOtp: null }),
+
+      clearLocalSetup: () => {
+        clearLegacyLocationKeys()
+        set({
+          session: null,
+          token: null,
+          pendingOtp: null,
+          profiles: {},
+          lang: 'ca',
+          langChosen: false,
+          postalCode: null,
+          town: null,
+          notificationsLastSeenAt: null,
+        })
+      },
     }),
     {
       name: 'km0_app',
-      version: 1,
-      // No persistimos `pendingOtp` (es efímero del flujo OTP en curso).
+      version: 2,
       partialize: (s) => ({
         session: s.session,
         token: s.token,
         profiles: s.profiles,
         lang: s.lang,
+        langChosen: s.langChosen,
         postalCode: s.postalCode,
         town: s.town,
         notificationsLastSeenAt: s.notificationsLastSeenAt,
       }),
+      migrate: (persisted, version) => {
+        const p = persisted as Record<string, unknown>
+        if (version < 2) {
+          // Quien ya tenía CP completó el flujo previo → idioma implícito OK.
+          const hasCp = Boolean(p.postalCode)
+          return { ...p, langChosen: hasCp }
+        }
+        return p
+      },
     }
   )
 )

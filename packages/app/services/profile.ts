@@ -49,6 +49,7 @@ export const updateProfile = async (
       auth: true,
       body: {
         name,
+        lang: useAppStore.getState().lang,
         postal_code: patch.postal_code ?? null,
         town: patch.town ?? null,
       },

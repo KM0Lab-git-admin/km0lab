@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
+import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
 import { LangProvider } from '@/contexts/LangContext'
 
@@ -32,24 +33,94 @@ export default function App() {
             <Suspense fallback={null}>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/postal-code" element={<PostalCode />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/check-email" element={<CheckEmail />} />
-                <Route path="/home" element={<Home />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <RequireSetup need="language">
+                      <Onboarding />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/postal-code"
+                  element={
+                    <RequireSetup need="language">
+                      <PostalCode />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <RequireSetup need="location">
+                      <Login />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/check-email"
+                  element={
+                    <RequireSetup need="location">
+                      <CheckEmail />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/home"
+                  element={
+                    <RequireSetup need="location">
+                      <Home />
+                    </RequireSetup>
+                  }
+                />
                 <Route
                   path="/home-registrado"
-                  element={<Home forceAuthState="authed" />}
+                  element={
+                    <RequireSetup need="location">
+                      <Home forceAuthState="authed" />
+                    </RequireSetup>
+                  }
                 />
                 <Route
                   path="/home-no-registrado"
-                  element={<Home forceAuthState="guest" />}
+                  element={
+                    <RequireSetup need="location">
+                      <Home forceAuthState="guest" />
+                    </RequireSetup>
+                  }
                 />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/agenda" element={<Agenda />} />
-                <Route path="/noticias" element={<Noticias />} />
-                <Route path="/evento" element={<Evento />} />
-                {/* Chat pendiente de su tanda. */}
+                <Route
+                  path="/profile"
+                  element={
+                    <RequireSetup need="location">
+                      <Profile />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/agenda"
+                  element={
+                    <RequireSetup need="location">
+                      <Agenda />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/noticias"
+                  element={
+                    <RequireSetup need="location">
+                      <Noticias />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/evento"
+                  element={
+                    <RequireSetup need="location">
+                      <Evento />
+                    </RequireSetup>
+                  }
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

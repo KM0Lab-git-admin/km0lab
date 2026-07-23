@@ -1,4 +1,4 @@
-import { requestOtp, t } from '@km0lab/app'
+import { requestOtp, t, useAppStore } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -12,13 +12,13 @@ import { useLang } from '@/contexts/LangContext'
 /**
  * Pantalla única de entrada (login + registro unificados).
  *
- * Flujo passwordless OTP de 4 dígitos. Recupera CP/población de
- * localStorage (escritos en /postal-code) y los adjunta al
- * user_metadata para que el trigger handle_new_user pueble profiles.
+ * Flujo passwordless OTP. Adjunta CP/población del store (setup local).
  */
 const Login = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
+  const postalCode = useAppStore((s) => s.postalCode)
+  const town = useAppStore((s) => s.town)
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -30,11 +30,9 @@ const Login = () => {
     }
 
     setSubmitting(true)
-    const postalCode = localStorage.getItem('km0_postal_code') ?? undefined
-    const town = localStorage.getItem('km0_town') ?? undefined
     const { error } = await requestOtp(email.trim(), {
-      postal_code: postalCode,
-      town,
+      postal_code: postalCode ?? undefined,
+      town: town ?? undefined,
     })
 
     if (error) {

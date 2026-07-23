@@ -280,6 +280,11 @@ const D = {
     es: 'Solo necesitas un email · 30 segundos',
     en: 'Just your email · 30 seconds',
   } as Dict,
+  'home.join.reset': {
+    ca: 'Reinicia idioma i codi postal',
+    es: 'Reinicia idioma y código postal',
+    en: 'Reset language and postal code',
+  } as Dict,
   'home.earn.title': {
     ca: 'Com guanyar punts',
     es: 'Cómo ganar puntos',

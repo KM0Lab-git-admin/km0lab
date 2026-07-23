@@ -4,6 +4,7 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
+  useAppStore,
 } from '@km0lab/app'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -34,9 +35,10 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     reload: reloadNotifs,
     markAllSeen,
   } = useNotifications()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, resetDeviceSetup } = useAuth()
   const { profile } = useProfile()
   const { lang } = useLang()
+  const town = useAppStore((s) => s.town)
   const navigate = useNavigate()
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
@@ -94,6 +96,10 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const goToProfile = () => navigate('/profile')
   const goToLogin = () => navigate('/login')
+  const resetSetup = async () => {
+    await resetDeviceSetup()
+    navigate('/', { replace: true })
+  }
 
   // Nombre: solo si el usuario está registrado Y ha guardado un first_name.
   const firstName = showProfile ? profile?.first_name?.trim() || null : null
@@ -106,15 +112,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  // Ciudad: prioriza perfil → localStorage → fallback.
-  const storedTown = (() => {
-    try {
-      return localStorage.getItem('km0_town')
-    } catch {
-      return null
-    }
-  })()
-  const cityName = profile?.town || storedTown || 'Malgrat de Mar'
+  const cityName = profile?.town || town || 'Malgrat de Mar'
 
   // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
   // barra de progreso al 10% hacia el nivel 2 en 1.000 pts).
@@ -141,6 +139,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     onTabChange: setActiveTab,
     showLogin,
     onLogin: goToLogin,
+    onResetSetup: showLogin ? resetSetup : undefined,
     showProfile,
     onProfile: goToProfile,
     showPoints,

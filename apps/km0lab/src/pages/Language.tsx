@@ -1,4 +1,4 @@
-import { t, type Lang } from '@km0lab/app'
+import { t, useAppStore, type Lang } from '@km0lab/app'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -44,12 +44,13 @@ const languages: {
 
 const Language = () => {
   const navigate = useNavigate()
-  const { lang, setLang } = useLang()
+  const { lang } = useLang()
+  const chooseLang = useAppStore((s) => s.chooseLang)
   const [selected, setSelected] = useState<string | null>(null)
 
   const handleSelect = (id: Lang) => {
     setSelected(id)
-    setLang(id)
+    chooseLang(id)
     setTimeout(() => navigate('/onboarding'), 300)
   }
 

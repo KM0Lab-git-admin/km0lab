@@ -5,12 +5,12 @@ import { useAppStore } from '../stores/useAppStore'
  *
  * Antes vivía en `services/mock/auth` + listeners propios; ahora es
  * un selector fino sobre el store global. La firma se mantiene para no
- * tocar las pantallas. Los tipos MockSession/MockUser se exportan desde
- * `services/mock/auth` (evita duplicar el nombre en el barrel de @km0lab/app).
+ * tocar las pantallas.
  */
 export const useAuth = () => {
   const session = useAppStore((s) => s.session)
   const signOutAction = useAppStore((s) => s.signOut)
+  const clearLocalSetup = useAppStore((s) => s.clearLocalSetup)
 
   return {
     session,
@@ -20,6 +20,10 @@ export const useAuth = () => {
     loading: false,
     signOut: async () => {
       signOutAction()
+    },
+    /** Guest: borra idioma/CP/sesión local (vuelve al Language). */
+    resetDeviceSetup: async () => {
+      clearLocalSetup()
     },
   }
 }

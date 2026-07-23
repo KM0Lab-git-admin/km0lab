@@ -131,7 +131,7 @@ const Profile = () => {
   const handleLogout = async () => {
     await signOut()
     toast.success(t('profile.toast_logout', lang))
-    navigate('/home')
+    navigate('/login', { replace: true })
   }
 
   return (

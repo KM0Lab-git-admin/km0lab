@@ -5,8 +5,9 @@
  * las pantallas (Login, CheckEmail). Flujo OTP por email + JWT:
  *  - `requestOtp(email, metadata)`: pide el código; guarda `pendingOtp` con
  *    metadata (CP/town de onboarding) para sembrar el perfil tras verificar.
- *  - `verifyOtp(email, code)`: valida; guarda JWT + sesión + perfil en el store.
- *  - `signOut()`: limpia sesión y token.
+ *  - `verifyOtp(email, code)`: valida; guarda JWT + sesión + perfil; sincroniza
+ *    lang/CP/town locales a la BD con PATCH /users/me.
+ *  - `signOut()`: limpia sesión y token (mantiene setup local).
  *  - `getSession()` / `onAuthChange()`: utilitarios legacy sobre el store.
  */
 import {
@@ -15,7 +16,13 @@ import {
   type AppUser,
 } from '../stores/useAppStore'
 
-import { apiFetch, ApiError, authSchema, messageSchema } from './km0labClient'
+import {
+  apiFetch,
+  ApiError,
+  authSchema,
+  messageSchema,
+  userSchema,
+} from './km0labClient'
 
 export type MockUser = AppUser
 export type MockSession = AppSession
@@ -71,17 +78,45 @@ export const verifyOtp = async (
       user: { id: auth.user.id, email: auth.user.email },
       createdAt: new Date().toISOString(),
     })
-    // Siembra el perfil con los datos del backend; el `name` (único en la API)
-    // se coloca en first_name (last_name queda local).
-    store.upsertProfile(auth.user.id, {
-      first_name: auth.user.name,
+
+    const postal =
+      store.postalCode ??
+      store.pendingOtp?.postal_code ??
+      auth.user.postal_code ??
+      null
+    const town = store.town ?? store.pendingOtp?.town ?? auth.user.town ?? null
+
+    // Sincroniza preferencias locales del dispositivo a la BD.
+    let user = auth.user
+    try {
+      user = await apiFetch('/users/me', {
+        method: 'PATCH',
+        auth: true,
+        body: {
+          lang: store.lang,
+          postal_code: postal,
+          town,
+        },
+        schema: userSchema,
+      })
+    } catch {
+      // Si el PATCH falla, seguimos con lo que devolvió verify-otp.
+    }
+
+    store.upsertProfile(user.id, {
+      first_name: user.name,
       last_name: null,
-      email: auth.user.email,
-      postal_code:
-        auth.user.postal_code ?? store.pendingOtp?.postal_code ?? null,
-      town: auth.user.town ?? store.pendingOtp?.town ?? null,
+      email: user.email,
+      postal_code: user.postal_code ?? postal,
+      town: user.town ?? town,
       avatar_url: null,
     })
+    if (user.lang === 'ca' || user.lang === 'es' || user.lang === 'en') {
+      store.setLang(user.lang)
+    }
+    if (user.postal_code || user.town) {
+      store.setLocation(user.postal_code ?? postal, user.town ?? town)
+    }
     store.setPendingOtp(null)
     return { error: null }
   } catch (e) {

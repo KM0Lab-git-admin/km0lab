@@ -11,9 +11,11 @@ import { useLang } from '@/contexts/LangContext'
  */
 export interface JoinCardProps {
   onCreateAccount: () => void
+  /** Logout guest: borra preferencias locales y vuelve al inicio. */
+  onResetSetup?: () => void
 }
 
-const JoinCard = ({ onCreateAccount }: JoinCardProps) => {
+const JoinCard = ({ onCreateAccount, onResetSetup }: JoinCardProps) => {
   const { lang } = useLang()
 
   return (
@@ -49,6 +51,15 @@ const JoinCard = ({ onCreateAccount }: JoinCardProps) => {
       <p className="font-body text-km0-blue-700/60 text-[11px] vertical-tablet:text-xs horizontal-mobile:!text-[10px] text-center">
         {t('home.join.mini', lang)}
       </p>
+      {onResetSetup && (
+        <button
+          type="button"
+          onClick={onResetSetup}
+          className="w-full font-body text-km0-blue-700/70 text-[11px] vertical-tablet:text-xs underline-offset-2 hover:underline py-1"
+        >
+          {t('home.join.reset', lang)}
+        </button>
+      )}
     </motion.div>
   )
 }

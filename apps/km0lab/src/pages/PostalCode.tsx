@@ -1,4 +1,4 @@
-import { lookupTown, t } from '@km0lab/app'
+import { lookupTown, t, useAppStore } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -52,15 +52,11 @@ const PostalCode = () => {
     if (!touched) setTouched(true)
   }
 
+  const setLocation = useAppStore((s) => s.setLocation)
+
   const handleSubmit = () => {
     if (!isComplete || !cityName) return
-    // localStorage para que sobreviva recargas y se pueda leer desde Home/Login.
-    try {
-      localStorage.setItem('km0_postal_code', value)
-      localStorage.setItem('km0_town', cityName)
-    } catch {
-      /* localStorage puede fallar en modo privado */
-    }
+    setLocation(value, cityName)
     navigate('/home')
   }
 
