@@ -240,6 +240,26 @@ const D = {
     es: 'Has ganado 100 puntos de bienvenida',
     en: 'You earned 100 welcome points',
   } as Dict,
+  'reward.register_reason': {
+    ca: 'Per registrar-te a KM0 LAB',
+    es: 'Por registrarte en KM0 LAB',
+    en: 'For signing up to KM0 LAB',
+  } as Dict,
+  'reward.earned': {
+    ca: 'Has guanyat punts!',
+    es: '¡Has ganado puntos!',
+    en: 'You earned points!',
+  } as Dict,
+  'reward.cta': {
+    ca: 'Genial!',
+    es: '¡Genial!',
+    en: 'Awesome!',
+  } as Dict,
+  'reward.default_message': {
+    ca: 'Benvingut/da!',
+    es: '¡Bienvenido/a!',
+    en: 'Welcome!',
+  } as Dict,
   'home.join.title': {
     ca: "Registra't i comença a guanyar 🎁",
     es: 'Regístrate y empieza a ganar 🎁',

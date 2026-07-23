@@ -167,7 +167,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           {rewardOpen && isAuthed && (
             <PointsRewardOverlay
               points={100}
-              message="Per registrar-te a KM0 LAB"
+              message={t('reward.register_reason', lang)}
               contained
               onClose={() => {
                 setRewardOpen(false)

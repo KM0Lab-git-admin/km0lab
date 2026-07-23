@@ -91,7 +91,7 @@ const HomeSandbox = ({ state = 'guest' }: HomeSandboxProps) => {
         {state === 'reward-welcome' && showReward && (
           <PointsRewardOverlay
             points={500}
-            message="¡Bienvenido!"
+            message={t('reward.default_message', lang)}
             onClose={() => setShowReward(false)}
             contained
           />
