@@ -35,7 +35,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     reload: reloadNotifs,
     markAllSeen,
   } = useNotifications()
-  const { user, loading: authLoading, resetDeviceSetup } = useAuth()
+  const { user, resetDeviceSetup } = useAuth()
   const { profile } = useProfile()
   const { lang } = useLang()
   const town = useAppStore((s) => s.town)

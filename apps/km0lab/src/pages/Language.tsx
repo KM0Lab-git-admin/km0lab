@@ -1,4 +1,4 @@
-import { t, useAppStore, type Lang } from '@km0lab/app'
+import { useAppStore, type Lang } from '@km0lab/app'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,7 +9,6 @@ import robotPlaceholder from '@/assets/km0_robot_icon_v2.png'
 import BrandedFrame from '@/components/BrandedFrame'
 import FloatingDots from '@/components/FloatingDots'
 import LanguageCard from '@/components/LanguageCard'
-import { useLang } from '@/contexts/LangContext'
 
 const languages: {
   id: Lang
@@ -44,7 +43,6 @@ const languages: {
 
 const Language = () => {
   const navigate = useNavigate()
-  const { lang } = useLang()
   const chooseLang = useAppStore((s) => s.chooseLang)
   const [selected, setSelected] = useState<string | null>(null)
 
