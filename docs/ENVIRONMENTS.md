@@ -206,24 +206,21 @@ Más adelante: proyecto o rama `main` → `app.km0lab.com` con URLs sin
 
 ---
 
-## 6. SMTP (Fases operativas)
+## 6. SMTP / email OTP (Fases operativas)
 
-1. **Fase 0 (hecha en local):** OTP por log sin SMTP.
-2. **Fase 1:** Elegir proveedor (recomendado: **Resend**; alternativas
-   Postmark, SendGrid, Brevo, SES).
-3. **Fase 2:** Rellenar `SMTP_*` en km0lab-api (local y/o Railway UAT) y
-   probar que el correo llega.
-4. **Fase 3:** Domino verificado + prod (Railway `main`, DNS sin `.uat`).
-
-Ejemplo Resend:
-
-```env
-SMTP_HOST=smtp.resend.com
-SMTP_PORT=587
-SMTP_USER=resend
-SMTP_PASSWORD=re_xxxxx
-SMTP_FROM=KM0 LAB <no-reply@km0lab.com>
-```
+1. **Fase 0:** OTP por log sin email (`RESEND_API_KEY` y `SMTP_HOST` vacíos).
+2. **Fase 1:** Cuenta Resend + dominio (`email.km0lab.com`) con DKIM/SPF.
+3. **Fase 2 (recomendado en Railway):** API HTTP de Resend — variables:
+   ```env
+   RESEND_API_KEY=re_xxxxx
+   SMTP_FROM=KM0 LAB <no-reply@email.km0lab.com>
+   SMTP_HOST=
+   ```
+   Railway suele hacer **timeout** a `smtp.resend.com:587`; no usar SMTP
+   ahí. El código está en `km0lab-api` (`app/email.py`).
+4. Fallback SMTP (`SMTP_HOST` / `SMTP_PORT` / user / password) solo si la
+   red lo permite (p. ej. local).
+5. Tras el OK en UAT: mismas vars en prod.
 
 ---
 
