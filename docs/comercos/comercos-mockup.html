@@ -1,0 +1,985 @@
+<title>KM0 LAB · Comerços — llistat, fitxa, escaneig QR i backoffice</title>
+<style>
+  :root {
+    --chrome-bg: #ece8e1;
+    --chrome-panel: #f6f3ee;
+    --chrome-ink: #2c2a27;
+    --chrome-muted: #6f6a61;
+    --chrome-line: #d9d3c8;
+    --chrome-accent: #174094;
+    --km0-beige-50: #fff9f0;
+    --km0-beige-100: #ffecd2;
+    --km0-beige-200: #fdeea9;
+    --km0-blue-50: #f0f4fd;
+    --km0-blue-400: #6b8fd0;
+    --km0-blue-500: #4674b8;
+    --km0-blue-700: #174094;
+    --km0-blue-800: #132a50;
+    --km0-yellow-300: #f9dd8e;
+    --km0-yellow-400: #f7d168;
+    --km0-teal-400: #00c7bc;
+    --km0-teal-500: #00b8a9;
+    --km0-coral-400: #ff664d;
+    --km0-coral-500: #f0492e;
+    --km0-green-500: #22a06b;
+    --font-ui: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --font-brand: "Antique Olive", "Arial Black", "Helvetica Neue", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --chrome-bg: #201e1b; --chrome-panel: #2a2723; --chrome-ink: #efeae1;
+      --chrome-muted: #a49d90; --chrome-line: #3a352e; --chrome-accent: #8fb0ea;
+    }
+  }
+  :root[data-theme="light"] {
+    --chrome-bg: #ece8e1; --chrome-panel: #f6f3ee; --chrome-ink: #2c2a27;
+    --chrome-muted: #6f6a61; --chrome-line: #d9d3c8; --chrome-accent: #174094;
+  }
+  :root[data-theme="dark"] {
+    --chrome-bg: #201e1b; --chrome-panel: #2a2723; --chrome-ink: #efeae1;
+    --chrome-muted: #a49d90; --chrome-line: #3a352e; --chrome-accent: #8fb0ea;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--chrome-bg); color: var(--chrome-ink); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 56px; }
+  header.page { margin-bottom: 28px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--chrome-muted); font-weight: 600; margin: 0 0 8px; }
+  header.page h1 { font-size: clamp(22px, 4vw, 30px); margin: 0 0 10px; text-wrap: balance; font-weight: 800; letter-spacing: -0.01em; }
+  header.page p { margin: 0; color: var(--chrome-muted); max-width: 68ch; line-height: 1.5; font-size: 14.5px; }
+  .meta { display: inline-flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .meta span { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--chrome-panel); border: 1px solid var(--chrome-line); color: var(--chrome-muted); }
+
+  /* ── Screen grouping ─────────────────────────────────────────── */
+  .screen-block { margin-top: 44px; border-top: 1px solid var(--chrome-line); padding-top: 30px; }
+  .screen-block > .sb-head { margin-bottom: 20px; }
+  .sb-head .num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: var(--chrome-accent); color: #fff; font-size: 13px; font-weight: 800; margin-right: 10px; vertical-align: middle; }
+  .sb-head h2 { display: inline; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+  .sb-head p { margin: 10px 0 0; color: var(--chrome-muted); font-size: 14px; line-height: 1.5; max-width: 72ch; }
+  .stage { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; align-items: flex-start; margin-top: 22px; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .col-head { text-align: center; max-width: 300px; }
+  .col-head .tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #fff; padding: 3px 10px; border-radius: 999px; margin-bottom: 7px; }
+  .tag.reg { background: var(--km0-teal-500); }
+  .tag.scan { background: var(--km0-blue-700); }
+  .tag.err { background: var(--km0-coral-500); }
+  .tag.ok { background: var(--km0-green-500); }
+  .col-head p { margin: 0; font-size: 12.5px; color: var(--chrome-muted); line-height: 1.45; }
+
+  /* ── Phone frame ─────────────────────────────────────────────── */
+  .phone { width: 375px; height: 667px; border-radius: 34px; padding: 10px; background: #0e1524; box-shadow: 0 22px 50px -18px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.15); flex-shrink: 0; }
+  .screen { width: 100%; height: 100%; border-radius: 25px; overflow: hidden; background: var(--km0-beige-50); position: relative; display: flex; flex-direction: column; font-family: var(--font-ui); color: var(--km0-blue-800); }
+  .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+  .scroll::-webkit-scrollbar { width: 0; }
+
+  /* ── App hero / top bars ─────────────────────────────────────── */
+  .app-hero { background: linear-gradient(180deg, rgba(255,236,210,0) 0%, var(--km0-beige-50) 100%), linear-gradient(120deg, #cfe6e2 0%, var(--km0-beige-100) 70%); padding: 14px 16px 14px; }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .town { display: flex; align-items: center; gap: 8px; }
+  .crest { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--km0-blue-500), var(--km0-blue-700)); display: grid; place-items: center; color: #fff; font-size: 14px; }
+  .town b { font-size: 14px; font-weight: 700; color: var(--km0-blue-800); }
+  .logo-pill { font-family: var(--font-brand); font-weight: 900; letter-spacing: 0.02em; background: var(--km0-blue-700); color: var(--km0-beige-100); padding: 4px 9px; border-radius: 7px; font-size: 13px; }
+  .bell { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: grid; place-items: center; border: 1.5px solid var(--km0-beige-200); color: var(--km0-blue-700); position: relative; }
+  .greeting { margin-top: 12px; }
+  .greeting h1 { font-size: 20px; margin: 0; font-weight: 800; color: var(--km0-blue-800); letter-spacing: -0.01em; }
+  .greeting p { margin: 2px 0 0; font-size: 13px; color: var(--km0-blue-500); }
+
+  /* Back header (fitxa / detall) */
+  .nav-back { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+  .nav-back .bk { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.9); display: grid; place-items: center; color: var(--km0-blue-800); box-shadow: 0 3px 8px -4px rgba(19,42,80,0.35); }
+  .nav-back .ttl { font-size: 15px; font-weight: 800; color: var(--km0-blue-800); }
+
+  /* ── Filtre de categoria (desplegable) ───────────────────────── */
+  .filterbar { display: flex; align-items: center; gap: 10px; padding: 12px 16px 2px; }
+  .cat-select { flex: 1; display: flex; align-items: center; gap: 9px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 12px; padding: 11px 13px; box-shadow: 0 3px 9px -7px rgba(19,42,80,0.28); }
+  .cat-select .fic { color: var(--km0-blue-700); flex-shrink: 0; }
+  .cat-select .lbl { font-size: 13px; font-weight: 700; color: var(--km0-blue-800); flex: 1; }
+  .cat-select .car { color: var(--km0-blue-400); font-size: 11px; }
+  .filterbar .count { font-size: 12px; font-weight: 700; color: var(--km0-blue-500); white-space: nowrap; }
+
+  /* estat obert del desplegable */
+  .dd-scrim { position: absolute; inset: 0; background: rgba(19,42,80,0.30); z-index: 4; }
+  .dd-panel { position: absolute; left: 16px; right: 16px; top: 112px; z-index: 5; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 15px; box-shadow: 0 20px 44px -16px rgba(19,42,80,0.55); overflow: hidden; display: flex; flex-direction: column; max-height: 470px; }
+  .dd-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 15px; border-bottom: 1px solid var(--km0-beige-100); font-size: 13px; font-weight: 800; color: var(--km0-blue-800); }
+  .dd-head .ddx { width: 24px; height: 24px; border-radius: 50%; background: var(--km0-beige-100); display: grid; place-items: center; color: var(--km0-blue-700); font-size: 12px; }
+  .dd-scrolly { overflow-y: auto; }
+  .dd-scrolly::-webkit-scrollbar { width: 0; }
+  .dd-item { display: flex; align-items: center; gap: 11px; padding: 11px 15px; border-bottom: 1px solid var(--km0-beige-100); font-size: 13px; color: var(--km0-blue-800); }
+  .dd-item:last-child { border-bottom: 0; }
+  .dd-item.on { background: var(--km0-blue-50); font-weight: 800; }
+  .dd-item .em { width: 26px; text-align: center; font-size: 16px; flex-shrink: 0; }
+  .dd-item .nm { flex: 1; }
+  .dd-item .c { font-size: 11px; color: var(--km0-blue-400); font-weight: 700; background: var(--km0-beige-50); padding: 2px 8px; border-radius: 999px; }
+  .dd-item.on .c { color: var(--km0-blue-700); background: #fff; }
+  .dd-item .rc { width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--km0-beige-200); flex-shrink: 0; }
+  .dd-item.on .rc { border-color: var(--km0-blue-700); background: var(--km0-blue-700) content-box; padding: 3px; }
+
+  /* ── Comerç list card ────────────────────────────────────────── */
+  .list { padding: 6px 16px 0; }
+  .shop { display: flex; gap: 12px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 16px; padding: 10px; margin-bottom: 11px; box-shadow: 0 4px 11px -8px rgba(19,42,80,0.3); position: relative; }
+  .shop .thumb { width: 74px; height: 74px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; font-size: 30px; position: relative; }
+  .shop .thumb .adh { position: absolute; bottom: -5px; right: -5px; width: 22px; height: 22px; border-radius: 50%; background: var(--km0-teal-500); color: #fff; display: grid; place-items: center; font-size: 12px; border: 2px solid #fff; }
+  .shop .info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .shop .info .cat { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--km0-teal-500); }
+  .shop .info b { font-size: 14px; font-weight: 800; color: var(--km0-blue-800); line-height: 1.2; margin: 1px 0 0; }
+  .shop .info .loc { font-size: 11.5px; color: var(--km0-blue-500); margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+  .shop .info .foot { margin-top: auto; display: flex; align-items: center; gap: 7px; padding-top: 7px; }
+  .pts-badge { font-size: 11px; font-weight: 800; color: #fff; background: var(--km0-coral-400); padding: 3px 8px; border-radius: 999px; }
+  .qr-badge { font-size: 10.5px; font-weight: 800; color: var(--km0-blue-700); background: var(--km0-blue-50); border: 1px solid #dbe6fb; padding: 3px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; }
+  .dist { font-size: 11px; font-weight: 700; color: var(--km0-blue-400); margin-left: auto; }
+
+  /* ── Fitxa (detall) ──────────────────────────────────────────── */
+  .detail-hero { height: 168px; position: relative; display: grid; place-items: center; font-size: 58px; }
+  .detail-hero .grad { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(19,42,80,0) 40%, rgba(19,42,80,0.55) 100%); }
+  .detail-hero .top { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; }
+  .detail-hero .bk, .detail-hero .fav { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.92); display: grid; place-items: center; color: var(--km0-blue-800); }
+  .detail-hero .adh-pill { position: absolute; bottom: 12px; left: 14px; font-size: 11px; font-weight: 800; color: #fff; background: var(--km0-teal-500); padding: 4px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; }
+  .detail-body { padding: 14px 16px 0; }
+  .detail-body .cat { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--km0-teal-500); }
+  .detail-body h1 { font-size: 21px; font-weight: 800; color: var(--km0-blue-800); margin: 3px 0 6px; letter-spacing: -0.01em; }
+  .detail-body .sub { font-size: 12.5px; color: var(--km0-blue-500); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .open-dot { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: var(--km0-green-500); }
+  .open-dot i { width: 7px; height: 7px; border-radius: 50%; background: var(--km0-green-500); }
+
+  .earn-card { margin: 14px 0 0; background: linear-gradient(135deg, var(--km0-blue-700), var(--km0-blue-800)); border-radius: 18px; padding: 15px; color: #fff; box-shadow: 0 12px 26px -13px rgba(23,64,148,0.75); position: relative; overflow: hidden; }
+  .earn-card::after { content: "★"; position: absolute; right: -8px; top: -14px; font-size: 82px; color: rgba(247,209,104,0.14); }
+  .earn-card .er-top { display: flex; align-items: center; gap: 10px; position: relative; }
+  .earn-card .er-top .qi { width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,0.14); display: grid; place-items: center; font-size: 20px; }
+  .earn-card .er-top b { font-size: 15px; font-weight: 800; display: block; }
+  .earn-card .er-top small { font-size: 11.5px; opacity: 0.85; }
+  .earn-card .scan-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--km0-yellow-400); color: var(--km0-blue-800); font-weight: 800; font-size: 14px; padding: 12px; border-radius: 13px; margin-top: 13px; position: relative; }
+  .earn-card .once { text-align: center; font-size: 10.5px; opacity: 0.8; margin-top: 8px; position: relative; }
+  /* estat: comerç ja escanejat (punts guanyats · actiu) */
+  .earn-card.done { background: linear-gradient(135deg, var(--km0-teal-500), #0a8f84); box-shadow: 0 12px 26px -13px rgba(0,184,169,0.7); }
+  .earn-card.done::after { color: rgba(255,255,255,0.15); }
+  .earn-card.done .qi { background: rgba(255,255,255,0.2); }
+  .done-btn { background: rgba(255,255,255,0.18); color: #fff; }
+  .visit-pill { position: absolute; bottom: 12px; left: 14px; font-size: 11px; font-weight: 800; color: #fff; background: var(--km0-teal-500); padding: 4px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px -4px rgba(0,184,169,0.8); }
+  .status-actiu { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; color: var(--km0-teal-500); }
+  .status-actiu i { width: 7px; height: 7px; border-radius: 50%; background: var(--km0-teal-500); }
+
+  .info-list { margin-top: 16px; }
+  .info-row { display: flex; align-items: flex-start; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--km0-beige-100); }
+  .info-row:last-child { border-bottom: 0; }
+  .info-row .ic { width: 32px; height: 32px; border-radius: 9px; background: var(--km0-blue-50); color: var(--km0-blue-700); display: grid; place-items: center; flex-shrink: 0; }
+  .info-row .rt b { font-size: 12.5px; font-weight: 800; color: var(--km0-blue-800); display: block; }
+  .info-row .rt span { font-size: 12px; color: var(--km0-blue-500); }
+
+  .map { height: 118px; border-radius: 14px; margin-top: 14px; position: relative; overflow: hidden; border: 1px solid var(--km0-beige-200); background:
+      linear-gradient(rgba(220,232,228,0.5), rgba(220,232,228,0.5)),
+      repeating-linear-gradient(0deg, #e9efe9 0 14px, #dfe7df 14px 15px),
+      repeating-linear-gradient(90deg, #e9efe9 0 20px, #dfe7df 20px 21px); }
+  .map .road { position: absolute; background: #fff; }
+  .map .r1 { top: 46%; left: 0; right: 0; height: 8px; }
+  .map .r2 { top: 0; bottom: 0; left: 38%; width: 7px; }
+  .map .pin { position: absolute; top: 34%; left: 40%; font-size: 26px; transform: translate(-50%,-50%); filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3)); }
+  .map .zoom { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,0.94); font-size: 11px; font-weight: 700; color: var(--km0-blue-700); padding: 4px 9px; border-radius: 8px; }
+
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin: 18px 0 10px; }
+  .sec-head h3 { font-size: 15px; margin: 0; font-weight: 800; color: var(--km0-blue-800); }
+  .sec-head h3 .k { color: var(--km0-teal-500); }
+
+  .coupon { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 15px; border: 1px solid var(--km0-beige-200); padding: 11px 13px; margin-bottom: 9px; box-shadow: 0 3px 9px -7px rgba(19,42,80,0.28); }
+  .coupon .disc { width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; background: linear-gradient(135deg, var(--km0-yellow-300), var(--km0-yellow-400)); color: var(--km0-blue-800); font-weight: 900; font-size: 13px; text-align: center; line-height: 1; }
+  .coupon .txt { flex: 1; }
+  .coupon .txt b { font-size: 13px; font-weight: 800; color: var(--km0-blue-800); display: block; }
+  .coupon .txt span { font-size: 11.5px; color: var(--km0-blue-500); }
+  .coupon .cost { font-size: 11px; font-weight: 800; color: var(--km0-blue-700); background: var(--km0-beige-100); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+  .desc-p { font-size: 12.5px; line-height: 1.55; color: var(--km0-blue-500); margin: 4px 0 0; }
+
+  /* ── Sticky CTA on fitxa ─────────────────────────────────────── */
+  .sticky-cta { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 16px 16px; background: linear-gradient(180deg, rgba(255,249,240,0) 0%, var(--km0-beige-50) 32%); }
+  .sticky-cta .b { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--km0-blue-700); color: #fff; font-weight: 800; font-size: 15px; padding: 14px; border-radius: 14px; box-shadow: 0 12px 24px -12px rgba(23,64,148,0.8); }
+
+  /* ── Scanner screens ─────────────────────────────────────────── */
+  .cam { background: #0b1220; color: #fff; }
+  .cam .scroll { display: flex; flex-direction: column; }
+  .cam-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 0; position: relative; z-index: 2; }
+  .cam-top .x { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.14); display: grid; place-items: center; color: #fff; }
+  .cam-top .flash { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.14); display: grid; place-items: center; color: #fff; }
+  .cam-title { text-align: center; font-size: 14px; font-weight: 700; margin-top: -34px; position: relative; z-index: 1; }
+  .viewfinder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 20px; }
+  .cam-bg { position: absolute; inset: 0; background:
+      radial-gradient(circle at 50% 42%, rgba(255,255,255,0.06), transparent 55%),
+      linear-gradient(160deg, #1a2740 0%, #0b1220 70%); }
+  .cam-bg::after { content: ""; position: absolute; inset: 0; background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.03) 0 3px, transparent 3px 26px); }
+  .frame { width: 220px; height: 220px; position: relative; z-index: 2; }
+  .frame .cnr { position: absolute; width: 40px; height: 40px; border: 4px solid var(--km0-teal-400); }
+  .frame .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 14px; }
+  .frame .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 14px; }
+  .frame .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 14px; }
+  .frame .br { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 14px; }
+  .frame .laser { position: absolute; left: 8px; right: 8px; top: 30px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--km0-teal-400), transparent); box-shadow: 0 0 14px 2px rgba(0,199,188,0.6); }
+  .frame .qr-ghost { position: absolute; inset: 26px; opacity: 0.28; }
+  .cam-hint { position: relative; z-index: 2; margin-top: 26px; text-align: center; font-size: 13px; color: rgba(255,255,255,0.86); max-width: 230px; line-height: 1.45; }
+  .cam-hint b { color: var(--km0-teal-400); }
+  .cam-foot { position: relative; z-index: 2; padding: 0 20px 26px; text-align: center; }
+  .cam-foot .from-gallery { font-size: 12.5px; color: rgba(255,255,255,0.6); font-weight: 600; }
+
+  /* overlay states over camera */
+  .cam-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px; text-align: center; }
+  .cam-overlay.dim { background: rgba(9,15,28,0.82); backdrop-filter: blur(2px); }
+  .spinner { width: 58px; height: 58px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.18); border-top-color: var(--km0-teal-400); }
+  .cam-overlay h2 { font-size: 18px; font-weight: 800; margin: 20px 0 6px; }
+  .cam-overlay p { font-size: 13px; color: rgba(255,255,255,0.75); margin: 0; line-height: 1.45; max-width: 240px; }
+
+  .err-icon { width: 76px; height: 76px; border-radius: 50%; background: rgba(240,73,46,0.16); border: 2px solid var(--km0-coral-500); display: grid; place-items: center; font-size: 36px; color: var(--km0-coral-400); }
+  .cam-overlay .actions { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 250px; }
+  .btn-primary { background: var(--km0-teal-500); color: #fff; font-weight: 800; font-size: 14px; padding: 13px; border-radius: 13px; text-align: center; }
+  .btn-ghost { background: transparent; color: rgba(255,255,255,0.85); font-weight: 700; font-size: 13px; padding: 11px; border-radius: 13px; text-align: center; border: 1px solid rgba(255,255,255,0.22); }
+
+  /* ── Success / confirmació ───────────────────────────────────── */
+  .success { background: linear-gradient(180deg, #eafaf7 0%, var(--km0-beige-50) 60%); }
+  .success .scroll { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px 24px; }
+  .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .confetti i { position: absolute; width: 9px; height: 9px; border-radius: 2px; opacity: 0.9; }
+  .ok-badge { width: 104px; height: 104px; border-radius: 50%; background: radial-gradient(circle, #d6f5ec 0%, #b6ecdd 100%); display: grid; place-items: center; position: relative; box-shadow: 0 14px 30px -12px rgba(0,184,169,0.6); }
+  .ok-badge .ring { position: absolute; inset: -8px; border-radius: 50%; border: 2px dashed var(--km0-teal-400); opacity: 0.5; }
+  .ok-badge .tick { width: 62px; height: 62px; border-radius: 50%; background: var(--km0-teal-500); color: #fff; display: grid; place-items: center; font-size: 32px; }
+  .success h1 { font-size: 24px; font-weight: 800; color: var(--km0-blue-800); margin: 20px 0 4px; }
+  .success .shopname { font-size: 14px; color: var(--km0-blue-500); margin: 0; }
+  .pts-won { margin-top: 22px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 18px; padding: 16px 22px; box-shadow: 0 8px 20px -12px rgba(19,42,80,0.3); }
+  .pts-won .big { font-size: 40px; font-weight: 800; color: var(--km0-coral-400); letter-spacing: -0.02em; }
+  .pts-won .big span { font-size: 16px; }
+  .pts-won .tot { font-size: 12.5px; color: var(--km0-blue-500); margin-top: 2px; }
+  .pts-won .tot b { color: var(--km0-blue-800); }
+  .success .cta-col { margin-top: 26px; width: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .success .cta-col .p { background: var(--km0-blue-700); color: #fff; font-weight: 800; font-size: 14.5px; padding: 14px; border-radius: 14px; }
+  .success .cta-col .g { color: var(--km0-blue-700); font-weight: 800; font-size: 13.5px; padding: 12px; }
+
+  /* ── Bottom tabs ─────────────────────────────────────────────── */
+  .spacer { height: 78px; }
+  .tabs { position: absolute; bottom: 0; left: 0; right: 0; height: 62px; background: rgba(255,249,240,0.92); backdrop-filter: blur(8px); border-top: 1px solid var(--km0-beige-200); display: flex; align-items: center; justify-content: space-around; padding: 0 8px; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--km0-blue-400); font-size: 10px; font-weight: 700; }
+  .tab.active { color: var(--km0-blue-700); }
+  .tab .dot { width: 22px; height: 22px; display: grid; place-items: center; }
+  .fab { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--km0-teal-400), var(--km0-teal-500)); color: #fff; display: grid; place-items: center; box-shadow: 0 10px 22px -8px rgba(0,184,169,0.8); border: 3px solid var(--km0-beige-50); z-index: 3; }
+
+  /* ── Desktop / backoffice ────────────────────────────────────── */
+  .desktop { width: 100%; max-width: 1000px; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 26px 60px -24px rgba(0,0,0,0.5), 0 0 0 1px var(--chrome-line); }
+  .browserbar { height: 42px; background: var(--chrome-panel); border-bottom: 1px solid var(--chrome-line); display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .browserbar .dots { display: flex; gap: 6px; }
+  .browserbar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .browserbar .url { flex: 1; background: #fff; border: 1px solid var(--chrome-line); border-radius: 8px; height: 24px; display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: var(--chrome-muted); }
+  .bo { display: grid; grid-template-columns: 210px 1fr; min-height: 560px; background: var(--km0-beige-50); }
+  .bo-side { background: var(--km0-blue-800); color: #fff; padding: 18px 14px; }
+  .bo-side .brand { font-family: var(--font-brand); font-weight: 900; background: var(--km0-blue-700); color: var(--km0-beige-100); padding: 5px 10px; border-radius: 8px; font-size: 14px; display: inline-block; }
+  .bo-side .who { margin-top: 18px; display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.06); border-radius: 12px; }
+  .bo-side .who .av { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#f9dd8e,#f7d168); display: grid; place-items: center; font-size: 18px; }
+  .bo-side .who b { font-size: 13px; display: block; }
+  .bo-side .who span { font-size: 11px; opacity: 0.7; }
+  .bo-nav { margin-top: 20px; display: flex; flex-direction: column; gap: 3px; }
+  .bo-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 10px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); }
+  .bo-nav a.on { background: rgba(255,255,255,0.12); color: #fff; font-weight: 700; }
+  .bo-main { padding: 26px 30px; }
+  .bo-main h1 { font-size: 22px; font-weight: 800; color: var(--km0-blue-800); margin: 0 0 4px; }
+  .bo-main .lead { font-size: 13.5px; color: var(--km0-blue-500); margin: 0 0 22px; }
+  .bo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat { background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 12px -9px rgba(19,42,80,0.3); }
+  .stat .n { font-size: 24px; font-weight: 800; color: var(--km0-blue-800); }
+  .stat .l { font-size: 12px; color: var(--km0-blue-500); margin-top: 2px; }
+  .stat .n .up { font-size: 12px; color: var(--km0-green-500); font-weight: 700; }
+  .qr-panel { display: grid; grid-template-columns: 260px 1fr; gap: 26px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 18px; padding: 24px; box-shadow: 0 8px 22px -14px rgba(19,42,80,0.3); }
+  .qr-card { border: 1px solid var(--km0-beige-200); border-radius: 16px; padding: 18px; text-align: center; background: linear-gradient(180deg, #fff, var(--km0-beige-50)); }
+  .qr-card .qframe { width: 190px; height: 190px; margin: 0 auto; background: #fff; border-radius: 12px; display: grid; place-items: center; border: 1px solid var(--km0-beige-200); }
+  .qr-card .cap { margin-top: 12px; font-size: 13px; font-weight: 800; color: var(--km0-blue-800); }
+  .qr-card .cap span { display: block; font-size: 11px; font-weight: 600; color: var(--km0-blue-400); margin-top: 2px; }
+  .qr-right h3 { font-size: 16px; font-weight: 800; color: var(--km0-blue-800); margin: 0 0 6px; }
+  .qr-right p { font-size: 13px; color: var(--km0-blue-500); line-height: 1.55; margin: 0 0 16px; }
+  .qr-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .qr-actions .a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 11px 16px; border-radius: 11px; }
+  .qr-actions .a.solid { background: var(--km0-blue-700); color: #fff; }
+  .qr-actions .a.out { background: #fff; color: var(--km0-blue-700); border: 1.5px solid var(--km0-blue-700); }
+  .qr-actions .a.ghost { background: var(--km0-beige-100); color: var(--km0-blue-800); }
+  .qr-note { margin-top: 18px; font-size: 12px; color: var(--km0-blue-500); background: var(--km0-blue-50); border: 1px dashed var(--km0-blue-400); border-radius: 11px; padding: 11px 13px; line-height: 1.5; }
+
+  /* ── Beneficis (vista usuari) ────────────────────────────────── */
+  .benefit-intro { margin: 4px 16px 0; font-size: 12px; line-height: 1.45; color: var(--km0-blue-700); background: var(--km0-blue-50); border: 1px dashed var(--km0-blue-400); border-radius: 12px; padding: 10px 12px; }
+  .benefits-list { padding: 12px 16px 0; }
+  .benefit { background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 16px; padding: 12px 13px; margin-bottom: 11px; box-shadow: 0 4px 11px -8px rgba(19,42,80,0.3); }
+  .benefit.used { opacity: 0.62; }
+  .benefit .bh { display: flex; align-items: center; gap: 12px; }
+  .benefit .disc { width: 50px; height: 50px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; background: linear-gradient(135deg, var(--km0-yellow-300), var(--km0-yellow-400)); color: var(--km0-blue-800); font-weight: 900; font-size: 14px; text-align: center; line-height: 1; }
+  .benefit .bt { flex: 1; min-width: 0; }
+  .benefit .bt b { font-size: 14px; font-weight: 800; color: var(--km0-blue-800); display: block; }
+  .benefit .bt > span { font-size: 11.5px; color: var(--km0-blue-500); }
+  .benefit .cond { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 10.5px; font-weight: 700; color: var(--km0-teal-500); background: #e0f5f2; padding: 3px 8px; border-radius: 999px; }
+  .benefit .use-btn { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 11px; background: var(--km0-blue-700); color: #fff; font-weight: 800; font-size: 13px; padding: 11px; border-radius: 12px; }
+  .benefit .used-tag { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 11px; background: var(--km0-beige-100); color: var(--km0-blue-500); font-weight: 800; font-size: 12.5px; padding: 11px; border-radius: 12px; }
+  .benefit-foot { margin: 6px 16px 0; font-size: 11.5px; line-height: 1.45; color: var(--km0-blue-500); text-align: center; }
+
+  /* estat "usar benefici" (full sheet) */
+  .redeem-scrim { position: absolute; inset: 0; background: rgba(19,42,80,0.45); z-index: 4; }
+  .redeem-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; background: #fff; border-radius: 24px 24px 0 0; padding: 20px 20px 20px; box-shadow: 0 -18px 44px -20px rgba(0,0,0,0.45); text-align: center; }
+  .redeem-sheet .grab { width: 40px; height: 4px; border-radius: 999px; background: var(--km0-beige-200); margin: 0 auto 14px; }
+  .redeem-sheet .rs-shop { font-size: 12px; font-weight: 700; color: var(--km0-blue-500); }
+  .redeem-sheet .rs-title { font-size: 20px; font-weight: 800; color: var(--km0-blue-800); margin: 3px 0 2px; }
+  .redeem-sheet .rs-desc { font-size: 12.5px; color: var(--km0-blue-500); margin: 0 0 15px; }
+  .redeem-qr { width: 150px; height: 150px; margin: 0 auto 12px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 14px; display: grid; place-items: center; }
+  .redeem-code { background: var(--km0-beige-50); border: 1.5px dashed var(--km0-blue-400); border-radius: 14px; padding: 13px; }
+  .redeem-code .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--km0-blue-400); }
+  .redeem-code .code { font-size: 26px; font-weight: 900; letter-spacing: 0.12em; color: var(--km0-blue-800); margin-top: 3px; }
+  .redeem-timer { font-size: 12px; font-weight: 700; color: var(--km0-coral-400); margin-top: 12px; }
+  .redeem-hint { font-size: 11.5px; color: var(--km0-blue-500); margin: 6px 0 15px; line-height: 1.4; }
+  .redeem-btns { display: flex; flex-direction: column; gap: 9px; }
+  .redeem-btns .p { background: var(--km0-teal-500); color: #fff; font-weight: 800; font-size: 14px; padding: 13px; border-radius: 13px; }
+  .redeem-btns .g { color: var(--km0-blue-500); font-weight: 700; font-size: 13px; padding: 8px; }
+
+  /* ── Backoffice · gestió de beneficis ────────────────────────── */
+  .bo-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .bo-addbtn { display: inline-flex; align-items: center; gap: 8px; background: var(--km0-blue-700); color: #fff; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 11px; white-space: nowrap; }
+  .bo-table { background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 16px; overflow: hidden; box-shadow: 0 6px 18px -12px rgba(19,42,80,0.3); }
+  .bo-trow { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--km0-beige-100); }
+  .bo-trow:last-child { border-bottom: 0; }
+  .bo-trow .disc { width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; background: linear-gradient(135deg, var(--km0-yellow-300), var(--km0-yellow-400)); color: var(--km0-blue-800); font-weight: 900; font-size: 13px; text-align: center; line-height: 1; }
+  .bo-trow .bmeta { flex: 1; }
+  .bo-trow .bmeta b { font-size: 14px; font-weight: 800; color: var(--km0-blue-800); display: block; }
+  .bo-trow .bmeta span { font-size: 12px; color: var(--km0-blue-500); }
+  .bo-trow.off { opacity: 0.55; }
+  .toggle { width: 42px; height: 24px; border-radius: 999px; background: var(--km0-teal-500); position: relative; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .toggle.off { background: #c9d3e2; }
+  .toggle.off::after { right: auto; left: 3px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--km0-beige-200); display: grid; place-items: center; color: var(--km0-blue-700); background: #fff; }
+  .bo-form { margin-top: 20px; background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 16px; padding: 22px; box-shadow: 0 6px 18px -12px rgba(19,42,80,0.3); }
+  .bo-form h3 { font-size: 15px; font-weight: 800; color: var(--km0-blue-800); margin: 0 0 18px; }
+  .field { margin-bottom: 15px; }
+  .field > label { display: block; font-size: 12px; font-weight: 700; color: var(--km0-blue-800); margin-bottom: 6px; }
+  .field .inp { display: block; border: 1px solid var(--km0-beige-200); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--km0-blue-500); background: var(--km0-beige-50); }
+  .seg { display: inline-flex; background: var(--km0-beige-50); border: 1px solid var(--km0-beige-200); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg span { font-size: 12px; font-weight: 700; padding: 7px 12px; border-radius: 8px; color: var(--km0-blue-500); }
+  .seg span.on { background: var(--km0-blue-700); color: #fff; }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .bo-form .save { display: inline-flex; align-items: center; gap: 8px; background: var(--km0-teal-500); color: #fff; font-size: 13.5px; font-weight: 800; padding: 11px 20px; border-radius: 11px; }
+  .switch-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .switch-row .st { font-size: 12.5px; font-weight: 700; color: var(--km0-blue-800); }
+
+  /* ── Backoffice · validar benefici ───────────────────────────── */
+  .validate-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .vcard { background: #fff; border: 1px solid var(--km0-beige-200); border-radius: 18px; padding: 22px; box-shadow: 0 8px 22px -14px rgba(19,42,80,0.3); }
+  .vcard > h3 { font-size: 15px; font-weight: 800; color: var(--km0-blue-800); margin: 0 0 16px; }
+  .vscan { border: 1.5px dashed var(--km0-blue-400); border-radius: 14px; padding: 22px; text-align: center; background: var(--km0-blue-50); }
+  .vscan .cam-ic { width: 54px; height: 54px; border-radius: 14px; background: #fff; display: grid; place-items: center; color: var(--km0-blue-700); margin: 0 auto 8px; border: 1px solid #dbe6fb; }
+  .vscan .vst { font-size: 12.5px; color: var(--km0-blue-500); }
+  .vscan .scan-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--km0-blue-700); color: #fff; font-weight: 800; font-size: 13px; padding: 11px 18px; border-radius: 11px; margin-top: 12px; }
+  .v-or { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km0-blue-400); margin: 16px 0; position: relative; }
+  .v-or::before, .v-or::after { content: ""; position: absolute; top: 50%; width: 36%; height: 1px; background: var(--km0-beige-200); }
+  .v-or::before { left: 0; } .v-or::after { right: 0; }
+  .code-entry { display: flex; gap: 10px; }
+  .code-entry .inp { flex: 1; border: 1px solid var(--km0-beige-200); border-radius: 10px; padding: 12px; text-align: center; letter-spacing: 0.15em; font-weight: 800; font-size: 16px; color: var(--km0-blue-800); background: var(--km0-beige-50); }
+  .code-entry .go { background: var(--km0-teal-500); color: #fff; font-weight: 800; font-size: 13px; padding: 0 20px; border-radius: 10px; display: grid; place-items: center; }
+  .vresult { border-radius: 16px; padding: 22px; text-align: center; background: linear-gradient(180deg, #eafaf7, #fff); border: 1px solid #b6ecdd; }
+  .vresult .vic { width: 64px; height: 64px; border-radius: 50%; background: var(--km0-teal-500); color: #fff; display: grid; place-items: center; margin: 0 auto 12px; }
+  .vresult h4 { font-size: 17px; font-weight: 800; color: var(--km0-blue-800); margin: 0 0 4px; }
+  .vresult .vb { font-size: 13.5px; color: var(--km0-blue-500); margin: 0 0 6px; }
+  .vresult .vtag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--km0-blue-700); background: var(--km0-beige-100); padding: 4px 10px; border-radius: 999px; margin-bottom: 16px; }
+  .vresult .apply { display: inline-flex; align-items: center; gap: 8px; background: var(--km0-teal-500); color: #fff; font-weight: 800; font-size: 13.5px; padding: 12px 24px; border-radius: 11px; }
+  .verr-note { margin-top: 16px; font-size: 12px; color: var(--km0-blue-500); background: var(--km0-blue-50); border: 1px dashed var(--km0-blue-400); border-radius: 11px; padding: 12px 14px; line-height: 1.55; }
+  .verr-note .rr { color: var(--km0-coral-500); font-weight: 800; }
+
+  .flow-note { margin: 14px 0 0; padding: 10px 13px; border-radius: 12px; font-size: 12px; line-height: 1.45; background: var(--km0-blue-50); color: var(--km0-blue-700); border: 1px dashed var(--km0-blue-400); }
+  footer.page { margin-top: 44px; text-align: center; color: var(--chrome-muted); font-size: 12.5px; line-height: 1.7; border-top: 1px solid var(--chrome-line); padding-top: 24px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; margin-top: 10px; }
+  .legend b { color: var(--chrome-ink); }
+  svg { display: block; }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <p class="eyebrow">KM0 LAB · Secció Comerços · Ronda 1</p>
+    <h1>Comerços adherits, fitxa, escaneig QR i backoffice</h1>
+    <p>Fil de la secció: el veí <b>descobreix</b> els comerços del programa, obre'n la <b>fitxa</b>, i en visitar-los <b>escaneja el QR físic del taulell</b> per guanyar punts (valor fix per comerç, un cop per comerç, sense GPS: el QR només és a la botiga, així que escanejar-lo demostra la visita). El comerç gestiona el seu QR únic des d'un <b>backoffice web</b>. Tokens KM0 reals; pantalles a 375×667 · català.</p>
+    <div class="meta"><span>375 × 667</span><span>+ backoffice web</span><span>català</span><span>QR fix · 1 cop/comerç · sense GPS</span><span>Tokens KM0</span></div>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">1</span><h2>Llistat de comerços adherits</h2>
+      <p>Sense cercador (de moment). El filtre de categories és un <b>desplegable</b> perquè n'hi haurà moltes. Cada targeta mostra imatge, categoria, nom, ubicació, distància i els punts que ofereix. El segell verd ✓ marca "adherit"; el xip <b>QR</b> indica que dona punts. El botó central flotant obre l'<b>escàner global</b>: funciona sense entrar a cap fitxa perquè el QR únic ja identifica el comerç.</p>
+    </div>
+    <div class="stage">
+      <div class="col">
+        <div class="col-head"><span class="tag reg">Estat: registrat</span><p>Vista principal amb resultats reals i accés directe a escanejar.</p></div>
+        <div class="phone"><div class="screen">
+          <div class="scroll">
+            <div class="app-hero">
+              <div class="hero-top">
+                <div class="town"><div class="crest">🛡️</div><b>Malgrat de Mar</b></div>
+                <div class="logo-pill">KM0 LAB</div>
+                <div class="bell"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+              </div>
+              <div class="greeting"><h1>Comerços adherits</h1><p>32 establiments participen al programa</p></div>
+            </div>
+
+            <div class="filterbar">
+              <div class="cat-select">
+                <svg class="fic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z"/></svg>
+                <span class="lbl">Totes les categories</span>
+                <span class="car">▼</span>
+              </div>
+              <span class="count">32 comerços</span>
+            </div>
+
+            <div class="list">
+              <div class="shop">
+                <div class="thumb" style="background:linear-gradient(135deg,#f9dd8e,#f7d168)">🥐</div>
+                <div class="info">
+                  <div class="cat">Alimentació</div>
+                  <b>Forn Rovira</b>
+                  <div class="loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>C. de Mar, 14</div>
+                  <div class="foot"><span class="pts-badge">+20 pts</span><span class="qr-badge">▣ QR</span><span class="dist">240 m</span></div>
+                </div>
+              </div>
+              <div class="shop">
+                <div class="thumb" style="background:linear-gradient(135deg,#9ad3cd,#00b8a9)">☕</div>
+                <div class="info">
+                  <div class="cat">Restauració</div>
+                  <b>Cafè del Mar</b>
+                  <div class="loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Pg. Marítim, 3</div>
+                  <div class="foot"><span class="pts-badge">+15 pts</span><span class="qr-badge">▣ QR</span><span class="dist">310 m</span></div>
+                </div>
+              </div>
+              <div class="shop">
+                <div class="thumb" style="background:linear-gradient(135deg,#c9b8f0,#a689e6)">👕</div>
+                <div class="info">
+                  <div class="cat">Moda</div>
+                  <b>Cal Sastre</b>
+                  <div class="loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>C. Girona, 22</div>
+                  <div class="foot"><span class="pts-badge">+25 pts</span><span class="qr-badge">▣ QR</span><span class="dist">480 m</span></div>
+                </div>
+              </div>
+              <div class="shop">
+                <div class="thumb" style="background:linear-gradient(135deg,#ffc4b8,#ff8f7a)">💐</div>
+                <div class="info">
+                  <div class="cat">Serveis</div>
+                  <b>Floristeria Nom</b>
+                  <div class="loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Pl. Catalunya, 1</div>
+                  <div class="foot"><span class="pts-badge">+20 pts</span><span class="qr-badge">▣ QR</span><span class="dist">520 m</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="fab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 21v.01M17 21h.01M21 17h.01"/></svg></div>
+          <div class="tabs">
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>Inici</div>
+            <div class="tab active"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7h18M6 7l1-3h10l1 3M5 7v13h14V7"/></svg></div>Comerços</div>
+            <div class="tab" style="visibility:hidden">·</div>
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8h16v11H4z"/><path d="M4 8l3-4h10l3 4"/></svg></div>Ofertes</div>
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>Perfil</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="tag scan">Filtre obert</span><p>En tocar el desplegable: llista completa de categories amb comptador. Amb moltes categories, escala millor que els xips.</p></div>
+        <div class="phone"><div class="screen">
+          <div class="scroll">
+            <div class="app-hero">
+              <div class="hero-top">
+                <div class="town"><div class="crest">🛡️</div><b>Malgrat de Mar</b></div>
+                <div class="logo-pill">KM0 LAB</div>
+                <div class="bell"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+              </div>
+              <div class="greeting"><h1>Comerços adherits</h1><p>32 establiments participen al programa</p></div>
+            </div>
+            <div class="filterbar">
+              <div class="cat-select">
+                <svg class="fic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z"/></svg>
+                <span class="lbl">Totes les categories</span>
+                <span class="car">▼</span>
+              </div>
+              <span class="count">32 comerços</span>
+            </div>
+            <div class="list">
+              <div class="shop">
+                <div class="thumb" style="background:linear-gradient(135deg,#f9dd8e,#f7d168)">🥐</div>
+                <div class="info"><div class="cat">Alimentació</div><b>Forn Rovira</b><div class="loc">C. de Mar, 14</div><div class="foot"><span class="pts-badge">+20 pts</span><span class="qr-badge">▣ QR</span><span class="dist">240 m</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="dd-scrim"></div>
+          <div class="dd-panel">
+            <div class="dd-head">Filtra per categoria <span class="ddx">✕</span></div>
+            <div class="dd-scrolly">
+              <div class="dd-item on"><span class="em">▦</span><span class="nm">Totes les categories</span><span class="c">32</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">🥐</span><span class="nm">Alimentació</span><span class="c">8</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">☕</span><span class="nm">Restauració</span><span class="c">6</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">🔧</span><span class="nm">Serveis</span><span class="c">5</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">👕</span><span class="nm">Moda</span><span class="c">4</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">💇</span><span class="nm">Salut i bellesa</span><span class="c">3</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">🛋️</span><span class="nm">Llar i decoració</span><span class="c">2</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">🎭</span><span class="nm">Cultura i lleure</span><span class="c">2</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">⚽</span><span class="nm">Esports</span><span class="c">1</span><span class="rc"></span></div>
+              <div class="dd-item"><span class="em">💻</span><span class="nm">Tecnologia</span><span class="c">1</span><span class="rc"></span></div>
+            </div>
+          </div>
+          <div class="fab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 21v.01M17 21h.01M21 17h.01"/></svg></div>
+          <div class="tabs">
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>Inici</div>
+            <div class="tab active"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7h18M6 7l1-3h10l1 3M5 7v13h14V7"/></svg></div>Comerços</div>
+            <div class="tab" style="visibility:hidden">·</div>
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8h16v11H4z"/><path d="M4 8l3-4h10l3 4"/></svg></div>Ofertes</div>
+            <div class="tab"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>Perfil</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ 2 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">2</span><h2>Fitxa del comerç</h2>
+      <p>Dos estats de la mateixa fitxa segons si el veí ja ha escanejat el QR d'aquest comerç. <b>A l'esquerra, encara no visitat</b>: la targeta d'acció convida a escanejar (recorda: un cop per comerç). <b>A la dreta, ja escanejat</b>: el comerç queda marcat com a <b>actiu/visitat</b>, la targeta passa a estat "punts guanyats" i el CTA porta als seus beneficis. Comú a tots dos: info pràctica (adreça, horari obert/tancat, telèfon, web), mapa, beneficis bescanviables i descripció. (Ja no hi ha segell "adherit": si el comerç és a l'app, ja hi està.)</p>
+    </div>
+    <div class="stage">
+      <div class="col">
+        <div class="col-head"><span class="tag reg">Encara no visitat</span><p>El botó d'escaneig està actiu perquè el veí no ha guanyat encara els punts d'aquest comerç.</p></div>
+        <div class="phone"><div class="screen">
+          <div class="scroll" style="padding-bottom:88px">
+            <div class="detail-hero" style="background:linear-gradient(135deg,#f9dd8e,#f7d168)">
+              🥐
+              <div class="grad"></div>
+              <div class="top">
+                <div class="bk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></div>
+              </div>
+            </div>
+            <div class="detail-body">
+              <div class="cat">Alimentació · Fleca</div>
+              <h1>Forn Rovira</h1>
+              <div class="sub"><span class="open-dot"><i></i>Obert ara</span><span>· Tanca a les 20:00 · 240 m</span></div>
+
+              <div class="earn-card">
+                <div class="er-top">
+                  <div class="qi">▣</div>
+                  <div><b>Guanya +20 punts</b><small>Escaneja el QR del taulell en visitar-lo</small></div>
+                </div>
+                <div class="scan-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M4 12h16"/></svg>Escanejar QR</div>
+                <div class="once">Només un cop per comerç · el QR és al taulell de la botiga</div>
+              </div>
+
+              <div class="info-list">
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="rt"><b>Carrer de Mar, 14</b><span>08380 Malgrat de Mar</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><div class="rt"><b>Dl–Ds · 07:00–20:00</b><span style="color:var(--km0-green-500);font-weight:700">Obert ara · tanca a les 20:00</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></div><div class="rt"><b>93 765 00 00</b><span>Trucar</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/></svg></div><div class="rt"><b>fornrovira.cat</b><span>Lloc web</span></div></div>
+              </div>
+
+              <div class="map">
+                <div class="road r1"></div><div class="road r2"></div>
+                <div class="pin">📍</div>
+                <div class="zoom">Veure al mapa</div>
+              </div>
+
+              <div class="sec-head"><h3>Promocions <span class="k">del comerç</span></h3></div>
+              <div class="coupon"><div class="disc">-5%</div><div class="txt"><b>5% de descompte</b><span>En pa i brioixeria</span></div><div class="cost">+20€</div></div>
+              <div class="coupon"><div class="disc">2×1</div><div class="txt"><b>2×1 en cafès de tarda</b><span>De 16 a 19 h</span></div><div class="cost">Info</div></div>
+
+              <div class="sec-head"><h3>Sobre el comerç</h3></div>
+              <p class="desc-p">Fleca artesanal de tota la vida al centre de Malgrat. Pa de massa mare, brioixeria pròpia i coques de temporada. Producte de proximitat elaborat cada matí al mateix obrador.</p>
+            </div>
+          </div>
+          <div class="sticky-cta">
+            <div class="b"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M4 12h16"/></svg>Escanejar QR i guanyar +20</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="tag ok">Ja escanejat · actiu</span><p>El veí ja ha llegit el QR d'aquest local: apareix marcat com a actiu i els punts ja estan guanyats.</p></div>
+        <div class="phone"><div class="screen">
+          <div class="scroll" style="padding-bottom:88px">
+            <div class="detail-hero" style="background:linear-gradient(135deg,#f9dd8e,#f7d168)">
+              🥐
+              <div class="grad"></div>
+              <div class="top">
+                <div class="bk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></div>
+              </div>
+              <div class="visit-pill">✓ Visitat</div>
+            </div>
+            <div class="detail-body">
+              <div class="cat">Alimentació · Fleca</div>
+              <h1>Forn Rovira</h1>
+              <div class="sub"><span class="status-actiu"><i></i>Actiu</span><span>· Obert ara · tanca a les 20:00 · 240 m</span></div>
+
+              <div class="earn-card done">
+                <div class="er-top">
+                  <div class="qi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+                  <div><b>Ja has guanyat +20 punts</b><small>Has escanejat el QR d'aquest comerç</small></div>
+                </div>
+                <div class="scan-btn done-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M9 12l2 2 4-4"/></svg>Veure les promocions del comerç</div>
+                <div class="once">Cada comerç dona punts un sol cop · aquest ja és actiu</div>
+              </div>
+
+              <div class="info-list">
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="rt"><b>Carrer de Mar, 14</b><span>08380 Malgrat de Mar</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><div class="rt"><b>Dl–Ds · 07:00–20:00</b><span style="color:var(--km0-green-500);font-weight:700">Obert ara · tanca a les 20:00</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></div><div class="rt"><b>93 765 00 00</b><span>Trucar</span></div></div>
+                <div class="info-row"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/></svg></div><div class="rt"><b>fornrovira.cat</b><span>Lloc web</span></div></div>
+              </div>
+
+              <div class="map">
+                <div class="road r1"></div><div class="road r2"></div>
+                <div class="pin">📍</div>
+                <div class="zoom">Veure al mapa</div>
+              </div>
+
+              <div class="sec-head"><h3>Promocions <span class="k">del comerç</span></h3></div>
+              <div class="coupon"><div class="disc">-5%</div><div class="txt"><b>5% de descompte</b><span>En pa i brioixeria</span></div><div class="cost">+20€</div></div>
+              <div class="coupon"><div class="disc">2×1</div><div class="txt"><b>2×1 en cafès de tarda</b><span>De 16 a 19 h</span></div><div class="cost">Info</div></div>
+
+              <div class="sec-head"><h3>Sobre el comerç</h3></div>
+              <p class="desc-p">Fleca artesanal de tota la vida al centre de Malgrat. Pa de massa mare, brioixeria pròpia i coques de temporada. Producte de proximitat elaborat cada matí al mateix obrador.</p>
+            </div>
+          </div>
+          <div class="sticky-cta">
+            <div class="b" style="background:var(--km0-teal-500)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M9 12l2 2 4-4"/></svg>Veure les promocions del comerç</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ 3 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">3</span><h2>Promocions del comerç (vista usuari)</h2>
+      <p>Versió simple: el comerç <b>anuncia les seves promocions</b> i el veí les veu. Són <b>només informatives</b> — no hi ha codi, ni validació, ni bescanvi de punts. Informen del que ofereix el comerç (per exemple, "5% de descompte per compres de +20€" o "beguda de regal"). El comerç les crea i activa des del seu backoffice (bloc 6). <i>El bescanvi/validació per QR s'afegirà més endavant.</i></p>
+    </div>
+    <div class="stage">
+      <div class="col">
+        <div class="col-head"><span class="tag reg">Promocions · usuari</span><p>Llistat informatiu de les promocions vigents del comerç, tal com les veu el veí des de la fitxa.</p></div>
+        <div class="phone"><div class="screen">
+          <div class="scroll">
+            <div class="nav-back"><div class="bk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></div><div class="ttl">Promocions · Forn Rovira</div></div>
+            <div class="benefit-intro">🏷️ Promocions que ofereix aquest comerç als veïns. Consulta-les i aprofita-les a la botiga.</div>
+            <div class="benefits-list">
+              <div class="benefit info">
+                <div class="bh"><div class="disc">-5%</div><div class="bt"><b>5% de descompte</b><span>En pa i brioixeria</span><div class="cond">🛒 Per compres de +20€</div></div></div>
+              </div>
+              <div class="benefit info">
+                <div class="bh"><div class="disc">2×1</div><div class="bt"><b>2×1 en cafès de tarda</b><span>Cafè i tallat</span><div class="cond">🕒 De 16 a 19 h</div></div></div>
+              </div>
+              <div class="benefit info">
+                <div class="bh"><div class="disc">-15%</div><div class="bt"><b>15% en coques de temporada</b><span>Coca de Sant Joan i de forner</span><div class="cond">📅 Juny i juliol</div></div></div>
+              </div>
+              <div class="benefit info">
+                <div class="bh"><div class="disc">Regal</div><div class="bt"><b>Beguda de regal</b><span>Amb qualsevol esmorzar</span><div class="cond">ℹ️ Informatiu</div></div></div>
+              </div>
+            </div>
+            <div class="benefit-foot">Les promocions són informatives. Mostra-les o pregunta al comerç per aprofitar-les.</div>
+            <div class="spacer" style="height:20px"></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ 4 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">4</span><h2>Procés d'escaneig del QR — estats</h2>
+      <p>És un <b>escàner global</b>: s'obre des del botó central del llistat (o des de qualsevol lloc), <b>sense haver d'entrar a la fitxa</b> del comerç — el QR únic ja diu de quin comerç és. Quatre moments de la mateixa càmera: <b>lectura</b> (buscant el codi), <b>validació</b> (comprovant al servidor), <b>error</b> (aquí: ja s'havien guanyat els punts d'aquest comerç) i <b>èxit</b>. Sense GPS: el QR únic viu al taulell, així que llegir-lo ja demostra que el veí hi és.</p>
+    </div>
+    <div class="stage">
+      <!-- 3a lectura -->
+      <div class="col">
+        <div class="col-head"><span class="tag scan">1 · Lectura</span><p>Càmera activa buscant el codi QR del taulell.</p></div>
+        <div class="phone"><div class="screen cam">
+          <div class="scroll">
+            <div class="cam-top">
+              <div class="x"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m18 6-12 12M6 6l12 12"/></svg></div>
+              <div class="flash"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
+            </div>
+            <div class="cam-title">Escaneja el codi</div>
+            <div class="viewfinder">
+              <div class="cam-bg"></div>
+              <div class="frame">
+                <svg class="qr-ghost" viewBox="0 0 100 100" fill="#fff"><path d="M0 0h30v30H0z M8 8h14v14H8z M70 0h30v30H70z M78 8h14v14H78z M0 70h30v30H0z M8 78h14v14H8z M40 0h8v8h-8z M52 0h8v20h-8z M40 12h8v8h-8z M64 40h8v8h-8z M40 40h16v8H40z M40 52h8v16h-8z M60 60h8v8h-8z M76 52h8v8h-8z M88 64h12v8H88z M52 76h8v8h-8z M40 88h20v8H40z M76 76h8v24h-8z M88 88h12v12H88z"/></svg>
+                <div class="cnr tl"></div><div class="cnr tr"></div><div class="cnr bl"></div><div class="cnr br"></div>
+                <div class="laser"></div>
+              </div>
+              <div class="cam-hint">Enfoca el <b>codi QR del taulell</b> dins del marc</div>
+            </div>
+            <div class="cam-foot"><div class="from-gallery">Cada comerç té el seu QR únic</div></div>
+          </div>
+        </div></div>
+      </div>
+      <!-- 3b validant -->
+      <div class="col">
+        <div class="col-head"><span class="tag scan">2 · Validació</span><p>Codi detectat: es comprova al servidor.</p></div>
+        <div class="phone"><div class="screen cam">
+          <div class="scroll">
+            <div class="cam-top">
+              <div class="x"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m18 6-12 12M6 6l12 12"/></svg></div>
+              <div class="flash" style="opacity:.4"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
+            </div>
+            <div class="viewfinder"><div class="cam-bg"></div>
+              <div class="frame" style="opacity:.35"><div class="cnr tl"></div><div class="cnr tr"></div><div class="cnr bl"></div><div class="cnr br"></div></div>
+            </div>
+          </div>
+          <div class="cam-overlay dim">
+            <div class="spinner"></div>
+            <h2>Validant codi…</h2>
+            <p>Comprovant el comerç i assignant els teus punts</p>
+          </div>
+        </div></div>
+      </div>
+      <!-- 3c error -->
+      <div class="col">
+        <div class="col-head"><span class="tag err">3 · Error</span><p>Cas principal: ja s'havien guanyat els punts d'aquest comerç.</p></div>
+        <div class="phone"><div class="screen cam">
+          <div class="scroll">
+            <div class="cam-top">
+              <div class="x"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m18 6-12 12M6 6l12 12"/></svg></div>
+            </div>
+            <div class="viewfinder"><div class="cam-bg"></div></div>
+          </div>
+          <div class="cam-overlay dim">
+            <div class="err-icon">✓</div>
+            <h2>Ja has visitat aquest comerç</h2>
+            <p>Els punts de <b>Forn Rovira</b> ja són teus. Cada comerç dona punts un sol cop — però pots consultar les seves promocions!</p>
+            <div class="actions">
+              <div class="btn-primary">Veure les promocions del comerç</div>
+              <div class="btn-ghost">Escanejar un altre comerç</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <!-- 3d success mini -->
+      <div class="col">
+        <div class="col-head"><span class="tag ok">4 · Èxit</span><p>Codi vàlid i primer cop: punts assignats (pantalla completa a sota).</p></div>
+        <div class="phone"><div class="screen success">
+          <div class="confetti">
+            <i style="left:14%;top:16%;background:#f7d168;transform:rotate(20deg)"></i>
+            <i style="left:82%;top:20%;background:#00b8a9;transform:rotate(-15deg)"></i>
+            <i style="left:24%;top:30%;background:#ff664d"></i>
+            <i style="left:70%;top:34%;background:#6b8fd0;transform:rotate(35deg)"></i>
+            <i style="left:50%;top:12%;background:#f9dd8e"></i>
+          </div>
+          <div class="scroll">
+            <div class="ok-badge"><div class="ring"></div><div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div></div>
+            <h1>Molt bé, Marc! 🎉</h1>
+            <p class="shopname">Has visitat <b>Forn Rovira</b></p>
+            <div class="pts-won">
+              <div class="big">+20 <span>pts</span></div>
+              <div class="tot">Ara tens <b>1.260 punts</b> · Nivell 4</div>
+            </div>
+            <div class="cta-col">
+              <div class="p">Veure les meves recompenses</div>
+              <div class="g">Seguir explorant comerços</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="stage"><div style="max-width:760px;width:100%"><div class="flow-note"><b>Altres errors possibles</b> (mateix patró visual, canvia el text): «Codi no vàlid» (QR d'una altra app), «Aquest QR ha caducat» (comerç donat de baixa) i «Sense connexió · torna-ho a provar». Tots ofereixen "Tornar a escanejar".</div></div></div>
+  </div>
+
+  <!-- ============================================================ 5 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">5</span><h2>Confirmació de punts obtinguts (pantalla completa)</h2>
+      <p>La celebració després d'un escaneig correcte: reforç positiu, punts guanyats destacats, el nou total i dos camins clars — anar a recompenses o seguir explorant. És la mateixa pantalla que el mini "4 · Èxit" de dalt, a mida completa.</p>
+    </div>
+    <div class="stage">
+      <div class="col">
+        <div class="col-head"><span class="tag ok">Confirmació</span><p>Moment "recompensa". Enllaça cap a bescanviar punts.</p></div>
+        <div class="phone"><div class="screen success">
+          <div class="confetti">
+            <i style="left:12%;top:14%;background:#f7d168;transform:rotate(20deg)"></i>
+            <i style="left:86%;top:18%;background:#00b8a9;transform:rotate(-15deg)"></i>
+            <i style="left:20%;top:26%;background:#ff664d"></i>
+            <i style="left:74%;top:30%;background:#6b8fd0;transform:rotate(35deg)"></i>
+            <i style="left:46%;top:10%;background:#f9dd8e;transform:rotate(10deg)"></i>
+            <i style="left:60%;top:22%;background:#a689e6;transform:rotate(-25deg)"></i>
+            <i style="left:32%;top:18%;background:#00c7bc"></i>
+          </div>
+          <div class="scroll">
+            <div class="ok-badge"><div class="ring"></div><div class="tick"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div></div>
+            <h1>Molt bé, Marc! 🎉</h1>
+            <p class="shopname">Has visitat <b>Forn Rovira</b> · Alimentació</p>
+            <div class="pts-won">
+              <div class="big">+20 <span>pts</span></div>
+              <div class="tot">Ara tens <b>1.260 punts</b> · et falten <b>240</b> per a la propera recompensa</div>
+            </div>
+            <div style="width:100%;margin-top:18px;background:#fff;border:1px solid var(--km0-beige-200);border-radius:15px;padding:12px 14px;display:flex;align-items:center;gap:11px;box-shadow:0 4px 12px -9px rgba(19,42,80,.3)">
+              <div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#f9dd8e,#f7d168);display:grid;place-items:center;font-size:18px;flex-shrink:0">🎁</div>
+              <div style="text-align:left;flex:1"><b style="font-size:12.5px;color:var(--km0-blue-800);display:block">Propera recompensa</b><span style="font-size:11.5px;color:var(--km0-blue-500)">Val de 5€ al Forn Rovira</span></div>
+              <div style="font-size:11px;font-weight:800;color:var(--km0-blue-700);background:var(--km0-beige-100);padding:4px 8px;border-radius:999px">1.500 pts</div>
+            </div>
+            <div class="cta-col">
+              <div class="p">Veure les meves recompenses</div>
+              <div class="g">Seguir explorant comerços</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col" style="max-width:300px;align-self:center">
+        <div class="flow-note" style="margin-top:0">
+          <b>Micro-interacció</b><br>
+          En entrar: el número <b>+20</b> compta amunt (0→20), el segell fa un petit "pop" i el confeti cau un cop. El total antic (1.240) fa una transició fins a 1.260. Res de bloquejant: es pot tocar "Seguir explorant" a l'instant.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ 6 -->
+  <div class="screen-block">
+    <div class="sb-head">
+      <span class="num">6</span><h2>Backoffice del comerç (web) — QR i promocions</h2>
+      <p>Pantalla d'escriptori (encaixa al back-office existent; també s'obre al mòbil/tauleta perquè és web responsiu). Dues vistes: <b>El meu QR</b> — el sistema <b>genera el QR únic del comerç automàticament</b> i es pot veure, descarregar (PNG/PDF) i imprimir, amb mètriques; i <b>Promocions</b> — el comerç crea, edita i activa/desactiva les seves promocions (5% per compres de +20€, 2×1, regals…) que després veuran els veïns a la fitxa. De moment són <b>informatives</b>; la validació/bescanvi per QR s'afegirà més endavant.</p>
+    </div>
+    <div class="stage">
+      <div class="desktop">
+        <div class="browserbar">
+          <div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+          <div class="url">🔒 backoffice.km0lab.com/comerc/el-meu-qr</div>
+        </div>
+        <div class="bo">
+          <aside class="bo-side">
+            <div class="brand">KM0 LAB</div>
+            <div class="who"><div class="av">🥐</div><div><b>Forn Rovira</b><span>Comerç adherit</span></div></div>
+            <nav class="bo-nav">
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Resum</a>
+              <a class="on"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 21v.01M17 21h.01M21 17h.01"/></svg>El meu QR</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M9 12l2 2 4-4"/></svg>Promocions</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 2 4-5"/></svg>Estadístiques</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>La meva fitxa</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3.9a7 7 0 0 0-1.7-1l-.4-2.4h-4l-.4 2.4a7 7 0 0 0-1.7 1L4 5l-2 3.4L4 10a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.4h4l.4-2.4a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.6a7 7 0 0 0 .1-1Z"/></svg>Configuració</a>
+            </nav>
+          </aside>
+          <main class="bo-main">
+            <h1>El meu codi QR</h1>
+            <p class="lead">Aquest és el QR únic del teu comerç. Imprimeix-lo i col·loca'l al taulell: els veïns l'escanejaran per guanyar punts en visitar-te.</p>
+
+            <div class="bo-stats">
+              <div class="stat"><div class="n">128</div><div class="l">Visites escanejades</div></div>
+              <div class="stat"><div class="n">2.560</div><div class="l">Punts atorgats</div></div>
+              <div class="stat"><div class="n">+14 <span class="up">▲ aquesta setmana</span></div><div class="l">Nous visitants</div></div>
+            </div>
+
+            <div class="qr-panel">
+              <div class="qr-card">
+                <div class="qframe">
+                  <svg width="150" height="150" viewBox="0 0 100 100" fill="#132a50"><path d="M0 0h30v30H0z M8 8h14v14H8z M70 0h30v30H70z M78 8h14v14H78z M0 70h30v30H0z M8 78h14v14H8z M40 0h8v8h-8z M52 0h8v20h-8z M40 12h8v8h-8z M64 40h8v8h-8z M40 40h16v8H40z M40 52h8v16h-8z M60 60h8v8h-8z M76 52h8v8h-8z M88 64h12v8H88z M52 76h8v8h-8z M40 88h20v8H40z M76 76h8v24h-8z M88 88h12v12H88z M32 40h8v8h-8z M32 56h8v8h-8z M56 32h8v8h-8z"/></svg>
+                </div>
+                <div class="cap">Forn Rovira<span>ID: KM0-MLG-00427 · +20 pts</span></div>
+              </div>
+              <div class="qr-right">
+                <h3>Descarrega o imprimeix</h3>
+                <p>Fes servir el PDF "cartell de taulell" (inclou logo KM0 LAB i el text «Escaneja i guanya punts»), o el PNG si el vols enganxar en un altre disseny.</p>
+                <div class="qr-actions">
+                  <span class="a solid"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Descarregar PDF</span>
+                  <span class="a out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Descarregar PNG</span>
+                  <span class="a ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V3h12v6M6 18H4v-6h16v6h-2M8 14h8v7H8z"/></svg>Imprimir</span>
+                </div>
+                <div class="qr-note">🔒 El QR es genera automàticament en donar-te d'alta i no caduca. Si sospites que s'ha copiat de manera fraudulenta, pots <b>regenerar-lo</b> des de Configuració (l'anterior deixarà de funcionar).</div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <div class="desktop" style="margin-top:30px">
+        <div class="browserbar">
+          <div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+          <div class="url">🔒 backoffice.km0lab.com/comerc/promocions</div>
+        </div>
+        <div class="bo">
+          <aside class="bo-side">
+            <div class="brand">KM0 LAB</div>
+            <div class="who"><div class="av">🥐</div><div><b>Forn Rovira</b><span>Comerç adherit</span></div></div>
+            <nav class="bo-nav">
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Resum</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 21v.01M17 21h.01M21 17h.01"/></svg>El meu QR</a>
+              <a class="on"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M9 12l2 2 4-4"/></svg>Promocions</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 2 4-5"/></svg>Estadístiques</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>La meva fitxa</a>
+              <a><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3.9a7 7 0 0 0-1.7-1l-.4-2.4h-4l-.4 2.4a7 7 0 0 0-1.7 1L4 5l-2 3.4L4 10a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.4h4l.4-2.4a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.6a7 7 0 0 0 .1-1Z"/></svg>Configuració</a>
+            </nav>
+          </aside>
+          <main class="bo-main">
+            <div class="bo-toolbar">
+              <div>
+                <h1>Promocions</h1>
+                <p class="lead" style="margin-bottom:0">Promocions informatives que veuran els veïns a la teva fitxa. Actives i desactives quan vulguis.</p>
+              </div>
+              <span class="bo-addbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Afegir promoció</span>
+            </div>
+
+            <div class="bo-table">
+              <div class="bo-trow">
+                <div class="disc">-5%</div>
+                <div class="bmeta"><b>5% de descompte</b><span>En pa i brioixeria · per compres de +20€</span></div>
+                <div class="toggle"></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+              </div>
+              <div class="bo-trow">
+                <div class="disc">2×1</div>
+                <div class="bmeta"><b>2×1 en cafès de tarda</b><span>Cafè i tallat · de 16 a 19 h</span></div>
+                <div class="toggle"></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+              </div>
+              <div class="bo-trow">
+                <div class="disc">-15%</div>
+                <div class="bmeta"><b>15% en coques de temporada</b><span>Coca de Sant Joan i de forner · juny i juliol</span></div>
+                <div class="toggle"></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+              </div>
+              <div class="bo-trow off">
+                <div class="disc">Regal</div>
+                <div class="bmeta"><b>Beguda de regal</b><span>Amb qualsevol esmorzar · desactivat</span></div>
+                <div class="toggle off"></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+              </div>
+            </div>
+
+            <div class="bo-form">
+              <h3>Nova promoció</h3>
+              <div class="field">
+                <label>Nom de la promoció</label>
+                <div class="inp">Ex: 5% de descompte en pa i brioixeria</div>
+              </div>
+              <div class="field">
+                <label>Tipus</label>
+                <div class="seg"><span class="on">% descompte</span><span>2×1</span><span>Regal</span><span>Preu especial</span></div>
+              </div>
+              <div class="field-grid">
+                <div class="field"><label>Valor</label><div class="inp">5%</div></div>
+                <div class="field"><label>Compra mínima (opcional)</label><div class="inp">20€</div></div>
+              </div>
+              <div class="field">
+                <label>Vigència</label>
+                <div class="inp">01/06 – 31/07/2026</div>
+              </div>
+              <div class="field">
+                <label>Condició (lletra petita)</label>
+                <div class="inp">No acumulable amb altres ofertes</div>
+              </div>
+              <div class="switch-row"><div class="toggle"></div><span class="st">Activa i visible per als veïns</span></div>
+              <span class="save"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Desar promoció</span>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page">
+    <div>Maqueta de la secció Comerços · estats finals (loading / empty / error) i responsivitat es validen a PreviewAll i es construeixen a Lovable seguint el sistema de disseny.</div>
+    <div class="legend">
+      <span><b>Llistat</b> — descoberta + filtre + escàner global</span>
+      <span><b>Fitxa</b> — info + escaneig + estat actiu</span>
+      <span><b>Promocions</b> — ofertes informatives del comerç</span>
+      <span><b>Escaneig</b> — lectura · validació · error · èxit</span>
+      <span><b>Backoffice</b> — QR únic + gestió de promocions</span>
+    </div>
+  </footer>
+</div>
