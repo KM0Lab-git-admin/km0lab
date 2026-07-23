@@ -18,8 +18,8 @@ import type { ReactNode } from 'react'
  *   horizontal-mobile   (≤1279 landscape)  → 667×375
  *   horizontal-desktop  (≥1280 landscape)  → 1280×550
  *
- * En desarrollo local se muestra el marco azul “teléfono”. En producción
- * (Vercel / build) el marco desaparece y la pantalla ocupa el viewport.
+ * Incluye el marco azul “teléfono” (borde + sombra) en todos los
+ * entornos (local, UAT, producción).
  *
  * Las pantallas de chat u otras que necesiten pantalla completa NO
  * usan este componente: tienen su propio layout (FullBleed).
@@ -37,12 +37,8 @@ interface BrandedFrameProps {
   landscapeContentClassName?: string
 }
 
-/** Solo en Vite dev: borde/sombra del “teléfono”. En Vercel (PROD) no. */
-const showDeviceChrome = import.meta.env.DEV
-
-const frameChromeClass = showDeviceChrome
-  ? 'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
-  : 'rounded-none border-0 shadow-none'
+const frameChromeClass =
+  'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
 
 const BrandedFrame = ({
   children,
@@ -79,18 +75,13 @@ const BrandedFrame = ({
       <div
         className={cn(
           'landscape:hidden flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
-          frameChromeClass,
-          !showDeviceChrome && 'h-dvh w-full'
+          frameChromeClass
         )}
-        style={
-          showDeviceChrome
-            ? {
-                width: 'min(100vw, 420px)',
-                height:
-                  'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
-              }
-            : undefined
-        }
+        style={{
+          width: 'min(100vw, 420px)',
+          height:
+            'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
+        }}
       >
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
@@ -110,18 +101,12 @@ const BrandedFrame = ({
       <div
         className={cn(
           'hidden landscape:flex bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden flex-col',
-          frameChromeClass,
-          !showDeviceChrome && 'h-dvh w-full'
+          frameChromeClass
         )}
-        style={
-          showDeviceChrome
-            ? {
-                width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
-                height:
-                  'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
-              }
-            : undefined
-        }
+        style={{
+          width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
+          height: 'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
+        }}
       >
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-3 horizontal-desktop:pt-5 pb-2 horizontal-desktop:pb-4 px-5">
