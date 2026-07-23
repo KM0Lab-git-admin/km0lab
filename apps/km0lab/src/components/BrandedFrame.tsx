@@ -1,8 +1,9 @@
 import { ChevronLeft } from 'lucide-react'
 
-import type { ReactNode } from 'react'
-
 import Km0Logo from '@/components/Km0Logo'
+import { cn } from '@/lib/utils'
+
+import type { ReactNode } from 'react'
 
 /**
  * BrandedFrame — Envoltorio compartido para pantallas "con marca".
@@ -17,20 +18,11 @@ import Km0Logo from '@/components/Km0Logo'
  *   horizontal-mobile   (≤1279 landscape)  → 667×375
  *   horizontal-desktop  (≥1280 landscape)  → 1280×550
  *
+ * En desarrollo local se muestra el marco azul “teléfono”. En producción
+ * (Vercel / build) el marco desaparece y la pantalla ocupa el viewport.
+ *
  * Las pantallas de chat u otras que necesiten pantalla completa NO
  * usan este componente: tienen su propio layout (FullBleed).
- *
- * Props:
- *   - onBack:  si se pasa, dibuja el botón back amarillo a la izquierda
- *              del logo (el logo se mantiene perfectamente centrado).
- *   - children: contenido de la pantalla. Se renderiza dentro de un
- *              flex-col que ocupa todo el espacio restante bajo el header.
- *   - portraitContentClassName / landscapeContentClassName:
- *              clases extra para ajustar el contenido por orientación.
- *
- * IMPORTANTE: usa SIEMPRE las variantes oficiales (vertical-mobile,
- * vertical-tablet, horizontal-mobile, horizontal-desktop). Los aliases
- * (short-landscape, wide-landscape, tablet-portrait) están deprecados.
  */
 interface BrandedFrameProps {
   children: ReactNode
@@ -45,6 +37,13 @@ interface BrandedFrameProps {
   landscapeContentClassName?: string
 }
 
+/** Solo en Vite dev: borde/sombra del “teléfono”. En Vercel (PROD) no. */
+const showDeviceChrome = import.meta.env.DEV
+
+const frameChromeClass = showDeviceChrome
+  ? 'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
+  : 'rounded-none border-0 shadow-none'
+
 const BrandedFrame = ({
   children,
   onBack,
@@ -53,7 +52,6 @@ const BrandedFrame = ({
   portraitContentClassName = '',
   landscapeContentClassName = '',
 }: BrandedFrameProps) => {
-  // Botón back reutilizado en ambas orientaciones (tamaño distinto).
   const renderBackButton = (sizeClasses: string, iconSize: number) => {
     if (!onBack) return null
     return (
@@ -79,15 +77,21 @@ const BrandedFrame = ({
     >
       {/* ── PORTRAIT (vertical-mobile + vertical-tablet) ─────── */}
       <div
-        className="landscape:hidden flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 rounded-3xl border-2 border-km0-blue-700/80 shadow-[0_24px_60px_-20px_hsl(var(--km0-blue-700)/0.3)] overflow-hidden"
-        style={{
-          width: 'min(100vw, 420px)',
-          height:
-            'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
-        }}
+        className={cn(
+          'landscape:hidden flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
+          frameChromeClass,
+          !showDeviceChrome && 'h-dvh w-full'
+        )}
+        style={
+          showDeviceChrome
+            ? {
+                width: 'min(100vw, 420px)',
+                height:
+                  'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
+              }
+            : undefined
+        }
       >
-        {/* Header — logo centrado con espacio reservado a los lados
-            para que NUNCA se solape con el back button (incluso a 375px). */}
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
             {renderBackButton('left-4 w-10 h-10', 20)}
@@ -95,7 +99,6 @@ const BrandedFrame = ({
           </header>
         )}
 
-        {/* Body — scroll interno si desborda, frame nunca se mueve */}
         <div
           className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName}`}
         >
@@ -104,18 +107,22 @@ const BrandedFrame = ({
       </div>
 
       {/* ── LANDSCAPE (horizontal-mobile + horizontal-desktop) ─ */}
-      {/*
-        Card de tamaño FIJO ratio 16:9. Mismas reglas: tamaño calculado
-        solo desde el viewport, nunca desde el contenido.
-      */}
       <div
-        className="hidden landscape:flex bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 rounded-3xl border-2 border-km0-blue-700/80 shadow-[0_24px_60px_-20px_hsl(var(--km0-blue-700)/0.3)] overflow-hidden flex-col"
-        style={{
-          width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
-          height: 'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
-        }}
+        className={cn(
+          'hidden landscape:flex bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden flex-col',
+          frameChromeClass,
+          !showDeviceChrome && 'h-dvh w-full'
+        )}
+        style={
+          showDeviceChrome
+            ? {
+                width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
+                height:
+                  'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
+              }
+            : undefined
+        }
       >
-        {/* Header */}
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-3 horizontal-desktop:pt-5 pb-2 horizontal-desktop:pb-4 px-5">
             {renderBackButton('left-3 horizontal-desktop:left-4 w-9 h-9', 20)}
@@ -123,7 +130,6 @@ const BrandedFrame = ({
           </header>
         )}
 
-        {/* Body */}
         <div
           className={`flex-1 min-h-0 flex w-full px-4 horizontal-desktop:px-6 pb-3 horizontal-desktop:pb-6 overflow-hidden ${hideHeader ? 'pt-3 horizontal-desktop:pt-5' : ''} ${landscapeContentClassName}`}
         >

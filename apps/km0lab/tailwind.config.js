@@ -146,6 +146,9 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        'device-frame': '0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3)',
+      },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
