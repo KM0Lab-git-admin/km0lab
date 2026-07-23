@@ -12,12 +12,12 @@
  * `@/data/fixtures/news.json` (sintética, mismo shape).
  */
 import { apiFetch } from '../services/apiClient'
-import { absolutizeEventsAsset } from '../services/eventsAssets'
 import {
   newsListResponseSchema,
   newsDetailResponseSchema,
   type NewsItem,
 } from '../services/apiSchemas'
+import { absolutizeEventsAsset } from '../services/eventsAssets'
 
 import type { Lang } from '../utils/i18n'
 

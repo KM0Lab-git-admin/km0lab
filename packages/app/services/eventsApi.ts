@@ -10,7 +10,6 @@
  * `@/data/fixtures/` (query.json, events-today.json, categories.json).
  */
 import { apiFetch } from '../services/apiClient'
-import { absolutizeEventsAsset } from '../services/eventsAssets'
 import {
   queryResponseSchema,
   todayResponseSchema,
@@ -24,6 +23,7 @@ import {
   type EventoDetail,
   type EventImagen,
 } from '../services/apiSchemas'
+import { absolutizeEventsAsset } from '../services/eventsAssets'
 
 /** Búsqueda en lenguaje natural (experiencia chat). Rate limit 30/min. */
 export async function queryEvents(
