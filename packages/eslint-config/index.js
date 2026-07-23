@@ -85,6 +85,8 @@ module.exports = [
       '**/node_modules/**',
       '**/.expo/**',
       '**/.turbo/**',
+      '**/android/**',
+      '**/ios/**',
       '**/*.css',
     ],
   },

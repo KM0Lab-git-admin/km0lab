@@ -97,29 +97,6 @@ const EventHeroCarousel = ({ promos, onOpen }: EventHeroCarouselProps) => {
                 aria-hidden
                 className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent"
               />
-
-              {/* Dots internos de imagen */}
-              {images.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-black/35 backdrop-blur-sm px-2 py-1">
-                  {images.map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setImgIndex(i)
-                      }}
-                      aria-label={`Imatge ${i + 1}`}
-                      className={cn(
-                        'rounded-full transition-all',
-                        i === imgIndex % images.length
-                          ? 'w-4 h-1.5 bg-white'
-                          : 'w-1.5 h-1.5 bg-white/55 hover:bg-white/80'
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
             </button>
 
             {/* --- Panel de texto (clic = abrir detalle) --- */}

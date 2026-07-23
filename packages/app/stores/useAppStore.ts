@@ -53,6 +53,13 @@ interface AppState {
   // pending OTP (entre `requestOtp` y `verifyOtp`)
   pendingOtp: { email: string; postal_code?: string; town?: string } | null
 
+  /**
+   * Notificaciones: timestamp ISO de la última vez que el usuario abrió el
+   * panel. Se compara contra `fecha_publicacion` de cada noticia para
+   * decidir si hay no leídas (ver useNotifications).
+   */
+  notificationsLastSeenAt: string | null
+
   // ─── actions ───────────────────────────────
   setLang: (l: Lang) => void
   setLocation: (postalCode: string | null, town: string | null) => void
@@ -63,6 +70,8 @@ interface AppState {
 
   upsertProfile: (userId: string, patch: Partial<AppProfile>) => void
   getProfile: (userId: string) => AppProfile | null
+
+  markNotificationsSeen: () => void
 
   signOut: () => void
 }
@@ -86,6 +95,7 @@ export const useAppStore = create<AppState>()(
       postalCode: null,
       town: null,
       pendingOtp: null,
+      notificationsLastSeenAt: null,
 
       setLang: (l) => {
         if (!(LANGS as string[]).includes(l)) return
@@ -106,6 +116,9 @@ export const useAppStore = create<AppState>()(
         }),
       getProfile: (userId) => get().profiles[userId] ?? null,
 
+      markNotificationsSeen: () =>
+        set({ notificationsLastSeenAt: new Date().toISOString() }),
+
       signOut: () => set({ session: null, token: null, pendingOtp: null }),
     }),
     {
@@ -119,6 +132,7 @@ export const useAppStore = create<AppState>()(
         lang: s.lang,
         postalCode: s.postalCode,
         town: s.town,
+        notificationsLastSeenAt: s.notificationsLastSeenAt,
       }),
     }
   )

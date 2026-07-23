@@ -37,7 +37,7 @@ interface BrandedFrameProps {
   onBack?: () => void
   /** Aria label para el back button (i18n responsabilidad de la pantalla) */
   backAriaLabel?: string
-  /** Si true, oculta el header con el logo (pantalla con su propio hero) */
+  /** Si true, oculta el header con el logo (útil cuando la pantalla ya tiene su propio hero) */
   hideHeader?: boolean
   /** Clases extra para el contenedor de contenido en portrait */
   portraitContentClassName?: string
@@ -68,23 +68,22 @@ const BrandedFrame = ({
   }
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-center justify-center bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 p-3 sm:p-4">
+    <div
+      className="min-h-[100dvh] w-full flex items-center justify-center bg-gradient-to-b from-km0-beige-50 to-km0-beige-100"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
+    >
       {/* ── PORTRAIT (vertical-mobile + vertical-tablet) ─────── */}
-      {/*
-        Card de tamaño FIJO simulando un móvil (ratio 9:19.5 ≈ iPhone).
-        El alto se calcula SOLO en función del viewport (min entre alto
-        disponible y ancho * ratio), nunca del contenido. Así el marco
-        y el logo quedan siempre en la misma posición exacta entre
-        pantallas. Si el contenido no cabe, hace scroll INTERNO en el
-        body — pero el frame no se deforma.
-      */}
       <div
         className="landscape:hidden flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 rounded-3xl border-2 border-km0-blue-700/80 shadow-[0_24px_60px_-20px_hsl(var(--km0-blue-700)/0.3)] overflow-hidden"
         style={{
-          width:
-            'min(calc(100vw - 1.5rem), calc((100dvh - 1.5rem) * 9 / 19.5), 420px)',
+          width: 'min(100vw, 420px)',
           height:
-            'min(calc(100dvh - 1.5rem), calc((100vw - 1.5rem) * 19.5 / 9), calc(420px * 19.5 / 9))',
+            'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
         }}
       >
         {/* Header — logo centrado con espacio reservado a los lados
@@ -98,7 +97,7 @@ const BrandedFrame = ({
 
         {/* Body — scroll interno si desborda, frame nunca se mueve */}
         <div
-          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName}`}
+          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName}`}
         >
           {children}
         </div>
@@ -112,10 +111,8 @@ const BrandedFrame = ({
       <div
         className="hidden landscape:flex bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 rounded-3xl border-2 border-km0-blue-700/80 shadow-[0_24px_60px_-20px_hsl(var(--km0-blue-700)/0.3)] overflow-hidden flex-col"
         style={{
-          width:
-            'min(calc(100vw - 2rem), calc((100dvh - 2rem) * 16 / 9), 1200px)',
-          height:
-            'min(calc(100dvh - 2rem), calc((100vw - 2rem) * 9 / 16), calc(1200px * 9 / 16))',
+          width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
+          height: 'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
         }}
       >
         {/* Header */}

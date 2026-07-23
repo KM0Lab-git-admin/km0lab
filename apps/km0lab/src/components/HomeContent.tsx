@@ -136,7 +136,7 @@ const HomeContent = ({
             </div>
           </section>
 
-          {showLogin && <EarnPointsCard />}
+          <EarnPointsCard locked={showLogin} />
         </div>
       </div>
 

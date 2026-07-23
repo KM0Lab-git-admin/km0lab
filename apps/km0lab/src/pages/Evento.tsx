@@ -195,37 +195,6 @@ const EventoDetalle = ({
           imagenes={ev.imagenes}
           alt={ev.titulo}
           className="w-full aspect-[4/3] vertical-tablet:aspect-[16/10]"
-          overlay={
-            <>
-              <div className="absolute inset-0 bg-gradient-to-t from-km0-blue-900/85 via-km0-blue-900/20 to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 right-3 z-[5] pointer-events-none space-y-1.5">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {ev.categoria && (
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-km0-yellow-400 text-km0-blue-900 text-[10px] font-ui font-bold">
-                      {ev.categoria}
-                    </span>
-                  )}
-                  {ev.esGratuito ? (
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-km0-teal-500 text-white text-[10px] font-ui font-bold">
-                      {t('event.free', lang)}
-                    </span>
-                  ) : ev.precio != null ? (
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-white text-km0-blue-900 text-[10px] font-ui font-bold">
-                      {ev.precio.toFixed(2)} €
-                    </span>
-                  ) : null}
-                  {ev.esFamilia && (
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-km0-coral-500 text-white text-[10px] font-ui font-bold">
-                      {t('event.family', lang)}
-                    </span>
-                  )}
-                </div>
-                <h1 className="font-brand text-xl vertical-tablet:text-2xl text-white leading-tight drop-shadow">
-                  {ev.titulo}
-                </h1>
-              </div>
-            </>
-          }
         />
         <button
           onClick={onBack}
@@ -245,6 +214,34 @@ const EventoDetalle = ({
 
       {/* Cuerpo scroll-y */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-4 pt-4 pb-4 space-y-4">
+        {/* Título + badges */}
+        <header className="space-y-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {ev.categoria && (
+              <span className="inline-block px-2 py-0.5 rounded-full bg-km0-yellow-400 text-km0-blue-900 text-[10px] font-ui font-bold">
+                {ev.categoria}
+              </span>
+            )}
+            {ev.esGratuito ? (
+              <span className="inline-block px-2 py-0.5 rounded-full bg-km0-teal-500 text-white text-[10px] font-ui font-bold">
+                {t('event.free', lang)}
+              </span>
+            ) : ev.precio != null ? (
+              <span className="inline-block px-2 py-0.5 rounded-full bg-km0-blue-100 text-km0-blue-900 text-[10px] font-ui font-bold">
+                {ev.precio.toFixed(2)} €
+              </span>
+            ) : null}
+            {ev.esFamilia && (
+              <span className="inline-block px-2 py-0.5 rounded-full bg-km0-coral-500 text-white text-[10px] font-ui font-bold">
+                {t('event.family', lang)}
+              </span>
+            )}
+          </div>
+          <h1 className="font-brand text-xl vertical-tablet:text-2xl text-km0-blue-900 leading-tight">
+            {ev.titulo}
+          </h1>
+        </header>
+
         {/* Cuándo */}
         <section className="bg-white border border-km0-blue-100 rounded-2xl p-3 space-y-2">
           <h2 className="font-brand text-[11px] uppercase tracking-widest text-km0-blue-700/70">

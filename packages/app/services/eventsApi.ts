@@ -15,7 +15,7 @@ import {
   todayResponseSchema,
   categoriesResponseSchema,
   eventsListResponseSchema,
-  eventoDetailResponseSchema,
+  eventoDetailSchema,
   type QueryResponse,
   type TodayResponse,
   type Category,
@@ -201,28 +201,42 @@ export async function getEvento(
   id: string,
   lang: 'es' | 'ca' = 'es'
 ): Promise<EventoDetalleAdaptado | null> {
-  const search = new URLSearchParams({ id, limit: '1', offset: '0' })
-  const res = await apiFetch(
-    `/api/v1/eventos?${search.toString()}`,
-    eventoDetailResponseSchema
+  const raw = await apiFetch(
+    `/api/v1/events/${encodeURIComponent(id)}`,
+    eventoDetailSchema
   )
-  const raw = res.eventos?.[0]
   if (!raw) return null
+
+  const catNombre = (c: {
+    nombre_es?: string | null
+    nombre_cat?: string | null
+    slug?: string | null
+  }) =>
+    (lang === 'ca'
+      ? (c.nombre_cat ?? c.nombre_es)
+      : (c.nombre_es ?? c.nombre_cat)) ??
+    c.slug ??
+    ''
+
+  const primerHorario = raw.horarios?.[0]
+
   return {
     id: raw.id,
     titulo: pickLang(raw.titulo_es, raw.titulo_cat, lang),
-    descripcion: pickLang(raw.descripcion_es, raw.descripcion_cat, lang),
+    descripcion: pickLang(
+      raw.descripcion_larga_es,
+      raw.descripcion_larga_cat,
+      lang
+    ),
     descripcionCorta: pickLang(
       raw.descripcion_corta_es,
       raw.descripcion_corta_cat,
       lang
     ),
-    categoria:
-      (lang === 'ca' ? raw.categorias_cat : raw.categorias_es)?.[0] ??
-      raw.categorias_es?.[0] ??
-      raw.categorias_slugs?.[0] ??
-      '',
-    categoriasSlugs: raw.categorias_slugs ?? [],
+    categoria: raw.categorias?.[0] ? catNombre(raw.categorias[0]) : '',
+    categoriasSlugs: (raw.categorias ?? [])
+      .map((c) => c.slug)
+      .filter((s): s is string => !!s),
     tags: (lang === 'ca' ? raw.tags_cat : raw.tags_es) ?? [],
     cp: raw.cp ?? null,
     poblacion: raw.poblacion ?? null,
@@ -230,14 +244,14 @@ export async function getEvento(
     direccion: raw.direccion ?? null,
     organizador: raw.organizador ?? null,
     organizadorWeb: raw.organizador_web ?? null,
-    fuenteUrl: raw.fuente_url_original ?? null,
+    fuenteUrl: raw.link_entradas_inscripcion ?? null,
     esGratuito: raw.es_gratuito ?? false,
     precio: raw.precio ?? null,
     esFamilia: raw.es_familia ?? false,
-    fechaInicio: raw.fecha_inicio ?? null,
-    fechaFin: raw.fecha_fin ?? null,
-    horaInicio: raw.hora_inicio ?? null,
-    horaFin: raw.hora_fin ?? null,
+    fechaInicio: primerHorario?.fecha_inicio ?? null,
+    fechaFin: primerHorario?.fecha_fin ?? null,
+    horaInicio: primerHorario?.hora_inicio ?? null,
+    horaFin: primerHorario?.hora_fin ?? null,
     horarios: (raw.horarios ?? []).map((h) => ({
       fechaInicio: h.fecha_inicio ?? null,
       fechaFin: h.fecha_fin ?? null,

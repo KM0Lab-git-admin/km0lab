@@ -1,5 +1,5 @@
-import { useNotifications, newsListResponseSchema } from '@km0lab/app'
-import { t, type Lang, adaptNoticia, type Noticia } from '@km0lab/app'
+import { useNotifications } from '@km0lab/app'
+import { t, type Lang, listNews, type Noticia } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -15,7 +15,6 @@ import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
 import { useLang } from '@/contexts/LangContext'
-import newsFixture from '@/data/fixtures/news.json'
 import { cn } from '@/lib/utils'
 
 /* ─────────────────────────────────────────────────────────────
@@ -253,7 +252,7 @@ const Noticias = () => {
     }
     if (forced === 'error') {
       setLoading(false)
-      setError('FIXTURE_ERROR')
+      setError('FORCED_ERROR')
       return
     }
     if (forced === 'empty') {
@@ -262,18 +261,21 @@ const Noticias = () => {
       return
     }
 
-    // Simular pequeño delay + validar contra el schema real.
-    const timer = window.setTimeout(() => {
-      try {
-        const parsed = newsListResponseSchema.parse(newsFixture)
-        setNoticias(parsed.data.map(adaptNoticia))
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'parse_error')
-      } finally {
-        setLoading(false)
-      }
-    }, 150)
-    return () => window.clearTimeout(timer)
+    let cancelled = false
+    listNews({ city: 'Malgrat de Mar', limit: 20, offset: 0 })
+      .then((res) => {
+        if (!cancelled) setNoticias(res.noticias)
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'fetch_error')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [forced])
 
   useEffect(() => {
@@ -309,7 +311,7 @@ const Noticias = () => {
           cityName="Malgrat de Mar"
           hasAlerts={hasUnread}
           onToggleAlerts={markAllRead}
-          onBack={() => (opened ? closeDetail() : navigate(-1))}
+          onBack={() => navigate('/home')}
           backAriaLabel={t('common.back', lang)}
           showGreeting={false}
           greetingSlot={<ScreenTitle title={t('news.title', lang)} />}

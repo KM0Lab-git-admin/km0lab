@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, useAuth, lookupTown, t } from '@km0lab/app'
+import { getProfile, updateProfile, useAuth, t, lookupTown } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'

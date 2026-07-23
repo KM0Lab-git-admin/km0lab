@@ -16,7 +16,7 @@ import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
 
 const RESEND_COOLDOWN_SECONDS = 30
-const CODE_LENGTH = 6
+const CODE_LENGTH = 4
 
 interface LocationState {
   email?: string
@@ -66,7 +66,7 @@ const CheckEmail = () => {
       return
     }
     toast.success(t('otp.welcome', lang))
-    navigate('/home', { replace: true })
+    navigate('/home?welcome=1', { replace: true })
   }
 
   const handleChange = (idx: number, value: string) => {

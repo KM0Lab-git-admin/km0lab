@@ -1,28 +1,16 @@
+import { t } from '@km0lab/app'
+
+import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
 /**
  * WhenTabs — Segmented control para filtrar por rango temporal en la Agenda.
- *
- * Master design KM0:
- *  - Contenedor: km0-beige-50 con borde km0-blue-700/20
- *  - Pestaña activa: km0-blue-600 (azul principal de marca) + texto km0-yellow-400
- *  - Pestaña inactiva: texto km0-blue-700
- *
- * Layout 2×2: garantiza que las etiquetas largas ("Próximos 3 meses",
- * "Próxima semana") nunca se truncan. Pildoras con padding generoso.
+ * Labels vía i18n.
  */
 
 export type WhenKey = 'semana' | 'proxima-semana' | 'mes' | 'trimestre'
 
-export interface WhenTabOption {
-  key: WhenKey
-  label: string
-}
-
-export const WHEN_TABS: WhenTabOption[] = [
-  { key: 'semana', label: 'Esta semana' },
-  { key: 'mes', label: 'Próximos 30 días' },
-]
+export const WHEN_KEYS: WhenKey[] = ['semana', 'mes']
 
 interface WhenTabsProps {
   value: WhenKey
@@ -31,24 +19,28 @@ interface WhenTabsProps {
 }
 
 const WhenTabs = ({ value, onChange, className = '' }: WhenTabsProps) => {
+  const { lang } = useLang()
+  const labelFor = (k: WhenKey) =>
+    k === 'semana' ? t('agenda.when.week', lang) : t('agenda.when.month', lang)
+
   return (
     <div
       role="tablist"
-      aria-label="Rango temporal"
+      aria-label={t('agenda.when.aria', lang)}
       className={cn(
         'grid grid-cols-2 gap-1.5 bg-km0-beige-50 border border-km0-blue-700/20 rounded-2xl p-1.5',
         className
       )}
     >
-      {WHEN_TABS.map((opt) => {
-        const active = value === opt.key
+      {WHEN_KEYS.map((key) => {
+        const active = value === key
         return (
           <button
-            key={opt.key}
+            key={key}
             type="button"
             role="tab"
             aria-selected={active}
-            onClick={() => onChange(opt.key)}
+            onClick={() => onChange(key)}
             className={cn(
               'min-h-9 rounded-full font-ui text-[11px] vertical-tablet:text-sm font-bold transition-all active:scale-95 px-2 py-1.5 whitespace-nowrap',
               active
@@ -56,7 +48,7 @@ const WhenTabs = ({ value, onChange, className = '' }: WhenTabsProps) => {
                 : 'text-km0-blue-700 hover:bg-km0-beige-100'
             )}
           >
-            {opt.label}
+            {labelFor(key)}
           </button>
         )
       })}

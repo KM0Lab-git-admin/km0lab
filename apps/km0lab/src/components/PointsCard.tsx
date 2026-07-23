@@ -72,20 +72,28 @@ const PointsCard = ({
         </div>
       </div>
 
-      {/* Barra de progreso */}
-      <div
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={safeNext}
-        aria-valuenow={safePoints}
-        className="relative z-10 mt-3 vertical-tablet:mt-4 horizontal-mobile:!mt-2 h-2.5 vertical-tablet:h-3 horizontal-mobile:!h-2 w-full rounded-full bg-white/20 overflow-hidden"
-      >
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
-          className="h-full rounded-full bg-gradient-to-r from-km0-yellow-400 to-km0-teal-400"
-        />
+      {/* Barra de progreso + porcentaje */}
+      <div className="relative z-10 mt-3 vertical-tablet:mt-4 horizontal-mobile:!mt-2 flex items-center gap-2">
+        <div
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={safeNext}
+          aria-valuenow={safePoints}
+          className="relative h-2.5 vertical-tablet:h-3 horizontal-mobile:!h-2 flex-1 rounded-full bg-white/20 overflow-hidden"
+        >
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+            className="h-full rounded-full bg-gradient-to-r from-km0-yellow-400 to-km0-teal-400"
+          />
+        </div>
+        <span
+          className="shrink-0 font-ui font-bold text-km0-yellow-100 text-xs vertical-tablet:text-sm horizontal-mobile:!text-[10px] tabular-nums"
+          aria-label={`${pct}%`}
+        >
+          {pct}%
+        </span>
       </div>
 
       {/* Fila inferior: regalo + recompensa */}

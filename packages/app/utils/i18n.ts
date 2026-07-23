@@ -29,11 +29,7 @@ const D = {
     en: 'Loading…',
   } as Dict,
   'common.points': { ca: 'punts', es: 'puntos', en: 'points' } as Dict,
-  'common.previous': {
-    ca: 'Anterior',
-    es: 'Anterior',
-    en: 'Previous',
-  } as Dict,
+  'common.previous': { ca: 'Anterior', es: 'Anterior', en: 'Previous' } as Dict,
   'common.next': { ca: 'Següent', es: 'Siguiente', en: 'Next' } as Dict,
 
   // ── Language screen ──────────────────────────────────────
@@ -295,6 +291,11 @@ const D = {
     es: 'Regístrate para desbloquear',
     en: 'Sign up to unlock',
   } as Dict,
+  'home.earn.action.shop.reward': {
+    ca: 'Guanya {n} punts per compra',
+    es: 'Gana {n} puntos por compra',
+    en: 'Earn {n} points per purchase',
+  } as Dict,
   'home.earn.action.event.title': {
     ca: "Apunta't a un esdeveniment",
     es: 'Apúntate a un evento',
@@ -305,6 +306,12 @@ const D = {
     es: 'Regístrate para desbloquear',
     en: 'Sign up to unlock',
   } as Dict,
+  'home.earn.action.event.reward': {
+    ca: 'Guanya {n} punts per assistència',
+    es: 'Gana {n} puntos por asistencia',
+    en: 'Earn {n} points per attendance',
+  } as Dict,
+
   'home.redeem.title': {
     ca: 'Bescanvia amb punts',
     es: 'Canjea con puntos',
@@ -338,6 +345,12 @@ const D = {
   'module.comerc': { ca: 'Comerços', es: 'Comercios', en: 'Shops' } as Dict,
   'module.punts': { ca: 'Punts', es: 'Puntos', en: 'Points' } as Dict,
   'module.cupons': { ca: 'Cupons', es: 'Cupones', en: 'Coupons' } as Dict,
+  'module.noticias': { ca: 'Notícies', es: 'Noticias', en: 'News' } as Dict,
+  'module.servicios': {
+    ca: 'Serveis',
+    es: 'Servicios',
+    en: 'Services',
+  } as Dict,
 
   // ── Profile ──────────────────────────────────────────────
   'profile.title': {
@@ -529,6 +542,108 @@ const D = {
     es: 'No se ha podido cargar el evento',
     en: "Couldn't load the event",
   } as Dict,
+
+  // ── Agenda ───────────────────────────────────────────────
+  'agenda.title': { ca: 'Agenda', es: 'Agenda', en: 'Agenda' } as Dict,
+  'agenda.back': {
+    ca: "Anar a l'inici",
+    es: 'Ir al inicio',
+    en: 'Go home',
+  } as Dict,
+  'agenda.when.week': {
+    ca: 'Aquesta setmana',
+    es: 'Esta semana',
+    en: 'This week',
+  } as Dict,
+  'agenda.when.month': {
+    ca: 'Pròxims 30 dies',
+    es: 'Próximos 30 días',
+    en: 'Next 30 days',
+  } as Dict,
+  'agenda.when.aria': {
+    ca: 'Rang temporal',
+    es: 'Rango temporal',
+    en: 'Time range',
+  } as Dict,
+  'agenda.cat.musica': { ca: 'Música', es: 'Música', en: 'Music' } as Dict,
+  'agenda.cat.cultura': { ca: 'Cultura', es: 'Cultura', en: 'Culture' } as Dict,
+  'agenda.cat.infantil': { ca: 'Infantil', es: 'Infantil', en: 'Kids' } as Dict,
+  'agenda.cat.deporte': { ca: 'Esport', es: 'Deporte', en: 'Sports' } as Dict,
+  'agenda.cat.talleres': {
+    ca: 'Tallers',
+    es: 'Talleres',
+    en: 'Workshops',
+  } as Dict,
+  'agenda.cat.fiestas': { ca: 'Festes', es: 'Fiestas', en: 'Parties' } as Dict,
+  'agenda.cat.gastronomia': { ca: 'Gastro', es: 'Gastro', en: 'Food' } as Dict,
+  'agenda.cat.todos': { ca: 'Tots', es: 'Todos', en: 'All' } as Dict,
+  'agenda.searching': {
+    ca: 'Cercant…',
+    es: 'Buscando…',
+    en: 'Searching…',
+  } as Dict,
+  'agenda.count.one': { ca: 'esdeveniment', es: 'evento', en: 'event' } as Dict,
+  'agenda.count.many': {
+    ca: 'esdeveniments',
+    es: 'eventos',
+    en: 'events',
+  } as Dict,
+  'agenda.error': {
+    ca: "No s'han pogut carregar els esdeveniments.",
+    es: 'No se han podido cargar los eventos.',
+    en: "Couldn't load events.",
+  } as Dict,
+  'agenda.empty.title': {
+    ca: 'No hem trobat esdeveniments',
+    es: 'No hemos encontrado eventos',
+    en: 'No events found',
+  } as Dict,
+  'agenda.empty.hint': {
+    ca: 'Prova canviant la data o la categoria.',
+    es: 'Prueba cambiando la fecha o la categoría.',
+    en: 'Try changing the date or category.',
+  } as Dict,
+  'agenda.day.today': { ca: 'Avui', es: 'Hoy', en: 'Today' } as Dict,
+  'agenda.day.tomorrow': { ca: 'Demà', es: 'Mañana', en: 'Tomorrow' } as Dict,
+  'agenda.badge.free': { ca: 'Gratuït', es: 'Gratis', en: 'Free' } as Dict,
+
+  // ── Notifications ────────────────────────────────────────
+  'notifications.title': {
+    ca: 'Notificacions',
+    es: 'Notificaciones',
+    en: 'Notifications',
+  } as Dict,
+  'notifications.close': {
+    ca: 'Tancar notificacions',
+    es: 'Cerrar notificaciones',
+    en: 'Close notifications',
+  } as Dict,
+  'notifications.loading': {
+    ca: 'Carregant notícies…',
+    es: 'Cargando noticias…',
+    en: 'Loading news…',
+  } as Dict,
+  'notifications.error.title': {
+    ca: "No s'han pogut carregar les notificacions.",
+    es: 'No se han podido cargar las notificaciones.',
+    en: "Couldn't load notifications.",
+  } as Dict,
+  'notifications.error.retry': {
+    ca: 'Torna-ho a provar',
+    es: 'Reintentar',
+    en: 'Retry',
+  } as Dict,
+  'notifications.empty.title': {
+    ca: 'Encara no tens notificacions',
+    es: 'Aún no tienes notificaciones',
+    en: 'No notifications yet',
+  } as Dict,
+  'notifications.empty.hint': {
+    ca: "T'avisarem quan hi hagi noves notícies.",
+    es: 'Te avisaremos cuando lleguen nuevas noticias.',
+    en: "We'll let you know when there's news.",
+  } as Dict,
+  'notifications.item.cta': { ca: 'Llegir', es: 'Leer', en: 'Read' } as Dict,
 } as const
 
 export type TKey = keyof typeof D

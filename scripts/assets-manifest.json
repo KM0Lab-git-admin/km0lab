@@ -89,6 +89,34 @@
     {
       "from": "src/assets/flags/flag-en.svg",
       "to": "apps/km0lab/src/assets/flags/flag-en.svg"
+    },
+    {
+      "from": "src/assets/news-icon.png",
+      "to": "apps/km0lab/src/assets/news-icon.png"
+    },
+    {
+      "from": "src/assets/services-icon.png",
+      "to": "apps/km0lab/src/assets/services-icon.png"
+    },
+    {
+      "from": "src/assets/onboarding/01_connecta_barri.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/01_connecta_barri.jpg"
+    },
+    {
+      "from": "src/assets/onboarding/02_agenda_avisos.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/02_agenda_avisos.jpg"
+    },
+    {
+      "from": "src/assets/onboarding/03_punts_recompenses.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/03_punts_recompenses.jpg"
+    },
+    {
+      "from": "src/assets/onboarding/04_assistent_247.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/04_assistent_247.jpg"
+    },
+    {
+      "from": "src/assets/onboarding/05_municipi_sostenible.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/05_municipi_sostenible.jpg"
     }
   ]
 }

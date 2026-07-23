@@ -1,15 +1,18 @@
 import agendaIcon from '@/assets/agenda-icon.png'
 import chatMascot from '@/assets/chat-mascot.png'
 import cityHallIcon from '@/assets/cityhall-icon.png'
+import newsIcon from '@/assets/news-icon.png'
+import servicesIcon from '@/assets/services-icon.png'
 import shopIcon from '@/assets/shop-icon.png'
 import { cn } from '@/lib/utils'
 
 /**
  * HomeModules — accesos rápidos de la Home.
  *
- * Banda beige con grid de N módulos. Cada módulo es un círculo blanco con
- * icono ilustrado (PNG) y un pill blanco con el label flotando sobre el
- * borde inferior. Todos los módulos tienen el mismo tamaño (sin destacado).
+ * Banda beige con grid de 6 módulos (2 filas × 3 columnas). Cada módulo
+ * es un círculo blanco con icono ilustrado (PNG) y un pill blanco con el
+ * label flotando sobre el borde inferior. Todos los módulos tienen el mismo
+ * tamaño (sin destacado).
  */
 
 export type HomeModuleId =
@@ -19,6 +22,8 @@ export type HomeModuleId =
   | 'punts'
   | 'cupons'
   | 'comerc'
+  | 'noticias'
+  | 'servicios'
 
 export interface HomeModule {
   id: HomeModuleId
@@ -32,12 +37,16 @@ const IMAGE_SRC: Partial<Record<HomeModuleId, string>> = {
   agenda: agendaIcon,
   ajuntament: cityHallIcon,
   comerc: shopIcon,
+  noticias: newsIcon,
+  servicios: servicesIcon,
 }
 
 /** Padding interno de la imagen dentro del círculo, por id. */
 const IMAGE_PADDING: Partial<Record<HomeModuleId, string>> = {
   ajuntament: 'p-2.5 horizontal-mobile:!p-2',
   comerc: 'p-2.5 horizontal-mobile:!p-2',
+  noticias: 'p-2.5 horizontal-mobile:!p-2',
+  servicios: 'p-2.5 horizontal-mobile:!p-2',
 }
 
 interface HomeModulesProps {
@@ -52,19 +61,22 @@ const HomeModules = ({ modules, className }: HomeModulesProps) => {
     <div className={cn('relative w-full max-w-full', className)}>
       <div
         className={cn(
-          'relative bg-km0-beige-100 rounded-3xl px-3 py-0 my-0',
-          'horizontal-mobile:!h-[62px] horizontal-desktop:!h-[110px]'
+          'relative bg-km0-beige-100 rounded-3xl px-3 py-2 vertical-tablet:py-3 my-0',
+          'horizontal-mobile:!h-[140px] horizontal-desktop:!h-[180px]',
+          'horizontal-mobile:!py-1 horizontal-desktop:!py-2'
         )}
       >
-        {/* Grid de columnas iguales: distribución determinista independiente
+        {/* Grid 2 filas × 3 columnas: distribución determinista independiente
             del ancho del label. */}
         <div
           className={cn(
-            'relative grid items-end gap-0',
-            'horizontal-mobile:!h-full horizontal-mobile:!items-center'
+            'relative grid items-center gap-2 vertical-tablet:gap-4',
+            'horizontal-mobile:!h-full horizontal-mobile:!items-center',
+            'horizontal-mobile:!gap-2 horizontal-desktop:!gap-3'
           )}
           style={{
-            gridTemplateColumns: `repeat(${modules.length}, minmax(0, 1fr))`,
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
           }}
         >
           {modules.map((mod) => (

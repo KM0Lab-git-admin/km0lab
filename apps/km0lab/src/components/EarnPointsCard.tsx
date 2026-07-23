@@ -6,11 +6,13 @@ import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
 /**
- * EarnPointsCard — módulo guest que muestra las acciones disponibles para
- * ganar puntos y deja claro que están bloqueadas hasta registrarse.
+ * EarnPointsCard — módulo que muestra las acciones disponibles para
+ * ganar puntos.
  *
- * Diseño: lista de cards blancas con borde amarillo sutil, icono a la
- * izquierda, título + subtítulo, y candado a la derecha.
+ * - Guest (`locked=true`): candado a la derecha y subtítulo "Registra't
+ *   per desbloquejar".
+ * - Registered (`locked=false`): badge con los puntos que otorga cada
+ *   acción (mock) en lugar del candado.
  */
 
 export interface EarnAction {
@@ -18,11 +20,15 @@ export interface EarnAction {
   icon: 'shopping' | 'event'
   titleKey: TKey
   subtitleKey: TKey
+  rewardKey: TKey
+  points: number
 }
 
 export interface EarnPointsCardProps {
   actions?: EarnAction[]
   className?: string
+  /** true = estado guest con candado; false = registered con puntos. */
+  locked?: boolean
 }
 
 const ICONS = {
@@ -46,18 +52,23 @@ const DEFAULT_ACTIONS: EarnAction[] = [
     icon: 'shopping',
     titleKey: 'home.earn.action.shop.title',
     subtitleKey: 'home.earn.action.shop.subtitle',
+    rewardKey: 'home.earn.action.shop.reward',
+    points: 10,
   },
   {
     id: 'event',
     icon: 'event',
     titleKey: 'home.earn.action.event.title',
     subtitleKey: 'home.earn.action.event.subtitle',
+    rewardKey: 'home.earn.action.event.reward',
+    points: 25,
   },
 ]
 
 const EarnPointsCard = ({
   actions = DEFAULT_ACTIONS,
   className,
+  locked = true,
 }: EarnPointsCardProps) => {
   const { lang } = useLang()
 
@@ -79,6 +90,9 @@ const EarnPointsCard = ({
       <div className="flex flex-col gap-2.5 vertical-tablet:gap-3 horizontal-mobile:!gap-2">
         {actions.map((action, i) => {
           const Icon = ICONS[action.icon]
+          const subtitle = locked
+            ? t(action.subtitleKey, lang)
+            : t(action.rewardKey, lang).replace('{n}', String(action.points))
           return (
             <motion.div
               key={action.id}
@@ -107,16 +121,24 @@ const EarnPointsCard = ({
                   {t(action.titleKey, lang)}
                 </span>
                 <span className="font-body text-km0-blue-700/70 text-xs vertical-tablet:text-sm horizontal-mobile:!text-[10px]">
-                  {t(action.subtitleKey, lang)}
+                  {subtitle}
                 </span>
               </div>
 
-              <span className="shrink-0 text-km0-blue-700/40">
-                <Lock
-                  className="w-5 h-5 vertical-tablet:w-6 vertical-tablet:h-6 horizontal-mobile:!w-4 horizontal-mobile:!h-4"
-                  strokeWidth={2}
-                />
-              </span>
+              {locked ? (
+                <span className="shrink-0 text-km0-blue-700/40">
+                  <Lock
+                    className="w-5 h-5 vertical-tablet:w-6 vertical-tablet:h-6 horizontal-mobile:!w-4 horizontal-mobile:!h-4"
+                    strokeWidth={2}
+                  />
+                </span>
+              ) : (
+                <span className="shrink-0 rounded-full bg-km0-yellow-400/90 px-2.5 py-1 vertical-tablet:px-3 vertical-tablet:py-1.5 horizontal-mobile:!px-2 horizontal-mobile:!py-0.5">
+                  <span className="font-ui font-bold text-km0-blue-900 text-xs vertical-tablet:text-sm horizontal-mobile:!text-[10px] tabular-nums">
+                    +{action.points}
+                  </span>
+                </span>
+              )}
             </motion.div>
           )
         })}

@@ -51,9 +51,10 @@ const NotificationBell = ({
         />
       </svg>
 
+      {/* Dot estado: ámbar (coral) si hay no leídas, amarillo si todo leído. */}
       <span
         className={`absolute top-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-white transition-colors ${
-          hasAlerts ? 'bg-km0-coral-400' : 'bg-km0-beige-200'
+          hasAlerts ? 'bg-km0-coral-400' : 'bg-km0-yellow-400'
         }`}
       />
     </Wrapper>

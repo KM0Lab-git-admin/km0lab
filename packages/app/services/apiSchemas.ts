@@ -167,9 +167,9 @@ export const eventsListResponseSchema = z.object({
   has_prev: z.boolean().nullish(),
 })
 
-/* ── GET /api/v1/eventos?id=<id>&limit=1 (detalle rico) ─────────── */
-/* Shape verificada 2026-07-22: incluye descripcion completa, horarios[],
- * organizador, tags, fuente_url_original, imagenes[]. */
+/* ── GET /api/v1/events/{event_id} (detalle rico) ────────────────
+ * Shape verificada 2026-07-22 contra eventquery.km0lab.com.
+ * Devuelve un único objeto (no envuelto en `data`/`eventos`). */
 
 export const horarioSchema = z.object({
   fecha_inicio: z.string().nullish(),
@@ -180,50 +180,46 @@ export const horarioSchema = z.object({
   recurrencia: z.unknown().nullish(),
 })
 
+export const eventCategoriaObjSchema = z.object({
+  id: z.number().nullish(),
+  slug: z.string().nullish(),
+  nombre_es: z.string().nullish(),
+  nombre_cat: z.string().nullish(),
+  color_hex: z.string().nullish(),
+  icono: z.string().nullish(),
+})
+
 export const eventoDetailSchema = z.object({
   id: z.string(),
-  familia: z.string().nullish(),
   titulo_es: z.string().nullish(),
   titulo_cat: z.string().nullish(),
-  descripcion_es: z.string().nullish(),
-  descripcion_cat: z.string().nullish(),
+  descripcion_larga_es: z.string().nullish(),
+  descripcion_larga_cat: z.string().nullish(),
   descripcion_corta_es: z.string().nullish(),
   descripcion_corta_cat: z.string().nullish(),
   cp: z.string().nullish(),
   poblacion: z.string().nullish(),
   lugar: z.string().nullish(),
   direccion: z.string().nullish(),
+  coordenadas: z
+    .object({ lat: z.number().nullish(), lng: z.number().nullish() })
+    .nullish(),
   tipo_organizador: z.string().nullish(),
   organizador: z.string().nullish(),
   organizador_web: z.string().nullish(),
-  fuente_url_original: z.string().nullish(),
   es_gratuito: z.boolean().nullish(),
   precio: z.number().nullish(),
   imagen_url: z.string().nullish(),
   tags_es: z.array(z.string()).default([]),
   tags_cat: z.array(z.string()).default([]),
-  fecha_inicio: z.string().nullish(),
-  fecha_fin: z.string().nullish(),
-  hora_inicio: z.string().nullish(),
-  hora_fin: z.string().nullish(),
-  es_recurrente: z.boolean().nullish(),
-  recurrencia: z.unknown().nullish(),
+  estado: z.string().nullish(),
+  fecha_creacion: z.string().nullish(),
+  link_entradas_inscripcion: z.string().nullish(),
+  requiere_inscripcion: z.boolean().nullish(),
   horarios: z.array(horarioSchema).default([]),
-  categorias_slugs: z.array(z.string()).default([]),
-  categorias_es: z.array(z.string()).default([]),
-  categorias_cat: z.array(z.string()).default([]),
+  categorias: z.array(eventCategoriaObjSchema).default([]),
   es_familia: z.boolean().nullish(),
-  actividades: z.array(z.unknown()).default([]),
   imagenes: z.array(eventImagenSchema).default([]),
-})
-
-export const eventoDetailResponseSchema = z.object({
-  eventos: z.array(eventoDetailSchema),
-  total: z.number().nullish(),
-  limit: z.number().nullish(),
-  offset: z.number().nullish(),
-  has_more: z.boolean().nullish(),
-  filtros_aplicados: z.unknown().nullish(),
 })
 
 /* ── Tipos inferidos (contrato compartido con producción) ────────── */
