@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, useAuth, lookupTown } from '@km0lab/app'
+import { getProfile, updateProfile, useAuth, lookupTown, t } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import { z } from 'zod'
 import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import { useLang } from '@/contexts/LangContext'
 
 /**
  * Profile — Edición y visualización del perfil del usuario.
@@ -21,16 +22,6 @@ import BrandedFrame from '@/components/BrandedFrame'
  * error (toast). El email se obtiene de `user.email`.
  */
 
-const profileSchema = z.object({
-  first_name: z.string().trim().max(100, 'Máximo 100 caracteres').optional(),
-  last_name: z.string().trim().max(100, 'Máximo 100 caracteres').optional(),
-  postal_code: z
-    .string()
-    .trim()
-    .regex(/^\d{5}$|^$/, 'Código postal de 5 dígitos')
-    .optional(),
-})
-
 type ProfileForm = {
   first_name: string
   last_name: string
@@ -39,6 +30,7 @@ type ProfileForm = {
 
 const Profile = () => {
   const navigate = useNavigate()
+  const { lang } = useLang()
   const { user, signOut } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -50,10 +42,28 @@ const Profile = () => {
   // Población derivada del CP (read-only). Se resuelve async vía Supabase.
   const [town, setTown] = useState<string | null>(null)
 
+  const profileSchema = z.object({
+    first_name: z
+      .string()
+      .trim()
+      .max(100, t('profile.error_max', lang))
+      .optional(),
+    last_name: z
+      .string()
+      .trim()
+      .max(100, t('profile.error_max', lang))
+      .optional(),
+    postal_code: z
+      .string()
+      .trim()
+      .regex(/^\d{5}$|^$/, t('profile.error_postal', lang))
+      .optional(),
+  })
+
   useEffect(() => {
     let cancelled = false
-    lookupTown(form.postal_code).then((t) => {
-      if (!cancelled) setTown(t)
+    lookupTown(form.postal_code).then((townName) => {
+      if (!cancelled) setTown(townName)
     })
     return () => {
       cancelled = true
@@ -96,7 +106,9 @@ const Profile = () => {
 
     const parsed = profileSchema.safeParse(form)
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? 'Datos no válidos')
+      toast.error(
+        parsed.error.issues[0]?.message ?? t('profile.error_invalid', lang)
+      )
       return
     }
 
@@ -110,20 +122,23 @@ const Profile = () => {
 
     setSaving(false)
     if (error) {
-      toast.error('No se pudo guardar')
+      toast.error(t('profile.toast_save_fail', lang))
       return
     }
-    toast.success('Perfil actualizado')
+    toast.success(t('profile.toast_saved', lang))
   }
 
   const handleLogout = async () => {
     await signOut()
-    toast.success('Sesión cerrada')
+    toast.success(t('profile.toast_logout', lang))
     navigate('/home')
   }
 
   return (
-    <BrandedFrame onBack={() => navigate(-1)} backAriaLabel="Volver">
+    <BrandedFrame
+      onBack={() => navigate(-1)}
+      backAriaLabel={t('common.back', lang)}
+    >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -132,10 +147,10 @@ const Profile = () => {
       >
         <div className="text-center space-y-1 mt-2">
           <h1 className="font-brand text-2xl horizontal-mobile:text-xl text-km0-blue-700">
-            Mi perfil
+            {t('profile.title', lang)}
           </h1>
           <p className="font-body text-sm text-muted-foreground">
-            Actualiza tus datos
+            {t('profile.subtitle', lang)}
           </p>
         </div>
 
@@ -145,29 +160,29 @@ const Profile = () => {
           </div>
         ) : (
           <form onSubmit={handleSave} className="flex flex-col gap-3 mt-1">
-            <Field label="Nombre">
+            <Field label={t('profile.first_name', lang)}>
               <input
                 type="text"
                 value={form.first_name}
                 onChange={handleChange('first_name')}
-                placeholder="Tu nombre"
+                placeholder={t('profile.first_name_ph', lang)}
                 autoComplete="given-name"
                 className={inputCls}
               />
             </Field>
 
-            <Field label="Apellidos">
+            <Field label={t('profile.last_name', lang)}>
               <input
                 type="text"
                 value={form.last_name}
                 onChange={handleChange('last_name')}
-                placeholder="Tus apellidos"
+                placeholder={t('profile.last_name_ph', lang)}
                 autoComplete="family-name"
                 className={inputCls}
               />
             </Field>
 
-            <Field label="Email">
+            <Field label={t('profile.email', lang)}>
               <input
                 type="email"
                 value={user?.email ?? ''}
@@ -178,7 +193,7 @@ const Profile = () => {
             </Field>
 
             <div className="grid grid-cols-[110px_1fr] gap-2">
-              <Field label="C. postal">
+              <Field label={t('profile.postal', lang)}>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -190,7 +205,7 @@ const Profile = () => {
                   className={inputCls}
                 />
               </Field>
-              <Field label="Población">
+              <Field label={t('profile.town', lang)}>
                 <input
                   type="text"
                   value={town ?? ''}
@@ -198,8 +213,8 @@ const Profile = () => {
                   disabled
                   placeholder={
                     form.postal_code.length === 5
-                      ? 'Sin coincidencia'
-                      : 'Se rellena con el CP'
+                      ? t('profile.town_empty', lang)
+                      : t('profile.town_hint', lang)
                   }
                   className={`${inputCls} opacity-60 cursor-not-allowed`}
                 />
@@ -212,7 +227,7 @@ const Profile = () => {
               className="h-12 mt-2 rounded-xl bg-km0-yellow-500 hover:bg-km0-yellow-600 active:scale-[0.98] transition-all font-ui text-base text-km0-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : null}
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+              {saving ? t('profile.saving', lang) : t('profile.save', lang)}
             </button>
 
             <button
@@ -221,7 +236,7 @@ const Profile = () => {
               className="h-11 mt-1 rounded-xl border-2 border-km0-blue-700/20 hover:bg-km0-beige-100 active:scale-[0.98] transition-all font-ui text-sm text-km0-blue-700 flex items-center justify-center gap-2"
             >
               <LogOut size={16} />
-              Cerrar sesión
+              {t('profile.logout', lang)}
             </button>
           </form>
         )}

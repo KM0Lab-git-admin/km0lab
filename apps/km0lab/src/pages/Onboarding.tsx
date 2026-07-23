@@ -1,13 +1,13 @@
+import { t, type Lang } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useRef, useCallback, useLayoutEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import { useLang } from '@/contexts/LangContext'
 import { slides } from '@/data/onboardingSlides'
 import { cn } from '@/lib/utils'
-
-type Lang = 'ca' | 'es' | 'en'
 
 const getTitle = (slide: (typeof slides)[0], lang: Lang) => {
   if (lang === 'ca') return slide.titleCa
@@ -32,8 +32,7 @@ const getSlotLs = () => {
 
 const Onboarding = () => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const lang: Lang = (location.state?.lang as Lang) ?? 'es'
+  const { lang } = useLang()
 
   const [current, setCurrent] = useState(0)
   const [dragOffset, setDragOffset] = useState(0)
@@ -128,16 +127,8 @@ const Onboarding = () => {
   }
 
   const skipLabel = isLast
-    ? lang === 'ca'
-      ? 'INICI'
-      : lang === 'en'
-        ? 'START'
-        : 'INICIO'
-    : lang === 'ca'
-      ? 'SALTAR'
-      : lang === 'en'
-        ? 'SKIP'
-        : 'SALTAR'
+    ? t('onboarding.finish', lang)
+    : t('onboarding.skip', lang)
 
   // Offset relativo al centro: posiciona el centro de la slide activa
   // sobre el centro del contenedor SIN depender de medir su ancho.
@@ -147,7 +138,10 @@ const Onboarding = () => {
   const trackXLs = -(current * slotLs + slotLs / 2)
 
   return (
-    <BrandedFrame onBack={() => navigate('/')} backAriaLabel="Back">
+    <BrandedFrame
+      onBack={() => navigate('/')}
+      backAriaLabel={t('common.back', lang)}
+    >
       {/* ── PORTRAIT (mobile original) ─────────────────────── */}
       <div className="w-full max-w-[390px] sm:max-w-[460px] mx-auto flex flex-col gap-3 sm:gap-5 overflow-hidden landscape:hidden flex-1 min-h-0 py-2 sm:py-4">
         {/* ── Carousel ───────────────────────────────────────── */}
@@ -284,7 +278,7 @@ const Onboarding = () => {
                 ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
                 : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
             )}
-            aria-label="Previous"
+            aria-label={t('common.previous', lang)}
           >
             <ChevronLeft size={20} strokeWidth={2.5} />
           </button>
@@ -300,7 +294,7 @@ const Onboarding = () => {
                 ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
                 : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
             )}
-            aria-label="Next"
+            aria-label={t('common.next', lang)}
           >
             <ChevronRight size={20} strokeWidth={2.5} />
           </button>
@@ -360,7 +354,7 @@ const Onboarding = () => {
 
           <button
             onClick={() => {
-              if (isLast) navigate('/postal-code', { state: { lang } })
+              if (isLast) navigate('/postal-code')
               else setCurrent(total - 1)
             }}
             className="bg-primary text-primary-foreground font-ui font-semibold text-sm px-5 py-2.5 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95"
@@ -497,7 +491,7 @@ const Onboarding = () => {
                 ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
                 : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
             )}
-            aria-label="Previous"
+            aria-label={t('common.previous', lang)}
           >
             <ChevronLeft size={20} strokeWidth={2.5} />
           </button>
@@ -513,7 +507,7 @@ const Onboarding = () => {
                 ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
                 : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
             )}
-            aria-label="Next"
+            aria-label={t('common.next', lang)}
           >
             <ChevronRight size={20} strokeWidth={2.5} />
           </button>
@@ -566,7 +560,7 @@ const Onboarding = () => {
           {/* Right: skip */}
           <button
             onClick={() => {
-              if (isLast) navigate('/postal-code', { state: { lang } })
+              if (isLast) navigate('/postal-code')
               else setCurrent(total - 1)
             }}
             className="shrink-0 bg-primary text-primary-foreground font-ui font-semibold text-sm wide-landscape:text-sm short-landscape:text-xs px-4 wide-landscape:px-5 short-landscape:px-4 py-2 short-landscape:py-2 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95"
