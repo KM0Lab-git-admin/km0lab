@@ -183,14 +183,16 @@ por CORS aunque el DNS esté bien.
 
 1. **Domains:** `app.uat.km0lab.com` → CNAME que indique Vercel.
 2. **Git:** este proyecto = UAT → Production Branch = **`develop`**.
-3. Variables de entorno (build):
+3. Variables de entorno (build) — **no mezclar** las dos APIs:
 
-| Key                   | Valor UAT                           |
-| --------------------- | ----------------------------------- |
-| `VITE_KM0LAB_API_URL` | `https://api.uat.km0lab.com`        |
-| `VITE_EVENTS_API_URL` | `https://eventquery.uat.km0lab.com` |
+| Key                   | Valor UAT (correcto)                                              | ❌ Incorrecto                                   |
+| --------------------- | ----------------------------------------------------------------- | ----------------------------------------------- |
+| `VITE_KM0LAB_API_URL` | `https://api.uat.km0lab.com` (o `…km0lab-api-uat.up.railway.app`) | —                                               |
+| `VITE_EVENTS_API_URL` | `https://eventquery.uat.km0lab.com` (o `…events-query-uat…`)      | `km0lab-api-uat…` (eso es usuarios, no eventos) |
 
-Las `VITE_*` se fijan en el **build**. Tras cambiarlas → **Redeploy**.
+Las `VITE_*` se fijan en el **build**. Tras cambiarlas → **Redeploy** sin
+caché. Si Agenda llama a `km0lab-api-uat…/api/v1/events`, la var de events
+está mal.
 
 Más adelante: proyecto o rama `main` → `app.km0lab.com` con URLs sin
 `.uat`.
