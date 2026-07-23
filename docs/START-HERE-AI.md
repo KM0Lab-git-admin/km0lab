@@ -61,7 +61,11 @@ dos backends (events-query solo lectura + km0lab-api usuarios/auth),
 modelo de datos y flujo de auth OTP. El código de km0lab-api tiene su
 propio `README.md`.
 
-**Para trabajar con Product Owner / diseño (no técnicos):** 9. `docs/PROMPTS-PO.md` — plantilla de prompts no técnicos.
+**Entornos y DNS:** 9. `docs/ENVIRONMENTS.md` — local / UAT / prod,
+subdominios (`app.uat`, `api.uat`, `eventquery.uat`), ramas
+(`develop` → UAT, `main` → prod) y pasos Vercel / Railway.
+
+**Para trabajar con Product Owner / diseño (no técnicos):** 10. `docs/PROMPTS-PO.md` — plantilla de prompts no técnicos.
 
 **Prompts operativos** (en el repo de Lovable, `docs/`):
 `PROMPT-home-c.md`, `PROMPT-layout-portrait-first.md`.
