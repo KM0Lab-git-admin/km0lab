@@ -27,6 +27,10 @@ export interface AppProfile {
   first_name: string | null
   last_name: string | null
   email: string | null
+  /** Solo local: km0lab-api todavía no expone teléfono. */
+  phone: string | null
+  /** Solo local (ISO `YYYY-MM-DD`): km0lab-api todavía no expone fecha de nacimiento. */
+  birth_date: string | null
   postal_code: string | null
   town: string | null
   avatar_url: string | null
@@ -73,6 +77,8 @@ const emptyProfile = (email: string | null = null): AppProfile => ({
   first_name: null,
   last_name: null,
   email,
+  phone: null,
+  birth_date: null,
   postal_code: null,
   town: null,
   avatar_url: null,

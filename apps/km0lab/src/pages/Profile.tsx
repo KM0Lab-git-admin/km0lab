@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, useAuth, t, lookupTown } from '@km0lab/app'
+import { getProfile, updateProfile, useAuth, t } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -14,18 +14,17 @@ import { useLang } from '@/contexts/LangContext'
 /**
  * Profile — Edición y visualización del perfil del usuario.
  *
- * Campos:
- *  - Nombre, apellidos, código postal y población → editables
- *  - Email → solo lectura (viene de la sesión, cambiarlo rompería el login)
- *
- * Estados: loading (carga inicial del perfil), saving (al guardar),
- * error (toast). El email se obtiene de `user.email`.
+ * Campos editables: nombre, apellidos, teléfono.
+ * Email → solo lectura (viene de la sesión).
+ * CP/población no se editan aquí: se eligen antes del registro y se
+ * guardan al sembrar el perfil.
  */
 
 type ProfileForm = {
   first_name: string
   last_name: string
-  postal_code: string
+  phone: string
+  birth_date: string
 }
 
 const Profile = () => {
@@ -37,10 +36,11 @@ const Profile = () => {
   const [form, setForm] = useState<ProfileForm>({
     first_name: '',
     last_name: '',
-    postal_code: '',
+    phone: '',
+    birth_date: '',
   })
-  // Población derivada del CP (read-only). Se resuelve async vía Supabase.
-  const [town, setTown] = useState<string | null>(null)
+
+  const todayIso = new Date().toISOString().slice(0, 10)
 
   const profileSchema = z.object({
     first_name: z
@@ -53,25 +53,20 @@ const Profile = () => {
       .trim()
       .max(100, t('profile.error_max', lang))
       .optional(),
-    postal_code: z
+    phone: z
       .string()
       .trim()
-      .regex(/^\d{5}$|^$/, t('profile.error_postal', lang))
+      .regex(/^[+\d][\d\s]{5,19}$|^$/, t('profile.error_phone', lang))
+      .optional(),
+    birth_date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$|^$/)
+      .refine((v) => !v || v <= todayIso, {
+        message: t('profile.error_max', lang),
+      })
       .optional(),
   })
 
-  useEffect(() => {
-    let cancelled = false
-    lookupTown(form.postal_code).then((townName) => {
-      if (!cancelled) setTown(townName)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [form.postal_code])
-
-  // Cargar perfil al montar (RLS restringe a la fila del propio user).
-  // Modo testing: si no hay user, dejamos el formulario vacío y editable.
   useEffect(() => {
     if (!user) {
       setLoading(false)
@@ -85,7 +80,8 @@ const Profile = () => {
         setForm({
           first_name: data.first_name ?? '',
           last_name: data.last_name ?? '',
-          postal_code: data.postal_code ?? '',
+          phone: data.phone ?? '',
+          birth_date: data.birth_date ?? '',
         })
       }
       setLoading(false)
@@ -116,8 +112,8 @@ const Profile = () => {
     const { error } = await updateProfile(user.id, {
       first_name: form.first_name.trim() || null,
       last_name: form.last_name.trim() || null,
-      postal_code: form.postal_code.trim() || null,
-      town: town ?? null,
+      phone: form.phone.trim() || null,
+      birth_date: form.birth_date.trim() || null,
     })
 
     setSaving(false)
@@ -131,7 +127,7 @@ const Profile = () => {
   const handleLogout = async () => {
     await signOut()
     toast.success(t('profile.toast_logout', lang))
-    navigate('/login', { replace: true })
+    navigate('/home')
   }
 
   return (
@@ -143,10 +139,10 @@ const Profile = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex-1 flex flex-col gap-4 horizontal-mobile:overflow-y-auto horizontal-desktop:overflow-y-auto"
+        className="min-h-full flex flex-col justify-center gap-4"
       >
         <div className="text-center space-y-1 mt-2">
-          <h1 className="font-brand text-2xl horizontal-mobile:text-xl text-km0-blue-700">
+          <h1 className="font-brand text-2xl text-km0-blue-700">
             {t('profile.title', lang)}
           </h1>
           <p className="font-body text-sm text-muted-foreground">
@@ -192,34 +188,31 @@ const Profile = () => {
               />
             </Field>
 
-            <div className="grid grid-cols-[110px_1fr] gap-2">
-              <Field label={t('profile.postal', lang)}>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={5}
-                  value={form.postal_code}
-                  onChange={handleChange('postal_code')}
-                  placeholder="08380"
-                  className={inputCls}
-                />
-              </Field>
-              <Field label={t('profile.town', lang)}>
-                <input
-                  type="text"
-                  value={town ?? ''}
-                  readOnly
-                  disabled
-                  placeholder={
-                    form.postal_code.length === 5
-                      ? t('profile.town_empty', lang)
-                      : t('profile.town_hint', lang)
-                  }
-                  className={`${inputCls} opacity-60 cursor-not-allowed`}
-                />
-              </Field>
-            </div>
+            <Field label={t('profile.phone', lang)}>
+              <input
+                type="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={handleChange('phone')}
+                placeholder={t('profile.phone_ph', lang)}
+                autoComplete="tel"
+                className={inputCls}
+              />
+            </Field>
+
+            <Field label={t('profile.birth_date', lang)}>
+              <input
+                type="date"
+                value={form.birth_date}
+                onChange={handleChange('birth_date')}
+                max={todayIso}
+                autoComplete="bday"
+                className={inputCls}
+              />
+              <span className="font-body text-[11px] text-km0-blue-800/60 px-1 mt-0.5">
+                {t('profile.birth_date_hint', lang)}
+              </span>
+            </Field>
 
             <button
               type="submit"

@@ -1,4 +1,4 @@
-import { lookupTown, t, useAppStore } from '@km0lab/app'
+import { lookupTown, t } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -52,11 +52,15 @@ const PostalCode = () => {
     if (!touched) setTouched(true)
   }
 
-  const setLocation = useAppStore((s) => s.setLocation)
-
   const handleSubmit = () => {
     if (!isComplete || !cityName) return
-    setLocation(value, cityName)
+    // localStorage para que sobreviva recargas y se pueda leer desde Home/Login.
+    try {
+      localStorage.setItem('km0_postal_code', value)
+      localStorage.setItem('km0_town', cityName)
+    } catch {
+      /* localStorage puede fallar en modo privado */
+    }
     navigate('/home')
   }
 
@@ -65,8 +69,8 @@ const PostalCode = () => {
       onBack={() => navigate(-1)}
       backAriaLabel={t('common.back', lang)}
     >
-      {/* ── PORTRAIT ─────────────────────────────────────── */}
-      <div className="w-full max-w-[390px] sm:max-w-[460px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 vertical-tablet:justify-between vertical-tablet:gap-0 landscape:hidden flex-1 min-h-0 py-2 vertical-tablet:py-5">
+      {/* Maqueta ÚNICA portrait, centrada verticalmente en el marco. */}
+      <div className="w-full max-w-[390px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 min-h-full justify-center py-4">
         <motion.div
           className="rounded-3xl overflow-hidden shadow-lg"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -176,115 +180,6 @@ const PostalCode = () => {
             onClick={handleSubmit}
             disabled={!cityName || isValidating}
             className="w-full bg-primary text-primary-foreground font-ui font-semibold text-sm px-5 py-2.5 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
-          >
-            {isValidating ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              t('common.continue', lang)
-            )}
-          </button>
-        </motion.div>
-      </div>
-
-      {/* ── LANDSCAPE ────────────────────────────────────── */}
-      <div className="hidden landscape:flex flex-1 min-h-0 w-full items-stretch gap-4 horizontal-desktop:gap-8">
-        <motion.div
-          className="basis-[42%] shrink-0 min-w-0 rounded-2xl overflow-hidden shadow-lg flex items-center justify-center bg-km0-beige-100"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.45, delay: 0.15 }}
-        >
-          <img
-            src={cityMap}
-            alt="Isometric city map"
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-
-        <motion.div
-          className="flex-1 min-w-0 flex flex-col justify-center gap-3 horizontal-desktop:gap-5"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.45, delay: 0.2 }}
-        >
-          <div className="text-center min-h-[44px] horizontal-desktop:min-h-[60px] flex items-center justify-center">
-            {cityName ? (
-              <motion.div
-                key="city-ls"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35 }}
-              >
-                <h1 className="font-brand font-medium text-xl horizontal-desktop:text-3xl text-km0-teal-600 leading-tight">
-                  📍 {cityName}
-                </h1>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="default-ls"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.25 }}
-              >
-                <h1 className="font-brand font-bold text-base horizontal-desktop:text-2xl text-primary leading-tight mb-0.5 horizontal-desktop:mb-1">
-                  {t('postal.title', lang)}
-                </h1>
-                <p className="font-body text-xs horizontal-desktop:text-sm text-muted-foreground leading-snug">
-                  {t('postal.subtitle', lang)}
-                </p>
-              </motion.div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1.5 border-dotted border border-slate-300">
-            <div
-              className={`flex items-center gap-2 horizontal-desktop:gap-3 rounded-2xl border px-3 horizontal-desktop:px-4 py-2.5 horizontal-desktop:py-3.5 shadow-sm transition-colors ${
-                showNotFound || showError
-                  ? 'bg-destructive/5 border-destructive/50 focus-within:border-destructive'
-                  : 'bg-white border-km0-beige-200 focus-within:border-km0-teal-400'
-              }`}
-            >
-              {showNotFound || showError ? (
-                <MapPinOff className="text-destructive shrink-0" size={20} />
-              ) : (
-                <MapPin className="text-km0-teal-500 shrink-0" size={20} />
-              )}
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={5}
-                placeholder={t('postal.placeholder', lang)}
-                value={value}
-                onChange={handleChange}
-                className="flex-1 min-w-0 bg-transparent font-ui text-base horizontal-desktop:text-lg text-foreground placeholder:text-muted-foreground/50 outline-none"
-              />
-            </div>
-            {showError && (
-              <div className="flex items-center gap-1.5 text-destructive font-ui text-xs px-1">
-                <AlertTriangle size={12} />
-                <span>{t('postal.error_numeric', lang)}</span>
-              </div>
-            )}
-            <AnimatePresence>
-              {showNotFound && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  className="flex items-center gap-1.5 text-destructive font-ui text-xs px-1"
-                >
-                  <AlertTriangle size={12} />
-                  <span>{t('postal.error_notfound', lang)}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={!cityName || isValidating}
-            className="w-full bg-primary text-primary-foreground font-ui font-semibold text-sm horizontal-desktop:text-base px-5 py-2.5 horizontal-desktop:py-3 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.02] transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
             {isValidating ? (
               <Loader2 size={18} className="animate-spin" />

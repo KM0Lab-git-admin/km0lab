@@ -1,9 +1,9 @@
 import { ChevronLeft } from 'lucide-react'
 
+import type { ReactNode } from 'react'
+
 import Km0Logo from '@/components/Km0Logo'
 import { cn } from '@/lib/utils'
-
-import type { ReactNode } from 'react'
 
 /**
  * BrandedFrame — Envoltorio compartido para pantallas "con marca".
@@ -18,8 +18,8 @@ import type { ReactNode } from 'react'
  *   horizontal-mobile   (≤1279 landscape)  → 667×375
  *   horizontal-desktop  (≥1280 landscape)  → 1280×550
  *
- * Incluye el marco azul “teléfono” (borde + sombra) en todos los
- * entornos (local, UAT, producción).
+ * En desarrollo local se muestra el marco azul “teléfono”. En producción
+ * (Vercel / build) el marco desaparece y la pantalla ocupa el viewport.
  *
  * Las pantallas de chat u otras que necesiten pantalla completa NO
  * usan este componente: tienen su propio layout (FullBleed).
@@ -37,8 +37,12 @@ interface BrandedFrameProps {
   landscapeContentClassName?: string
 }
 
-const frameChromeClass =
-  'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
+/** Marco "teléfono" siempre visible (dev y prod) hasta que exista layout landscape propio. */
+const showDeviceChrome = true
+
+const frameChromeClass = showDeviceChrome
+  ? 'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
+  : 'rounded-none border-0 shadow-none'
 
 const BrandedFrame = ({
   children,
@@ -71,17 +75,25 @@ const BrandedFrame = ({
         paddingRight: 'env(safe-area-inset-right)',
       }}
     >
-      {/* ── PORTRAIT (vertical-mobile + vertical-tablet) ─────── */}
+      {/* Frame único (portrait mobile). Mientras la app prioriza solo
+          portrait, todas las pantallas se ven al mismo tamaño en
+          cualquier orientación del viewport. */}
       <div
+        data-bp="vertical-mobile portrait"
         className={cn(
-          'landscape:hidden flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
-          frameChromeClass
+          'flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
+          frameChromeClass,
+          !showDeviceChrome && 'h-dvh w-full'
         )}
-        style={{
-          width: 'min(100vw, 420px)',
-          height:
-            'min(100dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)))',
-        }}
+        style={
+          showDeviceChrome
+            ? {
+                width: 'min(100vw, 420px)',
+                height:
+                  'min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 920px)',
+              }
+            : undefined
+        }
       >
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
@@ -91,32 +103,7 @@ const BrandedFrame = ({
         )}
 
         <div
-          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName}`}
-        >
-          {children}
-        </div>
-      </div>
-
-      {/* ── LANDSCAPE (horizontal-mobile + horizontal-desktop) ─ */}
-      <div
-        className={cn(
-          'hidden landscape:flex bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden flex-col',
-          frameChromeClass
-        )}
-        style={{
-          width: 'min(100vw, calc(100dvh * 16 / 9), 1700px)',
-          height: 'min(100dvh, calc(100vw * 9 / 16), calc(1700px * 9 / 16))',
-        }}
-      >
-        {!hideHeader && (
-          <header className="relative shrink-0 flex items-center justify-center pt-3 horizontal-desktop:pt-5 pb-2 horizontal-desktop:pb-4 px-5">
-            {renderBackButton('left-3 horizontal-desktop:left-4 w-9 h-9', 20)}
-            <Km0Logo className="h-8 horizontal-desktop:h-11 w-auto" />
-          </header>
-        )}
-
-        <div
-          className={`flex-1 min-h-0 flex w-full px-4 horizontal-desktop:px-6 pb-3 horizontal-desktop:pb-6 overflow-hidden ${hideHeader ? 'pt-3 horizontal-desktop:pt-5' : ''} ${landscapeContentClassName}`}
+          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName} ${landscapeContentClassName}`}
         >
           {children}
         </div>

@@ -59,7 +59,7 @@ const NotificationsOverlay = ({
 
           {/* Drawer lateral derecho */}
           <motion.aside
-            className="absolute top-0 right-0 bottom-0 z-50 w-full vertical-tablet:max-w-[420px] bg-km0-beige-50 flex flex-col shadow-2xl rounded-l-3xl overflow-hidden"
+            className="absolute top-0 right-0 bottom-0 z-50 w-full bg-km0-beige-50 flex flex-col shadow-2xl rounded-l-3xl overflow-hidden"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

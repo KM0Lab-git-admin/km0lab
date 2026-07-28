@@ -39,7 +39,7 @@ const PromoCarousel = ({ promos }: PromoCarouselProps) => {
   return (
     <>
       {/* Hero card con drag horizontal */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_10px_24px_-12px_hsl(var(--km0-blue-700)/0.35)] aspect-[2/1] vertical-tablet:aspect-[16/9] horizontal-mobile:!aspect-auto horizontal-mobile:flex-1 horizontal-mobile:min-h-0 horizontal-desktop:aspect-auto horizontal-desktop:flex-1 horizontal-desktop:min-h-0">
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_10px_24px_-12px_hsl(var(--km0-blue-700)/0.35)] aspect-[2/1]">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={promo.id}
@@ -69,7 +69,7 @@ const PromoCarousel = ({ promos }: PromoCarouselProps) => {
             {/* Texto principal — legacy renderer, ahora simplificado a
                 la nueva forma del tipo Promo (título + fecha). */}
             <div className="absolute inset-0 flex flex-col justify-center px-5 pointer-events-none select-none">
-              <span className="font-brand text-2xl vertical-tablet:text-3xl font-black leading-tight text-white whitespace-pre-line">
+              <span className="font-brand text-2xl font-black leading-tight text-white whitespace-pre-line">
                 {promo.title}
               </span>
               <span className="font-ui text-xs text-white/90 mt-2 tracking-wider">
@@ -113,7 +113,7 @@ const PromoCarousel = ({ promos }: PromoCarouselProps) => {
       </div>
 
       {/* Dots de paginación — clicables */}
-      <div className="flex items-center justify-center gap-1.5 mt-3 horizontal-mobile:mt-1">
+      <div className="flex items-center justify-center gap-1.5 mt-3">
         {promos.map((_, i) => (
           <button
             key={i}

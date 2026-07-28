@@ -1,9 +1,13 @@
+import { t } from '@km0lab/app'
+
 import agendaIcon from '@/assets/agenda-icon.png'
 import chatMascot from '@/assets/chat-mascot.png'
 import cityHallIcon from '@/assets/cityhall-icon.png'
 import newsIcon from '@/assets/news-icon.png'
+import rewardsIcon from '@/assets/rewards-icon.png.asset.json'
 import servicesIcon from '@/assets/services-icon.png'
-import shopIcon from '@/assets/shop-icon.png'
+import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
+import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
 /**
@@ -24,11 +28,13 @@ export type HomeModuleId =
   | 'comerc'
   | 'noticias'
   | 'servicios'
+  | 'premis'
 
 export interface HomeModule {
   id: HomeModuleId
   label: string
   active: boolean
+  disabledReason?: 'coming_soon' | 'requires_registration'
   onClick?: () => void
 }
 
@@ -36,17 +42,19 @@ const IMAGE_SRC: Partial<Record<HomeModuleId, string>> = {
   chat: chatMascot,
   agenda: agendaIcon,
   ajuntament: cityHallIcon,
-  comerc: shopIcon,
+  comerc: shopServicesIcon.url,
   noticias: newsIcon,
   servicios: servicesIcon,
+  premis: rewardsIcon.url,
 }
 
 /** Padding interno de la imagen dentro del círculo, por id. */
 const IMAGE_PADDING: Partial<Record<HomeModuleId, string>> = {
-  ajuntament: 'p-2.5 horizontal-mobile:!p-2',
-  comerc: 'p-2.5 horizontal-mobile:!p-2',
-  noticias: 'p-2.5 horizontal-mobile:!p-2',
-  servicios: 'p-2.5 horizontal-mobile:!p-2',
+  ajuntament: 'p-2.5',
+  comerc: 'p-2.5',
+  noticias: 'p-2.5',
+  servicios: 'p-2.5',
+  premis: 'p-2',
 }
 
 interface HomeModulesProps {
@@ -60,20 +68,12 @@ const HomeModules = ({ modules, className }: HomeModulesProps) => {
   return (
     <div className={cn('relative w-full max-w-full', className)}>
       <div
-        className={cn(
-          'relative bg-km0-beige-100 rounded-3xl px-3 py-2 vertical-tablet:py-3 my-0',
-          'horizontal-mobile:!h-[140px] horizontal-desktop:!h-[180px]',
-          'horizontal-mobile:!py-1 horizontal-desktop:!py-2'
-        )}
+        className={cn('relative bg-km0-beige-100 rounded-3xl px-3 py-2 my-0')}
       >
         {/* Grid 2 filas × 3 columnas: distribución determinista independiente
             del ancho del label. */}
         <div
-          className={cn(
-            'relative grid items-center gap-2 vertical-tablet:gap-4',
-            'horizontal-mobile:!h-full horizontal-mobile:!items-center',
-            'horizontal-mobile:!gap-2 horizontal-desktop:!gap-3'
-          )}
+          className={cn('relative grid items-center gap-2')}
           style={{
             gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
             gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
@@ -94,9 +94,14 @@ interface ModuleItemProps {
 }
 
 const ModuleItem = ({ module }: ModuleItemProps) => {
-  const { id, active, label, onClick } = module
+  const { lang } = useLang()
+  const { id, active, label, onClick, disabledReason } = module
   const imageSrc = IMAGE_SRC[id]
   const imagePadding = IMAGE_PADDING[id]
+  const badgeKey =
+    disabledReason === 'requires_registration'
+      ? 'module.register_to_enable'
+      : 'module.coming_soon'
 
   return (
     <button
@@ -122,9 +127,7 @@ const ModuleItem = ({ module }: ModuleItemProps) => {
         <span
           className={cn(
             'relative flex items-center justify-center rounded-full bg-white shrink-0 border-2 border-km0-blue-400',
-            'w-[68px] h-[68px]',
-            'vertical-tablet:w-[84px] vertical-tablet:h-[84px]',
-            'horizontal-mobile:!w-[52px] horizontal-mobile:!h-[52px]'
+            'w-[68px] h-[68px]'
           )}
         >
           {imageSrc && (
@@ -139,17 +142,34 @@ const ModuleItem = ({ module }: ModuleItemProps) => {
               )}
             />
           )}
+
+          {/* Badge para módulos aún no habilitados: pròximament o registra't */}
+          {!active && (
+            <span
+              aria-hidden
+              className={cn(
+                'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20',
+                'px-1.5 py-0.5 rounded-full',
+                'bg-km0-coral-400 text-white',
+                'border border-white shadow-[0_2px_6px_-2px_hsl(var(--km0-blue-900)/0.35)]',
+                'font-ui font-bold uppercase tracking-wide',
+                'text-[8px] leading-tight text-center max-w-[60px] line-clamp-2'
+              )}
+            >
+              {t(badgeKey, lang)}
+            </span>
+          )}
         </span>
 
         {/* Pill del label */}
         <span
           className={cn(
-            'relative -mt-2.5 horizontal-mobile:!-mt-2 z-10',
-            'px-1.5 py-0.5 vertical-tablet:px-2 horizontal-mobile:!px-1',
+            'relative -mt-2.5 z-10',
+            'px-1.5 py-0.5',
             'rounded-full bg-white border border-km0-blue-300/60',
             'shadow-[0_2px_6px_-2px_hsl(var(--km0-blue-900)/0.25)]',
             'font-ui font-bold leading-tight text-km0-blue-800',
-            'text-[9px] vertical-tablet:text-[11px] horizontal-mobile:!text-[8px]',
+            'text-[9px]',
             'text-center whitespace-nowrap max-w-full'
           )}
         >

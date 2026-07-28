@@ -11,6 +11,9 @@
  *
  * eventQueryApi/types de Lovable no se sincronizan: duplican
  * Evento/QueryResponse de apiSchemas y llaman a Supabase directamente.
+ *
+ * mock/scanner es propiedad de producción hasta que exista el servicio real
+ * de escaneo; expone la firma que consumen scannerMachine y la pantalla.
  */
 export * from './km0labClient'
 export * from './auth'
@@ -18,3 +21,4 @@ export * from './profile'
 export * from './apiSchemas'
 export * from './eventsApi'
 export * from './newsApi'
+export * from './mock/scanner'

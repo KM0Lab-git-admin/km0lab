@@ -125,28 +125,23 @@ const CheckEmail = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex-1 flex flex-col items-center gap-4 horizontal-mobile:gap-2 pt-2 horizontal-mobile:pt-0"
+        className="min-h-full flex flex-col items-center justify-center gap-4"
       >
-        <div className="w-14 h-14 horizontal-mobile:w-10 horizontal-mobile:h-10 rounded-full bg-km0-yellow-500/20 flex items-center justify-center mt-2 horizontal-mobile:mt-0">
-          <Mail className="w-7 h-7 horizontal-mobile:w-5 horizontal-mobile:h-5 text-km0-blue-700" />
+        <div className="w-14 h-14 rounded-full bg-km0-yellow-500/20 flex items-center justify-center mt-2">
+          <Mail className="w-7 h-7 text-km0-blue-700" />
         </div>
 
         <div className="text-center space-y-1 px-2">
-          <h1 className="font-brand text-2xl horizontal-mobile:text-lg text-km0-blue-700">
+          <h1 className="font-brand text-2xl text-km0-blue-700">
             {t('otp.title', lang)}
           </h1>
-          <p className="font-body text-sm horizontal-mobile:text-xs text-muted-foreground">
+          <p className="font-body text-sm text-muted-foreground">
             {t('otp.subtitle', lang)}
           </p>
-          <p className="font-ui text-base horizontal-mobile:text-sm text-foreground break-all">
-            {email}
-          </p>
+          <p className="font-ui text-base text-foreground break-all">{email}</p>
         </div>
 
-        <div
-          className="flex gap-2 horizontal-mobile:gap-1.5 mt-1"
-          onPaste={handlePaste}
-        >
+        <div className="flex gap-2 mt-1" onPaste={handlePaste}>
           {digits.map((d, i) => (
             <input
               key={i}
@@ -161,7 +156,7 @@ const CheckEmail = () => {
               disabled={verifying}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className="w-11 h-12 horizontal-mobile:w-8 horizontal-mobile:h-10 text-center font-ui text-xl horizontal-mobile:text-base rounded-xl border-2 border-km0-blue-700/20 bg-background text-foreground focus:outline-none focus:border-km0-blue-700 transition-colors disabled:opacity-50"
+              className="w-11 h-12 text-center font-ui text-xl rounded-xl border-2 border-km0-blue-700/20 bg-background text-foreground focus:outline-none focus:border-km0-blue-700 transition-colors disabled:opacity-50"
             />
           ))}
         </div>
@@ -170,7 +165,7 @@ const CheckEmail = () => {
           type="button"
           onClick={handleResend}
           disabled={cooldown > 0 || resending}
-          className="font-body text-sm horizontal-mobile:text-xs text-km0-blue-700 underline underline-offset-2 disabled:text-muted-foreground disabled:no-underline mt-1"
+          className="font-body text-sm text-km0-blue-700 underline underline-offset-2 disabled:text-muted-foreground disabled:no-underline mt-1"
         >
           {resending
             ? t('otp.resending', lang)
@@ -179,7 +174,7 @@ const CheckEmail = () => {
               : t('otp.resend', lang)}
         </button>
 
-        <p className="font-body text-xs text-muted-foreground text-center px-4 mt-auto pb-1">
+        <p className="font-body text-xs text-muted-foreground text-center px-4">
           {t('otp.footer_hint', lang)}
         </p>
       </motion.div>

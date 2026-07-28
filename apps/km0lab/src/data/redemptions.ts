@@ -1,0 +1,86 @@
+import type { Redemption } from '@km0lab/app'
+
+/**
+ * Dades fictícies de bescanvis per visualitzar tots els estats possibles.
+ *
+ * Inclou els exemples demanats: gorra, samarreta, entrada de cinema i val de 20€.
+ */
+export const REDEMPTIONS: Redemption[] = [
+  {
+    id: 'rdm-val-20',
+    rewardId: 'val-20eur',
+    rewardTitle: 'Val de 20€',
+    rewardDescription:
+      'Val de descompte bescanviable a qualsevol comerç adherit.',
+    rewardCategory: 'balance',
+    rewardKind: 'voucher',
+    costPoints: 4000,
+    valueLabel: '20 €',
+    status: 'redeemed',
+    code: '38421',
+    shopName: 'Forn Rovira',
+    redeemedAt: '2026-07-25T10:30:00Z',
+    expiresAt: '2026-08-25T23:59:59Z',
+    completedAt: '2026-07-25T11:15:00Z',
+  },
+  {
+    id: 'rdm-entrada-cinema',
+    rewardId: 'entrada-cinema',
+    rewardTitle: 'Entrada de cinema',
+    rewardDescription: 'Una entrada per a qualsevol sessió no premium.',
+    rewardCategory: 'experience',
+    rewardKind: 'ticket',
+    costPoints: 1500,
+    valueLabel: '1 entrada',
+    status: 'ready',
+    code: '19283',
+    shopName: 'Cinebaix Malgrat',
+    redeemedAt: '2026-07-27T09:00:00Z',
+    expiresAt: '2026-08-27T23:59:59Z',
+  },
+  {
+    id: 'rdm-gorra',
+    rewardId: 'gorra-km0',
+    rewardTitle: 'Gorra KM0 LAB',
+    rewardDescription: 'Gorra oficial del programa KM0 LAB.',
+    rewardCategory: 'merchandising',
+    rewardKind: 'product',
+    costPoints: 600,
+    valueLabel: '1 unitat',
+    status: 'pending',
+    code: '74561',
+    shopName: 'Llibreria Lola',
+    redeemedAt: '2026-07-28T16:20:00Z',
+  },
+  {
+    id: 'rdm-samarreta',
+    rewardId: 'samarreta-km0',
+    rewardTitle: 'Samarreta KM0 LAB',
+    rewardDescription: 'Samarreta oficial del programa KM0 LAB.',
+    rewardCategory: 'merchandising',
+    rewardKind: 'product',
+    costPoints: 800,
+    valueLabel: '1 unitat',
+    status: 'redeemed',
+    code: '50192',
+    shopName: 'Llibreria Lola',
+    redeemedAt: '2026-07-15T12:00:00Z',
+    completedAt: '2026-07-16T10:00:00Z',
+  },
+  {
+    id: 'rdm-val-5-expired',
+    rewardId: 'val-5eur',
+    rewardTitle: 'Val de 5€',
+    rewardDescription:
+      'Val de descompte bescanviable a qualsevol comerç adherit.',
+    rewardCategory: 'balance',
+    rewardKind: 'voucher',
+    costPoints: 1000,
+    valueLabel: '5 €',
+    status: 'expired',
+    code: '99841',
+    shopName: 'Forn Rovira',
+    redeemedAt: '2026-06-01T08:00:00Z',
+    expiresAt: '2026-06-30T23:59:59Z',
+  },
+]

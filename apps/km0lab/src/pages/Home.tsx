@@ -4,22 +4,19 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
-  useAppStore,
 } from '@km0lab/app'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { type HomeTab } from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import HomeContent from '@/components/HomeContent'
 import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
 import { useLang } from '@/contexts/LangContext'
-import { COMERCIOS } from '@/data/comercios'
+
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
 import { PROMOS } from '@/data/promos'
-import { REDEEM_COUPONS } from '@/data/redeemCoupons'
 
 type HomeProps = {
   /** Forzar estado para previews (`/home-registrado`, `/home-no-registrado`). */
@@ -35,10 +32,9 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     reload: reloadNotifs,
     markAllSeen,
   } = useNotifications()
-  const { user, resetDeviceSetup } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { profile } = useProfile()
   const { lang } = useLang()
-  const town = useAppStore((s) => s.town)
   const navigate = useNavigate()
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
@@ -49,6 +45,17 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const showProfile = isAuthed
   const showPoints = isAuthed
 
+  // Bandera de preview: permite que las rutas protegidas (historial, premis
+  // canjats, perfil) sean navegables desde `/home-registrado` sin sesión real.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (forceAuthState === 'authed') {
+      sessionStorage.setItem('km0_preview_authed', '1')
+    } else if (forceAuthState === 'guest') {
+      sessionStorage.removeItem('km0_preview_authed')
+    }
+  }, [forceAuthState])
+
   const [searchParams, setSearchParams] = useSearchParams()
   const [notifOpen, setNotifOpen] = useState(
     searchParams.get('notifs') === 'open'
@@ -58,7 +65,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   )
   const [moduleSeeds, setModuleSeeds] =
     useState<HomeModuleSeed[]>(INITIAL_MODULES)
-  const [activeTab, setActiveTab] = useState<HomeTab>('home')
+
   const { promos: apiPromos } = useFeaturedPromos(4)
   const promos = apiPromos.length > 0 ? apiPromos : PROMOS
 
@@ -70,23 +77,41 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const modulesWithHandlers: HomeModule[] = useMemo(
     () =>
-      moduleSeeds.map((m) => ({
-        id: m.id,
-        active: m.active,
-        label: t(m.labelKey, lang),
-        onClick: () => {
-          if (m.id === 'agenda') {
-            navigate('/agenda')
-            return
-          }
-          if (m.id === 'noticias') {
-            navigate('/noticias')
-            return
-          }
-          toggleModule(m.id)
-        },
-      })),
-    [moduleSeeds, lang, navigate]
+      moduleSeeds.map((m) => {
+        const requiresAuth = m.id === 'premis'
+        const gatedInactive = requiresAuth && !isAuthed
+        const active = m.active && !gatedInactive
+        return {
+          id: m.id,
+          active,
+          disabledReason: gatedInactive ? 'requires_registration' : undefined,
+          label: t(m.labelKey, lang),
+          onClick: () => {
+            if (!active) {
+              if (gatedInactive) navigate('/login')
+              return
+            }
+            if (m.id === 'agenda') {
+              navigate('/agenda')
+              return
+            }
+            if (m.id === 'noticias') {
+              navigate('/noticias')
+              return
+            }
+            if (m.id === 'comerc') {
+              navigate('/comercos')
+              return
+            }
+            if (m.id === 'premis') {
+              navigate('/premis')
+              return
+            }
+            toggleModule(m.id)
+          },
+        }
+      }),
+    [moduleSeeds, lang, navigate, isAuthed]
   )
 
   const openNotifications = () => {
@@ -96,10 +121,8 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const goToProfile = () => navigate('/profile')
   const goToLogin = () => navigate('/login')
-  const resetSetup = async () => {
-    await resetDeviceSetup()
-    navigate('/', { replace: true })
-  }
+  const goToPoints = () => navigate('/historial-punts')
+  const goToRewards = () => navigate('/premis-canjats')
 
   // Nombre: solo si el usuario está registrado Y ha guardado un first_name.
   const firstName = showProfile ? profile?.first_name?.trim() || null : null
@@ -112,7 +135,15 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  const cityName = profile?.town || town || 'Malgrat de Mar'
+  // Ciudad: prioriza perfil → localStorage → fallback.
+  const storedTown = (() => {
+    try {
+      return localStorage.getItem('km0_town')
+    } catch {
+      return null
+    }
+  })()
+  const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
   // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
   // barra de progreso al 10% hacia el nivel 2 en 1.000 pts).
@@ -133,20 +164,18 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     level,
     modules: modulesWithHandlers,
     promos,
-    comercios: COMERCIOS,
-    coupons: REDEEM_COUPONS,
-    activeTab,
-    onTabChange: setActiveTab,
-    showLogin,
+    activeTab: 'home' as const,
+    isAuthed,
     onLogin: goToLogin,
-    onResetSetup: showLogin ? resetSetup : undefined,
-    showProfile,
+    onHome: () => {},
     onProfile: goToProfile,
+    onPoints: goToPoints,
+    onRewards: goToRewards,
+    showLogin,
     showPoints,
-    onSeeAllComercios: () => {},
     onSeeAllEvents: () => navigate('/agenda'),
-    onSeeAllCoupons: () => {},
     onOpenEvent: (id: string) => navigate(`/evento?id=${id}`),
+    onOpenPointsHistory: () => navigate('/historial-punts'),
   }
 
   return (
@@ -166,7 +195,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           {rewardOpen && isAuthed && (
             <PointsRewardOverlay
               points={100}
-              message={t('reward.register_reason', lang)}
+              message="Per registrar-te a KM0 LAB"
               contained
               onClose={() => {
                 setRewardOpen(false)

@@ -5,4 +5,4 @@
  * Lovable. Añadir aquí las máquinas nuevas importándolas desde su archivo
  * y exportándolas.
  */
-export {}
+export * from './scannerMachine'

@@ -33,10 +33,7 @@ function detect(): Breakpoint {
 }
 
 /**
- * Contexto opcional para FORZAR un breakpoint en un subárbol concreto
- * (usado por <SimulatedDevice> en /preview-all para mostrar la misma
- * pantalla a tamaño portrait y landscape sin iframes).
- *
+ * Contexto opcional para FORZAR un breakpoint en un subárbol concreto.
  * Si no hay provider, useBreakpoint() funciona como siempre: lee el
  * viewport real con matchMedia.
  */

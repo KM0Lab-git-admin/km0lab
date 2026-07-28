@@ -12,10 +12,17 @@ import { apiFetch, ApiError, userSchema, type ApiUser } from './km0labClient'
 
 export type MockProfile = AppProfile
 
-const toProfile = (u: ApiUser): AppProfile => ({
+/**
+ * `phone` y `birth_date` aún no existen en km0lab-api: la pantalla los edita
+ * pero solo viven en el store local, así que al releer el perfil se conservan
+ * en lugar de machacarse con null.
+ */
+const toProfile = (u: ApiUser, previous?: AppProfile | null): AppProfile => ({
   first_name: u.name,
   last_name: null,
   email: u.email,
+  phone: previous?.phone ?? null,
+  birth_date: previous?.birth_date ?? null,
   postal_code: u.postal_code,
   town: u.town,
   avatar_url: null,
@@ -26,8 +33,9 @@ export const getProfile = async (
 ): Promise<MockProfile | null> => {
   try {
     const u = await apiFetch('/users/me', { schema: userSchema, auth: true })
-    const profile = toProfile(u)
-    useAppStore.getState().upsertProfile(u.id, profile)
+    const store = useAppStore.getState()
+    const profile = toProfile(u, store.getProfile(u.id))
+    store.upsertProfile(u.id, profile)
     return profile
   } catch {
     return null
@@ -55,7 +63,12 @@ export const updateProfile = async (
       },
       schema: userSchema,
     })
-    useAppStore.getState().upsertProfile(u.id, toProfile(u))
+    const store = useAppStore.getState()
+    store.upsertProfile(u.id, {
+      ...toProfile(u, store.getProfile(u.id)),
+      phone: patch.phone ?? null,
+      birth_date: patch.birth_date ?? null,
+    })
     return { error: null }
   } catch (e) {
     return {

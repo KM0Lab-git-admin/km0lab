@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Star, Gift } from 'lucide-react'
 
 import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 /**
  * PointsCard — tarjeta de progreso del usuario registrado.
@@ -24,6 +25,8 @@ export interface PointsCardProps {
   nextReward?: string
   /** Nivel actual (ej: 4). Si no se pasa, se usa "Local". */
   level?: number
+  /** Si se pasa, la tarjeta es pulsable y navega al historial. */
+  onClick?: () => void
 }
 
 const PointsCard = ({
@@ -31,6 +34,7 @@ const PointsCard = ({
   nextLevel,
   nextReward,
   level,
+  onClick,
 }: PointsCardProps) => {
   const { lang } = useLang()
   const safePoints = Math.max(0, points)
@@ -38,16 +42,35 @@ const PointsCard = ({
   const pct = Math.min(100, Math.round((safePoints / safeNext) * 100))
   const pointsToNext = Math.max(0, safeNext - safePoints)
 
+  const clickable = typeof onClick === 'function'
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="relative w-full max-w-[600px] overflow-hidden rounded-2xl vertical-tablet:rounded-3xl bg-gradient-to-br from-km0-blue-800 to-km0-blue-900 px-4 py-3.5 vertical-tablet:px-5 vertical-tablet:py-5 horizontal-mobile:!px-3 horizontal-mobile:!py-2 shadow-[0_12px_28px_-12px_hsl(var(--km0-blue-900)/0.45)]"
+      {...(clickable
+        ? {
+            role: 'button',
+            tabIndex: 0,
+            onClick,
+            onKeyDown: (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick?.()
+              }
+            },
+          }
+        : {})}
+      className={cn(
+        'relative w-full max-w-[600px] overflow-hidden rounded-2xl bg-gradient-to-br from-km0-blue-800 to-km0-blue-900 px-4 py-3.5 shadow-[0_12px_28px_-12px_hsl(var(--km0-blue-900)/0.45)]',
+        clickable &&
+          'cursor-pointer active:scale-[0.99] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-km0-yellow-400'
+      )}
     >
       {/* Estrella decorativa de fondo */}
       <Star
-        className="absolute -bottom-3 -right-3 w-24 h-24 vertical-tablet:w-32 vertical-tablet:h-32 horizontal-mobile:!w-16 horizontal-mobile:!h-16 text-white/5 rotate-12 pointer-events-none"
+        className="absolute -bottom-3 -right-3 w-24 h-24 text-white/5 rotate-12 pointer-events-none"
         strokeWidth={1}
         fill="currentColor"
       />
@@ -55,16 +78,16 @@ const PointsCard = ({
       {/* Fila superior: puntos + nivel */}
       <div className="relative z-10 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-brand font-black text-white text-2xl vertical-tablet:text-3xl horizontal-mobile:!text-xl">
+          <span className="font-brand font-black text-white text-2xl">
             {safePoints.toLocaleString('es-ES')}
           </span>
-          <span className="font-body text-white/70 text-sm vertical-tablet:text-base horizontal-mobile:!text-xs">
+          <span className="font-body text-white/70 text-sm">
             {t('common.points', lang)}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full bg-km0-yellow-400/20 px-2.5 py-1 vertical-tablet:px-3 vertical-tablet:py-1.5 horizontal-mobile:!px-2 horizontal-mobile:!py-0.5">
-          <span className="font-ui font-bold text-km0-yellow-100 text-xs vertical-tablet:text-sm horizontal-mobile:!text-[10px] uppercase tracking-wide">
+        <div className="flex items-center gap-1.5 rounded-full bg-km0-yellow-400/20 px-2.5 py-1">
+          <span className="font-ui font-bold text-km0-yellow-100 text-xs uppercase tracking-wide">
             {level
               ? t('home.points.level', lang).replace('{n}', String(level))
               : t('home.points.level', lang).replace('{n}', '1')}
@@ -73,13 +96,13 @@ const PointsCard = ({
       </div>
 
       {/* Barra de progreso + porcentaje */}
-      <div className="relative z-10 mt-3 vertical-tablet:mt-4 horizontal-mobile:!mt-2 flex items-center gap-2">
+      <div className="relative z-10 mt-3 flex items-center gap-2">
         <div
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={safeNext}
           aria-valuenow={safePoints}
-          className="relative h-2.5 vertical-tablet:h-3 horizontal-mobile:!h-2 flex-1 rounded-full bg-white/20 overflow-hidden"
+          className="relative h-2.5 flex-1 rounded-full bg-white/20 overflow-hidden"
         >
           <motion.div
             initial={{ width: 0 }}
@@ -89,7 +112,7 @@ const PointsCard = ({
           />
         </div>
         <span
-          className="shrink-0 font-ui font-bold text-km0-yellow-100 text-xs vertical-tablet:text-sm horizontal-mobile:!text-[10px] tabular-nums"
+          className="shrink-0 font-ui font-bold text-km0-yellow-100 text-xs tabular-nums"
           aria-label={`${pct}%`}
         >
           {pct}%
@@ -98,11 +121,11 @@ const PointsCard = ({
 
       {/* Fila inferior: regalo + recompensa */}
       {nextReward && (
-        <div className="relative z-10 mt-3 vertical-tablet:mt-4 horizontal-mobile:!mt-2 flex items-start gap-2.5">
-          <span className="shrink-0 w-7 h-7 vertical-tablet:w-8 vertical-tablet:h-8 horizontal-mobile:!w-6 horizontal-mobile:!h-6 rounded-full bg-white/15 flex items-center justify-center">
-            <Gift className="w-3.5 h-3.5 vertical-tablet:w-4 vertical-tablet:h-4 horizontal-mobile:!w-3 horizontal-mobile:!h-3 text-km0-yellow-100" />
+        <div className="relative z-10 mt-3 flex items-start gap-2.5">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+            <Gift className="w-3.5 h-3.5 text-km0-yellow-100" />
           </span>
-          <p className="font-body text-xs vertical-tablet:text-sm horizontal-mobile:!text-[11px] text-white/90 leading-snug">
+          <p className="font-body text-xs text-white/90 leading-snug">
             {t('home.points.toReward', lang)
               .replace('{n}', pointsToNext.toLocaleString('es-ES'))
               .replace('{reward}', nextReward)}
