@@ -23,13 +23,13 @@ const PromoSection = ({
 }: PromoSectionProps) => {
   return (
     <motion.section
-      className="m-0 p-0 horizontal-mobile:min-w-0 horizontal-mobile:flex horizontal-mobile:flex-col horizontal-mobile:h-full horizontal-desktop:min-w-0 horizontal-desktop:flex horizontal-desktop:flex-col horizontal-desktop:h-full"
+      className="m-0 p-0"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: animationDelay }}
     >
-      <div className="flex items-center min-h-12 horizontal-mobile:!min-h-0 horizontal-mobile:h-6 mb-[clamp(0.125rem,1vw,0.875rem)] vertical-tablet:mb-3 horizontal-mobile:!mb-1 horizontal-desktop:!mb-2">
-        <h2 className="font-brand font-black text-km0-blue-700 text-sm vertical-tablet:text-base horizontal-mobile:!text-xs horizontal-desktop:!text-lg">
+      <div className="flex items-center min-h-12 mb-[clamp(0.125rem,1vw,0.875rem)]">
+        <h2 className="font-brand font-black text-km0-blue-700 text-sm">
           {title}
         </h2>
       </div>

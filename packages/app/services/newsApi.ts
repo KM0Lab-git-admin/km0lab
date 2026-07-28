@@ -17,7 +17,6 @@ import {
   newsDetailResponseSchema,
   type NewsItem,
 } from '../services/apiSchemas'
-import { absolutizeEventsAsset } from '../services/eventsAssets'
 
 import type { Lang } from '../utils/i18n'
 
@@ -33,8 +32,12 @@ export interface Noticia {
   fuenteUrl: string | null
 }
 
+const NEWS_ASSET_BASE = 'https://eventquery.uat.km0lab.com'
+
 function absolutizeImageUrl(url?: string | null): string | null {
-  return absolutizeEventsAsset(url)
+  if (!url) return null
+  if (/^https?:\/\//i.test(url)) return url
+  return `${NEWS_ASSET_BASE}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
 function porIdioma(

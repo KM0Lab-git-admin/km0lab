@@ -334,7 +334,7 @@ const Noticias = () => {
             exit={{ opacity: 0 }}
             className={cn(
               'flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4',
-              'grid grid-cols-1 vertical-tablet:grid-cols-2 horizontal-desktop:grid-cols-3 gap-3 auto-rows-max'
+              'grid grid-cols-1 gap-3 auto-rows-max'
             )}
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
@@ -405,7 +405,7 @@ const Noticias = () => {
 
   return (
     <DeviceShell>
-      <div className="flex-1 min-h-0 w-full flex flex-col landscape:flex-row px-4 horizontal-desktop:px-6 pt-5 landscape:pt-3 horizontal-desktop:pt-5 pb-0 overflow-y-auto landscape:overflow-hidden overflow-x-hidden">
+      <div className="flex-1 min-h-0 w-full flex flex-col px-4 pt-5 pb-0 overflow-y-auto overflow-x-hidden">
         {content}
       </div>
     </DeviceShell>

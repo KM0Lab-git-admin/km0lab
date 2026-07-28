@@ -66,28 +66,25 @@ const OnboardingCard = ({
   lang: Lang
 }) => (
   <div className="flex flex-col h-full max-h-full">
-    <div
-      className="relative mx-3 mt-3 vertical-mobile:mx-2 vertical-mobile:mt-2 wide-landscape:mx-3 wide-landscape:mt-3 short-landscape:mx-2 short-landscape:mt-2 shrink-0 h-[clamp(140px,28vh,220px)] vertical-tablet:h-[240px] wide-landscape:h-[clamp(200px,42vh,320px)] short-landscape:h-[clamp(130px,40vh,200px)] rounded-2xl overflow-hidden"
-      style={{ background: slide.color }}
-    >
+    <div className="relative mx-2 mt-2 shrink-0 h-[clamp(140px,28vh,220px)] rounded-2xl overflow-hidden bg-km0-beige-100">
       <img
         src={slide.image}
         alt={getAlt(slide, lang)}
         loading={isActive ? 'eager' : 'lazy'}
-        className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+        className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
         draggable={false}
       />
       {isActive && (
-        <span className="absolute top-2 right-2 vertical-mobile:top-1.5 vertical-mobile:right-1.5 short-landscape:top-1 short-landscape:right-1 bg-km0-coral-400 text-white font-ui font-bold text-xs vertical-tablet:text-sm wide-landscape:text-sm short-landscape:text-[10px] px-2 vertical-tablet:px-3 py-0.5 vertical-tablet:py-1 short-landscape:px-1.5 rounded-xl shadow-md">
+        <span className="absolute top-2 right-2 bg-km0-coral-400 text-white font-ui font-bold text-xs px-2 py-0.5 rounded-xl shadow-md">
           +{slide.xp} XP
         </span>
       )}
     </div>
-    <div className="px-3 pt-2 pb-3 vertical-tablet:px-4 vertical-tablet:pt-3 vertical-tablet:pb-4 wide-landscape:px-6 wide-landscape:pt-4 wide-landscape:pb-5 short-landscape:px-3 short-landscape:pt-1.5 short-landscape:pb-2 text-center flex-1 min-h-0 overflow-hidden flex flex-col justify-start">
-      <h2 className="font-brand font-bold text-base vertical-tablet:text-lg wide-landscape:text-xl short-landscape:text-[clamp(11px,2vh,15px)] text-primary leading-tight mb-1 wide-landscape:mb-2 short-landscape:mb-0.5">
+    <div className="px-3 pt-2 pb-3 text-center flex-1 min-h-0 overflow-hidden flex flex-col justify-start">
+      <h2 className="font-brand font-bold text-base text-primary leading-tight mb-1">
         {getTitle(slide, lang)}
       </h2>
-      <p className="font-body text-xs vertical-tablet:text-sm wide-landscape:text-sm short-landscape:text-[clamp(9px,1.5vh,12px)] text-muted-foreground leading-snug">
+      <p className="font-body text-xs text-muted-foreground leading-snug">
         {getDesc(slide, lang)}
       </p>
     </div>

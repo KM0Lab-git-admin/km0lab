@@ -1,16 +1,15 @@
-import { t } from '@km0lab/app'
 import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
 
 import starIcon from '@/assets/icon-star-rewards.png'
-import { useLang } from '@/contexts/LangContext'
 
 /**
  * PointsRewardOverlay — overlay de recompensa de puntos al estilo Glovo.
  *
  * Disparadores típicos:
- *   - Registro:  +100 pts · reason i18n
- *   - Pedido / reto: message personalizado vía prop
+ *   - Registro:  +500 pts · "¡Bienvenido!"
+ *   - Pedido:    +50 pts  · "Pedido completado"
+ *   - Reto:      +200 pts · "¡Reto completado!"
  *
  * Colores mapeados a tokens KM0. Para canvas-confetti se mantienen los hex
  * equivalentes a las CSS vars (sincronizar si cambian en index.css):
@@ -32,17 +31,17 @@ const CONFETTI_COLORS = ['#174094', '#F5C542', '#FF664D', '#FFFFFF']
 
 const PointsRewardOverlay = ({
   points,
-  message,
+  message = '¡Bienvenido!',
   onClose,
   contained = false,
 }: PointsRewardOverlayProps) => {
-  const { lang } = useLang()
-  const headline = message ?? t('reward.default_message', lang)
   const [displayPoints, setDisplayPoints] = useState(0)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   // Confeti multi-burst + contador animado 0 → points (easeOutCubic, 1.2s).
   useEffect(() => {
+    // En modo contained usamos un canvas propio dentro del overlay para que
+    // las partículas no escapen del contenedor del sandbox.
     let fire: (ratio: number, opts: confetti.Options) => void
     let instance: confetti.CreateTypes | null = null
 
@@ -78,10 +77,10 @@ const PointsRewardOverlay = ({
     const start = performance.now()
     let raf = 0
     const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
+      const t = Math.min((now - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - t, 3)
       setDisplayPoints(Math.round(eased * points))
-      if (progress < 1) raf = requestAnimationFrame(tick)
+      if (t < 1) raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
 
@@ -91,6 +90,7 @@ const PointsRewardOverlay = ({
     }
   }, [points, contained])
 
+  // Cierre por tecla Escape.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -105,7 +105,7 @@ const PointsRewardOverlay = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={headline}
+      aria-label={message}
       onClick={onClose}
       className={`${positionClass} z-50 flex items-center justify-center overflow-hidden animate-fade-in-overlay bg-km0-blue-700/55 backdrop-blur-sm`}
     >
@@ -122,6 +122,7 @@ const PointsRewardOverlay = ({
         className="relative z-10 flex flex-col items-center px-6 py-6 rounded-3xl bg-card shadow-2xl animate-pop-in max-w-[90%]"
       >
         <div className="relative mb-4 h-36 w-36">
+          {/* Sparkles decorativos */}
           <span
             className="absolute top-2 left-2 h-3 w-3 rounded-full bg-km0-coral-400 animate-sparkle"
             style={{ animationDelay: '0s' }}
@@ -139,6 +140,7 @@ const PointsRewardOverlay = ({
             style={{ animationDelay: '0.9s' }}
           />
 
+          {/* Estrella central */}
           <div className="absolute inset-0 flex items-center justify-center animate-wiggle">
             <img
               src={starIcon}
@@ -148,26 +150,23 @@ const PointsRewardOverlay = ({
             />
           </div>
 
+          {/* Badge flotante +points */}
           <div className="absolute -top-2 -right-2 rounded-full px-3 py-1 font-ui text-base text-white bg-km0-coral-400 shadow-[0_8px_20px_-4px_hsl(var(--km0-coral-400)/0.6)] animate-float-up">
             +{points}
           </div>
         </div>
 
-        <p className="mb-1 font-body text-sm text-km0-blue-700/70">
-          {headline}
-        </p>
+        <p className="mb-1 font-body text-sm text-km0-blue-700/70">{message}</p>
 
         <div className="flex items-baseline gap-2">
           <span className="font-brand text-5xl tabular-nums text-km0-blue-700">
             {displayPoints}
           </span>
-          <span className="font-ui text-lg text-km0-coral-400">
-            {t('common.points', lang)}
-          </span>
+          <span className="font-ui text-lg text-km0-coral-400">pts</span>
         </div>
 
         <p className="mt-2 font-ui text-sm text-km0-blue-700">
-          {t('reward.earned', lang)}
+          ¡Has ganado puntos!
         </p>
 
         <button
@@ -175,7 +174,7 @@ const PointsRewardOverlay = ({
           onClick={onClose}
           className="mt-6 rounded-full px-7 py-2.5 font-ui text-sm text-white bg-km0-blue-700 hover:bg-km0-blue-600 active:scale-95 transition-all"
         >
-          {t('reward.cta', lang)}
+          ¡Genial!
         </button>
       </div>
     </div>

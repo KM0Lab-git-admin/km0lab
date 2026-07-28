@@ -59,7 +59,11 @@ async function main() {
   let failCount = 0
 
   for (const asset of manifest.assets) {
-    const url = `${source}/${asset.from}`
+    // `from` absoluto: assets que Lovable no versiona como binario sino como
+    // puntero `<nombre>.<ext>.asset.json` hacia su CDN (ver $docs).
+    const url = /^https?:\/\//.test(asset.from)
+      ? asset.from
+      : `${source}/${asset.from}`
     const destAbs = resolve(REPO_ROOT, asset.to)
     process.stdout.write(`  · ${asset.to}  ←  ${asset.from} ... `)
     try {

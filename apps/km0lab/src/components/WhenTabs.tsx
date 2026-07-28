@@ -42,7 +42,7 @@ const WhenTabs = ({ value, onChange, className = '' }: WhenTabsProps) => {
             aria-selected={active}
             onClick={() => onChange(key)}
             className={cn(
-              'min-h-9 rounded-full font-ui text-[11px] vertical-tablet:text-sm font-bold transition-all active:scale-95 px-2 py-1.5 whitespace-nowrap',
+              'min-h-9 rounded-full font-ui text-[11px] font-bold transition-all active:scale-95 px-2 py-1.5 whitespace-nowrap',
               active
                 ? 'bg-km0-blue-600 text-km0-yellow-400 shadow-sm'
                 : 'text-km0-blue-700 hover:bg-km0-beige-100'

@@ -194,7 +194,7 @@ const EventoDetalle = ({
         <ImageCarousel
           imagenes={ev.imagenes}
           alt={ev.titulo}
-          className="w-full aspect-[4/3] vertical-tablet:aspect-[16/10]"
+          className="w-full aspect-[4/3]"
         />
         <button
           onClick={onBack}
@@ -237,7 +237,7 @@ const EventoDetalle = ({
               </span>
             )}
           </div>
-          <h1 className="font-brand text-xl vertical-tablet:text-2xl text-km0-blue-900 leading-tight">
+          <h1 className="font-brand text-xl text-km0-blue-900 leading-tight">
             {ev.titulo}
           </h1>
         </header>

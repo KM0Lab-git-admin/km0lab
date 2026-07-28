@@ -10,3 +10,7 @@
 export * from './comercio'
 export * from './coupon'
 export * from './promo'
+export * from './comercAdherit'
+export * from './points'
+export * from './redemption'
+export * from './reward'

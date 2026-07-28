@@ -19,7 +19,7 @@ const NotificationBell = ({
       onClick={onClick}
       aria-label={ariaLabel}
       aria-pressed={onClick ? hasAlerts : undefined}
-      className={`relative w-10 h-10 horizontal-mobile:!w-8 horizontal-mobile:!h-8 flex items-center justify-center rounded-full bg-white shadow-sm ${
+      className={`relative w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm ${
         onClick
           ? 'transition-all duration-200 hover:bg-km0-beige-50 active:scale-95 cursor-pointer'
           : ''
@@ -31,7 +31,7 @@ const NotificationBell = ({
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="text-km0-blue-800 horizontal-mobile:!w-5 horizontal-mobile:!h-5"
+        className="text-km0-blue-800"
       >
         <path
           d="M12 2V3M12 3C8.69 3 6 5.69 6 9V13L4 17H20L18 13V9C18 5.69 15.31 3 12 3Z"

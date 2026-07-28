@@ -100,17 +100,17 @@ const EventHeroCarousel = ({ promos, onOpen }: EventHeroCarouselProps) => {
             </button>
 
             {/* --- Panel de texto (clic = abrir detalle) --- */}
-            <div className="relative flex items-end gap-3 px-4 pt-3 pb-4 vertical-tablet:px-5 vertical-tablet:pt-4 vertical-tablet:pb-5">
+            <div className="relative flex items-end gap-3 px-4 pt-3 pb-4">
               <button
                 type="button"
                 onClick={() => onOpen?.(promo.id)}
                 aria-label={`Obrir ${promo.title.replace(/\n/g, ' ')}`}
                 className="flex-1 min-w-0 select-none text-left"
               >
-                <h3 className="font-brand font-black text-km0-blue-800 leading-[1.05] whitespace-pre-line text-xl vertical-tablet:text-2xl">
+                <h3 className="font-brand font-black text-km0-blue-800 leading-[1.05] whitespace-pre-line text-xl">
                   {promo.title}
                 </h3>
-                <div className="mt-2 flex flex-col gap-1 font-body text-km0-blue-700/85 text-xs vertical-tablet:text-sm">
+                <div className="mt-2 flex flex-col gap-1 font-body text-km0-blue-700/85 text-xs">
                   <span className="flex items-center gap-1.5">
                     <CalendarDays
                       size={14}

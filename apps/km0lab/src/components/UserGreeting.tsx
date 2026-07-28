@@ -30,15 +30,13 @@ const UserGreeting = ({
   const pct = Math.min(100, Math.round((safePoints / safeNext) * 100))
 
   return (
-    <div
-      className={`w-full flex items-center gap-2 vertical-tablet:gap-3 my-0 ${className}`.trim()}
-    >
+    <div className={`w-full flex items-center gap-2 my-0 ${className}`.trim()}>
       {/* Bloque 1: avatar + saludo + puntos */}
       <div className="flex items-center gap-2 min-w-0">
         {/* Avatar placeholder (luego: badge real del usuario) */}
         <div
           aria-hidden
-          className="shrink-0 w-10 h-10 vertical-tablet:w-12 vertical-tablet:h-12 horizontal-mobile:!w-9 horizontal-mobile:!h-9 rounded-full bg-km0-beige-50 border-2 border-km0-blue-700/15 shadow-sm flex items-center justify-center overflow-hidden"
+          className="shrink-0 w-10 h-10 rounded-full bg-km0-beige-50 border-2 border-km0-blue-700/15 shadow-sm flex items-center justify-center overflow-hidden"
         >
           <img
             src={handStarIcon}
@@ -48,15 +46,15 @@ const UserGreeting = ({
         </div>
 
         <div className="flex flex-col leading-tight min-w-0">
-          <p className="font-brand font-black text-km0-blue-700 text-sm vertical-tablet:text-base horizontal-mobile:!text-xs whitespace-nowrap truncate">
+          <p className="font-brand font-black text-km0-blue-700 text-sm whitespace-nowrap truncate">
             Hola{name ? ` ${name}` : ''}!
           </p>
           <div className="flex items-center gap-1">
             <Star
-              className="w-3.5 h-3.5 horizontal-mobile:!w-3 horizontal-mobile:!h-3 text-km0-coral-400 fill-km0-coral-400"
+              className="w-3.5 h-3.5 text-km0-coral-400 fill-km0-coral-400"
               strokeWidth={2}
             />
-            <span className="font-ui text-xs vertical-tablet:text-sm horizontal-mobile:!text-[11px] text-km0-blue-800">
+            <span className="font-ui text-xs text-km0-blue-800">
               {safePoints.toLocaleString('es-ES')} punts
             </span>
           </div>
@@ -67,12 +65,12 @@ const UserGreeting = ({
       <img
         src={giftIcon}
         alt="Próximo regalo"
-        className="ml-auto shrink-0 w-10 h-10 vertical-tablet:w-12 vertical-tablet:h-12 horizontal-mobile:!w-9 horizontal-mobile:!h-9 object-contain"
+        className="ml-auto shrink-0 w-10 h-10 object-contain"
       />
 
       {/* Bloque 3: tarjeta puntos + barra */}
-      <div className="shrink-0 min-w-[125px] rounded-xl bg-km0-beige-100 border border-km0-blue-700/10 px-2.5 py-1.5 vertical-tablet:px-3 vertical-tablet:py-2 horizontal-mobile:!px-2 horizontal-mobile:!py-1 text-right">
-        <p className="font-body text-km0-blue-800 text-[11px] vertical-tablet:text-xs horizontal-mobile:!text-[10px] whitespace-nowrap leading-tight">
+      <div className="shrink-0 min-w-[125px] rounded-xl bg-km0-beige-100 border border-km0-blue-700/10 px-2.5 py-1.5 text-right">
+        <p className="font-body text-km0-blue-800 text-[11px] whitespace-nowrap leading-tight">
           {safePoints.toLocaleString('es-ES')}/
           {safeNext.toLocaleString('es-ES')} p
         </p>

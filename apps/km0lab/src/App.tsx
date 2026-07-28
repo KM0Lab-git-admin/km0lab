@@ -17,6 +17,14 @@ const Profile = lazy(() => import('./pages/Profile'))
 const Agenda = lazy(() => import('./pages/Agenda'))
 const Noticias = lazy(() => import('./pages/Noticias'))
 const Evento = lazy(() => import('./pages/Evento'))
+const Points = lazy(() => import('./pages/Points'))
+const HistorialPunts = lazy(() => import('./pages/HistorialPunts'))
+const Premis = lazy(() => import('./pages/Premis'))
+const PremisCanjats = lazy(() => import('./pages/PremisCanjats'))
+const Comercos = lazy(() => import('./pages/Comercos'))
+const ComercDetall = lazy(() => import('./pages/ComercDetall'))
+const Scanner = lazy(() => import('./pages/Scanner'))
+const ScannerSuccess = lazy(() => import('./pages/ScannerSuccess'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const queryClient = new QueryClient()
@@ -118,6 +126,70 @@ export default function App() {
                   element={
                     <RequireSetup need="location">
                       <Evento />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/points"
+                  element={
+                    <RequireSetup need="location">
+                      <Points />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/historial-punts"
+                  element={
+                    <RequireSetup need="location">
+                      <HistorialPunts />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/premis"
+                  element={
+                    <RequireSetup need="location">
+                      <Premis />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/premis-canjats"
+                  element={
+                    <RequireSetup need="location">
+                      <PremisCanjats />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/comercos"
+                  element={
+                    <RequireSetup need="location">
+                      <Comercos />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/comercos/:id"
+                  element={
+                    <RequireSetup need="location">
+                      <ComercDetall />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/scanner"
+                  element={
+                    <RequireSetup need="location">
+                      <Scanner />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/scanner/success"
+                  element={
+                    <RequireSetup need="location">
+                      <ScannerSuccess />
                     </RequireSetup>
                   }
                 />

@@ -1,6 +1,6 @@
 {
-  "$docs": "Sync de assets binarios Lovable -> produccion. Ver docs/PORTING-FROM-LOVABLE.md §6. Espejamos la estructura de src/assets de Lovable en apps/km0lab/src/assets (mismos nombres/rutas) porque el codigo portado importa esas rutas via @/assets. El script sobrescribe siempre.",
-  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
+  "$docs": "Sync de assets binarios Lovable -> produccion. Ver docs/PORTING-FROM-LOVABLE.md §6. Espejamos la estructura de src/assets de Lovable en apps/km0lab/src/assets (mismos nombres/rutas) porque el codigo portado importa esas rutas via @/assets. El script sobrescribe siempre. Algunos assets no estan versionados como binario en el repo de Lovable, sino como puntero <nombre>.<ext>.asset.json hacia su CDN; para esos, \"from\" es la URL absoluta del CDN (el codigo portado importa la ruta .asset.json y vite.config.ts la resuelve al binario local).",
+  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/km0lab-lovable/main",
   "assets": [
     {
       "from": "src/assets/km0_robot_icon_v2.png",
@@ -29,6 +29,14 @@
     {
       "from": "src/assets/shop-icon.png",
       "to": "apps/km0lab/src/assets/shop-icon.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/3677aad3-9599-4638-a169-b14ed6e650f7/rewards-icon.png",
+      "to": "apps/km0lab/src/assets/rewards-icon.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/cb965bb3-081b-4c2a-82f7-6201f299242f/shop-services-icon.png",
+      "to": "apps/km0lab/src/assets/shop-services-icon.png"
     },
     {
       "from": "src/assets/icon-star-rewards.png",

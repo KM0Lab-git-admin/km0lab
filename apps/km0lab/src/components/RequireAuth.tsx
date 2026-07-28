@@ -17,7 +17,13 @@ const RequireAuth = ({ children }: { children: ReactNode }) => {
     return null
   }
 
-  if (!session) {
+  // Preview: `/home-registrado` deja pasar sin sesión real para poder
+  // navegar por Els meus punts, Premis canjats y Perfil desde la demo.
+  const previewAuthed =
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('km0_preview_authed') === '1'
+
+  if (!session && !previewAuthed) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
 
