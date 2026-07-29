@@ -1,12 +1,13 @@
+import { motion, AnimatePresence } from 'framer-motion'
+import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import BrandedFrame from '@/components/BrandedFrame'
+
+import { lookupTown, t, useAppStore } from '@km0lab/app'
+
 import cityMap from '@/assets/km0_city_map.png'
-import { lookupTown } from '@km0lab/app'
+import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
 
 const PostalCode = () => {
   const navigate = useNavigate()
@@ -54,13 +55,9 @@ const PostalCode = () => {
 
   const handleSubmit = () => {
     if (!isComplete || !cityName) return
-    // localStorage para que sobreviva recargas y se pueda leer desde Home/Login.
-    try {
-      localStorage.setItem('km0_postal_code', value)
-      localStorage.setItem('km0_town', cityName)
-    } catch {
-      /* localStorage puede fallar en modo privado */
-    }
+    // Persistimos en el store (RequireSetup lee `postalCode` de aquí).
+    // `setLocation` también escribe localStorage para Home/Login.
+    useAppStore.getState().setLocation(value, cityName)
     navigate('/home')
   }
 
