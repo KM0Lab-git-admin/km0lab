@@ -1,14 +1,13 @@
-import { t } from '@km0lab/app'
-
-import agendaIcon from '@/assets/agenda-icon.png'
-import chatMascot from '@/assets/chat-mascot.png'
-import cityHallIcon from '@/assets/cityhall-icon.png'
-import newsIcon from '@/assets/news-icon.png'
-import rewardsIcon from '@/assets/rewards-icon.png.asset.json'
-import servicesIcon from '@/assets/services-icon.png'
-import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
-import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
+import chatMascot from '@/assets/chat-mascot.png'
+import agendaIcon from '@/assets/agenda-icon.png'
+import cityHallIcon from '@/assets/cityhall-icon.png'
+import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
+import newsIcon from '@/assets/news-icon.png'
+import servicesIcon from '@/assets/services-icon.png'
+import rewardsIcon from '@/assets/rewards-icon.png.asset.json'
 
 /**
  * HomeModules — accesos rápidos de la Home.
@@ -153,7 +152,7 @@ const ModuleItem = ({ module }: ModuleItemProps) => {
                 'bg-km0-coral-400 text-white',
                 'border border-white shadow-[0_2px_6px_-2px_hsl(var(--km0-blue-900)/0.35)]',
                 'font-ui font-bold uppercase tracking-wide',
-                'text-[8px] leading-tight text-center max-w-[60px] line-clamp-2'
+                'text-[8px] leading-tight text-center max-w-[60px] line-clamp-2 break-words hyphens-auto'
               )}
             >
               {t(badgeKey, lang)}

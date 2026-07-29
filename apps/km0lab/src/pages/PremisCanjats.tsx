@@ -1,11 +1,5 @@
-import { useAuth } from '@km0lab/app'
-import {
-  t,
-  type Lang,
-  Redemption,
-  RedemptionStatus,
-  RewardKind,
-} from '@km0lab/app'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -21,14 +15,17 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
+import BottomTabs from '@/components/BottomTabs'
+import { useAuth } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
-import { REDEMPTIONS } from '@/data/redemptions'
+
+import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { REDEMPTIONS } from '@/data/redemptions'
+import type { Redemption, RedemptionStatus } from '@km0lab/app'
+import type { RewardKind } from '@km0lab/app'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | RedemptionStatus
@@ -294,9 +291,10 @@ const PremisCanjats = () => {
 
   const goToHome = () => navigate('/home')
   const goToLogin = () => navigate('/login')
-  const goToPoints = () => navigate('/historial-punts')
+  const goToPoints = () => navigate('/points-history')
   const goToProfile = () => navigate('/profile')
   const goToRewards = () => {}
+  const goToActions = () => navigate('/points-actions')
 
   const sorted = useMemo(
     () =>
@@ -420,6 +418,7 @@ const PremisCanjats = () => {
             onProfile={goToProfile}
             onPoints={goToPoints}
             onRewards={goToRewards}
+            onActions={goToActions}
           />
         </div>
       </div>

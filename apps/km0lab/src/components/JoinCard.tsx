@@ -1,8 +1,7 @@
-import { t } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { Gift } from 'lucide-react'
-
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 /**
  * JoinCard — tarjeta de registro para el estado guest de la Home

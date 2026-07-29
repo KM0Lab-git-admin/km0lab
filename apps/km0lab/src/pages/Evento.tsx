@@ -1,5 +1,5 @@
-import { t } from '@km0lab/app'
-import { getEvento, type EventoDetalleAdaptado } from '@km0lab/app'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -14,12 +14,12 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
-import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
+import { getEvento, type EventoDetalleAdaptado } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
  * Evento — Ficha completa de un evento (portrait único).

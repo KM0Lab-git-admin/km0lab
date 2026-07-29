@@ -21,7 +21,7 @@ import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
 import { PROMOS } from '@/data/promos'
 
 type HomeProps = {
-  /** Forzar estado para previews (`/home-registrado`, `/home-no-registrado`). */
+  /** Forzar estado para previews (`/home-registered`, `/home-unregistered`). */
   forceAuthState?: 'authed' | 'guest'
 }
 
@@ -44,16 +44,11 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const { lang } = useLang()
   const navigate = useNavigate()
 
-  // Estado real según sesión: sin user → mostrar CTA de login y ocultar
-  // puntos / acceso a perfil. Con user → al revés.
-  // Las rutas de preview pueden forzar el estado con `forceAuthState`.
   const isAuthed = forceAuthState ? forceAuthState === 'authed' : !!user
   const showLogin = !isAuthed
   const showProfile = isAuthed
   const showPoints = isAuthed
 
-  // Bandera de preview: permite que las rutas protegidas (historial, premis
-  // canjats, perfil) sean navegables desde `/home-registrado` sin sesión real.
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (forceAuthState === 'authed') {
@@ -81,7 +76,6 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const [moduleSeeds, setModuleSeeds] =
     useState<HomeModuleSeed[]>(INITIAL_MODULES)
 
-  // Al abrir la app: reclamar puntos de aniversario si aplica (una vez/año).
   useEffect(() => {
     if (!isAuthed || forceAuthState === 'guest') return
     if (searchParams.get('welcome') === '1') return
@@ -129,19 +123,19 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
               return
             }
             if (m.id === 'agenda') {
-              navigate('/agenda')
+              navigate('/events')
               return
             }
             if (m.id === 'noticias') {
-              navigate('/noticias')
+              navigate('/news')
               return
             }
             if (m.id === 'comerc') {
-              navigate('/comercos')
+              navigate('/merchants')
               return
             }
             if (m.id === 'premis') {
-              navigate('/premis')
+              navigate('/rewards')
               return
             }
             toggleModule(m.id)
@@ -158,13 +152,11 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const goToProfile = () => navigate('/profile')
   const goToLogin = () => navigate('/login')
-  const goToPoints = () => navigate('/historial-punts')
-  const goToRewards = () => navigate('/premis-canjats')
+  const goToPoints = () => navigate('/points-history')
+  const goToRewards = () => navigate('/redeemed-rewards')
 
-  // Nombre: solo si el usuario está registrado Y ha guardado un first_name.
   const firstName = showProfile ? profile?.first_name?.trim() || null : null
 
-  // Saludo + subtítulo localizados según estado.
   const greeting = showLogin
     ? t('home.greeting.guest', lang)
     : t('home.greeting.registered', lang).replace('{name}', firstName ?? '')
@@ -172,7 +164,6 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  // Ciudad: prioriza perfil → localStorage → fallback.
   const storedTown = (() => {
     try {
       return localStorage.getItem('km0_town')
@@ -182,8 +173,6 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   })()
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
-  // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
-  // barra de progreso al 10% hacia el nivel 2 en 1.000 pts).
   const points = isAuthed ? 100 : 0
   const level = isAuthed ? 1 : 1
   const nextLevel = 1000
@@ -208,11 +197,14 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     onProfile: goToProfile,
     onPoints: goToPoints,
     onRewards: goToRewards,
+    onActions: () => navigate('/points-actions'),
     showLogin,
     showPoints,
-    onSeeAllEvents: () => navigate('/agenda'),
-    onOpenEvent: (id: string) => navigate(`/evento?id=${id}`),
-    onOpenPointsHistory: () => navigate('/historial-punts'),
+    onSeeAllEvents: () => navigate('/events'),
+    onSeeAllRewards: () => navigate('/rewards'),
+    onSeeAllPromos: () => navigate('/rewards?tab=promos'),
+    onOpenEvent: (id: string) => navigate(`/event?id=${id}`),
+    onOpenPointsHistory: () => navigate('/points-history'),
   }
 
   const closeReward = () => {

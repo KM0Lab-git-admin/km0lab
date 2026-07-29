@@ -1,12 +1,11 @@
-import { t } from '@km0lab/app'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Gift, Coins, Copy, Check, Store, ShieldCheck } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-
-import type { Reward } from '@km0lab/app'
 
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import type { Reward } from '@km0lab/app'
 
 /**
  * RedeemBalanceOverlay — flujo de canje de premios de categoría "saldo".

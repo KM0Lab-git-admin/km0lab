@@ -1,10 +1,5 @@
-import type {
-  PromocioInfo,
-  Reward,
-  RewardCategory,
-  RewardKind,
-} from '@km0lab/app'
-import { t, type TKey } from '@km0lab/app'
+import { useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -17,16 +12,17 @@ import {
   Tag,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import { useLang } from '@/contexts/LangContext'
-import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
-import { REWARDS } from '@/data/rewards'
+import { t, type TKey } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { REWARDS } from '@/data/rewards'
+import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
+import type { PromocioInfo } from '@km0lab/app'
+import type { Reward, RewardCategory, RewardKind } from '@km0lab/app'
 
 type TopTab = 'rewards' | 'promos'
 type Filter = 'all' | RewardCategory
@@ -332,7 +328,10 @@ const Premis = () => {
   const [points, setPoints] = useState(2500)
   const [redeeming, setRedeeming] = useState<Reward | null>(null)
 
-  const [topTab, setTopTab] = useState<TopTab>('rewards')
+  const [searchParams] = useSearchParams()
+  const initialTab: TopTab =
+    searchParams.get('tab') === 'promos' ? 'promos' : 'rewards'
+  const [topTab, setTopTab] = useState<TopTab>(initialTab)
   const [filter, setFilter] = useState<Filter>('balance')
 
   const categories = useMemo<RewardCategory[]>(() => {

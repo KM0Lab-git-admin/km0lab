@@ -1,5 +1,5 @@
-import { useNotifications } from '@km0lab/app'
-import { t, type Lang, ComercDetall, PromocioInfo } from '@km0lab/app'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin,
@@ -12,14 +12,15 @@ import {
   Circle,
   RefreshCw,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import { useLang } from '@/contexts/LangContext'
-import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
+import { useNotifications } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
+import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
  * ComercDetall — Fitxa del comerç adherit (mock).
@@ -277,7 +278,7 @@ const ComercDetallPage = () => {
 
   const k = langKey(lang)
   const isError = forced === 'error'
-  const goBack = () => navigate('/comercos')
+  const goBack = () => navigate('/merchants')
   const openScanner = () => navigate('/scanner')
 
   const stateOpen = comerc?.obertAra

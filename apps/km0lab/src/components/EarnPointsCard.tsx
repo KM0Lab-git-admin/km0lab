@@ -1,76 +1,76 @@
-import { t, type TKey } from '@km0lab/app'
 import { motion } from 'framer-motion'
-import { ShoppingBag, CalendarDays, Lock } from 'lucide-react'
-
-import { useLang } from '@/contexts/LangContext'
+import {
+  Cake,
+  UserPlus,
+  Star,
+  QrCode,
+  Globe,
+  Mail,
+  CalendarCheck,
+  ClipboardList,
+  Circle,
+  ArrowRight,
+  Lock,
+  type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
+import { POINTS_ACTIONS } from '@/data/pointsActions'
+import type { PointAction, PointActionIcon } from '@km0lab/app'
 
 /**
- * EarnPointsCard — módulo que muestra las acciones disponibles para
- * ganar puntos.
- *
- * - Guest (`locked=true`): candado a la derecha y subtítulo "Registra't
- *   per desbloquejar".
- * - Registered (`locked=false`): badge con los puntos que otorga cada
- *   acción (mock) en lugar del candado.
+ * EarnPointsCard — módulo home que muestra las 3 primeras acciones
+ * pendientes con el mismo formato que la pantalla de acciones
+ * (`/points-actions`).
  */
 
-export interface EarnAction {
-  id: string
-  icon: 'shopping' | 'event'
-  titleKey: TKey
-  subtitleKey: TKey
-  rewardKey: TKey
-  points: number
-}
-
 export interface EarnPointsCardProps {
-  actions?: EarnAction[]
   className?: string
-  /** true = estado guest con candado; false = registered con puntos. */
+  /** Enlace opcional "Veure totes" que navega a /points-actions. */
+  onSeeAll?: () => void
+  /** Si true, aplica overlay de candado + CTA de registro. */
   locked?: boolean
+  /** Handler para el CTA de registro cuando `locked`. */
+  onLogin?: () => void
 }
 
-const ICONS = {
-  shopping: ShoppingBag,
-  event: CalendarDays,
-} as const
-
-const ICON_BG: Record<EarnAction['icon'], string> = {
-  shopping: 'bg-km0-blue-100',
-  event: 'bg-km0-coral-100',
+const ICONS: Record<PointActionIcon, LucideIcon> = {
+  cake: Cake,
+  'user-plus': UserPlus,
+  star: Star,
+  qr: QrCode,
+  globe: Globe,
+  mail: Mail,
+  'calendar-check': CalendarCheck,
+  'clipboard-list': ClipboardList,
 }
 
-const ICON_COLOR: Record<EarnAction['icon'], string> = {
-  shopping: 'text-km0-blue-600',
-  event: 'text-km0-coral-400',
+const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
+  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
+  'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
 }
 
-const DEFAULT_ACTIONS: EarnAction[] = [
-  {
-    id: 'shop',
-    icon: 'shopping',
-    titleKey: 'home.earn.action.shop.title',
-    subtitleKey: 'home.earn.action.shop.subtitle',
-    rewardKey: 'home.earn.action.shop.reward',
-    points: 10,
-  },
-  {
-    id: 'event',
-    icon: 'event',
-    titleKey: 'home.earn.action.event.title',
-    subtitleKey: 'home.earn.action.event.subtitle',
-    rewardKey: 'home.earn.action.event.reward',
-    points: 25,
-  },
-]
+const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
 const EarnPointsCard = ({
-  actions = DEFAULT_ACTIONS,
   className,
-  locked = true,
+  onSeeAll,
+  locked = false,
+  onLogin,
 }: EarnPointsCardProps) => {
   const { lang } = useLang()
+
+  const pending: PointAction[] = POINTS_ACTIONS.filter(
+    (a) => !a.completed
+  ).slice(0, 3)
+  const handleSeeAll = locked ? onLogin : onSeeAll
 
   return (
     <motion.section
@@ -82,61 +82,86 @@ const EarnPointsCard = ({
         className
       )}
     >
-      <h2 className="font-brand font-black text-km0-blue-800 text-base">
-        {t('home.earn.title', lang)}
-        <span className="text-km0-teal-500"> {t('home.earn.today', lang)}</span>
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-brand font-black text-km0-blue-800 text-base flex items-center gap-2">
+          <span>
+            {t('home.earn.title', lang)}
+            <span className="text-km0-teal-500">
+              {' '}
+              {t('home.earn.today', lang)}
+            </span>
+          </span>
+          {locked && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-km0-blue-800/85 text-white px-2 py-0.5 text-[10px] font-ui font-bold uppercase tracking-wide">
+              <Lock size={10} strokeWidth={2.4} />
+              {t('home.locked.badge', lang)}
+            </span>
+          )}
+        </h2>
+        {handleSeeAll && (
+          <button
+            type="button"
+            onClick={handleSeeAll}
+            className="font-ui font-bold text-km0-coral-400 active:scale-95 transition-transform underline underline-offset-4 text-xs gap-0 flex items-center justify-start whitespace-nowrap shrink-0"
+          >
+            {t('home.action.see_all_m', lang)}
+            <ArrowRight size={13} strokeWidth={2.4} />
+          </button>
+        )}
+      </div>
 
-      <div className="flex flex-col gap-2.5">
-        {actions.map((action, i) => {
+      <ul
+        className={cn(
+          'flex flex-col gap-3',
+          locked && 'pointer-events-none opacity-60'
+        )}
+        aria-hidden={locked || undefined}
+      >
+        {pending.map((action, i) => {
           const Icon = ICONS[action.icon]
-          const subtitle = locked
-            ? t(action.subtitleKey, lang)
-            : t(action.rewardKey, lang).replace('{n}', String(action.points))
+          const meta = ICON_META[action.icon]
           return (
-            <motion.div
+            <motion.li
               key={action.id}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.08 }}
-              className="flex items-center gap-3 rounded-2xl border border-km0-yellow-300/60 bg-white px-3 py-3 shadow-sm"
+              transition={{ duration: 0.25, delay: Math.min(i * 0.06, 0.25) }}
+              className="flex items-center gap-3 px-3 py-3 bg-white rounded-2xl border border-km0-blue-100"
             >
               <span
                 className={cn(
-                  'shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center',
-                  ICON_BG[action.icon]
+                  'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
+                  meta.ring
                 )}
               >
-                <Icon
-                  className={cn('w-5 h-5', ICON_COLOR[action.icon])}
-                  strokeWidth={2.2}
-                />
+                <Icon size={20} className={meta.text} strokeWidth={2.2} />
               </span>
 
-              <div className="flex-1 min-w-0 flex flex-col leading-tight">
-                <span className="font-brand font-black text-km0-blue-800 text-sm">
+              <div className="flex-1 min-w-0">
+                <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
                   {t(action.titleKey, lang)}
-                </span>
-                <span className="font-body text-km0-blue-700/70 text-xs">
-                  {subtitle}
-                </span>
+                </p>
+                <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
+                  {t(action.descriptionKey, lang)}
+                </p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-blue-100 text-km0-blue-800">
+                    {t(action.typeKey, lang)}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-beige-100 text-km0-blue-800 flex items-center gap-1">
+                    <Circle size={10} strokeWidth={2.4} />
+                    {t('points.actions.pending', lang)}
+                  </span>
+                </div>
               </div>
 
-              {locked ? (
-                <span className="shrink-0 text-km0-blue-700/40">
-                  <Lock className="w-5 h-5" strokeWidth={2} />
-                </span>
-              ) : (
-                <span className="shrink-0 rounded-full bg-km0-yellow-400/90 px-2.5 py-1">
-                  <span className="font-ui font-bold text-km0-blue-900 text-xs tabular-nums">
-                    +{action.points}
-                  </span>
-                </span>
-              )}
-            </motion.div>
+              <span className="shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums bg-km0-yellow-400/90 text-km0-blue-900">
+                +{fmtInt(action.points)} pts
+              </span>
+            </motion.li>
           )
         })}
-      </div>
+      </ul>
     </motion.section>
   )
 }

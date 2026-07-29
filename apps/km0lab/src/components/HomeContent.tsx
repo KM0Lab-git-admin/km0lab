@@ -1,17 +1,17 @@
-import { t } from '@km0lab/app'
-import { ArrowRight } from 'lucide-react'
-
-import BottomTabs, { type HomeTab } from './BottomTabs'
-import EarnPointsCard from './EarnPointsCard'
-import EventHeroCarousel from './EventHeroCarousel'
-import HomeHero from './HomeHero'
 import HomeModules, { type HomeModule } from './HomeModules'
-import JoinCard from './JoinCard'
+import HomeHero from './HomeHero'
+import EventHeroCarousel from './EventHeroCarousel'
 import PointsCard from './PointsCard'
+import JoinCard from './JoinCard'
+import EarnPointsCard from './EarnPointsCard'
+import RewardsPreview from './RewardsPreview'
+import MerchantPromosPreview from './MerchantPromosPreview'
+import BottomTabs, { type HomeTab } from './BottomTabs'
+import { ArrowRight } from 'lucide-react'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 import type { Promo } from '@km0lab/app'
-
-import { useLang } from '@/contexts/LangContext'
 
 export interface HomeContentProps {
   cityName: string
@@ -35,11 +35,14 @@ export interface HomeContentProps {
   onProfile: () => void
   onPoints: () => void
   onRewards: () => void
+  onActions: () => void
 
   /** Solo se muestra PointsCard si hay sesión. */
   showLogin: boolean
   showPoints: boolean
   onSeeAllEvents?: () => void
+  onSeeAllRewards?: () => void
+  onSeeAllPromos?: () => void
   onOpenEvent?: (id: string) => void
   onOpenPointsHistory?: () => void
 }
@@ -62,10 +65,13 @@ const HomeContent = ({
   onProfile,
   onPoints,
   onRewards,
+  onActions,
   showLogin,
   showPoints,
 
   onSeeAllEvents,
+  onSeeAllRewards,
+  onSeeAllPromos,
   onOpenEvent,
   onOpenPointsHistory,
 }: HomeContentProps) => {
@@ -109,7 +115,32 @@ const HomeContent = ({
             <EventHeroCarousel promos={promos} onOpen={onOpenEvent} />
           </section>
 
-          <EarnPointsCard locked={showLogin} />
+          {!isAuthed && (
+            <p className="text-center font-ui font-bold text-sm text-km0-coral-400 px-4">
+              {t('home.members.teaser', lang)}
+            </p>
+          )}
+
+          <EarnPointsCard
+            onSeeAll={onActions}
+            locked={false}
+            onLogin={onLogin}
+          />
+
+          <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 px-6 py-6 space-y-3">
+            <SectionHeader
+              title={t('home.section.rewards', lang)}
+              actionLabel={t('home.action.see_all_m', lang)}
+              onAction={onSeeAllRewards}
+            />
+            <RewardsPreview onSeeAll={onSeeAllRewards} />
+          </section>
+
+          <MerchantPromosPreview
+            onSeeAll={onSeeAllPromos}
+            locked={false}
+            onLogin={onLogin}
+          />
         </div>
       </div>
 
@@ -121,6 +152,7 @@ const HomeContent = ({
         onProfile={onProfile}
         onPoints={onPoints}
         onRewards={onRewards}
+        onActions={onActions}
       />
     </>
   )

@@ -1,12 +1,11 @@
 import type { Comercio } from '@km0lab/app'
-
 import shopBakery from '@/assets/shop-logos/shop-bakery.png'
-import shopCafe from '@/assets/shop-logos/shop-cafe.png'
-import shopFashion from '@/assets/shop-logos/shop-fashion.png'
 import shopFlorist from '@/assets/shop-logos/shop-florist.png'
 import shopHardware from '@/assets/shop-logos/shop-hardware.png'
-import shopPharmacy from '@/assets/shop-logos/shop-pharmacy.png'
 import shopWine from '@/assets/shop-logos/shop-wine.png'
+import shopFashion from '@/assets/shop-logos/shop-fashion.png'
+import shopCafe from '@/assets/shop-logos/shop-cafe.png'
+import shopPharmacy from '@/assets/shop-logos/shop-pharmacy.png'
 
 /** Comerciantes demo de la sección "Esto es para ti". */
 export const COMERCIOS: Comercio[] = [

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
+import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
 import { LangProvider } from '@/contexts/LangContext'
@@ -18,6 +19,7 @@ const Agenda = lazy(() => import('./pages/Agenda'))
 const Noticias = lazy(() => import('./pages/Noticias'))
 const Evento = lazy(() => import('./pages/Evento'))
 const Points = lazy(() => import('./pages/Points'))
+const PointsActions = lazy(() => import('./pages/PointsActions'))
 const HistorialPunts = lazy(() => import('./pages/HistorialPunts'))
 const Premis = lazy(() => import('./pages/Premis'))
 const PremisCanjats = lazy(() => import('./pages/PremisCanjats'))
@@ -82,7 +84,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/home-registrado"
+                  path="/home-registered"
                   element={
                     <RequireSetup need="location">
                       <Home forceAuthState="authed" />
@@ -90,7 +92,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/home-no-registrado"
+                  path="/home-unregistered"
                   element={
                     <RequireSetup need="location">
                       <Home forceAuthState="guest" />
@@ -101,12 +103,14 @@ export default function App() {
                   path="/profile"
                   element={
                     <RequireSetup need="location">
-                      <Profile />
+                      <RequireAuth>
+                        <Profile />
+                      </RequireAuth>
                     </RequireSetup>
                   }
                 />
                 <Route
-                  path="/agenda"
+                  path="/events"
                   element={
                     <RequireSetup need="location">
                       <Agenda />
@@ -114,7 +118,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/noticias"
+                  path="/news"
                   element={
                     <RequireSetup need="location">
                       <Noticias />
@@ -122,7 +126,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/evento"
+                  path="/event"
                   element={
                     <RequireSetup need="location">
                       <Evento />
@@ -138,15 +142,25 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/historial-punts"
+                  path="/points-actions"
                   element={
                     <RequireSetup need="location">
-                      <HistorialPunts />
+                      <PointsActions />
                     </RequireSetup>
                   }
                 />
                 <Route
-                  path="/premis"
+                  path="/points-history"
+                  element={
+                    <RequireSetup need="location">
+                      <RequireAuth>
+                        <HistorialPunts />
+                      </RequireAuth>
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/rewards"
                   element={
                     <RequireSetup need="location">
                       <Premis />
@@ -154,15 +168,17 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/premis-canjats"
+                  path="/redeemed-rewards"
                   element={
                     <RequireSetup need="location">
-                      <PremisCanjats />
+                      <RequireAuth>
+                        <PremisCanjats />
+                      </RequireAuth>
                     </RequireSetup>
                   }
                 />
                 <Route
-                  path="/comercos"
+                  path="/merchants"
                   element={
                     <RequireSetup need="location">
                       <Comercos />
@@ -170,7 +186,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/comercos/:id"
+                  path="/merchants/:id"
                   element={
                     <RequireSetup need="location">
                       <ComercDetall />

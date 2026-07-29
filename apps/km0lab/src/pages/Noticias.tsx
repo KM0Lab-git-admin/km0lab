@@ -1,5 +1,5 @@
-import { useNotifications } from '@km0lab/app'
-import { t, type Lang, listNews, type Noticia } from '@km0lab/app'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -8,14 +8,15 @@ import {
   Newspaper,
   RefreshCw,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
+import { useNotifications } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
+import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { listNews, type Noticia } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
  * Noticias — Listado + detalle de noticias municipales.

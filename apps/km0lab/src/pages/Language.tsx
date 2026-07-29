@@ -1,15 +1,14 @@
-import { t, type Lang } from '@km0lab/app'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import flagCa from '@/assets/flags/flag-ca.svg'
-import flagEn from '@/assets/flags/flag-en.svg'
-import flagEs from '@/assets/flags/flag-es.svg'
-import robotPlaceholder from '@/assets/km0_robot_icon_v2.png'
-import BrandedFrame from '@/components/BrandedFrame'
-import FloatingDots from '@/components/FloatingDots'
 import LanguageCard from '@/components/LanguageCard'
+import FloatingDots from '@/components/FloatingDots'
+import BrandedFrame from '@/components/BrandedFrame'
+import robotPlaceholder from '@/assets/km0_robot_icon_v2.png'
+import flagCa from '@/assets/flags/flag-ca.svg'
+import flagEs from '@/assets/flags/flag-es.svg'
+import flagEn from '@/assets/flags/flag-en.svg'
 import { useLang } from '@/contexts/LangContext'
+import { t, type Lang } from '@km0lab/app'
 
 const languages: {
   id: Lang

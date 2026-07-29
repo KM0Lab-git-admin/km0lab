@@ -1,14 +1,11 @@
+import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronLeft } from 'lucide-react'
-
 import Km0Logo from './Km0Logo'
 import NotificationBell from './NotificationBell'
 import UserGreeting from './UserGreeting'
-
-import type { ReactNode } from 'react'
-
-import coatMalgrat from '@/assets/coat-malgrat.png'
 import skylineMalgrat from '@/assets/skyline-malgrat.png'
+import coatMalgrat from '@/assets/coat-malgrat.png'
 
 /**
  * HomeHero — header superior del Home.

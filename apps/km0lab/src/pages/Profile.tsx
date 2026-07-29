@@ -1,15 +1,14 @@
-import { getProfile, updateProfile, useAuth, t } from '@km0lab/app'
+import { useEffect, useState, FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
-
-import type { FormEvent } from 'react'
-
-import BrandedFrame from '@/components/BrandedFrame'
+import { getProfile, updateProfile } from '@km0lab/app'
+import { useAuth } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
+import BrandedFrame from '@/components/BrandedFrame'
 
 /**
  * Profile — Edición y visualización del perfil del usuario.

@@ -1,10 +1,10 @@
-import { t, type Lang } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ArrowRight, Loader2, RefreshCw, Newspaper } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { NotificationItem } from '@km0lab/app'
 
 import { cn } from '@/lib/utils'
+import { t, type Lang } from '@km0lab/app'
+import type { NotificationItem } from '@km0lab/app'
 
 interface NotificationsOverlayProps {
   open: boolean
@@ -39,7 +39,7 @@ const NotificationsOverlay = ({
 
   const handleOpen = (item: NotificationItem) => {
     onClose()
-    navigate(`/noticias?id=${encodeURIComponent(item.noticia.id)}`)
+    navigate(`/news?id=${encodeURIComponent(item.noticia.id)}`)
   }
 
   return (

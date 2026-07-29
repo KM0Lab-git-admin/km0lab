@@ -1,12 +1,12 @@
-import { lookupTown, t } from '@km0lab/app'
-import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import cityMap from '@/assets/km0_city_map.png'
+import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import BrandedFrame from '@/components/BrandedFrame'
+import cityMap from '@/assets/km0_city_map.png'
+import { lookupTown } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 const PostalCode = () => {
   const navigate = useNavigate()

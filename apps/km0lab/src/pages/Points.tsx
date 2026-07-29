@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom'
 
 /**
  * Points — el tab "Els meus punts" apunta a /points, però la pantalla
- * real d'historial viu a /historial-punts. Aquest component redirigeix
+ * real d'historial viu a /points-history. Aquest component redirigeix
  * per mantenir la navegació coherent sense trencar enllaços antics.
  */
 const Points = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    navigate('/historial-punts', { replace: true })
+    navigate('/points-history', { replace: true })
   }, [navigate])
 
   return null
