@@ -18,6 +18,7 @@
 export * from './km0labClient'
 export * from './auth'
 export * from './profile'
+export * from './points'
 export * from './apiSchemas'
 export * from './eventsApi'
 export * from './newsApi'

@@ -29,6 +29,39 @@ export type MockSession = AppSession
 
 type Result = { error: { message: string } | null }
 
+const PENDING_REWARD_KEY = 'km0_pending_reward'
+
+export type PendingReward = {
+  points: number
+  message: string | null
+}
+
+export const readPendingReward = (): PendingReward | null => {
+  if (typeof sessionStorage === 'undefined') return null
+  const raw = sessionStorage.getItem(PENDING_REWARD_KEY)
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as PendingReward
+    if (typeof parsed.points === 'number' && parsed.points > 0) return parsed
+  } catch {
+    // ignore
+  }
+  return null
+}
+
+export const clearPendingReward = (): void => {
+  if (typeof sessionStorage === 'undefined') return
+  sessionStorage.removeItem(PENDING_REWARD_KEY)
+}
+
+const stashPendingReward = (points: number, message: string | null): void => {
+  if (typeof sessionStorage === 'undefined') return
+  sessionStorage.setItem(
+    PENDING_REWARD_KEY,
+    JSON.stringify({ points, message })
+  )
+}
+
 const toMessage = (e: unknown, fallback: string): string =>
   e instanceof ApiError ? e.message : fallback
 
@@ -79,6 +112,10 @@ export const verifyOtp = async (
       createdAt: new Date().toISOString(),
     })
 
+    if (auth.points_awarded && auth.points_awarded > 0) {
+      stashPendingReward(auth.points_awarded, auth.points_award_message ?? null)
+    }
+
     const postal =
       store.postalCode ??
       store.pendingOtp?.postal_code ??
@@ -95,7 +132,6 @@ export const verifyOtp = async (
         body: {
           lang: store.lang,
           postal_code: postal,
-          town,
         },
         schema: userSchema,
       })
@@ -104,9 +140,11 @@ export const verifyOtp = async (
     }
 
     store.upsertProfile(user.id, {
-      first_name: user.name,
-      last_name: null,
+      first_name: user.first_name ?? user.name,
+      last_name: user.last_name ?? null,
       email: user.email,
+      phone: user.phone ?? null,
+      birth_date: user.birth_date ?? null,
       postal_code: user.postal_code ?? postal,
       town: user.town ?? town,
       avatar_url: null,

@@ -27,6 +27,7 @@ interface ScannerContext {
   result: ScanResult | null
   errorKind: ScanErrorKind | null
   errorComercNom: string | null
+  errorAvailableAt: string | null
 }
 
 type ScannerEvent = { type: 'DETECT'; code: string } | { type: 'RESET' }
@@ -47,6 +48,7 @@ export const scannerMachine = setup({
       result: null,
       errorKind: null,
       errorComercNom: null,
+      errorAvailableAt: null,
     }),
     setSuccess: assign(({ event }) => {
       const output = (event as unknown as { output: ScanResult }).output
@@ -54,6 +56,7 @@ export const scannerMachine = setup({
         result: output,
         errorKind: null,
         errorComercNom: null,
+        errorAvailableAt: null,
       }
     }),
     setError: assign(({ event }) => {
@@ -63,6 +66,7 @@ export const scannerMachine = setup({
           result: output,
           errorKind: output.kind,
           errorComercNom: output.comercNom ?? null,
+          errorAvailableAt: output.availableAt ?? null,
         }
       }
       return {}
@@ -72,6 +76,7 @@ export const scannerMachine = setup({
       result: null,
       errorKind: null,
       errorComercNom: null,
+      errorAvailableAt: null,
     }),
   },
   guards: {
@@ -88,6 +93,7 @@ export const scannerMachine = setup({
     result: null,
     errorKind: null,
     errorComercNom: null,
+    errorAvailableAt: null,
   },
   states: {
     reading: {

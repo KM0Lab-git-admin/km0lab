@@ -31,6 +31,8 @@ export type ScanResult =
       ok: false
       kind: ScanErrorKind
       comercNom?: string
+      /** ISO date (YYYY-MM-DD) when the shop QR awards points again. */
+      availableAt?: string
     }
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -51,7 +53,14 @@ export const scannerMockService = {
 
     switch (code) {
       case 'ERR_JA_VISITAT':
-        return { ok: false, kind: 'ja_visitat', comercNom: 'Forn Rovira' }
+        return {
+          ok: false,
+          kind: 'ja_visitat',
+          comercNom: 'Forn Rovira',
+          availableAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10),
+        }
       case 'ERR_CODI':
         return { ok: false, kind: 'codi_no_valid' }
       case 'ERR_CADUCAT':

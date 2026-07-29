@@ -8,9 +8,10 @@
  *
  * Contrato (docs/BACKEND.md §4): auth OTP por email + JWT.
  *   POST /auth/request-otp   { email }              -> { message }
- *   POST /auth/verify-otp    { email, code }        -> { access_token, user }
+ *   POST /auth/verify-otp    { email, code }        -> { access_token, user, points_awarded? }
  *   GET  /users/me                                   -> UserOut  (Bearer)
- *   PATCH /users/me          { name?, lang?, ... }   -> UserOut  (Bearer)
+ *   PATCH /users/me          { first_name?, … }      -> UserOut  (Bearer)
+ *   POST /points/claim-birthday                      -> ClaimPointsOut (Bearer)
  */
 import { z } from 'zod'
 
@@ -29,15 +30,42 @@ export class ApiError extends Error {
   }
 }
 
-export const userSchema = z.object({
+const userSchemaRaw = z.object({
   id: z.string(),
   email: z.string(),
-  name: z.string().nullable(),
+  slug: z.string().optional(),
+  first_name: z.string().nullable().optional(),
+  last_name: z.string().nullable().optional(),
+  name: z.string().nullable().optional(),
   lang: z.string(),
   postal_code: z.string().nullable(),
-  town: z.string().nullable(),
+  town_id: z.string().nullable().optional(),
+  town_name: z.string().nullable().optional(),
+  /** Legacy alias some clients still expect. */
+  town: z.string().nullable().optional(),
   points: z.number(),
+  roles: z.array(z.string()).optional(),
+  shop_id: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  birth_date: z.string().nullable().optional(),
+  contact_shared: z.boolean().optional(),
+  is_fake: z.boolean().optional(),
   created_at: z.string(),
+})
+
+export const userSchema = userSchemaRaw.transform((u) => {
+  const joined = [u.first_name, u.last_name].filter(Boolean).join(' ')
+  const display = u.name ?? (joined || null)
+  const town = u.town_name ?? u.town ?? null
+  return {
+    ...u,
+    name: display,
+    town,
+    first_name: u.first_name ?? null,
+    last_name: u.last_name ?? null,
+    phone: u.phone ?? null,
+    birth_date: u.birth_date ?? null,
+  }
 })
 export type ApiUser = z.infer<typeof userSchema>
 
@@ -45,14 +73,24 @@ export const authSchema = z.object({
   access_token: z.string(),
   token_type: z.string(),
   user: userSchema,
+  points_awarded: z.number().nullable().optional(),
+  points_award_message: z.string().nullable().optional(),
 })
 
 export const messageSchema = z.object({ message: z.string() })
 
+export const claimPointsSchema = z.object({
+  awarded: z.boolean(),
+  points: z.number(),
+  balance: z.number(),
+  message: z.string().nullable().optional(),
+})
+export type ClaimPoints = z.infer<typeof claimPointsSchema>
+
 type FetchOpts<T> = {
   method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
-  schema?: z.ZodType<T>
+  schema?: z.ZodType<T, z.ZodTypeDef, unknown>
   auth?: boolean
 }
 

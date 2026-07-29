@@ -4,6 +4,9 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
+  readPendingReward,
+  clearPendingReward,
+  claimBirthday,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -14,13 +17,17 @@ import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
 import { useLang } from '@/contexts/LangContext'
-
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
 import { PROMOS } from '@/data/promos'
 
 type HomeProps = {
   /** Forzar estado para previews (`/home-registrado`, `/home-no-registrado`). */
   forceAuthState?: 'authed' | 'guest'
+}
+
+type RewardState = {
+  points: number
+  message: string
 }
 
 const Home = ({ forceAuthState }: HomeProps = {}) => {
@@ -60,11 +67,41 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const [notifOpen, setNotifOpen] = useState(
     searchParams.get('notifs') === 'open'
   )
-  const [rewardOpen, setRewardOpen] = useState(
-    searchParams.get('welcome') === '1'
-  )
+  const [reward, setReward] = useState<RewardState | null>(() => {
+    if (searchParams.get('welcome') !== '1') return null
+    const pending = readPendingReward()
+    if (pending) {
+      return {
+        points: pending.points,
+        message: pending.message?.trim() || 'KM0 LAB',
+      }
+    }
+    return null
+  })
   const [moduleSeeds, setModuleSeeds] =
     useState<HomeModuleSeed[]>(INITIAL_MODULES)
+
+  // Al abrir la app: reclamar puntos de aniversario si aplica (una vez/año).
+  useEffect(() => {
+    if (!isAuthed || forceAuthState === 'guest') return
+    if (searchParams.get('welcome') === '1') return
+    if (authLoading) return
+    let cancelled = false
+    ;(async () => {
+      const claim = await claimBirthday()
+      if (cancelled || !claim?.awarded || claim.points <= 0) return
+      setReward(
+        (prev) =>
+          prev ?? {
+            points: claim.points,
+            message: claim.message?.trim() || 'Happy birthday',
+          }
+      )
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthed, forceAuthState, authLoading, searchParams])
 
   const { promos: apiPromos } = useFeaturedPromos(4)
   const promos = apiPromos.length > 0 ? apiPromos : PROMOS
@@ -178,6 +215,16 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     onOpenPointsHistory: () => navigate('/historial-punts'),
   }
 
+  const closeReward = () => {
+    setReward(null)
+    clearPendingReward()
+    if (searchParams.get('welcome')) {
+      const next = new URLSearchParams(searchParams)
+      next.delete('welcome')
+      setSearchParams(next, { replace: true })
+    }
+  }
+
   return (
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
@@ -192,19 +239,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
             onClose={() => setNotifOpen(false)}
             onReload={reloadNotifs}
           />
-          {rewardOpen && isAuthed && (
+          {reward && isAuthed && (
             <PointsRewardOverlay
-              points={100}
-              message="Per registrar-te a KM0 LAB"
+              points={reward.points}
+              message={reward.message}
               contained
-              onClose={() => {
-                setRewardOpen(false)
-                if (searchParams.get('welcome')) {
-                  const next = new URLSearchParams(searchParams)
-                  next.delete('welcome')
-                  setSearchParams(next, { replace: true })
-                }
-              }}
+              onClose={closeReward}
             />
           )}
         </div>

@@ -1,5 +1,10 @@
-import { t, type TKey } from '@km0lab/app'
-import { scannerMachine, useAppStore } from '@km0lab/app'
+import {
+  scannerMachine,
+  t,
+  useAppStore,
+  type ScanErrorKind,
+  type TKey,
+} from '@km0lab/app'
 import { useMachine } from '@xstate/react'
 import { motion } from 'framer-motion'
 import {
@@ -12,7 +17,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { ScanErrorKind } from '@km0lab/app'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import Km0Logo from '@/components/Km0Logo'
@@ -210,6 +214,7 @@ const Scanner = () => {
         <ErrorOverlay
           kind={state.context.errorKind}
           comercNom={state.context.errorComercNom ?? undefined}
+          availableAt={state.context.errorAvailableAt ?? undefined}
           onRetry={retry}
           onPromos={() =>
             navigate('/comercos', { state: { openPromos: true } })
@@ -235,6 +240,7 @@ const Scanner = () => {
 interface ErrorOverlayProps {
   kind: ScanErrorKind
   comercNom?: string
+  availableAt?: string
   onRetry: () => void
   onPromos: () => void
 }
@@ -242,6 +248,7 @@ interface ErrorOverlayProps {
 const ErrorOverlay = ({
   kind,
   comercNom,
+  availableAt,
   onRetry,
   onPromos,
 }: ErrorOverlayProps) => {
@@ -252,7 +259,10 @@ const ErrorOverlay = ({
   const titleKey = `scanner.error.${kind}.title` as TKey
   const subtitleKey = `scanner.error.${kind}.subtitle` as TKey
   const subtitle = isJaVisitat
-    ? format(t(subtitleKey, lang), { nom: comercNom ?? '' })
+    ? format(t(subtitleKey, lang), {
+        nom: comercNom ?? '',
+        data: availableAt ?? '—',
+      })
     : t(subtitleKey, lang)
 
   return (

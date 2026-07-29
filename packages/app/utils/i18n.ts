@@ -1109,9 +1109,9 @@ const D = {
     en: 'Birth date',
   } as Dict,
   'profile.birth_date_hint': {
-    ca: 'Rebràs 500 punts pel teu aniversari 🎂',
-    es: 'Recibirás 500 puntos por tu cumpleaños 🎂',
-    en: "You'll get 500 points on your birthday 🎂",
+    ca: 'Si configures la data, et donarem punts el dia del teu aniversari',
+    es: 'Si configuras la fecha, te daremos puntos el día de tu cumpleaños',
+    en: "If you set your birth date, you'll get points on your birthday",
   } as Dict,
 
   'profile.error_phone': {
@@ -1451,9 +1451,9 @@ const D = {
     en: "You've already visited this shop",
   } as Dict,
   'scanner.error.ja_visitat.subtitle': {
-    ca: 'Els punts de {nom} ja són teus. Cada comerç dona punts un sol cop — però pots consultar les seves promocions!',
-    es: 'Los puntos de {nom} ya son tuyos. Cada comercio da puntos una sola vez — ¡pero puedes consultar sus promociones!',
-    en: "You already earned {nom}'s points. Each shop gives points only once — but you can still check its promotions!",
+    ca: 'Els punts de {nom} ja són teus. Tornaran a estar actius el {data}. Mentrestant pots consultar les seves promocions!',
+    es: 'Los puntos de {nom} ya son tuyos. Volverán a estar activos el {data}. Mientras tanto puedes consultar sus promociones!',
+    en: "You already earned {nom}'s points. They unlock again on {data}. Meanwhile you can still check its promotions!",
   } as Dict,
   'scanner.error.ja_visitat.cta_promos': {
     ca: 'Veure les promocions del comerç',
