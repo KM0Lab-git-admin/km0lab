@@ -1,4 +1,4 @@
-import { t } from '@km0lab/app'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -10,12 +10,11 @@ import {
   ShoppingBag,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-
-import type { Reward, RewardKind } from '@km0lab/app'
 
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import type { Reward, RewardKind } from '@km0lab/app'
 
 /**
  * RedeemMerchandiseOverlay — flujo de canje de premios físicos / experiencia.

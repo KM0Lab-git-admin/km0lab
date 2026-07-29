@@ -1,9 +1,9 @@
-import { t } from '@km0lab/app'
 import { Check } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 /**
  * ScannerSuccess — Placeholder de la pantalla completa de Confirmació

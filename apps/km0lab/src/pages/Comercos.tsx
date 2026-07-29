@@ -1,6 +1,5 @@
-import { useAuth, useNotifications } from '@km0lab/app'
-import { t, type Lang, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@km0lab/ui'
+import { useMemo, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   QrCode,
@@ -12,18 +11,21 @@ import {
   Store,
   BadgeCheck,
 } from 'lucide-react'
-import { useMemo, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
+import BottomTabs from '@/components/BottomTabs'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@km0lab/ui'
 import { useLang } from '@/contexts/LangContext'
+import { useAuth } from '@km0lab/app'
+import { useNotifications } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
+import { cn } from '@/lib/utils'
 import {
   COMERCIOS_ADHERITS,
   CATEGORIES_ADHERITS,
 } from '@/data/comerciosAdheridos'
-import { cn } from '@/lib/utils'
+import type { ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
  * Comerços — Llistat de comerços adherits al programa de punts.
@@ -227,9 +229,10 @@ const Comercos = () => {
   const isAuthed = !!user
   const goToHome = () => navigate('/home')
   const goToLogin = () => navigate('/login')
-  const goToPoints = () => navigate('/historial-punts')
-  const goToRewards = () => navigate('/premis-canjats')
+  const goToPoints = () => navigate('/points-history')
+  const goToRewards = () => navigate('/redeemed-rewards')
   const goToProfile = () => navigate('/profile')
+  const goToActions = () => navigate('/points-actions')
 
   const forced = new URLSearchParams(window.location.search).get('state')
 
@@ -407,7 +410,7 @@ const Comercos = () => {
                         <ComercCard
                           c={c}
                           lang={lang}
-                          onOpen={() => navigate(`/comercos/${c.id}`)}
+                          onOpen={() => navigate(`/merchants/${c.id}`)}
                         />
                       </li>
                     ))}
@@ -444,6 +447,7 @@ const Comercos = () => {
             onProfile={goToProfile}
             onPoints={goToPoints}
             onRewards={goToRewards}
+            onActions={goToActions}
           />
         </div>
       </div>

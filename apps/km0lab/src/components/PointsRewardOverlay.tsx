@@ -1,6 +1,5 @@
-import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
-
+import confetti from 'canvas-confetti'
 import starIcon from '@/assets/icon-star-rewards.png'
 
 /**

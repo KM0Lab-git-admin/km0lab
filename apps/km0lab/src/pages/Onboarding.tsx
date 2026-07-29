@@ -1,13 +1,12 @@
-import { t, type Lang } from '@km0lab/app'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
 import BrandedFrame from '@/components/BrandedFrame'
 import StackCarousel, {
   type StackCarouselItem,
 } from '@/components/StackCarousel'
-import { useLang } from '@/contexts/LangContext'
 import { slides, type Slide } from '@/data/onboardingSlides'
+import { useLang } from '@/contexts/LangContext'
+import { t, type Lang } from '@km0lab/app'
 
 const getTitle = (slide: Slide, lang: Lang) =>
   lang === 'ca' ? slide.titleCa : lang === 'en' ? slide.titleEn : slide.titleEs

@@ -1,9 +1,9 @@
 import { ChevronLeft } from 'lucide-react'
 
-import type { ReactNode } from 'react'
-
 import Km0Logo from '@/components/Km0Logo'
 import { cn } from '@/lib/utils'
+
+import type { ReactNode } from 'react'
 
 /**
  * BrandedFrame — Envoltorio compartido para pantallas "con marca".

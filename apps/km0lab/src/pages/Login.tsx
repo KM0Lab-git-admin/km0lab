@@ -1,13 +1,11 @@
-import { requestOtp, t } from '@km0lab/app'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-
-import type { FormEvent } from 'react'
-
+import { motion } from 'framer-motion'
+import { requestOtp } from '@km0lab/app'
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 /**
  * Pantalla única de entrada (login + registro unificados).

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-
 import { listEvents, type AgendaEvent } from '../services/eventsApi'
-import { useAppStore } from '../stores/useAppStore'
-
 import type { Promo } from '../types/promo'
+import { useAppStore } from '../stores/useAppStore'
 
 /**
  * useFeaturedPromos — obtiene los N primeros eventos de la API y los

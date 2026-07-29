@@ -1,11 +1,5 @@
-import { useNotifications } from '@km0lab/app'
-import {
-  t,
-  type Lang,
-  type TKey,
-  listEvents,
-  type AgendaEvent as Evento,
-} from '@km0lab/app'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar as CalendarIcon,
@@ -21,15 +15,16 @@ import {
   UtensilsCrossed,
   Sparkles,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
 import WhenTabs, { type WhenKey } from '@/components/WhenTabs'
+import { useNotifications } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
+import { t, type Lang, type TKey } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { listEvents, type AgendaEvent as Evento } from '@km0lab/app'
 
 /* ──────────────────────────────────────────────────────────────
  * Agenda — diseño "Bold" (mockup aprobado).
@@ -515,7 +510,7 @@ const Agenda = () => {
                     key={e.id_unico_evento}
                     evento={e}
                     onOpen={(id) =>
-                      navigate(`/evento?id=${encodeURIComponent(id)}`)
+                      navigate(`/event?id=${encodeURIComponent(id)}`)
                     }
                   />
                 ))}

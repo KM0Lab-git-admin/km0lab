@@ -1,11 +1,8 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-
 import ComercioCarousel from './ComercioCarousel'
-
-import type { Comercio } from '@km0lab/app'
-
 import couponIcon from '@/assets/coupon-icon.png'
+import type { Comercio } from '@km0lab/app'
 
 /**
  * ComerciosSection — wrapper visual de la sección "Esto es para ti".

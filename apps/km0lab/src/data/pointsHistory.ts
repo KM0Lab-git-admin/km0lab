@@ -2,8 +2,7 @@ import type { PointsTransaction } from '@km0lab/app'
 
 /**
  * Historial mock de movimientos de puntos.
- * Ordenado por fecha descendente. Los totales de la pantalla
- * (saldo, guanyats, gastats) se derivan de esta lista.
+ * Refleja las acciones reales configuradas en el panel de puntos.
  */
 const now = new Date()
 const iso = (daysAgo: number, hour = 10, minute = 0): string => {
@@ -16,8 +15,8 @@ const iso = (daysAgo: number, hour = 10, minute = 0): string => {
 export const POINTS_HISTORY: PointsTransaction[] = [
   {
     id: 'tx-01',
-    type: 'visit',
-    conceptKey: 'points.history.type.visit',
+    type: 'scan',
+    conceptKey: 'points.history.type.scan',
     place: 'Forn Rovira',
     date: iso(0, 9, 15),
     points: 20,
@@ -32,11 +31,11 @@ export const POINTS_HISTORY: PointsTransaction[] = [
   },
   {
     id: 'tx-03',
-    type: 'purchase',
-    conceptKey: 'points.history.type.purchase',
-    place: 'Cal Sastre',
+    type: 'web_visit',
+    conceptKey: 'points.history.type.web_visit',
+    place: 'Turisme Malgrat',
     date: iso(1, 18, 5),
-    points: 40,
+    points: 15,
   },
   {
     id: 'tx-04',
@@ -48,24 +47,24 @@ export const POINTS_HISTORY: PointsTransaction[] = [
   },
   {
     id: 'tx-05',
-    type: 'visit',
-    conceptKey: 'points.history.type.visit',
+    type: 'scan',
+    conceptKey: 'points.history.type.scan',
     place: 'Cafè del Mar',
     date: iso(3, 17, 30),
     points: 20,
   },
   {
     id: 'tx-06',
-    type: 'campaign',
-    conceptKey: 'points.history.type.campaign',
-    place: 'Aniversari KM0',
+    type: 'event_signup',
+    conceptKey: 'points.history.type.event_signup',
+    place: 'Festa Major',
     date: iso(5, 10, 0),
     points: 75,
   },
   {
     id: 'tx-07',
-    type: 'visit',
-    conceptKey: 'points.history.type.visit',
+    type: 'scan',
+    conceptKey: 'points.history.type.scan',
     place: 'Forn Rovira',
     date: iso(6, 9, 20),
     points: 20,
@@ -80,27 +79,27 @@ export const POINTS_HISTORY: PointsTransaction[] = [
   },
   {
     id: 'tx-09',
-    type: 'purchase',
-    conceptKey: 'points.history.type.purchase',
-    place: 'Floristeria Nom',
+    type: 'survey',
+    conceptKey: 'points.history.type.survey',
+    place: 'Enquesta KM0 LAB',
     date: iso(12, 11, 45),
-    points: 60,
+    points: 30,
   },
   {
     id: 'tx-10',
-    type: 'visit',
-    conceptKey: 'points.history.type.visit',
+    type: 'scan',
+    conceptKey: 'points.history.type.scan',
     place: 'Cal Sastre',
     date: iso(18, 16, 10),
     points: 20,
   },
   {
     id: 'tx-11',
-    type: 'first_scan',
-    conceptKey: 'points.history.type.first_scan',
-    place: 'Cafè del Mar',
+    type: 'web_visit',
+    conceptKey: 'points.history.type.web_visit',
+    place: 'Ajuntament de Malgrat',
     date: iso(25, 10, 30),
-    points: 50,
+    points: 15,
   },
   {
     id: 'tx-12',
@@ -112,11 +111,11 @@ export const POINTS_HISTORY: PointsTransaction[] = [
   },
   {
     id: 'tx-13',
-    type: 'campaign',
-    conceptKey: 'points.history.type.campaign',
-    place: 'Sant Jordi',
+    type: 'suggestion',
+    conceptKey: 'points.history.type.suggestion',
+    place: 'Suggeriment enviat',
     date: iso(48, 12, 0),
-    points: 100,
+    points: 25,
   },
   {
     id: 'tx-14',

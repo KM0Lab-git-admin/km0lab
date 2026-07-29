@@ -12,9 +12,9 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useAppStore } from '../stores/useAppStore'
 import { useProfile } from '../hooks/useProfile'
 import { listNews, type Noticia } from '../services/newsApi'
-import { useAppStore } from '../stores/useAppStore'
 
 export interface NotificationItem {
   noticia: Noticia

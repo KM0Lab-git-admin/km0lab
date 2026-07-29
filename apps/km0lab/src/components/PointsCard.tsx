@@ -1,8 +1,7 @@
-import { t } from '@km0lab/app'
-import { motion } from 'framer-motion'
 import { Star, Gift } from 'lucide-react'
-
+import { motion } from 'framer-motion'
 import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 import { cn } from '@/lib/utils'
 
 /**

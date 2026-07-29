@@ -6,7 +6,6 @@ import {
   BarChart3,
   type LucideIcon,
 } from 'lucide-react'
-
 import slide1 from '@/assets/onboarding/01_connecta_barri.jpg'
 import slide2 from '@/assets/onboarding/02_agenda_avisos.jpg'
 import slide3 from '@/assets/onboarding/03_punts_recompenses.jpg'

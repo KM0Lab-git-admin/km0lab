@@ -17,7 +17,6 @@ import {
   newsDetailResponseSchema,
   type NewsItem,
 } from '../services/apiSchemas'
-
 import type { Lang } from '../utils/i18n'
 
 export interface Noticia {

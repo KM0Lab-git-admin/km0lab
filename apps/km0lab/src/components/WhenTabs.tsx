@@ -1,7 +1,6 @@
-import { t } from '@km0lab/app'
-
-import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@km0lab/app'
 
 /**
  * WhenTabs — Segmented control para filtrar por rango temporal en la Agenda.

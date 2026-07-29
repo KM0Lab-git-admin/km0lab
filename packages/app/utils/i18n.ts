@@ -313,18 +313,43 @@ const D = {
   } as Dict,
   'home.action.see_all_m': {
     ca: "Veure'ls tots",
-    es: 'Ver todos',
+    es: 'Verlos todos',
     en: 'See all',
   } as Dict,
   'home.action.see_all_f': {
     ca: 'Veure-les totes',
-    es: 'Ver todas',
+    es: 'Verlas todas',
     en: 'See all',
   } as Dict,
   'home.login_cta': {
     ca: 'Iniciar sessió',
     es: 'Iniciar sesión',
     en: 'Sign in',
+  } as Dict,
+  'home.section.rewards': {
+    ca: 'Premis',
+    es: 'Premios',
+    en: 'Rewards',
+  } as Dict,
+  'home.section.promos': {
+    ca: 'Promocions dels comerços',
+    es: 'Promociones de los comercios',
+    en: 'Merchant promos',
+  } as Dict,
+  'home.locked.badge': {
+    ca: "Registra't",
+    es: 'Regístrate',
+    en: 'Sign up',
+  } as Dict,
+  'home.locked.cta': {
+    ca: "Registra't per desbloquejar",
+    es: 'Regístrate para desbloquear',
+    en: 'Sign up to unlock',
+  } as Dict,
+  'home.members.teaser': {
+    ca: "Registra't i podràs guanyar punts, bescanjar premis i gaudir de promocions.",
+    es: 'Regístrate y podrás ganar puntos, canjear premios y disfrutar de promociones.',
+    en: 'Sign up to earn points, redeem rewards and enjoy promotions.',
   } as Dict,
 
   // ── Home · Missió del barri (spec-home-c) ───────────────
@@ -469,6 +494,7 @@ const D = {
     en: 'Redeemed rewards',
   } as Dict,
   'tabs.profile': { ca: 'Perfil', es: 'Perfil', en: 'Profile' } as Dict,
+  'tabs.actions': { ca: 'Accions', es: 'Acciones', en: 'Actions' } as Dict,
 
   // ── Points history ───────────────────────────────────────
   'points.title': {
@@ -534,34 +560,193 @@ const D = {
     en: 'Earlier',
   } as Dict,
   'points.history.type.signup': {
-    ca: 'Registre / benvinguda',
-    es: 'Registro / bienvenida',
-    en: 'Sign-up bonus',
+    ca: "Primer registre a l'app",
+    es: 'Primer registro en la app',
+    en: 'App sign-up',
   } as Dict,
   'points.history.type.first_scan': {
-    ca: 'Primer escaneig del local',
-    es: 'Primer escaneo del local',
-    en: 'First scan',
+    ca: "Primer escaneig d'un comerç",
+    es: 'Primer escaneo de un comercio',
+    en: 'First shop scan',
   } as Dict,
-  'points.history.type.visit': {
-    ca: 'Visita amb QR',
-    es: 'Visita con QR',
-    en: 'QR visit',
+  'points.history.type.scan': {
+    ca: "Escaneig d'un comerç",
+    es: 'Escaneo de un comercio',
+    en: 'Shop scan',
   } as Dict,
-  'points.history.type.purchase': {
-    ca: 'Compra / reserva / servei',
-    es: 'Compra / reserva / servicio',
-    en: 'Purchase / booking',
+  'points.history.type.web_visit': {
+    ca: 'Visita web',
+    es: 'Visita web',
+    en: 'Web visit',
   } as Dict,
-  'points.history.type.campaign': {
-    ca: 'Campanya especial',
-    es: 'Campaña especial',
-    en: 'Special campaign',
+  'points.history.type.event_signup': {
+    ca: 'Inscripció a esdeveniment',
+    es: 'Inscripción a evento',
+    en: 'Event sign-up',
+  } as Dict,
+  'points.history.type.survey': {
+    ca: 'Enquesta de satisfacció',
+    es: 'Encuesta de satisfacción',
+    en: 'Satisfaction survey',
+  } as Dict,
+  'points.history.type.suggestion': {
+    ca: 'Suggeriment enviat',
+    es: 'Sugerencia enviada',
+    en: 'Suggestion sent',
   } as Dict,
   'points.history.type.redeem': {
     ca: 'Bescanvi per premi',
     es: 'Canje por premio',
     en: 'Reward redeemed',
+  } as Dict,
+
+  // ── Points actions catalog ───────────────────────────────
+  'points.actions.title': {
+    ca: 'Accions per guanyar punts',
+    es: 'Acciones para ganar puntos',
+    en: 'Actions to earn points',
+  } as Dict,
+  'points.actions.subtitle': {
+    ca: 'Descobreix com guanyar punts i quines ja has completat.',
+    es: 'Descubre cómo ganar puntos y cuáles ya has completado.',
+    en: "Discover how to earn points and which you've already completed.",
+  } as Dict,
+  'points.actions.completed': {
+    ca: 'Completada',
+    es: 'Completada',
+    en: 'Completed',
+  } as Dict,
+  'points.actions.pending': {
+    ca: 'Pendent',
+    es: 'Pendiente',
+    en: 'Pending',
+  } as Dict,
+  'points.actions.empty': {
+    ca: 'No hi ha accions disponibles.',
+    es: 'No hay acciones disponibles.',
+    en: 'No actions available.',
+  } as Dict,
+
+  'points.actions.type.birthday': {
+    ca: 'Aniversari',
+    es: 'Aniversario',
+    en: 'Birthday',
+  } as Dict,
+  'points.actions.type.signup': {
+    ca: "Registre en l'app",
+    es: 'Registro en la app',
+    en: 'App sign-up',
+  } as Dict,
+  'points.actions.type.first_scan': {
+    ca: "Primer escaneig d'un comerç",
+    es: 'Primer escaneo de un comercio',
+    en: 'First shop scan',
+  } as Dict,
+  'points.actions.type.scan': {
+    ca: "Escaneig d'un comerç",
+    es: 'Escaneo de un comercio',
+    en: 'Shop scan',
+  } as Dict,
+  'points.actions.type.web_visit': {
+    ca: 'Visita web',
+    es: 'Visita web',
+    en: 'Web visit',
+  } as Dict,
+  'points.actions.type.newsletter': {
+    ca: 'Registre web',
+    es: 'Registro web',
+    en: 'Web sign-up',
+  } as Dict,
+  'points.actions.type.event_signup': {
+    ca: 'Inscripció a esdeveniment',
+    es: 'Inscripción a evento',
+    en: 'Event sign-up',
+  } as Dict,
+  'points.actions.type.survey': {
+    ca: 'Enquesta',
+    es: 'Encuesta',
+    en: 'Survey',
+  } as Dict,
+
+  'points.actions.birthday.title': {
+    ca: 'Perquè avui és el teu aniversari!',
+    es: '¡Porque hoy es tu aniversario!',
+    en: "Because it's your birthday!",
+  } as Dict,
+  'points.actions.birthday.description': {
+    ca: 'Perquè avui és el teu aniversari!',
+    es: '¡Porque hoy es tu aniversario!',
+    en: "Because it's your birthday!",
+  } as Dict,
+  'points.actions.signup.title': {
+    ca: "Primer registre a l'app",
+    es: 'Primer registro en la app',
+    en: 'App sign-up',
+  } as Dict,
+  'points.actions.signup.description': {
+    ca: "Els veïns reben un impuls inicial en donar-se d'alta.",
+    es: 'Los vecinos reciben un impulso inicial al darse de alta.',
+    en: 'Neighbours get an initial boost when signing up.',
+  } as Dict,
+  'points.actions.first_scan.title': {
+    ca: "Primer escaneig d'un comerç",
+    es: 'Primer escaneo de un comercio',
+    en: 'First shop scan',
+  } as Dict,
+  'points.actions.first_scan.description': {
+    ca: "Bonificació única la primera vegada que el veí escaneja el QR d'un comerç KM0 LAB.",
+    es: 'Bonificación única la primera vez que el vecino escanea el QR de un comercio KM0 LAB.',
+    en: 'One-time bonus the first time a neighbour scans a KM0 LAB shop QR.',
+  } as Dict,
+  'points.actions.scan.title': {
+    ca: "Escaneig d'un comerç",
+    es: 'Escaneo de un comercio',
+    en: 'Shop scan',
+  } as Dict,
+  'points.actions.scan.description': {
+    ca: "Bonificació la primera vegada que s'escaneja un QR de comerç.",
+    es: 'Bonificación la primera vez que se escanea un QR de comercio.',
+    en: 'Bonus the first time a shop QR is scanned.',
+  } as Dict,
+  'points.actions.web_visit.title': {
+    ca: 'Visita la web de turisme',
+    es: 'Visita la web de turismo',
+    en: 'Visit the tourism website',
+  } as Dict,
+  'points.actions.web_visit.description': {
+    ca: "Descobreix els punts d'interès de Malgrat.",
+    es: 'Descubre los puntos de interés de Malgrat.',
+    en: "Discover Malgrat's points of interest.",
+  } as Dict,
+  'points.actions.newsletter.title': {
+    ca: 'Registre al butlletí municipal',
+    es: 'Registro al boletín municipal',
+    en: 'Sign up to the municipal newsletter',
+  } as Dict,
+  'points.actions.newsletter.description': {
+    ca: 'Rep les novetats del teu ajuntament al correu.',
+    es: 'Recibe las novedades de tu ayuntamiento en el correo.',
+    en: 'Get the latest news from your town hall by email.',
+  } as Dict,
+  'points.actions.event_signup.title': {
+    ca: 'Inscripció a la Festa Major',
+    es: 'Inscripción a la Festa Major',
+    en: 'Sign up for the Festa Major',
+  } as Dict,
+  'points.actions.event_signup.description': {
+    ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
+    es: 'Inscríbete a las actividades oficiales de la Festa Major.',
+    en: 'Sign up for official Festa Major activities.',
+  } as Dict,
+  'points.actions.survey.title': {
+    ca: 'Enquesta de satisfacció',
+    es: 'Encuesta de satisfacción',
+    en: 'Satisfaction survey',
+  } as Dict,
+  'points.actions.survey.description': {
+    ca: 'Respon una enquesta breu sobre el programa KM0 LAB.',
+    es: 'Responde una encuesta breve sobre el programa KM0 LAB.',
+    en: 'Answer a short survey about the KM0 LAB programme.',
   } as Dict,
 
   // ── Merchants (Comerços) screen ──────────────────────────
@@ -1532,7 +1717,6 @@ const D = {
     es: 'Volver al inicio',
     en: 'Back home',
   } as Dict,
-  // Shop categories (API returns slugs; keys must match shop_categories.slug)
   'shopCategories.bakery': {
     ca: 'Fleca',
     es: 'Panadería',

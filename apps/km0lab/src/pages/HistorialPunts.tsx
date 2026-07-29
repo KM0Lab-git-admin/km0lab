@@ -1,25 +1,29 @@
-import type { PointsTransaction, PointsTxType } from '@km0lab/app'
-import { t, type Lang } from '@km0lab/app'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
-  Gift,
+  UserPlus,
+  Star,
   QrCode,
-  MapPin,
-  ShoppingBag,
-  Sparkles,
+  Globe,
+  CalendarCheck,
+  ClipboardList,
+  MessageSquarePlus,
   Tag,
   Coins,
   Gift as GiftIcon,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
+import BottomTabs from '@/components/BottomTabs'
+import { useAuth } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
-import { POINTS_HISTORY } from '@/data/pointsHistory'
+import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
+import { POINTS_HISTORY } from '@/data/pointsHistory'
+import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'earned' | 'spent'
@@ -29,20 +33,34 @@ const TYPE_META: Record<
   PointsTxType,
   { Icon: LucideIcon; ring: string; text: string }
 > = {
-  signup: { Icon: Gift, ring: 'bg-km0-teal-100', text: 'text-km0-teal-700' },
-  first_scan: {
-    Icon: QrCode,
-    ring: 'bg-km0-blue-100',
-    text: 'text-km0-blue-700',
+  signup: {
+    Icon: UserPlus,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
   },
-  visit: { Icon: MapPin, ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  purchase: {
-    Icon: ShoppingBag,
+  first_scan: {
+    Icon: Star,
     ring: 'bg-km0-yellow-100',
     text: 'text-km0-blue-800',
   },
-  campaign: {
-    Icon: Sparkles,
+  scan: { Icon: QrCode, ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  web_visit: {
+    Icon: Globe,
+    ring: 'bg-km0-blue-100',
+    text: 'text-km0-blue-700',
+  },
+  event_signup: {
+    Icon: CalendarCheck,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
+  },
+  survey: {
+    Icon: ClipboardList,
+    ring: 'bg-km0-yellow-100',
+    text: 'text-km0-blue-800',
+  },
+  suggestion: {
+    Icon: MessageSquarePlus,
     ring: 'bg-km0-teal-100',
     text: 'text-km0-teal-700',
   },
@@ -162,7 +180,13 @@ const FilterChip = ({
 const HistorialPunts = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
+  const { user } = useAuth()
   const [filter, setFilter] = useState<Filter>('all')
+
+  const isAuthed =
+    !!user ||
+    (typeof window !== 'undefined' &&
+      sessionStorage.getItem('km0_preview_authed') === '1')
 
   const sorted = useMemo(
     () =>
@@ -247,7 +271,7 @@ const HistorialPunts = () => {
 
               <button
                 type="button"
-                onClick={() => navigate('/premis-canjats')}
+                onClick={() => navigate('/redeemed-rewards')}
                 className="relative z-10 mt-3 flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 active:scale-[0.98] transition-transform w-fit"
               >
                 <GiftIcon size={14} className="text-km0-yellow-100" />
@@ -326,6 +350,17 @@ const HistorialPunts = () => {
               </div>
             )}
           </div>
+
+          <BottomTabs
+            activeTab="puntos"
+            isAuthed={isAuthed}
+            onLogin={() => navigate('/login')}
+            onHome={() => navigate('/home')}
+            onProfile={() => navigate('/profile')}
+            onPoints={() => navigate('/points-history')}
+            onRewards={() => navigate('/redeemed-rewards')}
+            onActions={() => navigate('/points-actions')}
+          />
         </div>
       </div>
     </DeviceShell>
