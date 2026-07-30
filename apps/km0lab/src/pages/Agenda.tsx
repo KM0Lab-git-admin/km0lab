@@ -20,11 +20,18 @@ import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
 import WhenTabs, { type WhenKey } from '@/components/WhenTabs'
-import { useNotifications } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
-import { t, type Lang, type TKey } from '@km0lab/app'
+import {
+  contentPoblacion,
+  listEvents,
+  t,
+  useAppStore,
+  useNotifications,
+  type AgendaEvent as Evento,
+  type Lang,
+  type TKey,
+} from '@km0lab/app'
 import { cn } from '@/lib/utils'
-import { listEvents, type AgendaEvent as Evento } from '@km0lab/app'
 
 /* ──────────────────────────────────────────────────────────────
  * Agenda — diseño "Bold" (mockup aprobado).
@@ -320,6 +327,9 @@ const Agenda = () => {
   const navigate = useNavigate()
   const { hasUnread, markAllRead } = useNotifications()
   const { lang } = useLang()
+  const postalCode = useAppStore((s) => s.postalCode)
+  const town = useAppStore((s) => s.town)
+  const poblacion = contentPoblacion(postalCode, town)
   const [when, setWhen] = useState<WhenKey>('semana')
   const [category, setCategory] = useState<Category>('todos')
   const [price, setPrice] = useState<Price>('todos')
@@ -331,6 +341,7 @@ const Agenda = () => {
   // Fetch — filtros estructurados al endpoint de lista /api/v1/events
   // (mismo que usa la web de eventquery): categoría (slug) + rango de
   // fechas del selector temporal + población.
+  // Demo KM0 hereda agenda de Malgrat vía contentPoblacion.
   useEffect(() => {
     const cat = CATEGORIES.find((c) => c.key === category)
     const [from, to] = rangeFor(when)
@@ -339,7 +350,7 @@ const Agenda = () => {
     setError(null)
     listEvents({
       categoria: cat?.slug,
-      poblacion: 'Malgrat de Mar',
+      poblacion,
       fechaDesde: toISODate(from),
       fechaHasta: toISODate(to),
       pageSize: 50,
@@ -357,7 +368,7 @@ const Agenda = () => {
     return () => {
       cancelled = true
     }
-  }, [category, when, lang])
+  }, [category, when, lang, poblacion])
 
   // Categoría, fechas y población ya las filtra el servidor; aquí solo el
   // precio (Gratis / Pago), que no se envía a la API.
@@ -396,7 +407,7 @@ const Agenda = () => {
       {/* ── Hero superior reutilizado del Home ─── */}
       <div className="-mx-4 -mt-5 shrink-0">
         <HomeHero
-          cityName="Malgrat de Mar"
+          cityName={town || poblacion}
           hasAlerts={hasUnread}
           onToggleAlerts={markAllRead}
           onBack={() => navigate('/home')}

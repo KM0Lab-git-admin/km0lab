@@ -331,6 +331,11 @@ const D = {
     es: 'Premios',
     en: 'Rewards',
   } as Dict,
+  'home.demo.badge': {
+    ca: 'Mode demo',
+    es: 'Modo demo',
+    en: 'Demo mode',
+  } as Dict,
   'home.section.promos': {
     ca: 'Promocions dels comerços',
     es: 'Promociones de los comercios',

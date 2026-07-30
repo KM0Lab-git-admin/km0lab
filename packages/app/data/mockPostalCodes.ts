@@ -8,6 +8,7 @@
  * Para añadir más CPs, simplemente extiende el objeto.
  */
 export const MOCK_POSTAL_CODES: Record<string, string> = {
+  '00000': 'Demo KM0',
   '08380': 'Malgrat de Mar',
   '08389': 'Palafolls',
   '08398': 'Santa Susanna',

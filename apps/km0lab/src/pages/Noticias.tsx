@@ -12,11 +12,17 @@ import {
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
-import { useNotifications } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
-import { t, type Lang } from '@km0lab/app'
+import {
+  contentPoblacion,
+  listNews,
+  t,
+  useAppStore,
+  useNotifications,
+  type Lang,
+  type Noticia,
+} from '@km0lab/app'
 import { cn } from '@/lib/utils'
-import { listNews, type Noticia } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
  * Noticias — Listado + detalle de noticias municipales.
@@ -235,6 +241,9 @@ const Noticias = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { lang } = useLang()
   const { hasUnread, markAllRead } = useNotifications()
+  const postalCode = useAppStore((s) => s.postalCode)
+  const town = useAppStore((s) => s.town)
+  const poblacion = contentPoblacion(postalCode, town)
 
   const forced = parseForcedState(searchParams.get('state'))
   const openId = searchParams.get('id')
@@ -263,13 +272,16 @@ const Noticias = () => {
     }
 
     let cancelled = false
-    listNews({ city: 'Malgrat de Mar', limit: 20, offset: 0 })
+    // Demo KM0 hereda noticias de Malgrat vía contentPoblacion.
+    listNews({ city: poblacion, limit: 20, offset: 0 })
       .then((res) => {
         if (!cancelled) setNoticias(res.noticias)
       })
-      .catch((err) => {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : 'fetch_error')
+      .catch((e) => {
+        if (!cancelled) {
+          setNoticias([])
+          setError(e instanceof Error ? e.message : 'Error')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -277,7 +289,7 @@ const Noticias = () => {
     return () => {
       cancelled = true
     }
-  }, [forced])
+  }, [forced, poblacion])
 
   useEffect(() => {
     const cleanup = load()
@@ -309,7 +321,7 @@ const Noticias = () => {
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
       <div className="-mx-4 -mt-2 shrink-0">
         <HomeHero
-          cityName="Malgrat de Mar"
+          cityName={town || poblacion}
           hasAlerts={hasUnread}
           onToggleAlerts={markAllRead}
           onBack={() => navigate('/home')}

@@ -9,7 +9,7 @@ import MerchantPromosPreview from './MerchantPromosPreview'
 import BottomTabs, { type HomeTab } from './BottomTabs'
 import { ArrowRight } from 'lucide-react'
 import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
+import { isDemoPostalCode, t, useAppStore } from '@km0lab/app'
 
 import type { Promo } from '@km0lab/app'
 
@@ -76,6 +76,8 @@ const HomeContent = ({
   onOpenPointsHistory,
 }: HomeContentProps) => {
   const { lang } = useLang()
+  const postalCode = useAppStore((s) => s.postalCode)
+  const showDemoBadge = isDemoPostalCode(postalCode)
 
   return (
     <>
@@ -88,6 +90,12 @@ const HomeContent = ({
 
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
         <div className="relative z-10 flex flex-col gap-5 px-2 pt-4 pb-6">
+          {showDemoBadge ? (
+            <p className="text-center font-ui font-bold text-xs text-km0-teal-600 uppercase tracking-wide px-4">
+              {t('home.demo.badge', lang)}
+            </p>
+          ) : null}
+
           <section className="flex flex-col gap-3 px-2">
             {showLogin && <JoinCard onCreateAccount={onLogin} />}
             {showPoints && (

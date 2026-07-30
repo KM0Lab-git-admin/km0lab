@@ -4,6 +4,7 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
+  useAppStore,
   readPendingReward,
   clearPendingReward,
   claimBirthday,
@@ -160,13 +161,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  const storedTown = (() => {
-    try {
-      return localStorage.getItem('km0_town')
-    } catch {
-      return null
-    }
-  })()
+  const storedTown = useAppStore((s) => s.town)
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
   const points = isAuthed ? 100 : 0
