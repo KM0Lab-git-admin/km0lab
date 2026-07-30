@@ -134,20 +134,28 @@ export function toComercDetall(
   }
 }
 
+/** Emoji del filtro "todas las categorías" (no viene de la API). */
+export const ALL_CATEGORIES_EMOJI = '🗂️'
+
 /** Agrupa comercios mapeados en categorías para el filtro. */
 export function buildShopCategories(
   items: ComercAdherit[],
-  allLabel: { ca: string; es: string }
+  allLabel: { ca: string; es: string },
+  emojiBySlug?: ReadonlyMap<string, string>
 ): CategoriaAdherit[] {
   const counts = new Map<string, number>()
   for (const item of items) {
     counts.set(item.categoriaSlug, (counts.get(item.categoriaSlug) ?? 0) + 1)
   }
+  const resolveEmoji = (slug: string) =>
+    emojiBySlug?.get(slug)?.trim() || shopCategoryEmoji(slug)
+
   const cats: CategoriaAdherit[] = [
     {
       slug: 'totes',
       nom: allLabel,
       count: items.length,
+      emoji: ALL_CATEGORIES_EMOJI,
     },
   ]
   for (const [slug, count] of [...counts.entries()].sort((a, b) =>
@@ -157,6 +165,7 @@ export function buildShopCategories(
       slug,
       nom: categoryNom(slug),
       count,
+      emoji: resolveEmoji(slug),
     })
   }
   return cats

@@ -21,10 +21,10 @@ import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import { useLang } from '@/contexts/LangContext'
 import {
-  shopCategoryEmoji,
   t,
   useAuth,
   useHomeRewards,
+  useShopCategories,
   useShopPromotions,
   useUserPoints,
   type TKey,
@@ -408,6 +408,7 @@ const Premis = () => {
     loading: promosLoading,
     error: promosError,
   } = useShopPromotions()
+  const { emojiFor } = useShopCategories()
 
   const [redeeming, setRedeeming] = useState<Reward | null>(null)
   const [promoCategory, setPromoCategory] = useState('totes')
@@ -466,7 +467,7 @@ const Premis = () => {
           es: key ? t(key, 'es') : slug,
         },
         count,
-        emoji: shopCategoryEmoji(slug),
+        emoji: emojiFor(slug),
       })
     }
     // Slugs desconocidos presentes en datos
@@ -483,11 +484,11 @@ const Premis = () => {
         slug,
         nom: { ca: slug, es: slug },
         count,
-        emoji: '🏷️',
+        emoji: emojiFor(slug),
       })
     }
     return rows
-  }, [promotions])
+  }, [promotions, emojiFor])
 
   useEffect(() => {
     if (promoCategories.length === 0) return

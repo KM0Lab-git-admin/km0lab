@@ -222,6 +222,19 @@ export const townPublicOutSchema = z.object({
 })
 export type TownPublicOut = z.infer<typeof townPublicOutSchema>
 
+/** GET /shop-categories — catálogo de categorías con label resuelto y emoji. */
+export const shopCategoryOutSchema = z.object({
+  slug: z.string(),
+  sort_order: z.number(),
+  active: z.boolean(),
+  emoji: z.string().nullable().optional(),
+  label: z.string().nullable().optional(),
+  label_i18n: z.record(z.string()).nullable().optional(),
+  i18n_source_lang: z.string().optional(),
+  created_at: z.string(),
+})
+export type ShopCategoryOut = z.infer<typeof shopCategoryOutSchema>
+
 /** POST /scans — resultado de escanear el QR de un comercio. */
 export const scanOutSchema = z.object({
   id: z.string(),

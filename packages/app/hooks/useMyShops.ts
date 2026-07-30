@@ -6,6 +6,8 @@ import { isDemoPostalCode } from '../utils/demoTown'
 import { t } from '../utils/i18n'
 import { buildShopCategories, toComercAdherit } from '../utils/shopMapper'
 
+import { useShopCategories } from './useShopCategories'
+
 import type { ShopResidentOut } from '../services/km0labClient'
 import type { CategoriaAdherit, ComercAdherit } from '../types/comercAdherit'
 
@@ -25,6 +27,7 @@ export function useMyShops(): {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
   const token = useAppStore((s) => s.token)
+  const { emojiBySlug } = useShopCategories()
   const [shops, setShops] = useState<ShopResidentOut[]>([])
   const [loading, setLoading] = useState(Boolean(postalCode && token))
   const [error, setError] = useState<string | null>(null)
@@ -70,11 +73,15 @@ export function useMyShops(): {
 
   const categories = useMemo(
     () =>
-      buildShopCategories(items, {
-        ca: t('merchants.filter_all', 'ca'),
-        es: t('merchants.filter_all', 'es'),
-      }),
-    [items]
+      buildShopCategories(
+        items,
+        {
+          ca: t('merchants.filter_all', 'ca'),
+          es: t('merchants.filter_all', 'es'),
+        },
+        emojiBySlug
+      ),
+    [items, emojiBySlug]
   )
 
   return { shops, items, categories, loading, error, reload }

@@ -1,22 +1,23 @@
 /**
- * Emojis de categoría de comercio (slugs API).
- * Fuente única para listados, filtros y fallbacks sin logo.
+ * Fallback de emojis por slug (si la API aún no expone emoji o falla la carga).
+ * Fuente canónica: `shop_categories.emoji` vía GET /shop-categories.
+ * Mantener alineado con app/catalog/shop_categories.py (km0lab-api).
  */
 export const SHOP_CATEGORY_EMOJI: Record<string, string> = {
-  bakery: '🥐',
+  bakery: '🥖',
   food: '🛒',
   cafe: '☕',
   restaurant: '🍽️',
   bar: '🍺',
   butcher: '🥩',
-  greengrocer: '🥬',
+  greengrocer: '🍎',
   fishmonger: '🐟',
   pharmacy: '💊',
   bookstore: '📚',
-  clothing: '👕',
-  hairdresser: '💇',
-  services: '🔧',
-  other: '🏷️',
+  clothing: '👗',
+  hairdresser: '✂️',
+  services: '💻',
+  other: '📦',
 }
 
 /** Emoji de categoría; fallback genérico si el slug no es conocido. */
