@@ -1,15 +1,15 @@
-import { Check } from 'lucide-react'
+import { t, useAppStore } from '@km0lab/app'
+import { Check, History, Home } from 'lucide-react'
+import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
 
 /**
- * ScannerSuccess — Placeholder de la pantalla completa de Confirmació
- * de punts (apartat 5). Aquí només mostrem el mínim: la construcció
- * real es fa a l'apartat 5. Rep dades via `location.state` que envia
- * l'escàner en ÈXIT.
+ * ScannerSuccess — Confirmació de punts tras escanejar un QR vàlid.
+ * Rep dades via `location.state` (comercNom, puntsGuanyats, totalPunts)
+ * des de `Scanner`. Actualitza el saldo del store per si s'hi entra directe.
  */
 interface SuccessState {
   comercId?: string
@@ -23,7 +23,14 @@ const ScannerSuccess = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { state } = useLocation()
+  const setUserPoints = useAppStore((s) => s.setUserPoints)
   const data = (state ?? {}) as SuccessState
+
+  useEffect(() => {
+    if (typeof data.totalPunts === 'number') {
+      setUserPoints(data.totalPunts)
+    }
+  }, [data.totalPunts, setUserPoints])
 
   return (
     <BrandedFrame onBack={() => navigate('/home')}>
@@ -39,16 +46,33 @@ const ScannerSuccess = () => {
             {data.comercNom} · +{data.puntsGuanyats} {t('common.points', lang)}
           </p>
         )}
-        <p className="font-ui text-sm text-km0-blue-900/60 max-w-[280px]">
-          {t('scanner.confirmation.placeholder', lang)}
-        </p>
-        <button
-          type="button"
-          onClick={() => navigate('/home')}
-          className="mt-4 rounded-xl bg-km0-blue-900 text-white font-ui font-bold text-sm px-6 py-3 hover:bg-km0-blue-800 transition-colors"
-        >
-          {t('scanner.confirmation.back', lang)}
-        </button>
+        {typeof data.totalPunts === 'number' && (
+          <p className="font-ui text-sm text-km0-blue-900/60">
+            {t('scanner.success.total', lang).replace(
+              '{n}',
+              String(data.totalPunts)
+            )}
+          </p>
+        )}
+
+        <div className="mt-4 flex flex-col gap-2 w-full max-w-[280px]">
+          <button
+            type="button"
+            onClick={() => navigate('/points-history')}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-km0-blue-900 text-white font-ui font-bold text-sm px-6 py-3 hover:bg-km0-blue-800 transition-colors"
+          >
+            <History size={16} strokeWidth={2.4} />
+            {t('scanner.confirmation.history', lang)}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/home')}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-km0-yellow-400 text-km0-blue-900 font-ui font-bold text-sm px-6 py-3 hover:bg-km0-yellow-300 transition-colors"
+          >
+            <Home size={16} strokeWidth={2.4} />
+            {t('scanner.confirmation.back', lang)}
+          </button>
+        </div>
       </div>
     </BrandedFrame>
   )

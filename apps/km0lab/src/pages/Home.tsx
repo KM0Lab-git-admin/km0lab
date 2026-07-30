@@ -4,6 +4,8 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
+  useHomeRewards,
+  useUserPoints,
   useAppStore,
   readPendingReward,
   clearPendingReward,
@@ -42,6 +44,8 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   } = useNotifications()
   const { user, loading: authLoading } = useAuth()
   const { profile } = useProfile()
+  const { points: userPoints } = useUserPoints()
+  const { rewards } = useHomeRewards()
   const { lang } = useLang()
   const navigate = useNavigate()
 
@@ -164,10 +168,19 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const storedTown = useAppStore((s) => s.town)
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
-  const points = isAuthed ? 100 : 0
-  const level = isAuthed ? 1 : 1
-  const nextLevel = 1000
-  const nextReward = isAuthed ? 'Val de 5€ al Forn Rovira' : undefined
+  const points = isAuthed ? userPoints : 0
+  const level = 1
+
+  const nextRewardTarget = useMemo(() => {
+    if (!isAuthed) return null
+    const candidates = rewards
+      .filter((r) => r.status === 'active' && r.costPoints > points)
+      .sort((a, b) => a.costPoints - b.costPoints)
+    return candidates[0] ?? null
+  }, [isAuthed, rewards, points])
+
+  const nextLevel = nextRewardTarget?.costPoints ?? 1000
+  const nextReward = nextRewardTarget?.title
 
   const sharedProps = {
     cityName,

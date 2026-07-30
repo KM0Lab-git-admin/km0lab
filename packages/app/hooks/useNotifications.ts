@@ -9,27 +9,30 @@
  *    `fechaPublicacion > notificationsLastSeenAt`.
  *  - Al abrir el panel se llama a `markAllSeen()` que actualiza el
  *    timestamp a `now()` en el store persistido.
+ *
+ * Ciudad: misma regla que Notícies/Agenda (`contentPoblacion`) para que
+ * Demo KM0 herede noticias de Malgrat.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useAppStore } from '../stores/useAppStore'
 import { useProfile } from '../hooks/useProfile'
 import { listNews, type Noticia } from '../services/newsApi'
+import { useAppStore } from '../stores/useAppStore'
+import { contentPoblacion } from '../utils/demoTown'
 
 export interface NotificationItem {
   noticia: Noticia
   read: boolean
 }
 
-const DEFAULT_CITY = 'Malgrat de Mar'
-
 export const useNotifications = () => {
   const { profile } = useProfile()
+  const postalCode = useAppStore((s) => s.postalCode)
   const storeTown = useAppStore((s) => s.town)
   const lastSeenAt = useAppStore((s) => s.notificationsLastSeenAt)
   const markNotificationsSeen = useAppStore((s) => s.markNotificationsSeen)
 
-  const city = profile?.town || storeTown || DEFAULT_CITY
+  const city = contentPoblacion(postalCode, profile?.town || storeTown)
 
   const [noticias, setNoticias] = useState<Noticia[]>([])
   const [loading, setLoading] = useState<boolean>(true)

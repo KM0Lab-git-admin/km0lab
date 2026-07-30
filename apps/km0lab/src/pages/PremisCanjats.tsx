@@ -18,14 +18,11 @@ import {
 
 import DeviceShell from '@/components/DeviceShell'
 import BottomTabs from '@/components/BottomTabs'
-import { useAuth } from '@km0lab/app'
+import { useAuth, useMyRedemptions } from '@km0lab/app'
 import { useLang } from '@/contexts/LangContext'
-
 import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
-import { REDEMPTIONS } from '@/data/redemptions'
-import type { Redemption, RedemptionStatus } from '@km0lab/app'
-import type { RewardKind } from '@km0lab/app'
+import type { Redemption, RedemptionStatus, RewardKind } from '@km0lab/app'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | RedemptionStatus
@@ -121,13 +118,18 @@ const RedemptionCard = ({
 }) => {
   const { lang } = useLang()
   const [copied, setCopied] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
 
   const KindIcon = KIND_ICON[redemption.rewardKind]
   const status = STATUS_META[redemption.status]
   const StatusIcon = status.Icon
 
   const showCode =
-    redemption.status === 'pending' || redemption.status === 'ready'
+    !!redemption.code &&
+    (redemption.status === 'pending' || redemption.status === 'ready')
+  const showImage = Boolean(
+    redemption.hasImage && redemption.imageUrl && !imgFailed
+  )
 
   const handleCopy = () => {
     if (!redemption.code) return
@@ -143,31 +145,41 @@ const RedemptionCard = ({
       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
       className="rounded-2xl bg-white border border-km0-blue-100 overflow-hidden shadow-[0_8px_20px_-14px_hsl(var(--km0-blue-900)/0.35)]"
     >
-      {/* Cabecera con icono */}
+      {/* Cabecera: imagen del premio o icono por tipo */}
       <div
         className={cn(
-          'relative h-28 flex items-center justify-center',
+          'relative aspect-[16/10] flex items-center justify-center overflow-hidden',
           'bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300',
           redemption.status === 'expired' && 'opacity-60'
         )}
       >
         <span
           className={cn(
-            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide flex items-center gap-1',
+            'absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide flex items-center gap-1',
             status.cls
           )}
         >
           <StatusIcon size={12} />
           {t(status.labelKey, lang)}
         </span>
-        <KindIcon
-          size={48}
-          strokeWidth={1.8}
-          className={cn(
-            'text-km0-blue-900',
-            redemption.status === 'expired' && 'grayscale-[0.4]'
-          )}
-        />
+        {showImage ? (
+          <img
+            src={redemption.imageUrl!}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <KindIcon
+            size={48}
+            strokeWidth={1.8}
+            className={cn(
+              'text-km0-blue-900',
+              redemption.status === 'expired' && 'grayscale-[0.4]'
+            )}
+          />
+        )}
       </div>
 
       {/* Cuerpo */}
@@ -288,6 +300,7 @@ const PremisCanjats = () => {
   const { user } = useAuth()
   const isAuthed = !!user
   const [filter, setFilter] = useState<Filter>('all')
+  const { redemptions, loading, error } = useMyRedemptions()
 
   const goToHome = () => navigate('/home')
   const goToLogin = () => navigate('/login')
@@ -298,11 +311,11 @@ const PremisCanjats = () => {
 
   const sorted = useMemo(
     () =>
-      [...REDEMPTIONS].sort(
+      [...redemptions].sort(
         (a, b) =>
           new Date(b.redeemedAt).getTime() - new Date(a.redeemedAt).getTime()
       ),
-    []
+    [redemptions]
   )
 
   const filtered = useMemo(() => {
@@ -395,7 +408,17 @@ const PremisCanjats = () => {
 
           {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="h-full flex items-center justify-center text-center px-6">
+                <p className="font-body text-sm text-km0-blue-800/60">
+                  {t('common.loading', lang)}
+                </p>
+              </div>
+            ) : error ? (
+              <div className="h-full flex items-center justify-center text-center px-6">
+                <p className="font-body text-sm text-km0-coral-500">{error}</p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('redemptions.empty', lang)}

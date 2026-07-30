@@ -2,25 +2,21 @@
  * scannerMachine — Flux del escàner QR global.
  *
  * Estats:
- *   reading    → la càmera "busca" el QR (visor animat, sense càmera real)
- *   validating → codi detectat, validant contra el service mock
+ *   reading    → la càmera busca el QR (visor + càmera real / pujar imatge)
+ *   validating → codi detectat, validant contra POST /scans
  *   error      → resultat KO (unió discriminada per `ScanErrorKind`)
  *   success    → resultat OK; la vista dispara la navegació a Confirmació
  *
  * Esdeveniments:
  *   DETECT { code }  → salta a validating
  *   RESET            → torna a reading
- *
- * La lectura real de càmera i la validació contra el backend viuen a
- * PRODUCCIÓ; aquí només s'invoca `scannerMockService.scan`.
  */
 import { assign, fromPromise, setup } from 'xstate'
 
-import {
-  scannerMockService,
-  type ScanErrorKind,
-  type ScanResult,
-} from '../services/mock/scanner'
+import { mapScanError, mapScanOk, scanQr } from '../services/scans'
+import { extractToken } from '../utils/qr'
+
+import type { ScanErrorKind, ScanResult } from '../services/mock/scanner'
 
 interface ScannerContext {
   code: string | null
@@ -38,9 +34,15 @@ export const scannerMachine = setup({
     events: {} as ScannerEvent,
   },
   actors: {
-    validate: fromPromise<ScanResult, { code: string }>(({ input }) =>
-      scannerMockService.scan(input.code)
-    ),
+    validate: fromPromise<ScanResult, { code: string }>(async ({ input }) => {
+      const token = extractToken(input.code)
+      if (!token) return { ok: false, kind: 'codi_no_valid' as ScanErrorKind }
+      try {
+        return mapScanOk(await scanQr(token))
+      } catch (e) {
+        return mapScanError(e)
+      }
+    }),
   },
   actions: {
     setCode: assign({

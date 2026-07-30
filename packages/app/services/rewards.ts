@@ -12,11 +12,14 @@ import { apiFetch, rewardOutSchema, type RewardOut } from './km0labClient'
  */
 export const listPublicRewards = async (
   postalCode: string,
-  opts: { lang?: string } = {}
+  opts: { lang?: string; demo?: boolean } = {}
 ): Promise<RewardOut[]> => {
   const qs = new URLSearchParams({ postal_code: postalCode })
   if (opts.lang) {
     qs.set('lang', opts.lang)
+  }
+  if (opts.demo) {
+    qs.set('demo', 'true')
   }
   return apiFetch(`/rewards/public?${qs}`, {
     schema: z.array(rewardOutSchema),

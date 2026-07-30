@@ -21,12 +21,16 @@ import { env } from '../utils/env'
 const BASE_URL = `${env.km0labApiUrl.replace(/\/$/, '')}/api/v1`
 
 export class ApiError extends Error {
+  /** Cuerpo `detail` crudo de FastAPI (string, array u objeto). */
+  readonly detail: unknown
   constructor(
     public readonly status: number,
-    message: string
+    message: string,
+    detail: unknown = undefined
   ) {
     super(message)
     this.name = 'ApiError'
+    this.detail = detail
   }
 }
 
@@ -87,6 +91,27 @@ export const claimPointsSchema = z.object({
 })
 export type ClaimPoints = z.infer<typeof claimPointsSchema>
 
+export const pointsHistoryItemSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  points: z.number(),
+  description: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  shop_name: z.string().nullable().optional(),
+  reward_name: z.string().nullable().optional(),
+  ref_id: z.string().nullable().optional(),
+  created_at: z.string(),
+})
+export type PointsHistoryItemOut = z.infer<typeof pointsHistoryItemSchema>
+
+export const pointsHistoryOutSchema = z.object({
+  balance: z.number(),
+  earned_total: z.number(),
+  spent_total: z.number(),
+  items: z.array(pointsHistoryItemSchema).default([]),
+})
+export type PointsHistoryOut = z.infer<typeof pointsHistoryOutSchema>
+
 export const pointActionOutSchema = z.object({
   id: z.string(),
   town_id: z.string(),
@@ -119,6 +144,124 @@ export const rewardOutSchema = z.object({
 })
 export type RewardOut = z.infer<typeof rewardOutSchema>
 
+export const promotionOutSchema = z.object({
+  id: z.string(),
+  shop_id: z.string(),
+  type: z.string(),
+  label: z.string(),
+  title: z.string(),
+  detail: z.string(),
+  conditions: z.string().nullable().optional(),
+  value: z.string().nullable().optional(),
+  active: z.boolean().default(true),
+})
+export type PromotionOut = z.infer<typeof promotionOutSchema>
+
+export const dayHoursSchema = z.object({
+  closed: z.boolean().default(true),
+  opens: z.string().nullable().optional(),
+  closes: z.string().nullable().optional(),
+  opens_2: z.string().nullable().optional(),
+  closes_2: z.string().nullable().optional(),
+})
+
+export const shopOutSchema = z.object({
+  id: z.string(),
+  town_id: z.string().optional(),
+  town_name: z.string().nullable().optional(),
+  name: z.string(),
+  emoji: z.string().nullable().optional(),
+  logo_url: z.string().nullable().optional(),
+  has_logo: z.boolean().default(false),
+  has_hero: z.boolean().optional().default(false),
+  hero_url: z.string().nullable().optional(),
+  categories: z.array(z.string()).default([]),
+  address: z.string().nullable().optional(),
+  postal_code: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  visit_points: z.number().optional(),
+  qr_code: z.string().nullable().optional(),
+  opening_hours: z
+    .object({
+      monday: dayHoursSchema.default({}),
+      tuesday: dayHoursSchema.default({}),
+      wednesday: dayHoursSchema.default({}),
+      thursday: dayHoursSchema.default({}),
+      friday: dayHoursSchema.default({}),
+      saturday: dayHoursSchema.default({}),
+      sunday: dayHoursSchema.default({}),
+    })
+    .nullable()
+    .optional(),
+})
+export type ShopOut = z.infer<typeof shopOutSchema>
+export type DayHoursOut = z.infer<typeof dayHoursSchema>
+export type OpeningHoursOut = NonNullable<ShopOut['opening_hours']>
+
+/** GET /shops/for-me — shop del residente con estado de escaneo del usuario. */
+export const shopResidentOutSchema = shopOutSchema.extend({
+  scanned: z.boolean().default(false),
+  scan_available: z.boolean().default(true),
+  available_at: z.string().nullable().optional(),
+  last_scanned_at: z.string().nullable().optional(),
+})
+export type ShopResidentOut = z.infer<typeof shopResidentOutSchema>
+
+/** GET /towns/public — reglas públicas del municipio (puntos QR, etc.). */
+export const townPublicOutSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  logo_url: z.string().nullable().optional(),
+  has_logo: z.boolean().default(false),
+  points_per_euro: z.number().default(200),
+  default_visit_points: z.number().default(10),
+  default_lang: z.string().default('ca'),
+  expiry_months: z.number().nullable().optional(),
+})
+export type TownPublicOut = z.infer<typeof townPublicOutSchema>
+
+/** POST /scans — resultado de escanear el QR de un comercio. */
+export const scanOutSchema = z.object({
+  id: z.string(),
+  shop_id: z.string(),
+  shop_name: z.string().nullable().optional(),
+  points: z.number(),
+  created_at: z.string(),
+  balance: z.number(),
+  available_at: z.string().nullable().optional(),
+})
+export type ScanOut = z.infer<typeof scanOutSchema>
+
+export const redemptionEventOutSchema = z.object({
+  status: z.string(),
+  note: z.string().nullable().optional(),
+  created_at: z.string(),
+})
+export type RedemptionEventOut = z.infer<typeof redemptionEventOutSchema>
+
+export const redemptionOutSchema = z.object({
+  id: z.string(),
+  town_id: z.string(),
+  user_id: z.string(),
+  reward_id: z.string(),
+  flow: z.string(),
+  points_spent: z.number(),
+  status: z.string(),
+  code: z.string().nullable().optional(),
+  amount: z.string().nullable().optional(),
+  shop_id: z.string().nullable().optional(),
+  used_at: z.string().nullable().optional(),
+  amount_applied: z.string().nullable().optional(),
+  payment_id: z.string().nullable().optional(),
+  delivered_at: z.string().nullable().optional(),
+  requested_at: z.string(),
+  is_fake: z.boolean().default(false),
+  events: z.array(redemptionEventOutSchema).default([]),
+})
+export type RedemptionOut = z.infer<typeof redemptionOutSchema>
+
 type FetchOpts<T> = {
   method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
@@ -135,8 +278,19 @@ function errorMessage(json: unknown, status: number): string {
       const msg = (detail[0] as { msg?: unknown }).msg
       if (typeof msg === 'string') return msg
     }
+    if (detail && typeof detail === 'object') {
+      const code = (detail as { code?: unknown }).code
+      if (typeof code === 'string') return code
+    }
   }
   return `HTTP ${status}`
+}
+
+function detailOf(json: unknown): unknown {
+  if (json && typeof json === 'object' && 'detail' in json) {
+    return (json as { detail: unknown }).detail
+  }
+  return undefined
 }
 
 export async function apiFetch<T>(
@@ -161,7 +315,11 @@ export async function apiFetch<T>(
   const json: unknown = text ? JSON.parse(text) : null
 
   if (!res.ok) {
-    throw new ApiError(res.status, errorMessage(json, res.status))
+    throw new ApiError(
+      res.status,
+      errorMessage(json, res.status),
+      detailOf(json)
+    )
   }
 
   return schema ? schema.parse(json) : (json as T)

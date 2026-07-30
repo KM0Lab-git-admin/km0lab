@@ -1,3 +1,5 @@
+import type { OpeningHoursOut } from '../services/km0labClient'
+
 /**
  * Comerç adherit al programa de punts.
  * MOCK: sense API real; totes les dades vénen de `data/comerciosAdheridos.ts`.
@@ -8,9 +10,9 @@ export interface ComercAdherit {
   categoriaSlug: string
   categoriaNom: { ca: string; es: string }
   adreca: string
-  /** Distància en metres (mock). */
-  distanciaM: number
-  /** Punts que ofereix per compra (mock). */
+  /** Distància en metres. Null si l'API no aporta geo. */
+  distanciaM?: number | null
+  /** Punts que ofereix per compra / visita. */
   punts: number
   /** Si dóna punts escanejant QR al comerç. */
   teQR: boolean
@@ -20,6 +22,12 @@ export interface ComercAdherit {
   imatge?: string
   /** Classe Tailwind de fons de la miniatura (bg-km0-*). */
   bg?: string
+  /** Si l'usuari ja ha escanejat aquest comerç (GET /shops/for-me). */
+  scanned?: boolean
+  /** Si pot guanyar punts ara (cooldown complert). */
+  scanAvailable?: boolean
+  /** Fecha ISO en què torna a estar disponible per punts (cooldown). */
+  availableAt?: string | null
 }
 
 export interface CategoriaAdherit {
@@ -50,10 +58,13 @@ export interface ComercDetall {
   obertAra: boolean
   horariAvui: string // "07:00–20:00"
   tancaA?: string // "20:00"
+  /** Horari setmanal (JSON API `opening_hours`). */
+  openingHours?: OpeningHoursOut | null
   adreca: string
   codiPostal: string
   poblacio: string
-  distanciaM: number
+  /** Distància en metres. Null si l'API no aporta geo. */
+  distanciaM?: number | null
   telefon?: string
   web?: string
   coordenades?: { lat: number; lng: number }

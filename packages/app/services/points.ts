@@ -1,5 +1,5 @@
 /**
- * Reclamo de puntos y catálogo público de acciones.
+ * Reclamo de puntos, historial y catálogo público de acciones.
  */
 import { z } from 'zod'
 
@@ -7,8 +7,10 @@ import {
   apiFetch,
   claimPointsSchema,
   pointActionOutSchema,
+  pointsHistoryOutSchema,
   type ClaimPoints,
   type PointActionOut,
+  type PointsHistoryOut,
 } from './km0labClient'
 
 export const claimBirthday = async (): Promise<ClaimPoints | null> => {
@@ -21,6 +23,14 @@ export const claimBirthday = async (): Promise<ClaimPoints | null> => {
   } catch {
     return null
   }
+}
+
+/** Ledger de puntos del usuario autenticado. */
+export const listMyPointsHistory = async (): Promise<PointsHistoryOut> => {
+  return apiFetch('/points/me/history', {
+    auth: true,
+    schema: pointsHistoryOutSchema,
+  })
 }
 
 /**

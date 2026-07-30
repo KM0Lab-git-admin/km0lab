@@ -22,8 +22,8 @@ export interface Redemption {
   costPoints: number
   valueLabel: string
   status: RedemptionStatus
-  /** Codi de 5 dígits que el comerç valida al back-office. */
-  code: string
+  /** Codi de 5 dígits (voucher_qr). Null en flux delivery. */
+  code: string | null
   /** Nom del comerç o punt de recollida. */
   shopName?: string
   /** Data en què l'usuari va sol·licitar el bescanvi. */
@@ -32,4 +32,7 @@ export interface Redemption {
   expiresAt?: string
   /** Data en què es va completar la validació/lliurament. */
   completedAt?: string
+  /** Imatge del premi (join amb catàleg). */
+  imageUrl?: string | null
+  hasImage?: boolean
 }

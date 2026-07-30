@@ -6,17 +6,19 @@ import {
   type TKey,
 } from '@km0lab/app'
 import { useMachine } from '@xstate/react'
+import { BrowserQRCodeReader } from '@zxing/browser'
 import { motion } from 'framer-motion'
 import {
   AlertTriangle,
   Check,
+  ImageUp,
   Loader2,
   ScanLine,
   WifiOff,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import Km0Logo from '@/components/Km0Logo'
@@ -24,17 +26,11 @@ import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
 /**
- * Scanner — Escàner global de QR (mock).
+ * Scanner — Escàner global de QR.
  *
- * Presentacional: la lògica del flux viu a `scannerMachine` (XState).
- * NO llegeix cap càmera real; el visor és un placeholder animat i el
- * disparador de "detecció" és un panell de simulació visible només a
- * preview per demostrar els quatre estats (lectura / validació / error /
- * èxit).
- *
- * Maquetació dins de `BrandedFrame` amb el Design System KM0: card beix,
- * visor fosc amb esquines `km0-teal`, accent inferior `km0-teal` i
- * jerarquia tipogràfica de marca.
+ * La lògica del flux viu a `scannerMachine` (XState), que valida contra
+ * `POST /scans`. La lectura del QR és real: càmera (mòbil) o imatge pujada
+ * (escriptori), via `@zxing/browser`.
  */
 
 const ERROR_ICONS: Record<ScanErrorKind, typeof AlertTriangle> = {
@@ -47,13 +43,17 @@ const ERROR_ICONS: Record<ScanErrorKind, typeof AlertTriangle> = {
 const format = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''))
 
+type CameraError = 'denied' | 'unavailable' | null
+
 const Scanner = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const [state, send] = useMachine(scannerMachine)
+  const [searchParams] = useSearchParams()
 
   const session = useAppStore((s) => s.session)
   const profiles = useAppStore((s) => s.profiles)
+  const setUserPoints = useAppStore((s) => s.setUserPoints)
   const userFirstName = useMemo(() => {
     if (!session) return ''
     return profiles[session.user.id]?.first_name ?? ''
@@ -61,10 +61,63 @@ const Scanner = () => {
 
   const status = state.value as 'reading' | 'validating' | 'error' | 'success'
 
-  // ── ÈXIT → navega a la pantalla de Confirmació ────────────
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const controlsRef = useRef<{ stop?: () => void } | null>(null)
+  const [cameraError, setCameraError] = useState<CameraError>(null)
+  const deeplinkHandled = useRef(false)
+
+  // ── Càmera: arranca només a `reading` ──────────────────────
+  useEffect(() => {
+    if (status !== 'reading') {
+      controlsRef.current?.stop?.()
+      controlsRef.current = null
+      return
+    }
+    let cancelled = false
+    const reader = new BrowserQRCodeReader()
+    reader
+      .decodeFromVideoDevice(
+        undefined,
+        videoRef.current!,
+        (result, _err, ctrls) => {
+          if (cancelled) {
+            ctrls.stop()
+            return
+          }
+          controlsRef.current = ctrls
+          if (result) {
+            const code = result.getText()
+            if (code) send({ type: 'DETECT', code })
+          }
+        }
+      )
+      .catch((e: unknown) => {
+        if (cancelled) return
+        const name = (e as { name?: string } | null)?.name
+        setCameraError(name === 'NotAllowedError' ? 'denied' : 'unavailable')
+      })
+    return () => {
+      cancelled = true
+      controlsRef.current?.stop?.()
+      controlsRef.current = null
+    }
+  }, [status, send])
+
+  // ── Deep link `/scanner?c=<token>` ─────────────────────────
+  useEffect(() => {
+    if (deeplinkHandled.current) return
+    const c = searchParams.get('c')
+    if (c) {
+      deeplinkHandled.current = true
+      send({ type: 'DETECT', code: c })
+    }
+  }, [searchParams, send])
+
+  // ── ÈXIT → actualitza saldo i navega a Confirmació ─────────
   useEffect(() => {
     if (status !== 'success' || !state.context.result?.ok) return
     const r = state.context.result
+    setUserPoints(r.totalPunts)
     const timer = window.setTimeout(() => {
       navigate('/scanner/success', {
         state: {
@@ -77,12 +130,28 @@ const Scanner = () => {
       })
     }, 1200)
     return () => window.clearTimeout(timer)
-  }, [status, state.context.result, navigate])
+  }, [status, state.context.result, navigate, setUserPoints])
 
   const close = () => navigate('/merchants')
+  const retry = () => {
+    setCameraError(null)
+    send({ type: 'RESET' })
+  }
 
-  const simulate = (code: string) => send({ type: 'DETECT', code })
-  const retry = () => send({ type: 'RESET' })
+  const onPickImage = async (file: File | null | undefined) => {
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    try {
+      const reader = new BrowserQRCodeReader()
+      const result = await reader.decodeFromImageUrl(url)
+      const code = result.getText()
+      send({ type: 'DETECT', code: code || '' })
+    } catch {
+      send({ type: 'DETECT', code: '' })
+    } finally {
+      URL.revokeObjectURL(url)
+    }
+  }
 
   return (
     <BrandedFrame
@@ -114,8 +183,17 @@ const Scanner = () => {
         </p>
       </div>
 
-      {/* Visor ── àrea fosca amb esquines teal ─────────── */}
+      {/* Visor ── càmera real + esquines teal ─────────── */}
       <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-gradient-to-b from-km0-blue-800 to-km0-blue-900">
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          className={cn(
+            'absolute inset-0 w-full h-full object-cover',
+            cameraError ? 'hidden' : 'opacity-90'
+          )}
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-km0-blue-700/30 to-transparent" />
 
         <div className="absolute inset-0 flex items-center justify-center">
@@ -136,7 +214,7 @@ const Scanner = () => {
             ))}
 
             {/* Línia d'escaneig animada (només durant lectura) */}
-            {status === 'reading' && (
+            {status === 'reading' && !cameraError && (
               <motion.div
                 aria-hidden
                 className="absolute left-3 right-3 h-[2px] rounded-full bg-km0-teal-400 shadow-[0_0_12px_hsl(var(--km0-teal-400))]"
@@ -152,6 +230,22 @@ const Scanner = () => {
           </div>
         </div>
 
+        {/* Overlay error de càmera */}
+        {cameraError && status === 'reading' && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/80 backdrop-blur-sm px-6 text-center">
+            <ImageUp size={36} className="text-km0-teal-400" />
+            <p className="text-sm font-ui text-km0-beige-50">
+              {t(
+                cameraError === 'denied'
+                  ? 'scanner.camera.permission_denied'
+                  : 'scanner.camera.unavailable',
+                lang
+              )}
+            </p>
+            <ImageUploadButton onPick={onPickImage} />
+          </div>
+        )}
+
         {/* Overlay VALIDANT */}
         {status === 'validating' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/60 backdrop-blur-sm">
@@ -163,45 +257,19 @@ const Scanner = () => {
         )}
       </div>
 
-      {/* Footer ── estatus + simulació ─────────────────── */}
+      {/* Footer ── estatus + pujar imatge ─────────────────── */}
       <footer className="shrink-0 px-6 pb-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full bg-km0-blue-900 px-4 py-2 text-km0-beige-50 text-xs font-ui">
           <ScanLine size={14} strokeWidth={2.2} />
           {t('scanner.footer', lang)}
         </div>
 
-        {/* Panell de simulació (només preview) */}
-        {status === 'reading' && (
-          <div className="mt-4 rounded-2xl border border-km0-beige-200 bg-card p-3 shadow-sm">
-            <p className="text-[10px] uppercase tracking-wider text-km0-blue-900/50 mb-2 text-center">
-              {t('scanner.debug.title', lang)}
+        {status === 'reading' && !cameraError && (
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <ImageUploadButton onPick={onPickImage} />
+            <p className="text-xs font-ui text-km0-blue-900/60">
+              {t('scanner.upload.hint', lang)}
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => simulate('OK_FORN_ROVIRA')}
-                className="col-span-2 rounded-lg bg-km0-yellow-400 text-km0-blue-900 font-ui font-bold text-xs py-2 hover:bg-km0-yellow-300 transition-colors"
-              >
-                {t('scanner.debug.ok', lang)}
-              </button>
-              {(
-                [
-                  ['ERR_JA_VISITAT', 'scanner.debug.ja_visitat'],
-                  ['ERR_CODI', 'scanner.debug.codi_no_valid'],
-                  ['ERR_CADUCAT', 'scanner.debug.qr_caducat'],
-                  ['ERR_CONNEXIO', 'scanner.debug.sense_connexio'],
-                ] as const
-              ).map(([code, key]) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => simulate(code)}
-                  className="rounded-lg bg-km0-blue-900 hover:bg-km0-blue-800 text-km0-beige-50 font-ui text-xs py-2 transition-colors"
-                >
-                  {t(key as TKey, lang)}
-                </button>
-              ))}
-            </div>
           </div>
         )}
       </footer>
@@ -236,6 +304,34 @@ const Scanner = () => {
 }
 
 // ══ Sub-componentes ═════════════════════════════════════════
+
+const ImageUploadButton = ({
+  onPick,
+}: {
+  onPick: (file: File | null | undefined) => void
+}) => {
+  const { lang } = useLang()
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => onPick(e.target.files?.[0])}
+      />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-km0-yellow-400 text-km0-blue-900 font-ui font-bold text-sm px-4 py-2.5 hover:bg-km0-yellow-300 active:scale-[0.99] transition-transform"
+      >
+        <ImageUp size={16} strokeWidth={2.4} />
+        {t('scanner.upload.cta', lang)}
+      </button>
+    </>
+  )
+}
 
 interface ErrorOverlayProps {
   kind: ScanErrorKind

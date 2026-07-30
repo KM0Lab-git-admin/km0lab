@@ -1,5 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import {
+  toComercDetall,
+  useAppStore,
+  useNotifications,
+  usePointsHistory,
+  usePublicShops,
+  usePublicTown,
+  useShopPromotions,
+  weekHoursRows,
+  t,
+  type ComercDetall,
+  type Lang,
+  type OpeningHoursOut,
+  type PromocioInfo,
+  type ShopPromotion,
+} from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin,
@@ -12,24 +26,16 @@ import {
   Circle,
   RefreshCw,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import { useLang } from '@/contexts/LangContext'
-import { useNotifications } from '@km0lab/app'
-import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
-import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
-import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 
 /* ─────────────────────────────────────────────────────────────
- * ComercDetall — Fitxa del comerç adherit (mock).
- *
- * Dos estats (mateixa pantalla, canvia la tarjeta d'acció i el CTA):
- *   - visitat = false → convida a escanejar el QR.
- *   - visitat = true  → confirma els punts guanyats.
- *
- * Toggle mock: `?visitat=true|false` sobreescriu el mock del comerç.
+ * ComercDetall — Fitxa del comerç (GET /shops/public by id).
  * ───────────────────────────────────────────────────────────── */
 
 const interpolate = (tpl: string, vars: Record<string, string | number>) =>
@@ -40,38 +46,80 @@ const langKey = (lang: Lang): 'ca' | 'es' => (lang === 'en' ? 'es' : lang)
 const formatDistance = (m: number): string =>
   m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
 
+const toPromocioInfo = (p: ShopPromotion): PromocioInfo => ({
+  id: p.id,
+  etiqueta: p.label,
+  titol: { ca: p.title, es: p.title },
+  detall: { ca: p.detail, es: p.detail },
+  condicio: p.conditions ? { ca: p.conditions, es: p.conditions } : undefined,
+})
+
+/* ─── Horari setmanal ───────────────────────────────────────── */
+const OpeningHoursWeek = ({
+  hours,
+  lang,
+}: {
+  hours: OpeningHoursOut
+  lang: Lang
+}) => {
+  const rows = weekHoursRows(hours, lang)
+  return (
+    <div className="mt-2 rounded-2xl bg-white border border-km0-blue-100 px-4 py-3 shadow-sm">
+      <ul className="flex flex-col gap-2.5">
+        {rows.map((row) => (
+          <li
+            key={row.key}
+            className={cn(
+              'flex items-baseline justify-between gap-3 font-body text-sm',
+              row.isToday
+                ? 'font-ui font-bold text-km0-blue-900'
+                : 'text-km0-blue-800/70'
+            )}
+          >
+            <span>{row.label}</span>
+            <span className="tabular-nums text-right">{row.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 /* ─── Header imatge ─────────────────────────────────────────── */
-const HeroImage = ({ c, lang }: { c: ComercDetall; lang: Lang }) => (
-  <div className="relative w-full aspect-[16/10] overflow-hidden bg-km0-beige-100">
-    <div
-      className={cn(
-        'absolute inset-0 flex items-center justify-center',
-        c.bg ?? 'bg-km0-beige-100'
-      )}
-    >
-      {c.imatge ? (
-        <img
-          src={c.imatge}
-          alt={c.nom}
-          className="w-full h-full object-contain p-8"
-          onError={(e) => {
-            ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-          }}
-        />
-      ) : (
-        <span className="text-7xl" aria-hidden>
-          {c.emoji ?? '🏪'}
+const HeroImage = ({ c, lang }: { c: ComercDetall; lang: Lang }) => {
+  const [imgFailed, setImgFailed] = useState(false)
+  const showImage = Boolean(c.imatge) && !imgFailed
+
+  return (
+    <div className="relative w-full aspect-[16/10] overflow-hidden bg-km0-beige-100">
+      <div
+        className={cn(
+          'absolute inset-0 flex items-center justify-center',
+          c.bg ?? 'bg-km0-beige-100'
+        )}
+      >
+        {showImage ? (
+          <img
+            src={c.imatge}
+            alt={c.nom}
+            className="w-full h-full object-contain p-8"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <span className="text-7xl" aria-hidden>
+            {c.emoji ?? '🏪'}
+          </span>
+        )}
+      </div>
+      {c.visitat && (
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-km0-teal-500 text-white font-ui text-[11px] font-bold shadow-md">
+          <CheckCircle2 size={12} strokeWidth={2.6} />
+          {t('merchant.badge.visited', lang)}
         </span>
       )}
     </div>
-    {c.visitat && (
-      <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-km0-teal-500 text-white font-ui text-[11px] font-bold shadow-md">
-        <CheckCircle2 size={12} strokeWidth={2.6} />
-        {t('merchant.badge.visited', lang)}
-      </span>
-    )}
-  </div>
-)
+  )
+}
 
 /* ─── Tarjeta de punts ──────────────────────────────────────── */
 const PointsCard = ({
@@ -242,42 +290,51 @@ const ComercDetallPage = () => {
   const [params] = useSearchParams()
   const { lang } = useLang()
   const { hasUnread, markAllSeen } = useNotifications()
-  const [notifOpen, setNotifOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const town = useAppStore((s) => s.town)
+  const {
+    shops,
+    loading: shopsLoading,
+    error: shopsError,
+    reload,
+  } = usePublicShops()
+  const { visitPoints } = usePublicTown()
+  const { promotions } = useShopPromotions()
+  const { history } = usePointsHistory()
+  const [, setNotifOpen] = useState(false)
   const forced = params.get('state')
 
-  useEffect(() => {
-    if (forced === 'loading') {
-      setLoading(true)
-      return
+  // Shops ja escanejats per l'usuari (del ledger real, type === 'scan').
+  const visitedShopNames = useMemo(() => {
+    const names = new Set<string>()
+    for (const it of history.items) {
+      if (it.type === 'scan' && it.place)
+        names.add(it.place.trim().toLowerCase())
     }
-    const timer = setTimeout(() => setLoading(false), 300)
-    return () => clearTimeout(timer)
-  }, [forced, id])
+    return names
+  }, [history.items])
 
-  const visitatOverride = params.get('visitat')
-  const initialVisitat =
-    visitatOverride === 'true' || visitatOverride === '1'
-      ? true
-      : visitatOverride === 'false' || visitatOverride === '0'
-        ? false
-        : null
-  const [visitatToggle, setVisitatToggle] = useState<boolean | null>(
-    initialVisitat
+  const shopPromos = useMemo(
+    () =>
+      id ? promotions.filter((p) => p.shopId === id).map(toPromocioInfo) : [],
+    [promotions, id]
   )
 
   const comerc = useMemo<ComercDetall | undefined>(() => {
     if (!id) return undefined
-    const base = COMERCIOS_DETALL[id]
-    if (!base) return undefined
-    if (visitatToggle !== null) {
-      return { ...base, visitat: visitatToggle }
-    }
-    return base
-  }, [id, visitatToggle])
+    const shop = shops.find((s) => s.id === id)
+    if (!shop) return undefined
+    const visitat = visitedShopNames.has(shop.name.trim().toLowerCase())
+    const base = toComercDetall(shop, lang, {
+      visitat,
+      promocions: shopPromos,
+    })
+    // Puntos por escaneo QR: regla del town (GET /towns/public).
+    return { ...base, punts: visitPoints }
+  }, [id, shops, visitedShopNames, lang, shopPromos, visitPoints])
 
+  const loading = forced === 'loading' || (forced !== 'error' && shopsLoading)
+  const isError = forced === 'error' || Boolean(shopsError)
   const k = langKey(lang)
-  const isError = forced === 'error'
   const goBack = () => navigate('/merchants')
   const openScanner = () => navigate('/scanner')
 
@@ -290,7 +347,7 @@ const ComercDetallPage = () => {
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           <HomeHero
-            cityName="Malgrat de Mar"
+            cityName={town || comerc?.poblacio || 'Malgrat de Mar'}
             hasAlerts={hasUnread}
             onToggleAlerts={() => {
               setNotifOpen((v) => !v)
@@ -301,7 +358,6 @@ const ComercDetallPage = () => {
             showGreeting={false}
           />
 
-          {/* Body scroll */}
           <section className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden pb-28">
             <AnimatePresence mode="wait">
               {loading ? (
@@ -326,7 +382,7 @@ const ComercDetallPage = () => {
                   </p>
                   <button
                     type="button"
-                    onClick={() => setLoading(true)}
+                    onClick={() => reload()}
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
                   >
                     <RefreshCw size={12} />
@@ -365,7 +421,6 @@ const ComercDetallPage = () => {
                 >
                   <HeroImage c={comerc} lang={lang} />
 
-                  {/* Títol + estat */}
                   <header className="px-4">
                     <p className="font-ui text-[11px] uppercase tracking-wide font-bold text-km0-teal-600">
                       {comerc.categoria[k]}
@@ -384,15 +439,13 @@ const ComercDetallPage = () => {
                         <span className="shrink-0 inline-flex items-center gap-1 font-ui text-[11px] font-bold text-km0-teal-600">
                           <Circle
                             size={8}
-                            strokeWidth={0}
-                            fill="currentColor"
-                            className="text-km0-teal-500"
+                            className="fill-km0-teal-500 text-km0-teal-500"
                           />
                           {t('merchant.status.active', lang)}
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 font-ui text-xs text-km0-blue-700/80 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <p className="mt-1.5 font-ui text-xs text-km0-blue-700/80 flex flex-wrap items-center gap-x-1.5">
                       <span
                         className={cn(
                           'font-bold',
@@ -411,50 +464,43 @@ const ComercDetallPage = () => {
                           })}
                         </span>
                       )}
-                      <span>· {formatDistance(comerc.distanciaM)}</span>
+                      {typeof comerc.distanciaM === 'number' && (
+                        <span>· {formatDistance(comerc.distanciaM)}</span>
+                      )}
                     </p>
-                  </header>
 
-                  {/* Toggle previsualització d'estat (només mock) */}
-                  <div className="px-4">
                     <div
-                      role="group"
-                      aria-label="Estat de visita (previsualització)"
-                      className="inline-flex items-center gap-1 p-1 rounded-full bg-km0-blue-50 border border-km0-blue-100"
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-ui text-[11px] font-bold"
+                      aria-label={
+                        comerc.visitat
+                          ? t('merchant.status.scanned', lang)
+                          : t('merchant.status.not_scanned', lang)
+                      }
                     >
-                      <button
-                        type="button"
-                        onClick={() => setVisitatToggle(false)}
+                      <span
                         className={cn(
-                          'px-3 py-1 rounded-full font-ui text-[11px] font-bold transition-colors',
-                          !comerc.visitat
-                            ? 'bg-km0-blue-800 text-white'
-                            : 'text-km0-blue-800/70'
-                        )}
-                      >
-                        Encara no visitat
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setVisitatToggle(true)}
-                        className={cn(
-                          'px-3 py-1 rounded-full font-ui text-[11px] font-bold transition-colors',
+                          'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5',
                           comerc.visitat
                             ? 'bg-km0-teal-500 text-white'
-                            : 'text-km0-blue-800/70'
+                            : 'bg-km0-beige-200 text-km0-blue-800/70'
                         )}
                       >
-                        Ja escanejat
-                      </button>
+                        {comerc.visitat ? (
+                          <CheckCircle2 size={12} strokeWidth={2.6} />
+                        ) : (
+                          <Circle size={12} strokeWidth={2.4} />
+                        )}
+                        {comerc.visitat
+                          ? t('merchant.status.scanned', lang)
+                          : t('merchant.status.not_scanned', lang)}
+                      </span>
                     </div>
-                  </div>
+                  </header>
 
-                  {/* Tarjeta punts */}
                   <div className="px-4">
                     <PointsCard c={comerc} lang={lang} onScan={openScanner} />
                   </div>
 
-                  {/* Info */}
                   <section className="px-4">
                     <h2 className="font-brand text-sm text-km0-blue-900 mb-1">
                       {t('merchant.info.title', lang)}
@@ -468,25 +514,29 @@ const ComercDetallPage = () => {
                             {comerc.adreca}
                             <br />
                             <span className="text-km0-blue-700/70">
-                              {comerc.codiPostal} · {comerc.poblacio}
+                              {[comerc.codiPostal, comerc.poblacio]
+                                .filter(Boolean)
+                                .join(' · ')}
                             </span>
                           </>
                         }
                       />
-                      <InfoRow
-                        icon={<Clock size={16} />}
-                        label={t('merchant.info.schedule', lang)}
-                        value={
-                          <>
-                            {comerc.horariAvui}
-                            {comerc.obertAra && comerc.tancaA && (
-                              <span className="ml-2 font-ui text-[11px] font-bold text-km0-teal-600">
-                                {t('merchant.status.open', lang)}
-                              </span>
-                            )}
-                          </>
-                        }
-                      />
+                      {!comerc.openingHours && (
+                        <InfoRow
+                          icon={<Clock size={16} />}
+                          label={t('merchant.info.schedule', lang)}
+                          value={
+                            <>
+                              {comerc.horariAvui}
+                              {comerc.obertAra && comerc.tancaA && (
+                                <span className="ml-2 font-ui text-[11px] font-bold text-km0-teal-600">
+                                  {t('merchant.status.open', lang)}
+                                </span>
+                              )}
+                            </>
+                          }
+                        />
+                      )}
                       {comerc.telefon && (
                         <InfoRow
                           icon={<Phone size={16} />}
@@ -509,7 +559,11 @@ const ComercDetallPage = () => {
                           value={comerc.web}
                           action={
                             <a
-                              href={`https://${comerc.web}`}
+                              href={
+                                comerc.web.startsWith('http')
+                                  ? comerc.web
+                                  : `https://${comerc.web}`
+                              }
                               target="_blank"
                               rel="noreferrer"
                               className="px-2.5 py-1 rounded-lg bg-km0-blue-50 text-km0-blue-800 font-ui text-[11px] font-bold active:scale-95 transition-transform"
@@ -522,84 +576,93 @@ const ComercDetallPage = () => {
                     </div>
                   </section>
 
-                  {/* Mapa placeholder */}
-                  <section className="px-4">
-                    <h2 className="font-brand text-sm text-km0-blue-900 mb-1">
-                      {t('merchant.map.title', lang)}
-                    </h2>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (comerc.coordenades) {
-                          const { lat, lng } = comerc.coordenades
-                          window.open(
-                            `https://www.google.com/maps?q=${lat},${lng}`,
-                            '_blank',
-                            'noopener'
-                          )
-                        }
-                      }}
-                      className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-km0-blue-100 bg-km0-teal-50 active:scale-[0.99] transition-transform"
-                      aria-label={t('merchant.map.open', lang)}
-                    >
-                      <div
-                        aria-hidden
-                        className="absolute inset-0 opacity-70"
-                        style={{
-                          backgroundImage:
-                            'linear-gradient(hsl(var(--km0-blue-100)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--km0-blue-100)) 1px, transparent 1px)',
-                          backgroundSize: '24px 24px',
-                        }}
+                  {comerc.openingHours && (
+                    <section className="px-4">
+                      <h2 className="font-brand text-sm text-km0-blue-900 mb-1 flex items-center gap-2">
+                        <Clock size={14} className="text-km0-blue-800/70" />
+                        {t('merchant.info.week', lang)}
+                      </h2>
+                      <OpeningHoursWeek
+                        hours={comerc.openingHours}
+                        lang={lang}
                       />
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="relative flex items-center justify-center">
-                          <span className="absolute w-10 h-10 rounded-full bg-km0-coral-500/25 animate-ping" />
-                          <span className="relative w-9 h-9 rounded-full bg-km0-coral-500 text-white flex items-center justify-center shadow-lg">
-                            <MapPin size={18} strokeWidth={2.4} />
+                    </section>
+                  )}
+
+                  {comerc.coordenades && (
+                    <section className="px-4">
+                      <h2 className="font-brand text-sm text-km0-blue-900 mb-1">
+                        {t('merchant.map.title', lang)}
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (comerc.coordenades) {
+                            const { lat, lng } = comerc.coordenades
+                            window.open(
+                              `https://www.google.com/maps?q=${lat},${lng}`,
+                              '_blank',
+                              'noopener'
+                            )
+                          }
+                        }}
+                        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-km0-blue-100 bg-km0-teal-50 active:scale-[0.99] transition-transform"
+                        aria-label={t('merchant.map.open', lang)}
+                      >
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="relative flex items-center justify-center">
+                            <span className="absolute w-10 h-10 rounded-full bg-km0-coral-500/25 animate-ping" />
+                            <MapPin
+                              size={28}
+                              className="relative text-km0-coral-500"
+                              fill="currentColor"
+                            />
                           </span>
                         </span>
-                      </span>
-                      <span className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-white/90 font-ui text-[11px] font-bold text-km0-blue-800 shadow-sm">
-                        {t('merchant.map.open', lang)}
-                      </span>
-                    </button>
-                  </section>
+                      </button>
+                    </section>
+                  )}
 
-                  {/* Promocions */}
-                  <section className="px-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <h2 className="font-brand text-sm text-km0-blue-900">
-                        {t('merchant.promos.title', lang)}
+                  {comerc.promocions.length > 0 && (
+                    <section className="px-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <h2 className="font-brand text-sm text-km0-blue-900 flex items-center gap-1.5">
+                          <Tag size={14} />
+                          {t('merchant.promos.title', lang)}
+                        </h2>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/rewards?tab=promos')}
+                          className="font-ui text-[11px] font-bold text-km0-coral-500"
+                        >
+                          {t('merchant.promos.see_all', lang)}
+                        </button>
+                      </div>
+                      <div className="rounded-2xl border border-km0-blue-100 bg-white px-3">
+                        <ul className="divide-y divide-km0-blue-100/60">
+                          {comerc.promocions.slice(0, 3).map((p) => (
+                            <PromoRow key={p.id} p={p} lang={lang} />
+                          ))}
+                        </ul>
+                      </div>
+                    </section>
+                  )}
+
+                  {comerc.descripcio[k] && (
+                    <section className="px-4">
+                      <h2 className="font-brand text-sm text-km0-blue-900 mb-1">
+                        {t('merchant.description.title', lang)}
                       </h2>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-ui font-bold uppercase tracking-wide text-km0-blue-700/60">
-                        <Tag size={10} />
-                        {t('merchant.promos.info_only', lang)}
-                      </span>
-                    </div>
-                    <div className="bg-white border border-km0-blue-100 rounded-2xl px-3 divide-y divide-km0-blue-100/60">
-                      <ul>
-                        {comerc.promocions.slice(0, 3).map((p) => (
-                          <PromoRow key={p.id} p={p} lang={lang} />
-                        ))}
-                      </ul>
-                    </div>
-                  </section>
-
-                  {/* Descripció */}
-                  <section className="px-4">
-                    <h2 className="font-brand text-sm text-km0-blue-900 mb-1">
-                      {t('merchant.description.title', lang)}
-                    </h2>
-                    <p className="font-ui text-sm text-km0-blue-800/90 leading-relaxed">
-                      {comerc.descripcio[k]}
-                    </p>
-                  </section>
+                      <p className="font-ui text-sm text-km0-blue-800/90 leading-relaxed">
+                        {comerc.descripcio[k]}
+                      </p>
+                    </section>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
           </section>
 
-          {/* CTA sticky — només escanejar */}
           {comerc && !loading && !isError && !comerc.visitat && (
             <div className="absolute left-0 right-0 bottom-0 z-20 px-4 pb-3 pt-4 bg-gradient-to-t from-km0-beige-50 via-km0-beige-50/95 to-transparent">
               <button

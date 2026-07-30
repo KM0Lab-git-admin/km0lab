@@ -16,6 +16,8 @@ import { LANGS, type Lang } from '../utils/i18n'
 export interface AppUser {
   id: string
   email: string
+  /** Saldo de puntos cacheado desde km0lab-api (`user.points`). */
+  points: number
 }
 
 export interface AppSession {
@@ -34,6 +36,8 @@ export interface AppProfile {
   postal_code: string | null
   town: string | null
   avatar_url: string | null
+  /** Idioma preferido del usuario (ca|es|en) según API. */
+  lang: Lang | null
 }
 
 interface AppState {
@@ -61,6 +65,8 @@ interface AppState {
   setSession: (s: AppSession | null) => void
   setToken: (t: string | null) => void
   setPendingOtp: (p: AppState['pendingOtp']) => void
+  /** Actualiza el saldo de puntos del usuario en sesión. */
+  setUserPoints: (points: number) => void
 
   upsertProfile: (userId: string, patch: Partial<AppProfile>) => void
   getProfile: (userId: string) => AppProfile | null
@@ -82,6 +88,7 @@ const emptyProfile = (email: string | null = null): AppProfile => ({
   postal_code: null,
   town: null,
   avatar_url: null,
+  lang: null,
 })
 
 const clearLegacyLocationKeys = () => {
@@ -129,6 +136,18 @@ export const useAppStore = create<AppState>()(
       setSession: (s) => set({ session: s }),
       setToken: (t) => set({ token: t }),
       setPendingOtp: (p) => set({ pendingOtp: p }),
+      setUserPoints: (points) =>
+        set((state) => {
+          if (!state.session) return state
+          const next = Math.max(0, points)
+          if (state.session.user.points === next) return state
+          return {
+            session: {
+              ...state.session,
+              user: { ...state.session.user, points: next },
+            },
+          }
+        }),
 
       upsertProfile: (userId, patch) =>
         set((state) => {
@@ -161,7 +180,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'km0_app',
-      version: 2,
+      version: 3,
       partialize: (s) => ({
         session: s.session,
         token: s.token,
@@ -174,12 +193,34 @@ export const useAppStore = create<AppState>()(
       }),
       migrate: (persisted, version) => {
         const p = persisted as Record<string, unknown>
+        let next = { ...p }
         if (version < 2) {
           // Quien ya tenía CP completó el flujo previo → idioma implícito OK.
           const hasCp = Boolean(p.postalCode)
-          return { ...p, langChosen: hasCp }
+          next = { ...next, langChosen: hasCp }
         }
-        return p
+        if (version < 3) {
+          const session = next.session as
+            | { user?: { id?: string; email?: string; points?: number } }
+            | null
+            | undefined
+          if (session?.user) {
+            next = {
+              ...next,
+              session: {
+                ...session,
+                user: {
+                  ...session.user,
+                  points:
+                    typeof session.user.points === 'number'
+                      ? session.user.points
+                      : 0,
+                },
+              },
+            }
+          }
+        }
+        return next
       },
     }
   )

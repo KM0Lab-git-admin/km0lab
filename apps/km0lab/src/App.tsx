@@ -27,6 +27,7 @@ const Comercos = lazy(() => import('./pages/Comercos'))
 const ComercDetall = lazy(() => import('./pages/ComercDetall'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const ScannerSuccess = lazy(() => import('./pages/ScannerSuccess'))
+const ScanDeepLink = lazy(() => import('./pages/ScanDeepLink'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const queryClient = new QueryClient()
@@ -197,7 +198,9 @@ export default function App() {
                   path="/scanner"
                   element={
                     <RequireSetup need="location">
-                      <Scanner />
+                      <RequireAuth>
+                        <Scanner />
+                      </RequireAuth>
                     </RequireSetup>
                   }
                 />
@@ -205,7 +208,19 @@ export default function App() {
                   path="/scanner/success"
                   element={
                     <RequireSetup need="location">
-                      <ScannerSuccess />
+                      <RequireAuth>
+                        <ScannerSuccess />
+                      </RequireAuth>
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/scan"
+                  element={
+                    <RequireSetup need="location">
+                      <RequireAuth>
+                        <ScanDeepLink />
+                      </RequireAuth>
                     </RequireSetup>
                   }
                 />

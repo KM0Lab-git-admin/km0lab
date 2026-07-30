@@ -847,11 +847,32 @@ const D = {
     es: '{count} comercios',
     en: '{count} shops',
   } as Dict,
+  'merchants.scan_filter.all': { ca: 'Tots', es: 'Todos', en: 'All' } as Dict,
+  'merchants.scan_filter.scanned': {
+    ca: 'Escanejats',
+    es: 'Escaneados',
+    en: 'Scanned',
+  } as Dict,
+  'merchants.scan_filter.pending': {
+    ca: 'Pendents',
+    es: 'Pendientes',
+    en: 'Pending',
+  } as Dict,
   'merchants.card.qr': { ca: 'QR', es: 'QR', en: 'QR' } as Dict,
   'merchants.card.points': {
     ca: '+{n} pts',
     es: '+{n} pts',
     en: '+{n} pts',
+  } as Dict,
+  'merchants.card.scanned': {
+    ca: 'Ja escanejat',
+    es: 'Ya escaneado',
+    en: 'Scanned',
+  } as Dict,
+  'merchants.card.not_scanned': {
+    ca: 'Encara no escanejat',
+    es: 'Aún no escaneado',
+    en: 'Not scanned',
   } as Dict,
   'merchants.card.member': {
     ca: 'Adherit',
@@ -910,6 +931,16 @@ const D = {
     ca: 'tanca a les {h}',
     es: 'cierra a las {h}',
     en: 'closes at {h}',
+  } as Dict,
+  'merchant.status.scanned': {
+    ca: 'Ja escanejat',
+    es: 'Ya escaneado',
+    en: 'Already scanned',
+  } as Dict,
+  'merchant.status.not_scanned': {
+    ca: 'Encara no visitat',
+    es: 'Aún no visitado',
+    en: 'Not visited yet',
   } as Dict,
   'merchant.points.earn_title': {
     ca: 'Guanya +{n} punts',
@@ -980,6 +1011,47 @@ const D = {
     ca: "Horari d'avui",
     es: 'Horario de hoy',
     en: "Today's schedule",
+  } as Dict,
+  'merchant.info.week': {
+    ca: 'Horari setmanal',
+    es: 'Horario semanal',
+    en: 'Weekly hours',
+  } as Dict,
+  'merchant.hours.closed': {
+    ca: 'Tancat',
+    es: 'Cerrado',
+    en: 'Closed',
+  } as Dict,
+  'merchant.day.monday': { ca: 'Dilluns', es: 'Lunes', en: 'Monday' } as Dict,
+  'merchant.day.tuesday': {
+    ca: 'Dimarts',
+    es: 'Martes',
+    en: 'Tuesday',
+  } as Dict,
+  'merchant.day.wednesday': {
+    ca: 'Dimecres',
+    es: 'Miércoles',
+    en: 'Wednesday',
+  } as Dict,
+  'merchant.day.thursday': {
+    ca: 'Dijous',
+    es: 'Jueves',
+    en: 'Thursday',
+  } as Dict,
+  'merchant.day.friday': {
+    ca: 'Divendres',
+    es: 'Viernes',
+    en: 'Friday',
+  } as Dict,
+  'merchant.day.saturday': {
+    ca: 'Dissabte',
+    es: 'Sábado',
+    en: 'Saturday',
+  } as Dict,
+  'merchant.day.sunday': {
+    ca: 'Diumenge',
+    es: 'Domingo',
+    en: 'Sunday',
   } as Dict,
   'merchant.info.phone': { ca: 'Telèfon', es: 'Teléfono', en: 'Phone' } as Dict,
   'merchant.info.web': { ca: 'Web', es: 'Web', en: 'Website' } as Dict,
@@ -1149,6 +1221,11 @@ const D = {
     ca: 'Et falten {n} punts',
     es: 'Te faltan {n} puntos',
     en: '{n} points short',
+  } as Dict,
+  'rewards.status.need_register': {
+    ca: "Registra't per bescanviar",
+    es: 'Regístrate para canjear',
+    en: 'Sign up to redeem',
   } as Dict,
   'rewards.value': { ca: 'Valor', es: 'Valor', en: 'Value' } as Dict,
   'rewards.stock': { ca: 'Estoc', es: 'Stock', en: 'Stock' } as Dict,
@@ -1664,6 +1741,31 @@ const D = {
     es: 'Cada comercio tiene su QR único',
     en: 'Each shop has its own unique QR',
   } as Dict,
+  'scanner.camera.permission_denied': {
+    ca: 'Cal permís de càmera per escanejar. Activa’l al navegador o puja una imatge del QR.',
+    es: 'Se necesita permiso de cámara para escanear. Actívalo en el navegador o sube una imagen del QR.',
+    en: 'Camera permission is needed to scan. Enable it in your browser or upload a QR image.',
+  } as Dict,
+  'scanner.camera.unavailable': {
+    ca: 'No hem trobat cap càmera. Pots pujar una imatge del QR del comerç.',
+    es: 'No hemos encontrado ninguna cámara. Puedes subir una imagen del QR del comercio.',
+    en: 'No camera found. You can upload an image of the shop QR.',
+  } as Dict,
+  'scanner.upload.cta': {
+    ca: 'Pujar imatge',
+    es: 'Subir imagen',
+    en: 'Upload image',
+  } as Dict,
+  'scanner.upload.hint': {
+    ca: 'O arrossega una foto del QR del comerç',
+    es: 'O arrastra una foto del QR del comercio',
+    en: 'Or drag a photo of the shop QR',
+  } as Dict,
+  'scanner.deeplink.invalid': {
+    ca: 'El codi del enllaç no és vàlid.',
+    es: 'El código del enlace no es válido.',
+    en: 'The link code is invalid.',
+  } as Dict,
   'scanner.debug.title': {
     ca: 'Simulació (només preview)',
     es: 'Simulación (solo preview)',
@@ -1793,6 +1895,11 @@ const D = {
     ca: "Tornar a l'inici",
     es: 'Volver al inicio',
     en: 'Back home',
+  } as Dict,
+  'scanner.confirmation.history': {
+    ca: 'Veure historial',
+    es: 'Ver historial',
+    en: 'View history',
   } as Dict,
   'shopCategories.bakery': {
     ca: 'Fleca',

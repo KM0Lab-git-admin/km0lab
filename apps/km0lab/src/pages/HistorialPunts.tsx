@@ -16,14 +16,13 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import DeviceShell from '@/components/DeviceShell'
+import { t, useAuth, usePointsHistory } from '@km0lab/app'
+import type { Lang, PointsTransaction, PointsTxType } from '@km0lab/app'
+
 import BottomTabs from '@/components/BottomTabs'
-import { useAuth } from '@km0lab/app'
+import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
-import { t, type Lang } from '@km0lab/app'
 import { cn } from '@/lib/utils'
-import { POINTS_HISTORY } from '@/data/pointsHistory'
-import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'earned' | 'spent'
@@ -37,6 +36,16 @@ const TYPE_META: Record<
     Icon: UserPlus,
     ring: 'bg-km0-teal-100',
     text: 'text-km0-teal-700',
+  },
+  welcome: {
+    Icon: UserPlus,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
+  },
+  action: {
+    Icon: Coins,
+    ring: 'bg-km0-yellow-100',
+    text: 'text-km0-blue-800',
   },
   first_scan: {
     Icon: Star,
@@ -104,6 +113,12 @@ const formatDate = (iso: string, lang: Lang): string => {
 
 const fmtInt = (n: number) => Math.abs(n).toLocaleString('es-ES')
 
+const txLabel = (tx: PointsTransaction, lang: Lang): string => {
+  if (tx.concept?.trim()) return tx.concept
+  if (tx.conceptKey) return t(tx.conceptKey, lang)
+  return t('common.points', lang)
+}
+
 /* ─── Fila de movimiento ─────────────────────────────────── */
 const TxRow = ({
   tx,
@@ -114,7 +129,7 @@ const TxRow = ({
   lang: Lang
   index: number
 }) => {
-  const meta = TYPE_META[tx.type]
+  const meta = TYPE_META[tx.type] ?? TYPE_META.action
   const positive = tx.points >= 0
   return (
     <motion.li
@@ -133,7 +148,7 @@ const TxRow = ({
       </span>
       <div className="flex-1 min-w-0">
         <p className="font-ui font-bold text-sm text-km0-blue-900 truncate">
-          {t(tx.conceptKey, lang)}
+          {txLabel(tx, lang)}
         </p>
         <p className="font-body text-xs text-km0-blue-800/60 truncate">
           {[tx.place, formatDate(tx.date, lang)].filter(Boolean).join(' · ')}
@@ -182,6 +197,7 @@ const HistorialPunts = () => {
   const { lang } = useLang()
   const { user } = useAuth()
   const [filter, setFilter] = useState<Filter>('all')
+  const { history, loading, error } = usePointsHistory()
 
   const isAuthed =
     !!user ||
@@ -190,21 +206,15 @@ const HistorialPunts = () => {
 
   const sorted = useMemo(
     () =>
-      [...POINTS_HISTORY].sort(
+      [...history.items].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       ),
-    []
+    [history.items]
   )
 
-  const { balance, earned, spent } = useMemo(() => {
-    let e = 0
-    let s = 0
-    for (const tx of sorted) {
-      if (tx.points >= 0) e += tx.points
-      else s += -tx.points
-    }
-    return { balance: e - s, earned: e, spent: s }
-  }, [sorted])
+  const balance = history.balance
+  const earned = history.earnedTotal
+  const spent = history.spentTotal
 
   const filtered = useMemo(() => {
     if (filter === 'earned') return sorted.filter((tx) => tx.points >= 0)
@@ -230,7 +240,6 @@ const HistorialPunts = () => {
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
-          {/* Header fijo */}
           <header className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3 bg-km0-beige-50">
             <button
               type="button"
@@ -245,7 +254,6 @@ const HistorialPunts = () => {
             </h1>
           </header>
 
-          {/* Resumen de saldo */}
           <section className="shrink-0 px-4 pb-3">
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -301,7 +309,6 @@ const HistorialPunts = () => {
             </motion.div>
           </section>
 
-          {/* Filtros */}
           <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
             <FilterChip
               active={filter === 'all'}
@@ -320,9 +327,18 @@ const HistorialPunts = () => {
             />
           </div>
 
-          {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
-            {groups.length === 0 ? (
+            {loading ? (
+              <div className="h-full flex items-center justify-center text-center px-6">
+                <p className="font-body text-sm text-km0-blue-800/60">
+                  {t('common.loading', lang)}
+                </p>
+              </div>
+            ) : error ? (
+              <div className="h-full flex items-center justify-center text-center px-6">
+                <p className="font-body text-sm text-km0-coral-500">{error}</p>
+              </div>
+            ) : groups.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('points.history.empty', lang)}

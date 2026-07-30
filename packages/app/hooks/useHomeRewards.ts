@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { listPublicRewards } from '../services/rewards'
 import { useAppStore } from '../stores/useAppStore'
+import { isDemoPostalCode } from '../utils/demoTown'
 import { toReward } from '../utils/rewardMapper'
 
 import type { Reward } from '../types/reward'
@@ -13,6 +14,7 @@ import type { Reward } from '../types/reward'
  * usando CP e idioma del store. Sin CP no hace fetch. El endpoint traduce
  * name/description/conditions según lang; la imagen se resuelve vía
  * image_url → URL absoluta del endpoint público de media.
+ * Con CP demo (00000) pasa demo=true para pedir la partición is_fake.
  */
 
 export function useHomeRewards(): {
@@ -38,7 +40,10 @@ export function useHomeRewards(): {
     setLoading(true)
     setError(null)
 
-    listPublicRewards(postalCode, { lang })
+    listPublicRewards(postalCode, {
+      lang,
+      demo: isDemoPostalCode(postalCode),
+    })
       .then((rows) => {
         if (cancelled) return
         setRewards(rows.map((r) => toReward(r, lang)))

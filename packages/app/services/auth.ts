@@ -108,7 +108,11 @@ export const verifyOtp = async (
     const store = useAppStore.getState()
     store.setToken(auth.access_token)
     store.setSession({
-      user: { id: auth.user.id, email: auth.user.email },
+      user: {
+        id: auth.user.id,
+        email: auth.user.email,
+        points: auth.user.points ?? 0,
+      },
       createdAt: new Date().toISOString(),
     })
 
@@ -139,6 +143,7 @@ export const verifyOtp = async (
       // Si el PATCH falla, seguimos con lo que devolvió verify-otp.
     }
 
+    store.setUserPoints(user.points ?? 0)
     store.upsertProfile(user.id, {
       first_name: user.first_name ?? user.name,
       last_name: user.last_name ?? null,

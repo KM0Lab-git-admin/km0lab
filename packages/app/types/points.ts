@@ -2,6 +2,8 @@ import type { TKey } from '../utils/i18n'
 
 export type PointsTxType =
   | 'signup'
+  | 'welcome'
+  | 'action'
   | 'first_scan'
   | 'scan'
   | 'web_visit'
@@ -54,12 +56,21 @@ export interface PointAction {
 export interface PointsTransaction {
   id: string
   type: PointsTxType
-  /** Clave i18n del concepto (ej. "points.history.type.scan"). */
-  conceptKey: TKey
+  /** Clave i18n del concepto (ej. "points.history.type.scan"). Opcional si hay concept. */
+  conceptKey?: TKey
+  /** Título ya resuelto por la API (preferido sobre conceptKey). */
+  concept?: string
   /** Establecimiento o acción concreta. */
   place?: string
   /** ISO 8601. */
   date: string
   /** Positivos → ganados, negativos → gastados. */
   points: number
+}
+
+export interface PointsHistorySummary {
+  balance: number
+  earnedTotal: number
+  spentTotal: number
+  items: PointsTransaction[]
 }
