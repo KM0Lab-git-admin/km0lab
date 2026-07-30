@@ -33,6 +33,7 @@ variables (`VITE_*`), no un tercer mode obligatorio el día 1.
 | Pieza                        | Host                        | Destino típico |
 | ---------------------------- | --------------------------- | -------------- |
 | App KM0 LAB                  | `app.uat.km0lab.com`        | Vercel         |
+| Backoffice                   | `backoffice.uat.km0lab.com` | Vercel         |
 | API usuarios (`km0lab-api`)  | `api.uat.km0lab.com`        | Railway        |
 | API eventos (`events-query`) | `eventquery.uat.km0lab.com` | Railway        |
 | Web corporativa              | _(opcional / más adelante)_ | —              |
@@ -74,6 +75,8 @@ OTP en el log (`[DEV] OTP para …`).
 | -------------------------------- | ----------- | -------------------------------------- |
 | `km0lab`                         | `develop`   | **UAT** (app)                          |
 | `km0lab`                         | `main`      | **producción** (cuando exista)         |
+| `km0lab-backoffice`              | `develop`   | **UAT** (backoffice)                   |
+| `km0lab-backoffice`              | `main`      | **producción**                         |
 | `km0lab-api`                     | `develop`   | **UAT** (API usuarios)                 |
 | `km0lab-api`                     | `main`      | **producción**                         |
 | `events-query`                   | `develop`   | **UAT** (API eventos)                  |
@@ -147,16 +150,23 @@ No hace falta tocar aún `app` / `api` / `eventquery` sin `.uat` (prod).
 Variables orientativas:
 
 ```env
-ENVIRONMENT=production
+ENVIRONMENT=staging   # staging = demo 123456; production desactiva el bypass
 DB_*            # MySQL de este proyecto Railway (UAT)
 JWT_SECRET      # largo, distinto del local
-CORS_ORIGINS    # https://app.uat.km0lab.com,http://localhost:5173
+CORS_ORIGINS    # https://app.uat.km0lab.com,https://backoffice.uat.km0lab.com,http://localhost:5173
+QR_SCAN_BASE_URL=https://app.uat.km0lab.com/scan
+OPENAI_API_KEY= # traducción i18n al guardar desde BO
+OPENAI_TRANSLATE_MODEL=gpt-4o-mini
 SMTP_HOST=      # vacío = OTP en logs; luego Resend/etc.
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASSWORD=
 SMTP_FROM=KM0 LAB <no-reply@km0lab.com>
 ```
+
+Publicar desde local («publica todo»): skill `km0lab-publish-uat` — push
+`develop` de los 3 repos + sync BD local → Railway. Requiere
+`RAILWAY_DB_URL` en `km0lab-api/.env` (solo máquina local).
 
 Tras cambiar vars: redeploy.
 
