@@ -6,8 +6,7 @@ import {
   type TKey,
 } from '@km0lab/app'
 import { useMachine } from '@xstate/react'
-import { BrowserQRCodeReader, type IScannerControls } from '@zxing/browser'
-import type { Result } from '@zxing/library'
+import { BrowserQRCodeReader } from '@zxing/browser'
 import { motion } from 'framer-motion'
 import {
   AlertTriangle,
@@ -63,42 +62,49 @@ const Scanner = () => {
   const status = state.value as 'reading' | 'validating' | 'error' | 'success'
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const controlsRef = useRef<IScannerControls | null>(null)
   const [cameraError, setCameraError] = useState<CameraError>(null)
   const deeplinkHandled = useRef(false)
 
   // ── Càmera: arranca només a `reading` ──────────────────────
   useEffect(() => {
     if (status !== 'reading') {
-      controlsRef.current?.stop?.()
-      controlsRef.current = null
       return
     }
     let cancelled = false
     let stream: MediaStream | null = null
+    let scanTimer: number | undefined
     const video = videoRef.current
     const reader = new BrowserQRCodeReader()
-    const onResult = (
-      result: Result | undefined,
-      _err: unknown,
-      ctrls: IScannerControls
-    ) => {
-      if (cancelled) {
-        ctrls.stop?.()
-        return
+
+    // Bucle de decodificación propio: reutiliza un canvas del tamaño del
+    // video y decodifica ~10 fps. Más robusto que `reader.scan()`, que crea
+    // el canvas una sola vez y, si `videoWidth` era 0 al arrancar, nunca
+    // decodifica (canvas 0×0).
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    const tick = () => {
+      scanTimer = undefined
+      if (cancelled || !video) return
+      const vw = video.videoWidth
+      const vh = video.videoHeight
+      if (ctx && vw > 0 && vh > 0) {
+        if (canvas.width !== vw) canvas.width = vw
+        if (canvas.height !== vh) canvas.height = vh
+        ctx.drawImage(video, 0, 0, vw, vh)
+        try {
+          const result = reader.decodeFromCanvas(canvas)
+          const code = result.getText()
+          if (code) {
+            send({ type: 'DETECT', code })
+            return
+          }
+        } catch {
+          /* NotFoundException: sin QR en este frame */
+        }
       }
-      controlsRef.current = ctrls
-      if (result) {
-        const code = result.getText()
-        if (code) send({ type: 'DETECT', code })
-      }
+      scanTimer = window.setTimeout(tick, 100)
     }
 
-    // Arranque manual del stream: @zxing/browser crea el canvas de captura
-    // en el momento `scan()`, leyendo `videoWidth`/`videoHeight`. En Chrome
-    // móvil, `play()` resuelve antes de que cargue los metadatos, así que
-    // esos valores son 0 → canvas 0×0 → nunca decodifica. Por eso esperamos
-    // a `loadeddata` (videoWidth > 0) antes de llamar a `scan()`.
     const startWithStream = (s: MediaStream) => {
       if (!video || cancelled) {
         s.getTracks().forEach((t) => t.stop())
@@ -108,12 +114,11 @@ const Scanner = () => {
       video.srcObject = s
       const onReady = () => {
         video.removeEventListener('loadeddata', onReady)
-        if (cancelled || !video.videoWidth) return
-        controlsRef.current = reader.scan(video, onResult)
+        if (cancelled) return
+        tick()
       }
-      // Si los metadatos ya cargaron, arranca ahora.
       if (video.readyState >= 2 && video.videoWidth > 0) {
-        controlsRef.current = reader.scan(video, onResult)
+        tick()
       } else {
         video.addEventListener('loadeddata', onReady)
         void video.play().catch(() => {
@@ -139,7 +144,6 @@ const Scanner = () => {
           setCameraError('denied')
           return null
         }
-        // Fallback sin restricciones si el navegador las rechaza.
         return navigator.mediaDevices.getUserMedia({ video: true })
       })
       .then((s) => {
@@ -152,8 +156,7 @@ const Scanner = () => {
 
     return () => {
       cancelled = true
-      controlsRef.current?.stop?.()
-      controlsRef.current = null
+      if (scanTimer) window.clearTimeout(scanTimer)
       stream?.getTracks().forEach((t) => t.stop())
       if (video) video.srcObject = null
     }
@@ -240,22 +243,19 @@ const Scanner = () => {
       </div>
 
       {/* Visor ── càmera real + esquines teal ─────────── */}
-      <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-gradient-to-b from-km0-blue-800 to-km0-blue-900">
+      <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-km0-blue-900">
         <video
           ref={videoRef}
           playsInline
           muted
           className={cn(
             'absolute inset-0 w-full h-full object-cover',
-            cameraError ? 'hidden' : 'opacity-90'
+            cameraError ? 'hidden' : 'opacity-100'
           )}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-km0-blue-700/30 to-transparent" />
 
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="relative aspect-square w-full max-w-[260px]">
-            <div className="absolute inset-0 rounded-2xl bg-km0-blue-900/20 backdrop-blur-[1px]" />
-
             {/* Esquines */}
             {[
               'top-0 left-0 border-t-4 border-l-4 rounded-tl-2xl',
