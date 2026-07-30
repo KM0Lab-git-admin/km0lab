@@ -6,7 +6,8 @@ import {
   type TKey,
 } from '@km0lab/app'
 import { useMachine } from '@xstate/react'
-import { BrowserQRCodeReader } from '@zxing/browser'
+import { BrowserQRCodeReader, type IScannerControls } from '@zxing/browser'
+import type { Result } from '@zxing/library'
 import { motion } from 'framer-motion'
 import {
   AlertTriangle,
@@ -62,7 +63,7 @@ const Scanner = () => {
   const status = state.value as 'reading' | 'validating' | 'error' | 'success'
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const controlsRef = useRef<{ stop?: () => void } | null>(null)
+  const controlsRef = useRef<IScannerControls | null>(null)
   const [cameraError, setCameraError] = useState<CameraError>(null)
   const deeplinkHandled = useRef(false)
 
@@ -75,26 +76,52 @@ const Scanner = () => {
     }
     let cancelled = false
     const reader = new BrowserQRCodeReader()
+    const onResult = (
+      result: Result | undefined,
+      _err: unknown,
+      ctrls: IScannerControls
+    ) => {
+      if (cancelled) {
+        ctrls.stop?.()
+        return
+      }
+      controlsRef.current = ctrls
+      if (result) {
+        const code = result.getText()
+        if (code) send({ type: 'DETECT', code })
+      }
+    }
+
+    // Cámara trasera + resolución alta: sin esto, en móviles el stream
+    // por defecto es de baja resolución y el QR no se llega a decodificar.
     reader
-      .decodeFromVideoDevice(
-        undefined,
+      .decodeFromConstraints(
+        {
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        },
         videoRef.current!,
-        (result, _err, ctrls) => {
-          if (cancelled) {
-            ctrls.stop()
-            return
-          }
-          controlsRef.current = ctrls
-          if (result) {
-            const code = result.getText()
-            if (code) send({ type: 'DETECT', code })
-          }
-        }
+        onResult
       )
       .catch((e: unknown) => {
         if (cancelled) return
+        // Fallback: sin constraints (algunos navegadores no soportan
+        // facingMode o rechazan las restricciones de resolución).
+        reader
+          .decodeFromVideoDevice(undefined, videoRef.current!, onResult)
+          .catch((err: unknown) => {
+            if (cancelled) return
+            const name = (err as { name?: string } | null)?.name
+            setCameraError(
+              name === 'NotAllowedError' ? 'denied' : 'unavailable'
+            )
+          })
+        // Si el primer intento ya era un error de permisos, lo reflejamos.
         const name = (e as { name?: string } | null)?.name
-        setCameraError(name === 'NotAllowedError' ? 'denied' : 'unavailable')
+        if (name === 'NotAllowedError') setCameraError('denied')
       })
     return () => {
       cancelled = true
