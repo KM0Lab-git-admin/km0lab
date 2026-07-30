@@ -7,6 +7,7 @@ import {
 } from '@km0lab/app'
 import { useMachine } from '@xstate/react'
 import { BrowserQRCodeReader } from '@zxing/browser'
+import { BarcodeFormat, DecodeHintType } from '@zxing/library'
 import { motion } from 'framer-motion'
 import {
   AlertTriangle,
@@ -17,7 +18,7 @@ import {
   WifiOff,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
@@ -45,6 +46,16 @@ const format = (s: string, vars: Record<string, string | number>) =>
 
 type CameraError = 'denied' | 'unavailable' | null
 
+interface DetectedBarcode {
+  rawValue: string
+}
+interface BarcodeDetectorInstance {
+  detect(source: CanvasImageSource): Promise<DetectedBarcode[]>
+}
+interface BarcodeDetectorCtor {
+  new (options?: { formats?: string[] }): BarcodeDetectorInstance
+}
+
 const Scanner = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
@@ -65,66 +76,139 @@ const Scanner = () => {
   const [cameraError, setCameraError] = useState<CameraError>(null)
   const deeplinkHandled = useRef(false)
 
+  // Diagnòstic en pantalla (activable amb `?debug=1`).
+  const debug = searchParams.get('debug') === '1'
+  const scanInfo = useRef({
+    gum: 'pending' as 'pending' | 'ok' | 'error',
+    detector: '-',
+    vw: 0,
+    vh: 0,
+    ready: 0,
+    ticks: 0,
+    lastErr: '',
+  })
+  const [, forceDiag] = useReducer((x: number) => x + 1, 0)
+
+  useEffect(() => {
+    if (!debug) return
+    const id = window.setInterval(forceDiag, 300)
+    return () => window.clearInterval(id)
+  }, [debug])
+
   // ── Càmera: arranca només a `reading` ──────────────────────
   useEffect(() => {
     if (status !== 'reading') {
       return
     }
+    const video = videoRef.current
+    if (!video) {
+      return
+    }
+
+    const info = scanInfo.current
+    info.gum = 'pending'
+    info.ticks = 0
+    info.lastErr = ''
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      info.gum = 'error'
+      setCameraError('unavailable')
+      return
+    }
+
     let cancelled = false
     let stream: MediaStream | null = null
     let scanTimer: number | undefined
-    const video = videoRef.current
-    const reader = new BrowserQRCodeReader()
 
-    // Bucle de decodificación propio: reutiliza un canvas del tamaño del
-    // video y decodifica ~10 fps. Más robusto que `reader.scan()`, que crea
-    // el canvas una sola vez y, si `videoWidth` era 0 al arrancar, nunca
-    // decodifica (canvas 0×0).
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    const tick = () => {
-      scanTimer = undefined
-      if (cancelled || !video) return
-      const vw = video.videoWidth
-      const vh = video.videoHeight
-      if (ctx && vw > 0 && vh > 0) {
-        if (canvas.width !== vw) canvas.width = vw
-        if (canvas.height !== vh) canvas.height = vh
-        ctx.drawImage(video, 0, 0, vw, vh)
-        try {
-          const result = reader.decodeFromCanvas(canvas)
-          const code = result.getText()
-          if (code) {
-            send({ type: 'DETECT', code })
-            return
-          }
-        } catch {
-          /* NotFoundException: sin QR en este frame */
-        }
+    // Detector natiu (Chrome Android): molt més fiable que zxing amb la
+    // càmera en viu. zxing queda com a fallback.
+    const Ctor = (
+      window as unknown as { BarcodeDetector?: BarcodeDetectorCtor }
+    ).BarcodeDetector
+    let nativeDetector: BarcodeDetectorInstance | null = null
+    if (Ctor) {
+      try {
+        nativeDetector = new Ctor({ formats: ['qr_code'] })
+        info.detector = 'native'
+      } catch {
+        nativeDetector = null
       }
-      scanTimer = window.setTimeout(tick, 100)
     }
 
-    const startWithStream = (s: MediaStream) => {
-      if (!video || cancelled) {
+    // Fallback zxing amb TRY_HARDER i només QR.
+    const hints = new Map<DecodeHintType, unknown>()
+    hints.set(DecodeHintType.TRY_HARDER, true)
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE])
+    const reader = new BrowserQRCodeReader(hints)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    if (!nativeDetector) {
+      info.detector = 'zxing'
+    }
+
+    const onDetected = (code: string) => {
+      if (cancelled || !code) return
+      cancelled = true
+      send({ type: 'DETECT', code })
+    }
+
+    const tick = async () => {
+      if (cancelled) return
+      const vw = video.videoWidth
+      const vh = video.videoHeight
+      info.vw = vw
+      info.vh = vh
+      info.ready = video.readyState
+      if (vw > 0 && vh > 0) {
+        info.ticks += 1
+        try {
+          if (nativeDetector) {
+            const codes = await nativeDetector.detect(video)
+            if (cancelled) return
+            const raw = codes[0]?.rawValue
+            if (raw) {
+              onDetected(raw)
+              return
+            }
+          } else if (ctx) {
+            if (canvas.width !== vw) canvas.width = vw
+            if (canvas.height !== vh) canvas.height = vh
+            ctx.drawImage(video, 0, 0, vw, vh)
+            const code = reader.decodeFromCanvas(canvas).getText()
+            if (code) {
+              onDetected(code)
+              return
+            }
+          }
+        } catch (e) {
+          const name = (e as { name?: string } | null)?.name
+          if (name && name !== 'NotFoundException') {
+            info.lastErr = name
+          }
+        }
+      }
+      if (!cancelled) {
+        scanTimer = window.setTimeout(() => void tick(), 100)
+      }
+    }
+
+    const start = (s: MediaStream) => {
+      if (cancelled) {
         s.getTracks().forEach((t) => t.stop())
         return
       }
       stream = s
+      info.gum = 'ok'
       video.srcObject = s
-      const onReady = () => {
-        video.removeEventListener('loadeddata', onReady)
-        if (cancelled) return
-        tick()
-      }
+      void video.play().catch(() => {})
       if (video.readyState >= 2 && video.videoWidth > 0) {
-        tick()
+        void tick()
       } else {
+        const onReady = () => {
+          video.removeEventListener('loadeddata', onReady)
+          if (!cancelled) void tick()
+        }
         video.addEventListener('loadeddata', onReady)
-        void video.play().catch(() => {
-          if (cancelled) return
-          setCameraError('unavailable')
-        })
       }
     }
 
@@ -141,6 +225,7 @@ const Scanner = () => {
         if (cancelled) return null
         const name = (e as { name?: string } | null)?.name
         if (name === 'NotAllowedError') {
+          info.gum = 'error'
           setCameraError('denied')
           return null
         }
@@ -148,17 +233,20 @@ const Scanner = () => {
       })
       .then((s) => {
         if (cancelled || !s) return
-        startWithStream(s)
+        start(s)
       })
       .catch(() => {
-        if (!cancelled) setCameraError('unavailable')
+        if (!cancelled) {
+          info.gum = 'error'
+          setCameraError('unavailable')
+        }
       })
 
     return () => {
       cancelled = true
       if (scanTimer) window.clearTimeout(scanTimer)
       stream?.getTracks().forEach((t) => t.stop())
-      if (video) video.srcObject = null
+      video.srcObject = null
     }
   }, [status, send])
 
@@ -246,6 +334,7 @@ const Scanner = () => {
       <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-km0-blue-900">
         <video
           ref={videoRef}
+          autoPlay
           playsInline
           muted
           className={cn(
@@ -253,6 +342,19 @@ const Scanner = () => {
             cameraError ? 'hidden' : 'opacity-100'
           )}
         />
+
+        {debug && (
+          <div className="absolute left-2 top-2 z-40 rounded-lg bg-km0-blue-900/85 px-3 py-2 font-ui text-xs leading-snug text-km0-beige-50">
+            <div>cam: {scanInfo.current.gum}</div>
+            <div>det: {scanInfo.current.detector}</div>
+            <div>
+              res: {scanInfo.current.vw}×{scanInfo.current.vh}
+            </div>
+            <div>rs: {scanInfo.current.ready}</div>
+            <div>scan: {scanInfo.current.ticks}</div>
+            <div>err: {scanInfo.current.lastErr || '-'}</div>
+          </div>
+        )}
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="relative aspect-square w-full max-w-[260px]">
