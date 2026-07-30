@@ -75,6 +75,8 @@ const Scanner = () => {
       return
     }
     let cancelled = false
+    let stream: MediaStream | null = null
+    const video = videoRef.current
     const reader = new BrowserQRCodeReader()
     const onResult = (
       result: Result | undefined,
@@ -92,41 +94,68 @@ const Scanner = () => {
       }
     }
 
-    // Cámara trasera + resolución alta: sin esto, en móviles el stream
-    // por defecto es de baja resolución y el QR no se llega a decodificar.
-    reader
-      .decodeFromConstraints(
-        {
-          video: {
-            facingMode: { ideal: 'environment' },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        },
-        videoRef.current!,
-        onResult
-      )
+    // Arranque manual del stream: @zxing/browser crea el canvas de captura
+    // en el momento `scan()`, leyendo `videoWidth`/`videoHeight`. En Chrome
+    // móvil, `play()` resuelve antes de que cargue los metadatos, así que
+    // esos valores son 0 → canvas 0×0 → nunca decodifica. Por eso esperamos
+    // a `loadeddata` (videoWidth > 0) antes de llamar a `scan()`.
+    const startWithStream = (s: MediaStream) => {
+      if (!video || cancelled) {
+        s.getTracks().forEach((t) => t.stop())
+        return
+      }
+      stream = s
+      video.srcObject = s
+      const onReady = () => {
+        video.removeEventListener('loadeddata', onReady)
+        if (cancelled || !video.videoWidth) return
+        controlsRef.current = reader.scan(video, onResult)
+      }
+      // Si los metadatos ya cargaron, arranca ahora.
+      if (video.readyState >= 2 && video.videoWidth > 0) {
+        controlsRef.current = reader.scan(video, onResult)
+      } else {
+        video.addEventListener('loadeddata', onReady)
+        void video.play().catch(() => {
+          if (cancelled) return
+          setCameraError('unavailable')
+        })
+      }
+    }
+
+    const constraints: MediaStreamConstraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+    }
+    navigator.mediaDevices
+      .getUserMedia(constraints)
       .catch((e: unknown) => {
-        if (cancelled) return
-        // Fallback: sin constraints (algunos navegadores no soportan
-        // facingMode o rechazan las restricciones de resolución).
-        reader
-          .decodeFromVideoDevice(undefined, videoRef.current!, onResult)
-          .catch((err: unknown) => {
-            if (cancelled) return
-            const name = (err as { name?: string } | null)?.name
-            setCameraError(
-              name === 'NotAllowedError' ? 'denied' : 'unavailable'
-            )
-          })
-        // Si el primer intento ya era un error de permisos, lo reflejamos.
+        if (cancelled) return null
         const name = (e as { name?: string } | null)?.name
-        if (name === 'NotAllowedError') setCameraError('denied')
+        if (name === 'NotAllowedError') {
+          setCameraError('denied')
+          return null
+        }
+        // Fallback sin restricciones si el navegador las rechaza.
+        return navigator.mediaDevices.getUserMedia({ video: true })
       })
+      .then((s) => {
+        if (cancelled || !s) return
+        startWithStream(s)
+      })
+      .catch(() => {
+        if (!cancelled) setCameraError('unavailable')
+      })
+
     return () => {
       cancelled = true
       controlsRef.current?.stop?.()
       controlsRef.current = null
+      stream?.getTracks().forEach((t) => t.stop())
+      if (video) video.srcObject = null
     }
   }, [status, send])
 
