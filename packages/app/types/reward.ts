@@ -27,4 +27,7 @@ export interface Reward {
   stock: number | null
   /** Texto del alcance ("Tots els comerços adherits", "1 comerç"). */
   scope: string
+  /** URL absoluta de la imagen (endpoint público de media). null si no hay. */
+  imageUrl?: string | null
+  hasImage?: boolean
 }

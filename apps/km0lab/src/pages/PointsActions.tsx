@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { t, useAuth, usePointsActions } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -15,15 +14,16 @@ import {
   Circle,
   type LucideIcon,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import DeviceShell from '@/components/DeviceShell'
+import type { Lang, PointAction, PointActionIcon } from '@km0lab/app'
+
 import BottomTabs from '@/components/BottomTabs'
-import { useAuth } from '@km0lab/app'
+import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
-import { t, type Lang } from '@km0lab/app'
-import { cn } from '@/lib/utils'
 import { POINTS_ACTIONS } from '@/data/pointsActions'
-import type { PointAction, PointActionIcon } from '@km0lab/app'
+import { cn } from '@/lib/utils'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'pending' | 'completed'
@@ -111,20 +111,23 @@ const ActionRow = ({
 
       <div className="flex-1 min-w-0">
         <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-          {t(action.titleKey, lang)}
+          {action.title ?? (action.titleKey ? t(action.titleKey, lang) : '')}
         </p>
         <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-          {t(action.descriptionKey, lang)}
+          {action.description ??
+            (action.descriptionKey ? t(action.descriptionKey, lang) : '')}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-          <span
-            className={cn(
-              'px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
-              'bg-km0-blue-100 text-km0-blue-800'
-            )}
-          >
-            {t(action.typeKey, lang)}
-          </span>
+          {action.typeKey ? (
+            <span
+              className={cn(
+                'px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
+                'bg-km0-blue-100 text-km0-blue-800'
+              )}
+            >
+              {t(action.typeKey, lang)}
+            </span>
+          ) : null}
           {action.completed && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-teal-100 text-km0-teal-700 flex items-center gap-1">
               <CheckCircle2 size={10} strokeWidth={2.4} />
@@ -160,38 +163,52 @@ const PointsActions = () => {
   const { lang } = useLang()
   const { user } = useAuth()
   const [filter, setFilter] = useState<Filter>('all')
-  const [loading, setLoading] = useState(true)
 
   const isAuthed =
     !!user ||
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
-  // Simulación de carga para respetar los 4 estados de UI.
-  useMemo(() => {
-    const timer = setTimeout(() => setLoading(false), 300)
-    return () => clearTimeout(timer)
-  }, [])
+  // Guest: catálogo público API. Authed: mock con completed.
+  const {
+    actions: apiActions,
+    loading: apiLoading,
+    error: apiError,
+  } = usePointsActions()
+
+  const sourceActions = isAuthed ? POINTS_ACTIONS : apiActions
+  const loading = isAuthed ? false : apiLoading
 
   const { completedCount, pendingCount, totalPoints } = useMemo(() => {
-    const completed = POINTS_ACTIONS.filter((a) => a.completed).length
-    const pending = POINTS_ACTIONS.length - completed
-    const points = POINTS_ACTIONS.filter((a) => !a.completed).reduce(
-      (sum, a) => sum + a.points,
-      0
-    )
+    if (!isAuthed) {
+      const points = sourceActions.reduce((sum, a) => sum + a.points, 0)
+      return {
+        completedCount: 0,
+        pendingCount: sourceActions.length,
+        totalPoints: points,
+      }
+    }
+    const completed = sourceActions.filter((a) => a.completed).length
+    const pending = sourceActions.length - completed
+    const points = sourceActions
+      .filter((a) => !a.completed)
+      .reduce((sum, a) => sum + a.points, 0)
     return {
       completedCount: completed,
       pendingCount: pending,
       totalPoints: points,
     }
-  }, [])
+  }, [isAuthed, sourceActions])
 
   const filtered = useMemo(() => {
-    if (filter === 'completed') return POINTS_ACTIONS.filter((a) => a.completed)
-    if (filter === 'pending') return POINTS_ACTIONS.filter((a) => !a.completed)
-    return POINTS_ACTIONS
-  }, [filter])
+    if (!isAuthed) return sourceActions
+    if (filter === 'completed') return sourceActions.filter((a) => a.completed)
+    if (filter === 'pending') return sourceActions.filter((a) => !a.completed)
+    return sourceActions
+  }, [isAuthed, filter, sourceActions])
+
+  const isEmpty =
+    !loading && (apiError !== null && !isAuthed ? true : filtered.length === 0)
 
   return (
     <DeviceShell>
@@ -256,24 +273,26 @@ const PointsActions = () => {
             </motion.div>
           </section>
 
-          {/* Filtros */}
-          <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
-            <FilterChip
-              active={filter === 'all'}
-              onClick={() => setFilter('all')}
-              label={t('points.history.filter_all', lang)}
-            />
-            <FilterChip
-              active={filter === 'pending'}
-              onClick={() => setFilter('pending')}
-              label={t('points.actions.pending', lang)}
-            />
-            <FilterChip
-              active={filter === 'completed'}
-              onClick={() => setFilter('completed')}
-              label={t('points.actions.completed', lang)}
-            />
-          </div>
+          {/* Filtros: solo relevantes si el usuario está registrado */}
+          {isAuthed ? (
+            <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                label={t('points.history.filter_all', lang)}
+              />
+              <FilterChip
+                active={filter === 'pending'}
+                onClick={() => setFilter('pending')}
+                label={t('points.actions.pending', lang)}
+              />
+              <FilterChip
+                active={filter === 'completed'}
+                onClick={() => setFilter('completed')}
+                label={t('points.actions.completed', lang)}
+              />
+            </div>
+          ) : null}
 
           {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
@@ -283,7 +302,7 @@ const PointsActions = () => {
                   {t('common.loading', lang)}
                 </p>
               </div>
-            ) : filtered.length === 0 ? (
+            ) : isEmpty ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('points.actions.empty', lang)}

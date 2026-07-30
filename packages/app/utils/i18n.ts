@@ -627,6 +627,7 @@ const D = {
     en: 'No actions available.',
   } as Dict,
 
+  // Chips de tipo (API `type` → etiqueta corta)
   'points.actions.type.birthday': {
     ca: 'Aniversari',
     es: 'Aniversario',
@@ -636,6 +637,11 @@ const D = {
     ca: "Registre en l'app",
     es: 'Registro en la app',
     en: 'App sign-up',
+  } as Dict,
+  'points.actions.type.qr_scan': {
+    ca: "Escaneig d'un comerç",
+    es: 'Escaneo de un comercio',
+    en: 'Shop scan',
   } as Dict,
   'points.actions.type.first_scan': {
     ca: "Primer escaneig d'un comerç",
@@ -652,15 +658,30 @@ const D = {
     es: 'Visita web',
     en: 'Web visit',
   } as Dict,
+  'points.actions.type.web_signup': {
+    ca: 'Registre web',
+    es: 'Registro web',
+    en: 'Web sign-up',
+  } as Dict,
   'points.actions.type.newsletter': {
     ca: 'Registre web',
     es: 'Registro web',
     en: 'Web sign-up',
   } as Dict,
+  'points.actions.type.event': {
+    ca: 'Inscripció a esdeveniment',
+    es: 'Inscripción a evento',
+    en: 'Event sign-up',
+  } as Dict,
   'points.actions.type.event_signup': {
     ca: 'Inscripció a esdeveniment',
     es: 'Inscripción a evento',
     en: 'Event sign-up',
+  } as Dict,
+  'points.actions.type.custom': {
+    ca: 'Enquesta',
+    es: 'Encuesta',
+    en: 'Survey',
   } as Dict,
   'points.actions.type.survey': {
     ca: 'Enquesta',
@@ -668,6 +689,7 @@ const D = {
     en: 'Survey',
   } as Dict,
 
+  // Títulos canónicos por type de API (diccionario de acciones)
   'points.actions.birthday.title': {
     ca: 'Perquè avui és el teu aniversari!',
     es: '¡Porque hoy es tu aniversario!',
@@ -681,12 +703,22 @@ const D = {
   'points.actions.signup.title': {
     ca: "Primer registre a l'app",
     es: 'Primer registro en la app',
-    en: 'App sign-up',
+    en: 'First app sign-up',
   } as Dict,
   'points.actions.signup.description': {
     ca: "Els veïns reben un impuls inicial en donar-se d'alta.",
     es: 'Los vecinos reciben un impulso inicial al darse de alta.',
     en: 'Neighbours get an initial boost when signing up.',
+  } as Dict,
+  'points.actions.qr_scan.title': {
+    ca: "Primer escaneig d'un comerç",
+    es: 'Primer escaneo de un comercio',
+    en: 'First shop scan',
+  } as Dict,
+  'points.actions.qr_scan.description': {
+    ca: "Bonificació la primera vegada que s'escaneja un QR de comerç.",
+    es: 'Bonificación la primera vez que se escanea un QR de comercio.',
+    en: 'Bonus the first time a shop QR is scanned.',
   } as Dict,
   'points.actions.first_scan.title': {
     ca: "Primer escaneig d'un comerç",
@@ -718,6 +750,16 @@ const D = {
     es: 'Descubre los puntos de interés de Malgrat.',
     en: "Discover Malgrat's points of interest.",
   } as Dict,
+  'points.actions.web_signup.title': {
+    ca: 'Registre al butlletí municipal',
+    es: 'Registro al boletín municipal',
+    en: 'Sign up to the municipal newsletter',
+  } as Dict,
+  'points.actions.web_signup.description': {
+    ca: 'Rep les novetats del teu ajuntament al correu.',
+    es: 'Recibe las novedades de tu ayuntamiento en el correo.',
+    en: 'Get the latest news from your town hall by email.',
+  } as Dict,
   'points.actions.newsletter.title': {
     ca: 'Registre al butlletí municipal',
     es: 'Registro al boletín municipal',
@@ -728,6 +770,16 @@ const D = {
     es: 'Recibe las novedades de tu ayuntamiento en el correo.',
     en: 'Get the latest news from your town hall by email.',
   } as Dict,
+  'points.actions.event.title': {
+    ca: 'Inscripció a la Festa Major',
+    es: 'Inscripción a la Festa Major',
+    en: 'Sign up for the Festa Major',
+  } as Dict,
+  'points.actions.event.description': {
+    ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
+    es: 'Inscríbete a las actividades oficiales de la Festa Major.',
+    en: 'Sign up for official Festa Major activities.',
+  } as Dict,
   'points.actions.event_signup.title': {
     ca: 'Inscripció a la Festa Major',
     es: 'Inscripción a la Festa Major',
@@ -737,6 +789,16 @@ const D = {
     ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
     es: 'Inscríbete a las actividades oficiales de la Festa Major.',
     en: 'Sign up for official Festa Major activities.',
+  } as Dict,
+  'points.actions.custom.title': {
+    ca: 'Enquesta de satisfacció',
+    es: 'Encuesta de satisfacción',
+    en: 'Satisfaction survey',
+  } as Dict,
+  'points.actions.custom.description': {
+    ca: 'Respon una enquesta breu sobre el programa KM0 LAB.',
+    es: 'Responde una encuesta breve sobre el programa KM0 LAB.',
+    en: 'Answer a short survey about the KM0 LAB programme.',
   } as Dict,
   'points.actions.survey.title': {
     ca: 'Enquesta de satisfacció',
@@ -1121,6 +1183,16 @@ const D = {
     en: 'Unavailable',
   } as Dict,
   'rewards.cost': { ca: '{n} pts', es: '{n} pts', en: '{n} pts' } as Dict,
+  'rewards.scope.all': {
+    ca: 'Tots els comerços adherits',
+    es: 'Todos los comercios adheridos',
+    en: 'All member shops',
+  } as Dict,
+  'rewards.scope.shops': {
+    ca: '{n} comerços adherits',
+    es: '{n} comercios adheridos',
+    en: '{n} member shops',
+  } as Dict,
   'rewards.empty': {
     ca: 'Encara no hi ha premis en aquesta categoria.',
     es: 'Aún no hay premios en esta categoría.',

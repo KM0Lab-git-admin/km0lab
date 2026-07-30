@@ -13,11 +13,15 @@ export type PointsTxType =
 export type PointActionId =
   | 'birthday'
   | 'signup'
+  | 'qr_scan'
   | 'first_scan'
   | 'scan'
   | 'web_visit'
+  | 'web_signup'
   | 'newsletter'
+  | 'event'
   | 'event_signup'
+  | 'custom'
   | 'survey'
 
 export type PointActionIcon =
@@ -31,10 +35,17 @@ export type PointActionIcon =
   | 'clipboard-list'
 
 export interface PointAction {
-  id: PointActionId
-  titleKey: TKey
-  descriptionKey: TKey
-  typeKey: TKey
+  /** UUID de API o id mock legado. */
+  id: string
+  /** Tipo de acción de API (birthday, qr_scan, …). */
+  type?: PointActionId | string
+  titleKey?: TKey
+  descriptionKey?: TKey
+  typeKey?: TKey
+  /** Override de título cuando no hay clave i18n (fallback API). */
+  title?: string
+  /** Override de descripción cuando no hay clave i18n (fallback API). */
+  description?: string
   points: number
   completed: boolean
   icon: PointActionIcon

@@ -87,6 +87,38 @@ export const claimPointsSchema = z.object({
 })
 export type ClaimPoints = z.infer<typeof claimPointsSchema>
 
+export const pointActionOutSchema = z.object({
+  id: z.string(),
+  town_id: z.string(),
+  type: z.string(),
+  name: z.string(),
+  description: z.string(),
+  points: z.number(),
+  visible_home: z.boolean().default(true),
+  active: z.boolean(),
+  url: z.string().nullable().optional(),
+  event_id: z.string().nullable().optional(),
+  cooldown_days: z.number().nullable().optional(),
+})
+export type PointActionOut = z.infer<typeof pointActionOutSchema>
+
+export const rewardOutSchema = z.object({
+  id: z.string(),
+  town_id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  image_url: z.string().nullable().optional(),
+  has_image: z.boolean().default(false),
+  type: z.string(),
+  points_required: z.number(),
+  value: z.string().nullable().optional(),
+  stock: z.number().nullable().optional(),
+  conditions: z.string().nullable().optional(),
+  status: z.string(),
+  shop_ids: z.array(z.string()).default([]),
+})
+export type RewardOut = z.infer<typeof rewardOutSchema>
+
 type FetchOpts<T> = {
   method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown

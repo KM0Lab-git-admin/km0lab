@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { t, useHomeRewards } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight,
@@ -9,16 +9,20 @@ import {
   Coins,
   type LucideIcon,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
-import { REWARDS } from '@/data/rewards'
+import { useState } from 'react'
+
 import type { Reward, RewardKind } from '@km0lab/app'
+
+import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 /**
  * RewardsPreview — hero de "Premis" en la Home. Mismo formato visual
  * que EventHeroCarousel: portada arriba, panel inferior con título,
  * metadatos y CTA circular, más dots externos de paginación.
+ *
+ * Fuente: GET /rewards/public?postal_code={cp}&lang={lang}
+ * (pueblo del CP + textos traducidos por la API + imagen de media).
  *
  * El wrapper (section + SectionHeader) lo aporta HomeContent para que
  * sea idéntico al de "Eventos destacados".
@@ -44,27 +48,53 @@ const KIND_GRADIENT: Record<RewardKind, string> = {
 
 const fmt = (n: number) => n.toLocaleString('es-ES')
 
+const CoverFallback = ({ reward }: { reward: Reward }) => {
+  const Icon = KIND_ICON[reward.kind]
+  return <Icon size={96} strokeWidth={1.6} className="text-km0-blue-900/85" />
+}
+
 const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
   const { lang } = useLang()
-  const items: Reward[] = REWARDS.filter((r) => r.status === 'active').slice(
-    0,
-    5
-  )
+  const { rewards, loading, error } = useHomeRewards()
+  const items = rewards.slice(0, 5)
   const [index, setIndex] = useState(0)
   const [direction, setDirection] = useState<1 | -1>(1)
+  const [imgFailed, setImgFailed] = useState(false)
   const total = items.length
 
-  if (total === 0) return null
+  // Sin premios (error / vacío / sin CP): no pintar la sección.
+  if (!loading && (error || total === 0)) {
+    return null
+  }
 
+  if (loading) {
+    return (
+      <div className={cn('w-full', className)}>
+        <div className="relative w-full rounded-2xl overflow-hidden bg-card shadow-[0_12px_28px_-14px_hsl(var(--km0-blue-900)/0.35)] ring-1 ring-km0-beige-200 animate-pulse">
+          <div className="w-full aspect-[16/10] bg-km0-beige-100" />
+          <div className="px-4 pt-3 pb-4 space-y-2">
+            <span className="block h-5 w-2/3 rounded bg-km0-beige-100" />
+            <span className="block h-3 w-1/3 rounded bg-km0-beige-100" />
+            <span className="block h-3 w-1/2 rounded bg-km0-beige-100" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const safeIndex = Math.min(index, total - 1)
   const goTo = (next: number) => {
     const safe = (next + total) % total
-    setDirection(safe > index || (index === total - 1 && safe === 0) ? 1 : -1)
+    setDirection(
+      safe > safeIndex || (safeIndex === total - 1 && safe === 0) ? 1 : -1
+    )
+    setImgFailed(false)
     setIndex(safe)
   }
 
-  const reward = items[index]
-  const Icon = KIND_ICON[reward.kind]
+  const reward = items[safeIndex]
   const gradient = KIND_GRADIENT[reward.kind]
+  const showImage = Boolean(reward.hasImage && reward.imageUrl && !imgFailed)
 
   return (
     <div className={cn('w-full', className)}>
@@ -81,8 +111,8 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
             onDragEnd={(_, info) => {
-              if (info.offset.x < -50) goTo(index + 1)
-              else if (info.offset.x > 50) goTo(index - 1)
+              if (info.offset.x < -50) goTo(safeIndex + 1)
+              else if (info.offset.x > 50) goTo(safeIndex - 1)
             }}
             className="flex flex-col cursor-grab active:cursor-grabbing"
           >
@@ -96,11 +126,17 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
                 gradient
               )}
             >
-              <Icon
-                size={96}
-                strokeWidth={1.6}
-                className="text-km0-blue-900/85"
-              />
+              {showImage ? (
+                <img
+                  src={reward.imageUrl!}
+                  alt={reward.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={() => setImgFailed(true)}
+                />
+              ) : (
+                <CoverFallback reward={reward} />
+              )}
               <div
                 aria-hidden
                 className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent"
@@ -123,9 +159,11 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
                   {reward.title}
                 </h3>
                 <div className="mt-2 flex flex-col gap-1 font-body text-km0-blue-700/85 text-xs">
-                  <span className="font-ui font-bold text-km0-blue-900">
-                    {reward.valueLabel}
-                  </span>
+                  {reward.valueLabel ? (
+                    <span className="font-ui font-bold text-km0-blue-900">
+                      {reward.valueLabel}
+                    </span>
+                  ) : null}
                   <span className="line-clamp-1">{reward.scope}</span>
                 </div>
               </button>
@@ -134,7 +172,7 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
-                  goTo(index + 1)
+                  goTo(safeIndex + 1)
                 }}
                 aria-label="Següent premi"
                 className="shrink-0 w-11 h-11 rounded-full bg-km0-blue-700 text-white shadow-[0_6px_14px_-4px_hsl(var(--km0-blue-900)/0.55)] flex items-center justify-center active:scale-95 hover:scale-105 transition-transform"
@@ -156,7 +194,7 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
             aria-label={`Anar al premi ${i + 1}`}
             className={cn(
               'rounded-full transition-all',
-              i === index
+              i === safeIndex
                 ? 'w-5 h-1.5 bg-km0-blue-700'
                 : 'w-1.5 h-1.5 bg-km0-blue-700/25 hover:bg-km0-blue-700/50'
             )}

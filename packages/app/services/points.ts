@@ -1,7 +1,15 @@
 /**
- * Reclamo de puntos por acciones de catálogo (aniversario, …).
+ * Reclamo de puntos y catálogo público de acciones.
  */
-import { apiFetch, claimPointsSchema, type ClaimPoints } from './km0labClient'
+import { z } from 'zod'
+
+import {
+  apiFetch,
+  claimPointsSchema,
+  pointActionOutSchema,
+  type ClaimPoints,
+  type PointActionOut,
+} from './km0labClient'
 
 export const claimBirthday = async (): Promise<ClaimPoints | null> => {
   try {
@@ -13,4 +21,25 @@ export const claimBirthday = async (): Promise<ClaimPoints | null> => {
   } catch {
     return null
   }
+}
+
+/**
+ * Catálogo público de acciones por código postal (sin auth).
+ * El backend resuelve postal_code → town, filtra activas y traduce
+ * name/description según `lang` (ca|es|en).
+ */
+export const listPublicActions = async (
+  postalCode: string,
+  opts: { visibleHome?: boolean; lang?: string } = {}
+): Promise<PointActionOut[]> => {
+  const qs = new URLSearchParams({ postal_code: postalCode })
+  if (opts.visibleHome !== undefined) {
+    qs.set('visible_home', String(opts.visibleHome))
+  }
+  if (opts.lang) {
+    qs.set('lang', opts.lang)
+  }
+  return apiFetch(`/actions/public?${qs}`, {
+    schema: z.array(pointActionOutSchema),
+  })
 }

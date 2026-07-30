@@ -109,19 +109,15 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const modulesWithHandlers: HomeModule[] = useMemo(
     () =>
       moduleSeeds.map((m) => {
-        const requiresAuth = m.id === 'premis'
-        const gatedInactive = requiresAuth && !isAuthed
-        const active = m.active && !gatedInactive
+        // Premis es acceso rápido público (catálogo /rewards); no se gatea
+        // por sesión — el locked de HomeContent cubre conversión a registro.
+        const active = m.active
         return {
           id: m.id,
           active,
-          disabledReason: gatedInactive ? 'requires_registration' : undefined,
           label: t(m.labelKey, lang),
           onClick: () => {
-            if (!active) {
-              if (gatedInactive) navigate('/login')
-              return
-            }
+            if (!active) return
             if (m.id === 'agenda') {
               navigate('/events')
               return
@@ -142,7 +138,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           },
         }
       }),
-    [moduleSeeds, lang, navigate, isAuthed]
+    [moduleSeeds, lang, navigate]
   )
 
   const openNotifications = () => {
