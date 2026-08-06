@@ -17,9 +17,20 @@
     "cap:add:android": "cap add android",
     "cap:add:ios": "cap add ios",
     "cap:open:android": "cap open android",
-    "cap:open:ios": "cap open ios"
+    "cap:open:ios": "cap open ios",
+    "cap:build:android": "pnpm build && pnpm cap:sync",
+    "cap:apk:android": "cd android && ./gradlew assembleRelease",
+    "cap:aab:android": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/barcode-scanner": "^2.2.6",
+    "@capacitor/core": "^7.6.2",
+    "@capacitor/haptics": "^7.0.5",
+    "@capacitor/keyboard": "^7.0.6",
+    "@capacitor/preferences": "^7.0.4",
+    "@capacitor/splash-screen": "^7.0.5",
+    "@capacitor/status-bar": "^7.0.6",
     "@hookform/resolvers": "^3.10.0",
     "@km0lab/app": "workspace:*",
     "@km0lab/ui": "workspace:*",
@@ -62,7 +73,6 @@
   "devDependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/cli": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@km0lab/eslint-config": "workspace:*",
     "@tailwindcss/typography": "^0.5.16",

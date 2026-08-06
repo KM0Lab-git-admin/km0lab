@@ -1,12 +1,17 @@
 import { SonnerToaster, Toaster, TooltipProvider } from '@km0lab/ui'
+import { Capacitor } from '@capacitor/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
 import { LangProvider } from '@/contexts/LangContext'
+
+// En nativo (Capacitor WebView) HashRouter evita 404 al reabrir la app;
+// en web mantenemos BrowserRouter para URLs limpias y SEO.
+const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter
 
 const Index = lazy(() => import('./pages/Index'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
@@ -39,7 +44,7 @@ export default function App() {
         <TooltipProvider>
           <Toaster />
           <SonnerToaster />
-          <BrowserRouter>
+          <Router>
             <TopLoadingBar />
             <Suspense fallback={null}>
               <Routes>
@@ -227,7 +232,7 @@ export default function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </BrowserRouter>
+          </Router>
         </TooltipProvider>
       </LangProvider>
     </QueryClientProvider>

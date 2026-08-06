@@ -5,6 +5,12 @@ import {
   type ScanErrorKind,
   type TKey,
 } from '@km0lab/app'
+import {
+  CapacitorBarcodeScanner,
+  CapacitorBarcodeScannerCameraDirection,
+  CapacitorBarcodeScannerTypeHint,
+} from '@capacitor/barcode-scanner'
+import { Capacitor } from '@capacitor/core'
 import { useMachine } from '@xstate/react'
 import { BrowserQRCodeReader } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
@@ -98,6 +104,10 @@ const Scanner = () => {
   // ── Càmera: arranca només a `reading` ──────────────────────
   useEffect(() => {
     if (status !== 'reading') {
+      return
+    }
+    // En plataforma nativa el escáner lo abre el plugin nativo (efecto aparte).
+    if (Capacitor.isNativePlatform()) {
       return
     }
     const video = videoRef.current
@@ -249,6 +259,30 @@ const Scanner = () => {
       video.srcObject = null
     }
   }, [status, send])
+
+  // ── Escáner nativo (Capacitor): abre la UI de cámara nativa ──
+  useEffect(() => {
+    if (status !== 'reading') return
+    if (!Capacitor.isNativePlatform()) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const result = await CapacitorBarcodeScanner.scanBarcode({
+          hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
+          cameraDirection: CapacitorBarcodeScannerCameraDirection.BACK,
+        })
+        if (cancelled) return
+        const code = result.ScanResult
+        send({ type: 'DETECT', code: code || '' })
+      } catch {
+        // Usuario canceló o permiso denegado: vuelve al listado de comercios.
+        if (!cancelled) navigate('/merchants')
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [status, send, navigate])
 
   // ── Deep link `/scanner?c=<token>` ─────────────────────────
   useEffect(() => {

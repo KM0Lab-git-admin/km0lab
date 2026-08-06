@@ -58,15 +58,16 @@ pnpm validate                # type:check + lint + format:check
 **`apps/km0lab`**
 
 ```bash
-pnpm --filter km0lab dev         # expo start (env development)
-pnpm --filter km0lab web         # expo start --web
-pnpm --filter km0lab android     # expo run:android
-pnpm --filter km0lab ios         # expo run:ios
-pnpm --filter km0lab tunnel      # expo start --tunnel
-pnpm --filter km0lab build:web   # expo export -p web (env production)
-pnpm --filter km0lab prebuild:android
-pnpm --filter km0lab prebuild:ios
-pnpm --filter km0lab expo:doctor
+pnpm --filter km0lab dev         # vite (env development)
+pnpm --filter km0lab build       # vite build (env production)
+pnpm --filter km0lab type:check  # tsc --noEmit
+pnpm --filter km0lab lint        # eslint
+# Capacitor (builds móviles):
+pnpm --filter km0lab cap:sync
+pnpm --filter km0lab cap:open:android
+pnpm --filter km0lab cap:build:android  # build web + cap sync
+pnpm --filter km0lab cap:apk:android    # ./gradlew assembleRelease (APK)
+pnpm --filter km0lab cap:aab:android    # ./gradlew bundleRelease (AAB)
 ```
 
 Entornos definidos en `apps/km0lab/env/.env.development` y

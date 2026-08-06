@@ -8,10 +8,10 @@ Esta guía es **operativa**: pasos concretos, comandos exactos, anti-patrones ap
 
 ## 1. Contexto: por qué hay dos repos
 
-| Repo                                                  | Rol                                                           | Stack                                                                                                        |
-| ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **Lovable** — `KM0Lab-git-admin/speak-spanish-easily` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                     |
-| **Producción** — `KM0Lab-git-admin/km0lab`            | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor (preparado, sin shells) |
+| Repo                                                  | Rol                                                           | Stack                                                                                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lovable** — `KM0Lab-git-admin/speak-spanish-easily` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                                                    |
+| **Producción** — `KM0Lab-git-admin/km0lab`            | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor 7 (shell Android commiteada en `apps/km0lab/android/`) |
 
 Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan **casi 1:1** al monorepo. Los componentes en `packages/components` (`@km0lab/ui`) se mantienen en sintonía con `src/components/ui/` de Lovable (estilo shadcn).
 
