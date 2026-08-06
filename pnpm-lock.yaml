@@ -223,18 +223,6 @@ importers:
         specifier: ^6.0.0
         version: 6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3)
 
-  apps/km0lab-back-office:
-    devDependencies:
-      '@km0lab/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      eslint:
-        specifier: ^9.36.0
-        version: 9.39.4(jiti@2.6.1)
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-
   packages/app:
     dependencies:
       '@capacitor/core':
