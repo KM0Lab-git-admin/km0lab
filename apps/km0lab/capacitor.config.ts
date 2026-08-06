@@ -30,6 +30,16 @@ const config: CapacitorConfig = {
     backgroundColor: '#FFECD2',
   },
   plugins: {
+    // CapacitorHttp parchea `fetch` y `XMLHttpRequest` en nativo para enrutar
+    // las peticiones por la pila de red nativa (OkHttp en Android). Así se
+    // evita por completo el CORS del WebView: el origen `https://localhost`
+    // no está en la lista de orígenes permitidos de las APIs (events-query y
+    // km0lab-api), así que sin esto toda llamada a la API falla con
+    // "Failed to fetch". En web esta opción se ignora y se usa el fetch del
+    // navegador.
+    CapacitorHttp: {
+      enabled: true,
+    },
     SplashScreen: {
       launchShowDuration: 0,
       showSpinner: false,
