@@ -36,7 +36,7 @@ Contiene **6 bloques numerados**:
 | 3   | Promocions del comerç (vista usuari) | ⬜ pendiente                                | Promociones **solo informativas** (sin canje/código).                                                                |
 | 4   | Procés d'escaneig del QR — estats    | ⬜ pendiente                                | Lectura · validació · error · èxit. QR de **puntos** (visitar → escanear).                                           |
 | 5   | Confirmació de punts obtinguts       | ⬜ pendiente                                | Pantalla de celebración tras escaneo correcto.                                                                       |
-| 6   | Backoffice del comerç (web)          | ⬜ pendiente                                | Dos vistas: **El meu QR** y **Promocions** (alta/edición/activación). Es **escritorio** (`apps/km0lab-back-office`). |
+| 6   | Backoffice del comerç (web)          | ⬜ pendiente                                | Dos vistas: **El meu QR** y **Promocions** (alta/edición/activación). Es **escritorio** (repo propio `km0lab-backoffice`). |
 
 ## 2. Decisiones funcionales ya tomadas (respétalas en los prompts)
 
@@ -53,7 +53,7 @@ Contiene **6 bloques numerados**:
 - **Puntos vs promociones**: son cosas distintas. Los puntos se ganan escaneando el QR
   y se canjean en una sección de **Recompenses** aparte (fuera de esta sección). Las
   promociones no gastan puntos.
-- **Back-office = web/escritorio** (encaja en `apps/km0lab-back-office`); también usable
+- **Back-office = web/escritorio** (repo propio `km0lab-backoffice`); también usable
   en móvil/tablet por ser web responsivo.
 - **Sin favoritos** (no hay corazón) y **sin sello "adherit"** (si el comercio está en la
   app, ya está adherido) — no los pongas en ninguna pantalla.

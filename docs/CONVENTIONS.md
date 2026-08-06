@@ -38,7 +38,6 @@ km0lab/
 │   │   ├── capacitor.config.ts
 │   │   ├── postcss.config.js
 │   │   └── tailwind.config.js
-│   └── km0lab-back-office/    # stub (el backoffice real es el repo km0lab-backoffice)
 └── packages/
     ├── app/                    # @km0lab/app (lógica compartida)
     ├── components/             # @km0lab/ui (UI compartida)

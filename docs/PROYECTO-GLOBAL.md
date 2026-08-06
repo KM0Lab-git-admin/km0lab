@@ -78,9 +78,9 @@ flowchart TB
 
 > **Nota sobre los "-lovable".** No son proyectos independientes: son el
 > entorno donde se **diseña** la interfaz antes de llevarla a producción. Ver
-> §4 (el flujo Lovable ↔ producción). El monorepo `km0lab` contiene también un
-> stub `apps/km0lab-back-office`, pero el backoffice **activo** es el repo
-> propio `km0lab-backoffice` (stack distinto).
+> §4 (el flujo Lovable ↔ producción). El backoffice **no** vive dentro del
+> monorepo `km0lab`: es un repositorio propio, `km0lab-backoffice` (stack
+> distinto).
 
 ---
 
@@ -201,7 +201,6 @@ verdad de la documentación** de todo el proyecto.
 | Path | Paquete | Qué es |
 | --- | --- | --- |
 | `apps/km0lab` | — | App principal cross-platform (Vite + React 19 + Capacitor). |
-| `apps/km0lab-back-office` | — | Stub/placeholder (el backoffice real es otro repo). |
 | `packages/components` | `@km0lab/ui` | Librería de UI compartida (primitivos shadcn). |
 | `packages/app` | `@km0lab/app` | Lógica compartida (hooks, services, stores, machines, design-system). |
 | `packages/km0lab-web-theme` | `@km0lab/web-theme` | Tokens CSS/Tailwind para apps web. |

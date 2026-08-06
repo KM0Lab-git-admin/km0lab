@@ -29,7 +29,6 @@ pnpm design:doc       # regenerar docs/DESIGN-SYSTEM.md
 | Path                        | Package                 | Description                                                          |
 | --------------------------- | ----------------------- | -------------------------------------------------------------------- |
 | `apps/km0lab`               | —                       | App principal cross-platform (Vite + React 19 + Capacitor)           |
-| `apps/km0lab-back-office`   | —                       | Stub/placeholder (el backoffice real es el repo `km0lab-backoffice`) |
 | `packages/components`       | `@km0lab/ui`            | Librería de UI compartida (primitivos shadcn)                        |
 | `packages/app`              | `@km0lab/app`           | Lógica compartida (hooks, services, stores, machines, design-system) |
 | `packages/km0lab-web-theme` | `@km0lab/web-theme`     | Tokens CSS/Tailwind para apps web                                    |
