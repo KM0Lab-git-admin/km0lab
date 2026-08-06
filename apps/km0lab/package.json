@@ -17,7 +17,10 @@
     "cap:add:android": "cap add android",
     "cap:add:ios": "cap add ios",
     "cap:open:android": "cap open android",
-    "cap:open:ios": "cap open ios"
+    "cap:open:ios": "cap open ios",
+    "cap:build:android": "pnpm build && pnpm cap:sync",
+    "cap:apk:android": "cd android && ./gradlew assembleRelease",
+    "cap:aab:android": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@capacitor/app": "^7.1.2",
