@@ -156,8 +156,9 @@ Obligatorio cumplir TODAS:
    `background`, `muted`, `accent`, `destructive`, `success`, `info`,
    `warning`, `card`, `border`, `ring`.
 6. Si falta un valor → **primero** añade token/variable, **después** usa la clase.
-7. Las preferencias de NativeWind `web:`, `native:`, `ios:`, `android:`
-   son la forma correcta de diferenciar plataformas; no crees ramas JS para estilos.
+7. Diferencia responsive con los breakpoints del proyecto (`vertical-mobile:`,
+   `vertical-tablet:`, `horizontal-mobile:`, `horizontal-desktop:`); no crees
+   ramas JS para estilos.
 
 ### Breakpoints del proyecto
 
@@ -165,7 +166,7 @@ Hay que distinguir dos cosas:
 
 **1. Breakpoints CSS (rangos)** — definidos en `apps/km0lab/tailwind.config.js`
 como `screens`. Cubren rangos amplios de viewport y se aplican vía clases
-NativeWind:
+Tailwind:
 
 - `vertical-mobile` — `(orientation: portrait) and (max-width: 767px)`.
 - `vertical-tablet` — `(orientation: portrait) and (min-width: 768px)`.
@@ -202,14 +203,12 @@ Consulta `docs/CONVENTIONS.md` para la tabla completa.
 - Composición explícita (`<Card>`, `<CardHeader>`, `<CardContent>`...)
   antes que props mágicas.
 - Props tipadas en TypeScript. **No `any`**. Si es inevitable, documenta por qué.
-- React Native por defecto: **no** añadas `"use client"`.
-- Iconos: `cssInterop` ya está centralizado en `lib/utils.tsx` (`interopIcon`).
+- Iconos: `interopIcon` centralizado en `lib/utils.tsx`.
 
 Patrón de un componente nuevo en `@km0lab/ui`:
 
 ```tsx
 import { cva } from 'class-variance-authority'
-import { View } from 'react-native'
 
 import { cn } from '@km0lab/ui/lib/utils'
 
@@ -225,11 +224,11 @@ const widgetVariants = cva('rounded-2xl border border-border bg-card p-4', {
   defaultVariants: { tone: 'default' },
 })
 
-type WidgetProps = React.ComponentProps<typeof View> &
+type WidgetProps = React.ComponentProps<'div'> &
   VariantProps<typeof widgetVariants>
 
 function Widget({ className, tone, ...props }: WidgetProps) {
-  return <View className={cn(widgetVariants({ tone }), className)} {...props} />
+  return <div className={cn(widgetVariants({ tone }), className)} {...props} />
 }
 
 export { Widget, widgetVariants }
@@ -248,8 +247,8 @@ export type { WidgetProps }
   **estado feliz**.
 - La copy de producto no va hardcodeada en componentes de `@km0lab/ui`
   (vive en pantallas o en features).
-- Navegación: usar `expo-router` (`<Link>`, `useRouter`). No mezclar con
-  otra librería de navegación.
+- Navegación: usar **React Router DOM v7** (`<Link>`, `useNavigate`,
+  `useParams`). No mezclar con otra librería de navegación.
 
 ---
 
@@ -257,7 +256,7 @@ export type { WidgetProps }
 
 Orden obligatorio, **sin** líneas en blanco dentro del mismo grupo:
 
-1. Librerías externas (`react`, `react-native`, `expo-*`, `clsx`, …).
+1. Librerías externas (`react`, `react-router-dom`, `framer-motion`, `clsx`, …).
 2. Paquetes del monorepo (`@km0lab/ui`, `@km0lab/app`, `@km0lab/web-theme`).
 3. Imports relativos (`./...`, `../...`).
 4. Tipos con `import type` (al final de cada bloque si aplica).
@@ -358,9 +357,9 @@ Checklist obligatorio antes de pedir merge / terminar la tarea:
 ## 10. Assets visuales (sincronización con Lovable)
 
 Los assets visuales (imágenes, iconos, banderas, ilustraciones) **viven
-como source of truth en el repo de Lovable** (`speak-spanish-easily`).
-En este repo se consumen sincronizados a `apps/km0lab/assets/` para que
-Expo pueda hacer `require()` estático en build.
+como source of truth en el repo de Lovable** (`km0lab-lovable`).
+En este repo se consumen sincronizados a `apps/km0lab/src/assets/` para que
+Vite los resuelva como imports estáticos en build.
 
 ### 10.1. Cómo sincronizar
 
@@ -382,7 +381,7 @@ se perderá en la próxima ejecución.
 
 ### 10.3. Reglas duras
 
-- **PROHIBIDO** editar los binarios en `apps/km0lab/assets/` directamente:
+- **PROHIBIDO** editar los binarios en `apps/km0lab/src/assets/` directamente:
   modifícalos en Lovable y resincroniza.
 - **PROHIBIDO** committear configuración personal (paths absolutos del
   sistema operativo, credenciales, comandos `curl` improvisados) en

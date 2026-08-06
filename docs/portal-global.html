@@ -1,0 +1,619 @@
+<title>KM0 LAB · Documentación global</title>
+<style>
+  :root {
+    --cream-50:#FFF9F0; --cream-100:#FFECD2; --cream-200:#FDEEA9;
+    --navy-700:#174094; --navy-800:#132A50; --navy-900:#0F2040; --navy-500:#4674B8;
+    --teal:#00B8A9; --teal-bright:#00C7BC;
+    --coral:#FF664D; --coral-deep:#F0492E;
+    --yellow:#F5C542; --green:#22A06B;
+
+    /* semantic tokens — light */
+    --bg:var(--cream-50);
+    --surface:#FFFFFF;
+    --surface-2:var(--cream-100);
+    --ink:var(--navy-800);
+    --ink-soft:#5a6b86;
+    --line:#eaddc4;
+    --line-strong:#d9c9a8;
+    --primary:var(--navy-700);
+    --accent:var(--teal);
+    --shadow:0 1px 2px rgba(19,42,80,.05), 0 12px 32px -18px rgba(19,42,80,.28);
+    --shadow-sm:0 1px 2px rgba(19,42,80,.06);
+
+    /* family hues */
+    --fam-app:var(--navy-700);
+    --fam-bo:var(--teal);
+    --fam-api:var(--coral-deep);
+    --fam-web:var(--green);
+
+    --maxw:1120px;
+    --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:var(--navy-900);
+      --surface:#182f52;
+      --surface-2:#1c375f;
+      --ink:#f4ecdd;
+      --ink-soft:#a9b8d1;
+      --line:#294371;
+      --line-strong:#375285;
+      --primary:#6b8fd0;
+      --accent:var(--teal-bright);
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 18px 40px -20px rgba(0,0,0,.6);
+      --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+      --fam-app:#6b8fd0;
+      --fam-bo:var(--teal-bright);
+      --fam-api:#ff7d66;
+      --fam-web:#3cc487;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:var(--cream-50); --surface:#FFFFFF; --surface-2:var(--cream-100);
+    --ink:var(--navy-800); --ink-soft:#5a6b86; --line:#eaddc4; --line-strong:#d9c9a8;
+    --primary:var(--navy-700); --accent:var(--teal);
+    --shadow:0 1px 2px rgba(19,42,80,.05), 0 12px 32px -18px rgba(19,42,80,.28);
+    --fam-app:var(--navy-700); --fam-bo:var(--teal); --fam-api:var(--coral-deep); --fam-web:var(--green);
+  }
+  :root[data-theme="dark"]{
+    --bg:var(--navy-900); --surface:#182f52; --surface-2:#1c375f;
+    --ink:#f4ecdd; --ink-soft:#a9b8d1; --line:#294371; --line-strong:#375285;
+    --primary:#6b8fd0; --accent:var(--teal-bright);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 18px 40px -20px rgba(0,0,0,.6);
+    --fam-app:#6b8fd0; --fam-bo:var(--teal-bright); --fam-api:#ff7d66; --fam-web:#3cc487;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    font-feature-settings:"kern" 1;}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  h1,h2,h3{text-wrap:balance;line-height:1.1;margin:0}
+  p{margin:0}
+
+  .eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    font-weight:700;color:var(--accent)}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em;white-space:nowrap}
+  .brand .dot{width:22px;height:22px;border-radius:7px;background:var(--primary);
+    display:grid;place-items:center;color:#fff;font-size:.7rem;font-weight:900;flex:none}
+  .nav-links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav-links a{font-size:.82rem;font-weight:600;color:var(--ink-soft);text-decoration:none;
+    padding:6px 11px;border-radius:8px;transition:background .15s,color .15s}
+  .nav-links a:hover{background:var(--surface-2);color:var(--ink)}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* ---------- hero ---------- */
+  header.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero-grid{position:absolute;inset:0;opacity:.5;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:44px 44px;mask-image:radial-gradient(ellipse 80% 70% at 70% 0%,#000,transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 70% 0%,#000,transparent 75%)}
+  .hero-in{position:relative;padding:76px 0 64px}
+  .hero h1{font-size:clamp(2.7rem,7vw,5rem);font-weight:900;letter-spacing:-.035em;margin:18px 0 0}
+  .hero h1 .lab{color:var(--accent)}
+  .lede{font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--ink-soft);max-width:42ch;margin:20px 0 0;line-height:1.5}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;
+    background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);
+    padding:7px 13px;border-radius:100px;box-shadow:var(--shadow-sm)}
+  .chip b{color:var(--accent);font-weight:800}
+
+  section{padding:72px 0;border-bottom:1px solid var(--line)}
+  .sec-head{max-width:58ch;margin-bottom:38px}
+  .sec-head h2{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:850;letter-spacing:-.025em;margin-top:12px}
+  .sec-head p{color:var(--ink-soft);margin-top:14px;font-size:1.05rem}
+
+  /* ---------- pillars ---------- */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:820px){.pillars{grid-template-columns:1fr}}
+  .pillar{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .pillar .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px}
+  .pillar h3{font-size:1.18rem;font-weight:800;letter-spacing:-.01em}
+  .pillar p{color:var(--ink-soft);margin-top:9px;font-size:.96rem}
+  .ic svg{width:23px;height:23px}
+
+  /* ---------- ecosystem ---------- */
+  .fam-legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:26px}
+  .fam-legend span{display:inline-flex;align-items:center;gap:8px;font-size:.83rem;font-weight:600;color:var(--ink-soft)}
+  .fam-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .repos{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+  .repo{grid-column:span 4;background:var(--surface);border:1px solid var(--line);border-radius:15px;
+    padding:22px;box-shadow:var(--shadow);position:relative;border-top:3px solid var(--fam);
+    display:flex;flex-direction:column;min-height:100%}
+  .repo.wide{grid-column:span 6}
+  @media(max-width:900px){.repo,.repo.wide{grid-column:span 6}}
+  @media(max-width:600px){.repo,.repo.wide{grid-column:span 12}}
+  .repo .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .repo code{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--fam);
+    background:color-mix(in srgb,var(--fam) 12%,transparent);padding:3px 9px;border-radius:7px;letter-spacing:-.02em}
+  .repo .badge{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+    padding:3px 8px;border-radius:100px;white-space:nowrap}
+  .badge.prod{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+  .badge.proto{background:color-mix(in srgb,var(--yellow) 22%,transparent);color:#b5860a}
+  :root[data-theme="dark"] .badge.proto,@media(prefers-color-scheme:dark){.badge.proto{color:var(--yellow)}}
+  .repo h3{font-size:1.02rem;font-weight:800}
+  .repo p{color:var(--ink-soft);font-size:.9rem;margin-top:7px;flex:1}
+  .repo .meta{margin-top:15px;padding-top:13px;border-top:1px dashed var(--line-strong);
+    display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:.72rem;font-weight:600;color:var(--ink-soft);background:var(--surface-2);
+    padding:3px 8px;border-radius:6px;font-family:var(--mono)}
+  .repo .branch{font-size:.72rem;color:var(--ink-soft);margin-top:11px;font-family:var(--mono)}
+  .repo .branch b{color:var(--fam);font-weight:700}
+
+  /* ---------- diagram card ---------- */
+  .diagram{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:30px;
+    box-shadow:var(--shadow);overflow-x:auto}
+  .diagram svg{width:100%;min-width:640px;height:auto;display:block}
+  .dg-txt{font-family:var(--font);font-weight:700}
+  .dg-sub{font-family:var(--mono);font-weight:500}
+
+  /* ---------- flow (frontera) ---------- */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:step;margin-bottom:34px}
+  @media(max-width:820px){.flow{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.flow{grid-template-columns:1fr}}
+  .step{position:relative;padding:24px 20px;background:var(--surface);border:1px solid var(--line);
+    border-right:none}
+  .flow .step:first-child{border-radius:15px 0 0 15px}
+  .flow .step:last-child{border-right:1px solid var(--line);border-radius:0 15px 15px 0}
+  @media(max-width:820px){.flow .step{border-right:1px solid var(--line);border-radius:12px!important;margin-bottom:0}}
+  .step::before{counter-increment:step;content:"0" counter(step);font-family:var(--mono);
+    font-size:.78rem;font-weight:700;color:var(--accent)}
+  .step h4{font-size:1rem;font-weight:800;margin:10px 0 6px;letter-spacing:-.01em}
+  .step p{font-size:.86rem;color:var(--ink-soft)}
+  .step .where{display:inline-block;margin-top:11px;font-size:.68rem;font-weight:800;text-transform:uppercase;
+    letter-spacing:.06em;padding:3px 9px;border-radius:100px}
+  .where.lov{background:color-mix(in srgb,var(--yellow) 22%,transparent);color:#9a7208}
+  .where.pro{background:color-mix(in srgb,var(--navy-700) 14%,transparent);color:var(--primary)}
+  :root[data-theme="dark"] .where.lov{color:var(--yellow)}
+
+  .frontier{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface));
+    border:1px solid var(--accent);border-radius:16px;padding:26px 28px;display:flex;gap:20px;align-items:flex-start}
+  .frontier .mark{flex:none;width:46px;height:46px;border-radius:13px;background:var(--accent);
+    color:#04312d;display:grid;place-items:center;font-weight:900;font-size:1.4rem}
+  .frontier h3{font-size:1.15rem;font-weight:800;margin-bottom:8px}
+  .frontier p{color:var(--ink);font-size:.97rem}
+  .frontier .test{margin-top:12px;font-size:.9rem;color:var(--ink-soft);border-left:3px solid var(--accent);
+    padding-left:14px}
+
+  /* ---------- gamification ---------- */
+  .gflow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .gnode{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:18px 16px;text-align:center;position:relative}
+  .gnode .n{font-family:var(--mono);font-size:.7rem;color:var(--ink-soft)}
+  .gnode h4{font-size:.95rem;font-weight:800;margin:8px 0 4px}
+  .gnode p{font-size:.8rem;color:var(--ink-soft)}
+  .garrow{display:grid;place-items:center;color:var(--accent);font-size:1.3rem;flex:none;width:34px}
+  @media(max-width:720px){.garrow{transform:rotate(90deg)}.gnode{width:100%}}
+
+  /* ---------- environments ---------- */
+  .envs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:760px){.envs{grid-template-columns:1fr}}
+  .env{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:22px;box-shadow:var(--shadow-sm)}
+  .env .k{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--accent);text-transform:lowercase}
+  .env h3{font-size:1.1rem;font-weight:800;margin:6px 0 8px}
+  .env p{font-size:.88rem;color:var(--ink-soft)}
+  .env .host{margin-top:12px;font-family:var(--mono);font-size:.8rem;color:var(--ink);
+    background:var(--surface-2);border-radius:8px;padding:8px 11px}
+  .envbar{display:flex;align-items:center;gap:10px;margin-top:22px;font-family:var(--mono);
+    font-size:.8rem;color:var(--ink-soft);flex-wrap:wrap}
+  .envbar b{color:var(--ink)}
+  .envbar .arw{color:var(--accent)}
+
+  /* ---------- start ---------- */
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.steps{grid-template-columns:1fr}}
+  .st{display:flex;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+  .st .num{flex:none;width:32px;height:32px;border-radius:9px;background:var(--surface-2);color:var(--primary);
+    display:grid;place-items:center;font-weight:900;font-family:var(--mono);font-size:.9rem}
+  .st h4{font-size:.97rem;font-weight:800;margin-bottom:3px}
+  .st p{font-size:.86rem;color:var(--ink-soft)}
+  .st code{font-family:var(--mono);font-size:.82em;background:var(--surface-2);padding:1px 6px;border-radius:5px}
+
+  /* ---------- footer ---------- */
+  footer{padding:56px 0 70px}
+  .fgrid{display:grid;grid-template-columns:1.4fr 1fr;gap:40px}
+  @media(max-width:720px){.fgrid{grid-template-columns:1fr;gap:28px}}
+  .doc-index{display:grid;gap:8px}
+  .doc-index a{display:flex;justify-content:space-between;gap:14px;text-decoration:none;
+    font-size:.86rem;padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink)}
+  .doc-index a span:last-child{font-family:var(--mono);font-size:.78rem;color:var(--accent);text-align:right}
+  .doc-index a:hover span:first-child{color:var(--accent)}
+  .foot-note{font-size:.82rem;color:var(--ink-soft);margin-top:20px;line-height:1.7}
+
+  .kbd{font-family:var(--mono);font-size:.85em;background:var(--surface-2);border:1px solid var(--line-strong);
+    border-radius:6px;padding:1px 7px}
+</style>
+
+<nav>
+  <div class="nav-in">
+    <div class="brand"><span class="dot">K0</span>KM0&nbsp;LAB</div>
+    <div class="nav-links">
+      <a href="#producto">Producto</a>
+      <a href="#ecosistema">Ecosistema</a>
+      <a href="#arquitectura">Arquitectura</a>
+      <a href="#flujo">Flujo Lovable</a>
+      <a href="#puntos">Gamificación</a>
+      <a href="#entornos">Entornos</a>
+      <a href="#empezar">Empezar</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <span class="eyebrow">Documentación global · onboarding</span>
+    <h1>KM0&nbsp;<span class="lab">LAB</span></h1>
+    <p class="lede">La app del comercio y la vida de proximidad de un municipio. Un ecosistema de siete repositorios que conecta a los vecinos con su pueblo.</p>
+    <div class="chips">
+      <span class="chip">📍 Piloto: <b>Malgrat de Mar</b></span>
+      <span class="chip">🌐 <b>Trilingüe</b> · ca · es · en</span>
+      <span class="chip">📱 Móvil-first · web + Capacitor</span>
+      <span class="chip"><b>7</b> repositorios · 4 familias</span>
+    </div>
+  </div>
+</header>
+
+<!-- ======= PRODUCTO ======= -->
+<section id="producto">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Qué es</span>
+      <h2>Un pueblo, en el bolsillo</h2>
+      <p>KM0 LAB conecta a los vecinos con el comercio local, la agenda del municipio y un asistente con IA. El corazón del producto es la fidelización: escanear, sumar puntos, canjear recompensas.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="ic" style="background:color-mix(in srgb,var(--fam-app) 14%,transparent);color:var(--fam-app)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+        </div>
+        <h3>Comercio local</h3>
+        <p>Fichas de comercios, promociones y un programa de puntos por comprar de proximidad. Cada comercio tiene su QR físico.</p>
+      </div>
+      <div class="pillar">
+        <div class="ic" style="background:color-mix(in srgb,var(--fam-bo) 16%,transparent);color:var(--fam-bo)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <h3>Agenda con IA</h3>
+        <p>Eventos y noticias del municipio, buscables en lenguaje natural. «¿Qué hago este finde con niños?» → respuesta real y cercana.</p>
+      </div>
+      <div class="pillar">
+        <div class="ic" style="background:color-mix(in srgb,var(--coral) 16%,transparent);color:var(--coral-deep)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>
+        </div>
+        <h3>Gamificación</h3>
+        <p>Escaneas el QR de un comercio, ganas puntos, los canjeas por vales y experiencias. El núcleo del piloto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= ECOSISTEMA ======= -->
+<section id="ecosistema">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">El ecosistema</span>
+      <h2>Siete repositorios, cuatro familias</h2>
+      <p>KM0 LAB no es un único repositorio. Entender el mapa es la clave para no perderse: dos frentes de producto (app y backoffice), dos backends especializados, una web corporativa, y los prototipos de Lovable de donde nace el diseño.</p>
+    </div>
+
+    <div class="fam-legend">
+      <span><i style="background:var(--fam-app)"></i>App de vecinos</span>
+      <span><i style="background:var(--fam-bo)"></i>Backoffice</span>
+      <span><i style="background:var(--fam-api)"></i>Backends</span>
+      <span><i style="background:var(--fam-web)"></i>Web corporativa</span>
+    </div>
+
+    <div class="repos">
+      <!-- APP family -->
+      <div class="repo wide" style="--fam:var(--fam-app)">
+        <div class="top"><code>km0lab</code><span class="badge prod">producción</span></div>
+        <h3>App de vecinos + fuente de verdad</h3>
+        <p>Monorepo de la app principal cross-platform y hogar de toda la documentación de proceso del proyecto.</p>
+        <div class="meta"><span class="tag">pnpm + Turbo</span><span class="tag">React 19</span><span class="tag">Vite</span><span class="tag">Capacitor</span><span class="tag">Tailwind v3</span></div>
+        <div class="branch">rama · <b>develop</b></div>
+      </div>
+      <div class="repo wide" style="--fam:var(--fam-app)">
+        <div class="top"><code>km0lab-lovable</code><span class="badge proto">prototipo</span></div>
+        <h3>Diseño de la app en Lovable</h3>
+        <p>Source of truth de pantallas, diseño y assets de la app. Se lleva a producción vía <code style="all:unset;font-family:var(--mono);color:var(--fam-app)">sync:lovable</code>.</p>
+        <div class="meta"><span class="tag">Lovable</span><span class="tag">Vite</span><span class="tag">React</span></div>
+        <div class="branch">rama · <b>main</b> · no despliega</div>
+      </div>
+
+      <!-- BACKOFFICE family -->
+      <div class="repo wide" style="--fam:var(--fam-bo)">
+        <div class="top"><code>km0lab-backoffice</code><span class="badge prod">producción</span></div>
+        <h3>Panel de admin y comerç</h3>
+        <p>Un proyecto, dos roles: el <b>admin</b> gestiona toda su població; el <b>comerç</b>, solo su comercio. Menú y datos se adaptan al rol.</p>
+        <div class="meta"><span class="tag">TanStack Start</span><span class="tag">React 19</span><span class="tag">Tailwind v4</span><span class="tag">bun</span></div>
+        <div class="branch">rama · <b>develop</b></div>
+      </div>
+      <div class="repo wide" style="--fam:var(--fam-bo)">
+        <div class="top"><code>km0lab-backoffice-lovable</code><span class="badge proto">prototipo</span></div>
+        <h3>Diseño del backoffice en Lovable</h3>
+        <p>Prototipo visual del panel. Mismo flujo: se diseña aquí y se sincroniza al repo de producción.</p>
+        <div class="meta"><span class="tag">Lovable</span><span class="tag">TanStack</span></div>
+        <div class="branch">rama · <b>main</b> · no despliega</div>
+      </div>
+
+      <!-- BACKENDS family -->
+      <div class="repo" style="--fam:var(--fam-api)">
+        <div class="top"><code>km0lab-api</code><span class="badge prod">producción</span></div>
+        <h3>Backend de negocio</h3>
+        <p>Usuarios, auth OTP, puntos, comercios, QR y recompensas. Lectura y escritura.</p>
+        <div class="meta"><span class="tag">FastAPI</span><span class="tag">MySQL 8</span><span class="tag">Alembic</span><span class="tag">JWT</span></div>
+        <div class="branch">rama · <b>develop</b></div>
+      </div>
+      <div class="repo" style="--fam:var(--fam-api)">
+        <div class="top"><code>events-query</code><span class="badge prod">producción</span></div>
+        <h3>Agenda &amp; noticias con IA</h3>
+        <p>Búsqueda semántica de eventos en lenguaje natural. La app solo la consume (lectura).</p>
+        <div class="meta"><span class="tag">FastAPI</span><span class="tag">OpenAI</span><span class="tag">embeddings</span></div>
+        <div class="branch">rama · <b>develop</b></div>
+      </div>
+
+      <!-- WEB family -->
+      <div class="repo" style="--fam:var(--fam-web)">
+        <div class="top"><code>km0lab-web</code><span class="badge prod">producción</span></div>
+        <h3>Web corporativa</h3>
+        <p>Landing de marca con i18n ca/es y formulario de contacto (Resend). Fuentes propias, cero CDN de Lovable.</p>
+        <div class="meta"><span class="tag">Vite</span><span class="tag">React</span><span class="tag">shadcn/ui</span></div>
+        <div class="branch">rama · <b>main</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= ARQUITECTURA ======= -->
+<section id="arquitectura">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Arquitectura técnica</span>
+      <h2>Dos frentes, dos backends</h2>
+      <p>Los clientes de producto hablan con dos backends separados a propósito: uno para la agenda (solo lectura) y otro para el negocio y la sesión (lectura y escritura). Los idiomas viven en el frontend; el backend solo persiste datos.</p>
+    </div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 900 430" role="img" aria-label="Diagrama de arquitectura: clientes, frontends, backends y bases de datos">
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="var(--ink-soft)"/>
+          </marker>
+          <marker id="art" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- columns labels -->
+        <text x="120" y="30" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="12" letter-spacing="1.5">CLIENTES</text>
+        <text x="400" y="30" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="12" letter-spacing="1.5">FRONTENDS</text>
+        <text x="680" y="30" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="12" letter-spacing="1.5">BACKENDS</text>
+        <text x="850" y="30" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="12" letter-spacing="1.5">DATOS</text>
+
+        <!-- clients -->
+        <g>
+          <rect x="40" y="70" width="160" height="70" rx="12" fill="var(--surface-2)" stroke="var(--line-strong)"/>
+          <text x="120" y="100" text-anchor="middle" class="dg-txt" fill="var(--ink)" font-size="15">👤 Vecino</text>
+          <text x="120" y="120" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">app móvil / web</text>
+
+          <rect x="40" y="290" width="160" height="70" rx="12" fill="var(--surface-2)" stroke="var(--line-strong)"/>
+          <text x="120" y="320" text-anchor="middle" class="dg-txt" fill="var(--ink)" font-size="15">🏪 Comerç / Admin</text>
+          <text x="120" y="340" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">backoffice web</text>
+        </g>
+
+        <!-- frontends -->
+        <g>
+          <rect x="320" y="66" width="170" height="78" rx="13" fill="var(--surface)" stroke="var(--fam-app)" stroke-width="2"/>
+          <text x="405" y="98" text-anchor="middle" class="dg-txt" fill="var(--fam-app)" font-size="14">km0lab</text>
+          <text x="405" y="118" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">React 19 · Capacitor</text>
+
+          <rect x="320" y="286" width="170" height="78" rx="13" fill="var(--surface)" stroke="var(--fam-bo)" stroke-width="2"/>
+          <text x="405" y="318" text-anchor="middle" class="dg-txt" fill="var(--fam-bo)" font-size="14">km0lab-backoffice</text>
+          <text x="405" y="338" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">TanStack Start</text>
+        </g>
+
+        <!-- backends -->
+        <g>
+          <rect x="600" y="176" width="170" height="78" rx="13" fill="var(--surface)" stroke="var(--fam-api)" stroke-width="2"/>
+          <text x="685" y="205" text-anchor="middle" class="dg-txt" fill="var(--fam-api)" font-size="14">km0lab-api</text>
+          <text x="685" y="225" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">FastAPI · negocio</text>
+
+          <rect x="600" y="66" width="170" height="70" rx="13" fill="var(--surface)" stroke="var(--fam-api)" stroke-width="2" stroke-dasharray="2 4"/>
+          <text x="685" y="95" text-anchor="middle" class="dg-txt" fill="var(--fam-api)" font-size="14">events-query</text>
+          <text x="685" y="115" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="11">FastAPI · IA · lectura</text>
+        </g>
+
+        <!-- DBs -->
+        <g fill="var(--surface-2)" stroke="var(--line-strong)">
+          <path d="M800,80 a40,9 0 0 1 80,0 v22 a40,9 0 0 1 -80,0 z"/>
+          <path d="M800,196 a40,9 0 0 1 80,0 v22 a40,9 0 0 1 -80,0 z"/>
+        </g>
+        <text x="840" y="98" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="10">MySQL</text>
+        <text x="840" y="214" text-anchor="middle" class="dg-sub" fill="var(--ink-soft)" font-size="10">MySQL</text>
+
+        <!-- edges -->
+        <line x1="200" y1="105" x2="316" y2="105" stroke="var(--ink-soft)" stroke-width="1.6" marker-end="url(#ar)"/>
+        <line x1="200" y1="325" x2="316" y2="325" stroke="var(--ink-soft)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+        <!-- app -> api -->
+        <path d="M490,120 C550,140 560,200 596,212" fill="none" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#art)"/>
+        <!-- app -> events -->
+        <path d="M490,95 C540,92 560,100 596,100" fill="none" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        <!-- bo -> api -->
+        <path d="M490,318 C555,300 560,250 596,232" fill="none" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#art)"/>
+
+        <!-- backend -> db -->
+        <line x1="770" y1="100" x2="798" y2="97" stroke="var(--ink-soft)" stroke-width="1.6" marker-end="url(#ar)"/>
+        <line x1="770" y1="212" x2="798" y2="210" stroke="var(--ink-soft)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+        <!-- legend -->
+        <line x1="330" y1="405" x2="360" y2="405" stroke="var(--accent)" stroke-width="1.8"/>
+        <text x="366" y="409" class="dg-sub" fill="var(--ink-soft)" font-size="11">lectura + escritura</text>
+        <line x1="520" y1="405" x2="550" y2="405" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <text x="556" y="409" class="dg-sub" fill="var(--ink-soft)" font-size="11">solo lectura</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ======= FLUJO LOVABLE ======= -->
+<section id="flujo">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">El concepto clave</span>
+      <h2>El flujo Lovable ↔ producción</h2>
+      <p>Es la decisión de proceso que explica por qué hay repos «-lovable». Si solo entiendes una cosa de este proyecto, que sea esta: el diseño nace en Lovable, se valida sin código y se sincroniza mecánicamente a producción.</p>
+    </div>
+
+    <div class="flow">
+      <div class="step">
+        <h4>Prototipado en Lovable</h4>
+        <p>Toda la interfaz —pantallas, componentes, assets— nace en el repo de Lovable.</p>
+        <span class="where lov">Lovable</span>
+      </div>
+      <div class="step">
+        <h4>Validación con el PO</h4>
+        <p>El Product Owner lo aprueba por una URL de preview, sin leer código.</p>
+        <span class="where lov">Lovable</span>
+      </div>
+      <div class="step">
+        <h4>Sync mecánico</h4>
+        <p><code style="all:unset;font-family:var(--mono)">sync:lovable</code> copia el código, reescribe imports y verifica reglas.</p>
+        <span class="where pro">Producción</span>
+      </div>
+      <div class="step">
+        <h4>Implementación real</h4>
+        <p>Se conecta lo que toca el mundo real: auth, BD, secretos, lógica de negocio.</p>
+        <span class="where pro">Producción</span>
+      </div>
+    </div>
+
+    <div class="frontier">
+      <div class="mark" aria-hidden="true">⊘</div>
+      <div>
+        <h3>La frontera</h3>
+        <p>Todo lo que el usuario experimenta <b>contra mocks o APIs de solo lectura</b> vive en Lovable. Todo lo que toca <b>el mundo real</b> vive en producción.</p>
+        <p class="test"><b>Prueba de fuego:</b> ¿esto necesita un secreto/credencial/BD, escribe datos reales, autentica de verdad o es lógica de backend? → NO se hace en Lovable. Se deja una firma <i>mock</i> estable y producción la implementa después sin tocar la UI.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= GAMIFICACIÓN ======= -->
+<section id="puntos">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">El núcleo del piloto</span>
+      <h2>Puntos, QR y recompensas</h2>
+      <p>El circuito de fidelización. El vecino escanea, el backend valida y suma, y el saldo se lleva como un libro mayor de movimientos.</p>
+    </div>
+    <div class="gflow">
+      <div class="gnode"><div class="n">01</div><h4>Escaneo</h4><p>El vecino escanea el QR físico de un comercio.</p></div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="n">02</div><h4>Validación</h4><p>km0lab-api verifica (1 QR por comercio y día).</p></div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="n">03</div><h4>Suma de puntos</h4><p>Puntos del QR + acciones bonificadas que define el admin.</p></div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="n">04</div><h4>Ledger</h4><p>Cada movimiento queda en <code style="all:unset;font-family:var(--mono);font-size:.85em">points_transactions</code>.</p></div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="n">05</div><h4>Canje</h4><p>El vecino canjea recompensas del catálogo desde la app.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= ENTORNOS ======= -->
+<section id="entornos">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Entornos y despliegue</span>
+      <h2>Mínimos entornos, sin sorpresas</h2>
+      <p>Solo tres entornos, y UAT ≈ producción, para que el pase a prod no sorprenda. Frontends en Vercel, backends y MySQL en Railway. Auth passwordless por OTP de email.</p>
+    </div>
+    <div class="envs">
+      <div class="env">
+        <div class="k">local</div>
+        <h3>Desarrollo diario</h3>
+        <p>La máquina del desarrollador. Para probar auth end-to-end necesitas km0lab-api corriendo.</p>
+        <div class="host">localhost:5173 · :8000</div>
+      </div>
+      <div class="env">
+        <div class="k">uat</div>
+        <h3>Único entorno de prueba</h3>
+        <p>Casi idéntico a producción. Se despliega desde la rama <b>develop</b> de cada repo.</p>
+        <div class="host">*.uat.km0lab.com</div>
+      </div>
+      <div class="env">
+        <div class="k">production</div>
+        <h3>Público real</h3>
+        <p>Cuando UAT da el OK. Merge <b>develop → main</b> es una decisión humana explícita.</p>
+        <div class="host">*.km0lab.com</div>
+      </div>
+    </div>
+    <div class="envbar">
+      <b>develop</b><span class="arw">→</span>UAT<span class="arw">·</span><b>main</b><span class="arw">→</span>producción<span class="arw">·</span>Lovable solo <b>main</b> (sync, no despliega)
+    </div>
+  </div>
+</section>
+
+<!-- ======= EMPEZAR ======= -->
+<section id="empezar">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Onboarding</span>
+      <h2>Cómo empezar, en seis pasos</h2>
+    </div>
+    <div class="steps">
+      <div class="st"><div class="num">1</div><div><h4>Lee el mapa</h4><p>Este portal (o <code>docs/PROYECTO-GLOBAL.md</code>) para tener la vista del ecosistema completo.</p></div></div>
+      <div class="st"><div class="num">2</div><div><h4>Sitúate</h4><p>¿App, backoffice, backend de negocio, agenda o web? Cada pieza tiene su repo.</p></div></div>
+      <div class="st"><div class="num">3</div><div><h4>Entiende la frontera</h4><p>Si tocas UI de app o backoffice, el diseño se hace en el repo <code>-lovable</code> y se sincroniza.</p></div></div>
+      <div class="st"><div class="num">4</div><div><h4>Levanta el entorno</h4><p><code>pnpm dev</code> / <code>bun run dev</code> / <code>uvicorn</code>. Para auth real, arranca km0lab-api.</p></div></div>
+      <div class="st"><div class="num">5</div><div><h4>Lee las reglas del repo</h4><p><code>AGENTS.md</code> / <code>docs/KNOWLEDGE.md</code> son autoritativos: léelos antes de tocar código.</p></div></div>
+      <div class="st"><div class="num">6</div><div><h4>Trabaja en develop</h4><p>Ramas cortas, Conventional Commits, PR a <code>develop</code>. <code>main</code> está protegida.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= FOOTER ======= -->
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <div class="brand" style="font-size:1.2rem"><span class="dot">K0</span>KM0&nbsp;LAB</div>
+        <p class="foot-note">Portal de visión global del proyecto. Para el detalle vinculante de cada repositorio prevalece siempre el <span class="kbd">AGENTS.md</span> / <span class="kbd">KNOWLEDGE.md</span> del repo correspondiente. Generado a partir de la documentación real de los siete repositorios.</p>
+      </div>
+      <div>
+        <span class="eyebrow">Documentación de detalle</span>
+        <div class="doc-index" style="margin-top:16px">
+          <a><span>Onboarding para agentes de IA</span><span>km0lab/docs/START-HERE-AI.md</span></a>
+          <a><span>Arquitectura, estilos y git</span><span>km0lab/AGENTS.md</span></a>
+          <a><span>Contrato del sync Lovable</span><span>PORTING-FROM-LOVABLE.md</span></a>
+          <a><span>Modelo de datos y auth</span><span>km0lab/docs/BACKEND.md</span></a>
+          <a><span>Entornos y despliegue</span><span>km0lab/docs/ENVIRONMENTS.md</span></a>
+          <a><span>Dominio del backoffice</span><span>km0lab-backoffice/docs/KNOWLEDGE.md</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Keep any explicit theme toggle from the host in sync (defensive; page is theme-aware via tokens).
+  (function(){
+    var root=document.documentElement;
+    try{
+      var obs=new MutationObserver(function(){});
+      obs.observe(root,{attributes:true,attributeFilter:['data-theme']});
+    }catch(e){}
+  })();
+</script>

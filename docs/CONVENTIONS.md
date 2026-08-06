@@ -3,6 +3,11 @@
 Este documento complementa a `AGENTS.md` con detalles, ejemplos y la tabla
 completa de breakpoints. Pensado para personas y para agentes de IA.
 
+> Stack real de `apps/km0lab`: **Vite + React 19 + TypeScript + React Router
+> DOM v7 + Tailwind v3 + shadcn/ui + Capacitor**. (El repo migró en su día de
+> Expo + React Native + NativeWind a este stack; si ves referencias antiguas a
+> Expo/RN, están obsoletas.)
+
 ---
 
 ## 1. Estructura de carpetas
@@ -17,23 +22,31 @@ km0lab/
 ├── tsconfig.base.json          # paths @km0lab/* compartidos
 ├── tsconfig.json
 ├── apps/
-│   ├── km0lab/                 # app principal (Expo SDK 55)
-│   │   ├── app/                # rutas de expo-router
-│   │   ├── components/         # componentes específicos de la app
-│   │   ├── env/                # .env.development, .env.production
-│   │   ├── styles/global.css   # variables CSS
-│   │   ├── app.config.ts
-│   │   ├── babel.config.js
-│   │   ├── metro.config.js
+│   ├── km0lab/                 # app principal (Vite + React 19 + Capacitor)
+│   │   ├── index.html
+│   │   ├── src/
+│   │   │   ├── App.tsx         # rutas (React Router DOM v7)
+│   │   │   ├── main.tsx        # entrypoint
+│   │   │   ├── pages/          # una pantalla = un archivo PascalCase
+│   │   │   ├── components/     # componentes específicos de la app
+│   │   │   ├── contexts/       # p. ej. LangContext
+│   │   │   ├── locales/        # i18n
+│   │   │   ├── assets/         # binarios sincronizados desde Lovable
+│   │   │   └── styles/global.css
+│   │   ├── env/               # .env.development, .env.production
+│   │   ├── vite.config.ts
+│   │   ├── capacitor.config.ts
+│   │   ├── postcss.config.js
 │   │   └── tailwind.config.js
-│   └── km0lab-back-office/
+│   └── km0lab-back-office/    # stub (el backoffice real es el repo km0lab-backoffice)
 └── packages/
     ├── app/                    # @km0lab/app (lógica compartida)
     ├── components/             # @km0lab/ui (UI compartida)
     │   ├── icons/
     │   ├── lib/
     │   └── ui/
-    ├── km0lab-web-theme/       # @km0lab/web-theme (tokens para Next/Vite)
+    ├── km0lab-web-theme/       # @km0lab/web-theme (tokens para apps web)
+    ├── e2e/                    # @km0lab/e2e (Playwright)
     ├── eslint-config/
     └── jest-config/
 ```
@@ -46,7 +59,7 @@ km0lab/
 
 ```bash
 pnpm install
-npx turbo run dev            # arranca todo lo que tenga script `dev`
+pnpm dev                     # arranca apps/km0lab (Vite dev server)
 npx turbo run build
 npx turbo run type:check
 npx turbo run lint
@@ -72,7 +85,7 @@ pnpm --filter km0lab cap:aab:android    # ./gradlew bundleRelease (AAB)
 
 Entornos definidos en `apps/km0lab/env/.env.development` y
 `apps/km0lab/env/.env.production`. Las variables expuestas al cliente deben
-empezar por `EXPO_PUBLIC_`.
+empezar por `VITE_` (Vite solo inyecta esas en el bundle).
 
 ---
 
@@ -87,44 +100,44 @@ empezar por `EXPO_PUBLIC_`.
 6. Validar:
    ```bash
    npx turbo run type:check lint
-   pnpm --filter km0lab build:web
+   pnpm --filter km0lab build
    ```
 
 Regla de oro: si el componente solo se usa en una pantalla concreta, **no**
-lo metas en `@km0lab/ui`; déjalo en `apps/km0lab/components/...`.
+lo metas en `@km0lab/ui`; déjalo en `apps/km0lab/src/components/...`.
 
 ---
 
 ## 4. Añadir una pantalla
 
-1. Crear `apps/km0lab/app/<segmento>/index.tsx` (o `page.tsx` si el tooling
-   lo exige).
-2. Si la pantalla tiene sub-rutas, añadir `_layout.tsx` al mismo nivel.
+1. Crear `apps/km0lab/src/pages/<NombrePascal>.tsx` (export default).
+2. Declarar la ruta en `apps/km0lab/src/App.tsx` con `<Route>` (path en
+   `kebab-case`). Layout compartido: envolver en `<BrandedFrame>` o componer.
 3. Contemplar los cuatro estados:
    - Loading (normalmente `Skeleton`).
    - Empty (componente o bloque con CTA).
    - Error (mensaje semántico + CTA reintentar).
    - Feliz.
-4. Usar `expo-router` para navegar (`useRouter`, `<Link>`).
-5. Copy en español (o idioma del producto); **no** en `@km0lab/ui`.
+4. Navegar con React Router DOM (`useNavigate`, `<Link>`, `useParams`).
+5. Copy vía i18n (`useLang()` / diccionario); **no** hardcodear en `@km0lab/ui`.
 6. Si necesita un componente nuevo reutilizable, seguir sección 3.
 
 Plantilla mínima:
 
 ```tsx
-import { SafeAreaView, View } from 'react-native'
+import { useNavigate } from 'react-router-dom'
 
-import { Text } from '@km0lab/ui'
+import { Button } from '@km0lab/ui'
 
 export default function ExampleScreen() {
+  const navigate = useNavigate()
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 items-center justify-center gap-4 px-6">
-        <Text className="text-2xl font-sans-medium text-foreground">
-          Título de la pantalla
-        </Text>
-      </View>
-    </SafeAreaView>
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6">
+      <h1 className="text-2xl font-semibold text-foreground">
+        Título de la pantalla
+      </h1>
+      <Button onClick={() => navigate('/')}>Continuar</Button>
+    </div>
   )
 }
 ```
@@ -135,8 +148,8 @@ export default function ExampleScreen() {
 
 ### 5.1. Tokens de color
 
-Definidos como variables HSL en `apps/km0lab/styles/global.css` y mapeados en
-`apps/km0lab/tailwind.config.js`. Siempre usa los alias semánticos:
+Definidos como variables HSL en `apps/km0lab/src/styles/global.css` y mapeados
+en `apps/km0lab/tailwind.config.js`. Siempre usa los alias semánticos:
 
 - `background`, `foreground`
 - `muted`, `muted-foreground`
@@ -169,7 +182,8 @@ Declaradas en `theme.extend.fontFamily`. Clases útiles:
 - `font-sans-bold`
 
 Cuando se incorporen fuentes reales de marca, reemplazar los valores en
-`tailwind.config.js` y cargar las fuentes en la app Expo (`expo-font`).
+`tailwind.config.js` y cargar las fuentes vía CSS (`@font-face` en
+`global.css`, con los ficheros en `src/assets/fonts/`).
 
 ### 5.3. Breakpoints oficiales
 
@@ -188,11 +202,11 @@ exactamente un breakpoint (no hay "tierra de nadie"):
 | `horizontal-mobile`  | `(orientation: landscape) and (max-width: 1279px)` |
 | `horizontal-desktop` | `(orientation: landscape) and (min-width: 1280px)` |
 
-Se aplican vía clases NativeWind:
+Se aplican vía clases Tailwind:
 
 ```tsx
-<View className="py-2 vertical-tablet:py-6" />
-<View className="hidden horizontal-mobile:flex horizontal-desktop:flex" />
+<div className="py-2 vertical-tablet:py-6" />
+<div className="hidden horizontal-mobile:flex horizontal-desktop:flex" />
 ```
 
 #### 5.3.2. Resoluciones canónicas de validación visual (Playwright)
@@ -219,9 +233,10 @@ producción y lo que valida Playwright.
 
 ## 6. Accesibilidad mínima
 
-- Elementos interactivos deben ser accesibles: `role="button"` ya lo aplica
-  `<Button>` de `@km0lab/ui`; si creas otro interactivo, añade rol.
-- Estados `disabled`, `loading` y `focus` visibles (usar `web:focus-visible:...`).
+- Elementos interactivos deben ser accesibles: `<Button>` de `@km0lab/ui` ya
+  aplica el rol correcto; si creas otro interactivo, usa el elemento semántico
+  (`<button>`, `<a>`) o añade `role`.
+- Estados `disabled`, `loading` y `focus` visibles (usar `focus-visible:...`).
 - Textos con contraste (usa tokens `foreground` sobre `background`; `muted-foreground`
   sobre `muted`; `primary-foreground` sobre `primary`).
 - No usar color como único canal de información (acompañar con icono o texto).
@@ -230,11 +245,12 @@ producción y lo que valida Playwright.
 
 ## 7. Testing
 
-- Framework compartido: **Jest** (`@km0lab/jest-config`).
+- Framework compartido: **Jest** (`@km0lab/jest-config`, jsdom +
+  `@testing-library/react`).
 - Tests unitarios **colocalizados** junto al archivo: `Widget.test.tsx`.
-- Integración: `tests/integration/<feature>/*.test.ts`.
-- E2E: `tests/e2e/<feature>/*.e2e.ts` (cuando exista paquete `@km0lab/e2e`
-  configurado).
+- E2E / visual: paquete `@km0lab/e2e` (Playwright). Smoke de idiomas:
+  `pnpm --filter @km0lab/e2e qa:lang`; visual: `visual:language`,
+  `visual:onboarding`.
 
 Ejecutar:
 
@@ -257,26 +273,28 @@ Sugerencias de scopes ya usados:
 - `eslint-config`, `jest-config`.
 - `agents`, `docs` → para documentación.
 
-Flujo de rama sencillo:
+Flujo de rama (GitFlow ligero, ver `AGENTS.md` §8.1):
 
-1. Crear rama desde `main` con nombre descriptivo en `kebab-case`
+1. Crear rama desde **`develop`** con nombre descriptivo en `kebab-case`
    (`feat/home-screen`, `fix/button-disabled-color`).
 2. Commits pequeños y Conventional.
-3. Antes de merge: validate completo.
-4. Merge a `main` solo cuando el checklist de `AGENTS.md` §9 esté verde.
+3. Antes de merge: `pnpm validate` completo.
+4. PR a **`develop`** cuando el checklist de `AGENTS.md` §9 esté verde. El
+   merge `develop` → `main` es una decisión humana explícita.
 
 ---
 
 ## 9. Glosario rápido
 
 - **Token semántico**: variable CSS / clase Tailwind con nombre por
-  **función** (`primary`, `danger`, `muted`), no por color real.
-- **NativeWind**: Tailwind para React Native + web; permite prefijos
-  `web:`, `native:`, `ios:`, `android:`.
-- **Expo Router**: router basado en archivos para la app Expo (equivalente
-  al App Router de Next.js).
-- **Prebuild**: generar proyectos nativos (`android/`, `ios/`) a partir de
-  la configuración Expo para builds custom.
+  **función** (`primary`, `destructive`, `muted`), no por color real.
+- **Frontera** (Lovable ↔ producción): regla que separa lo que se hace contra
+  mocks en Lovable de lo que se implementa de verdad en producción. Ver
+  `docs/PORTING-FROM-LOVABLE.md`.
+- **sync:lovable**: script que porta mecánicamente el código de Lovable al
+  monorepo de producción (`scripts/sync-lovable.mjs` + `lovable-manifest.json`).
+- **Capacitor**: envoltorio que empaqueta la app web como app nativa
+  iOS/Android. Los shells nativos se generan bajo demanda con `cap:add:*`.
 
 ---
 
@@ -284,14 +302,15 @@ Flujo de rama sencillo:
 
 **¿Cuándo creo un componente en `@km0lab/ui` y cuándo en la app?**
 Si se usa en ≥ 2 pantallas o es claramente reutilizable → `@km0lab/ui`.
-Si es específico de una pantalla → `apps/km0lab/components/...`.
+Si es específico de una pantalla → `apps/km0lab/src/components/...`.
 
 **¿Puedo usar un color hex puntual?**
 No. Define token primero, úsalo luego.
 
-**¿Puedo meter `<Image src="data:..." />` gigante en el repo?**
-No. Assets binarios grandes no. Usar `public/` con nombres en `kebab-case`
-o CDN.
+**¿Puedo meter `<img src="data:..." />` gigante en el repo?**
+No. Assets binarios grandes no. Usar `src/assets/` (import ES module) o
+`public/` con nombres en `kebab-case`; los que vienen de Lovable, vía
+`pnpm sync:assets`.
 
 **¿Cómo añado una dependencia a solo un paquete?**
 

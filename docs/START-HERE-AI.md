@@ -15,14 +15,20 @@ por puntos/recompensas. Trilingüe (català por defecto, es, en). Uso
 mayoritariamente móvil, portrait. Corre en web (Vercel) y móvil
 (Capacitor).
 
-## 2. Arquitectura: cuatro repositorios
+## 2. Arquitectura: siete repositorios
 
-| Repo                                        | Rol                                                                                             | Rama de trabajo |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------- |
-| **`KM0Lab-git-admin/km0lab`**               | Monorepo de producción (pnpm + Turbo). App final + docs de proceso (fuente de verdad).          | `develop`       |
-| **`KM0Lab-git-admin/speak-spanish-easily`** | Proyecto de **Lovable**: prototipado visual, source of truth de pantallas/diseño/assets.        | `main`          |
-| **`KM0Lab-git-admin/events-query`**         | API de scraping (FastAPI): eventos y noticias del municipio. Solo se consume.                   | `develop`       |
-| **`KM0Lab-git-admin/km0lab-api`**           | Backend de la app (FastAPI + MySQL): usuarios y auth. Lectura/escritura. Ver `docs/BACKEND.md`. | `develop`       |
+| Repo                                          | Rol                                                                                              | Rama de trabajo |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------- |
+| **`KM0Lab-git-admin/km0lab`**                 | Monorepo de producción (pnpm + Turbo). App de vecinos + docs de proceso (fuente de verdad).      | `develop`       |
+| **`KM0Lab-git-admin/km0lab-lovable`**         | Proyecto de **Lovable** de la app: prototipado visual, source of truth de pantallas/diseño/assets. | `main`          |
+| **`KM0Lab-git-admin/km0lab-backoffice`**      | Panel web de admin (gestor de població) y comerç. TanStack Start. Ver su `docs/KNOWLEDGE.md`.    | `develop`       |
+| **`KM0Lab-git-admin/km0lab-backoffice-lovable`** | Proyecto de **Lovable** del backoffice: prototipado visual del panel.                          | `main`          |
+| **`KM0Lab-git-admin/km0lab-api`**             | Backend de negocio (FastAPI + MySQL): usuarios, auth, puntos, comercios, QR, recompensas. Ver `docs/BACKEND.md`. | `develop` |
+| **`KM0Lab-git-admin/events-query`**           | API de eventos y noticias del municipio (FastAPI + IA). Solo se consume (lectura).              | `develop`       |
+| **`KM0Lab-git-admin/km0lab-web`**             | Web corporativa de KM0 LAB (landing + contacto).                                                | `main`          |
+
+> Visión global de todo el ecosistema (para cualquier persona, no solo agentes):
+> [`docs/PROYECTO-GLOBAL.md`](PROYECTO-GLOBAL.md).
 
 Stack real de la app (`apps/km0lab`): **Vite + React 19 + Tailwind v3 +
 shadcn/ui + Radix + React Router v7 + Capacitor**. (⚠️ Ver §6: el stack
@@ -46,7 +52,7 @@ BD, secretos, lógica de negocio). El automatismo es `pnpm sync:lovable`.
 2. `docs/CONVENTIONS.md` — detalles, breakpoints, ejemplos.
 
 **El flujo Lovable ↔ producción:** 3. `docs/LOVABLE-KNOWLEDGE.md` (km0lab) = `docs/KNOWLEDGE.md`
-(speak-spanish-easily) — el contrato de generación de código para
+(km0lab-lovable) — el contrato de generación de código para
 Lovable: frontera, estructura, layout portrait-first, deps aprobadas. 4. `docs/PORTING-FROM-LOVABLE.md` — cómo se portan pantallas; §12
 documenta `pnpm sync:lovable` (script + manifest + candados `locked`).
 El contrato completo (portar todo lo portable, no machacar lógica
@@ -72,12 +78,12 @@ subdominios (`app.uat`, `api.uat`, `eventquery.uat`), ramas
 
 ## 5. Accesos que necesita la nueva sesión
 
-- **GitHub**: lectura/escritura en los cuatro repos del §2 (o solo lectura
+- **GitHub**: lectura/escritura en los repos del §2 (o solo lectura
   si únicamente va a guiar/consultar). En Claude Code web, añadirlos al
   scope de la sesión.
 - Ramas de trabajo del §2. Convención de commits y ramas: `AGENTS.md` §8.
 - No necesita acceso a Lovable en sí: la Knowledge y los prompts viven
-  en el repo `speak-spanish-easily` y se leen desde ahí.
+  en el repo `km0lab-lovable` y se leen desde ahí.
 
 ## 6. Estado actual y deudas conocidas
 
@@ -135,13 +141,14 @@ corregido; CLAUDE.md alineado al stack real.
 
 ## 7. Prompt inicial para arrancar la nueva sesión
 
-Pégale esto a la nueva sesión de Claude (con los cuatro repos en su scope):
+Pégale esto a la nueva sesión de Claude (con los repos en su scope):
 
 > Vas a ayudarme con KM0 LAB, una app de comercio de proximidad. El
 > contexto completo está versionado en el repo `KM0Lab-git-admin/km0lab`.
 > Antes de nada, lee `docs/START-HERE-AI.md` y todos los documentos que
 > enlaza, en el orden indicado. Tengo también los repos
-> `speak-spanish-easily` (Lovable), `events-query` (API de eventos) y
-> `km0lab-api` (backend de la app) en el scope.
+> `km0lab-lovable` (Lovable de la app), `km0lab-backoffice` (panel),
+> `events-query` (API de eventos) y `km0lab-api` (backend de negocio) en
+> el scope.
 > Cuando termines, hazme un resumen de en qué punto está el proyecto y
 > qué crees que es lo siguiente, y seguimos desde ahí.

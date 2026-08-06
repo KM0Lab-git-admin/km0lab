@@ -3,8 +3,10 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > Nuevo en el proyecto: empieza por [`docs/START-HERE-AI.md`](docs/START-HERE-AI.md)
-> (contexto completo, tres repos, flujo Lovable ↔ producción). Las reglas
-> vinculantes están en [`AGENTS.md`](AGENTS.md) y prevalecen sobre este archivo.
+> (onboarding para agentes) o [`docs/PROYECTO-GLOBAL.md`](docs/PROYECTO-GLOBAL.md)
+> (visión global del ecosistema de siete repos, flujo Lovable ↔ producción).
+> Las reglas vinculantes están en [`AGENTS.md`](AGENTS.md) y prevalecen sobre
+> este archivo.
 
 ## Package Manager & Monorepo
 
@@ -27,7 +29,7 @@ pnpm design:doc       # regenerar docs/DESIGN-SYSTEM.md
 | Path                        | Package                 | Description                                                          |
 | --------------------------- | ----------------------- | -------------------------------------------------------------------- |
 | `apps/km0lab`               | —                       | App principal cross-platform (Vite + React 19 + Capacitor)           |
-| `apps/km0lab-back-office`   | —                       | Back-office web app                                                  |
+| `apps/km0lab-back-office`   | —                       | Stub/placeholder (el backoffice real es el repo `km0lab-backoffice`) |
 | `packages/components`       | `@km0lab/ui`            | Librería de UI compartida (primitivos shadcn)                        |
 | `packages/app`              | `@km0lab/app`           | Lógica compartida (hooks, services, stores, machines, design-system) |
 | `packages/km0lab-web-theme` | `@km0lab/web-theme`     | Tokens CSS/Tailwind para apps web                                    |
