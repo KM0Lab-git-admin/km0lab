@@ -29,6 +29,15 @@ const config: CapacitorConfig = {
   ios: {
     backgroundColor: '#FFECD2',
   },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 0,
+      showSpinner: false,
+      androidScaleType: 'CENTER_CROP',
+      backgroundColor: '#FFECD2',
+      androidSplashResourceName: 'splash',
+    },
+  },
 }
 
 export default config
