@@ -1,5 +1,5 @@
 /**
- * apiClient — acceso HTTP a la API de events-query (eventquery.km0lab.com).
+ * apiClient — acceso HTTP a la API de events-query (eventquery.uat.km0lab.com).
  *
  * Base URL desde `VITE_EVENTS_API_URL`. En producción la app llama directa a
  * events-query (su CORS ya admite los dominios de la app); no se usa el proxy
