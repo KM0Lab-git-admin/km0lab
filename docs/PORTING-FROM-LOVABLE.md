@@ -10,7 +10,7 @@ Esta guía es **operativa**: pasos concretos, comandos exactos, anti-patrones ap
 
 | Repo                                                  | Rol                                                           | Stack                                                                                                        |
 | ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **Lovable** — `KM0Lab-git-admin/speak-spanish-easily` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                     |
+| **Lovable** — `KM0Lab-git-admin/km0lab-lovable` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                     |
 | **Producción** — `KM0Lab-git-admin/km0lab`            | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor (preparado, sin shells) |
 
 Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan **casi 1:1** al monorepo. Los componentes en `packages/components` (`@km0lab/ui`) se mantienen en sintonía con `src/components/ui/` de Lovable (estilo shadcn).
@@ -36,7 +36,7 @@ Antes de copiar un solo archivo, ejecuta estos pasos en orden:
 ```bash
 # si es la primera vez:
 git clone git@github.com:KM0Lab-git-admin/km0lab.git produccion
-git clone git@github.com:KM0Lab-git-admin/speak-spanish-easily.git lovable
+git clone git@github.com:KM0Lab-git-admin/km0lab-lovable.git lovable
 
 # si ya están clonados:
 cd produccion && git checkout develop && git pull
@@ -452,7 +452,7 @@ Cuando arranques un chat nuevo (Sonnet, Opus, otro modelo) y le quieras pedir qu
 
 ### 10.1. Prompt para portar una pantalla
 
-> Tengo dos repos: `KM0Lab-git-admin/speak-spanish-easily` (Lovable, source of truth visual) y `KM0Lab-git-admin/km0lab` (producción). Quiero portar la pantalla `<X>` desde Lovable al monorepo de producción.
+> Tengo dos repos: `KM0Lab-git-admin/km0lab-lovable` (Lovable, source of truth visual) y `KM0Lab-git-admin/km0lab` (producción). Quiero portar la pantalla `<X>` desde Lovable al monorepo de producción.
 >
 > Antes de tocar nada: lee `docs/PORTING-FROM-LOVABLE.md` del repo de producción, `AGENTS.md` y `docs/CONVENTIONS.md`. Sigue la receta de la sección 4 paso a paso. Si dudas, pregunta antes de actuar.
 >
@@ -555,7 +555,7 @@ en el mismo sync.
 ```bash
 pnpm sync:lovable -- --dry-run
 # con checkout local (recomendado):
-pnpm sync:lovable -- --dry-run --source ../speak-spanish-easily
+pnpm sync:lovable -- --dry-run --source ../km0lab-lovable
 ```
 
 3. Ejecuta en real, revisa el diff con git y completa los pasos
@@ -564,7 +564,7 @@ pnpm sync:lovable -- --dry-run --source ../speak-spanish-easily
    `npx turbo run type:check lint`, QA idiomas / visual):
 
 ```bash
-pnpm sync:lovable -- --source ../speak-spanish-easily
+pnpm sync:lovable -- --source ../km0lab-lovable
 ```
 
 Smoke de idiomas tras sync (Language → Onboarding en ca/es/en):

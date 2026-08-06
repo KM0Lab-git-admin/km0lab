@@ -13,7 +13,7 @@ proximidad de Malgrat de Mar) **pantalla a pantalla**, con este flujo:
    verdad visual y funcional). → `docs/comercos/comercos-mockup.html`
 2. El PO revisa el mockup y pide cambios; se iteran sobre el HTML.
 3. Cuando una pantalla se da por buena, se genera un **prompt de Lovable** para que
-   Lovable la construya en el repo prototipo (`speak-spanish-easily`), respetando el
+   Lovable la construya en el repo prototipo (`km0lab-lovable`), respetando el
    Design System. → `docs/comercos/prompts/`
 4. Más adelante ese código se porta a producción (`km0lab`) con el flujo de
    `docs/PORTING-FROM-LOVABLE.md`.
@@ -108,7 +108,7 @@ van en **catalán** (contenido por defecto de la app) + variante ES vía i18n. M
   leerla directamente desde `develop`.
 - **Para código nuevo**: trabaja en tu propia rama. El PO trabaja en `develop` en
   paralelo, así que evita commits de código que puedan colisionar (los docs no colisionan).
-- **Repos**: `km0lab` (producción, este repo), `speak-spanish-easily` (prototipo Lovable),
+- **Repos**: `km0lab` (producción, este repo), `km0lab-lovable` (prototipo Lovable),
   `events-query` (API de eventos/noticias, read-only), `km0lab-api` (backend de la app).
   Detalle en `docs/START-HERE-AI.md` y `docs/BACKEND.md`.
 

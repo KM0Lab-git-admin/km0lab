@@ -81,7 +81,7 @@ OTP en el log (`[DEV] OTP para …`).
 | `km0lab-api`                     | `main`      | **producción**                         |
 | `events-query`                   | `develop`   | **UAT** (API eventos)                  |
 | `events-query`                   | `main`      | **producción**                         |
-| Lovable (`speak-spanish-easily`) | solo `main` | No despliega UAT/prod; sync → `km0lab` |
+| Lovable (`km0lab-lovable`) | solo `main` | No despliega UAT/prod; sync → `km0lab` |
 
 Flujo diario:
 
