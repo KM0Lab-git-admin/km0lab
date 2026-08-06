@@ -12,5 +12,9 @@ coverage
 .env.local
 .env.*.local
 
+# Android build artifacts (no se commitean)
+*.apk
+*.aab
+
 # Local-only Claude Code settings (la versionada NO se committea)
 .claude/settings.local.json
