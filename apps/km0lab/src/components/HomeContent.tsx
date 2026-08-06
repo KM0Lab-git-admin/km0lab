@@ -80,7 +80,7 @@ const HomeContent = ({
   const showDemoBadge = isDemoPostalCode(postalCode)
 
   return (
-    <>
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
       <HomeHero
         cityName={cityName}
         hasAlerts={hasAlerts}
@@ -88,7 +88,7 @@ const HomeContent = ({
         showGreeting={false}
       />
 
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
         <div className="relative z-10 flex flex-col gap-5 px-2 pt-4 pb-6">
           {showDemoBadge ? (
             <p className="text-center font-ui font-bold text-xs text-km0-teal-600 uppercase tracking-wide px-4">
@@ -162,7 +162,7 @@ const HomeContent = ({
         onRewards={onRewards}
         onActions={onActions}
       />
-    </>
+    </div>
   )
 }
 

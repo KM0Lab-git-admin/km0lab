@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 import { ChevronLeft } from 'lucide-react'
 
 import Km0Logo from '@/components/Km0Logo'
@@ -18,8 +19,8 @@ import type { ReactNode } from 'react'
  *   horizontal-mobile   (≤1279 landscape)  → 667×375
  *   horizontal-desktop  (≥1280 landscape)  → 1280×550
  *
- * En desarrollo local se muestra el marco azul “teléfono”. En producción
- * (Vercel / build) el marco desaparece y la pantalla ocupa el viewport.
+ * En web se muestra el marco azul “teléfono”. En nativo (Android/iOS)
+ * el marco desaparece y la pantalla ocupa el viewport del dispositivo.
  *
  * Las pantallas de chat u otras que necesiten pantalla completa NO
  * usan este componente: tienen su propio layout (FullBleed).
@@ -37,8 +38,8 @@ interface BrandedFrameProps {
   landscapeContentClassName?: string
 }
 
-/** Marco "teléfono" siempre visible (dev y prod) hasta que exista layout landscape propio. */
-const showDeviceChrome = true
+/** Marco "teléfono" solo en web; en nativo ocupa el viewport real. */
+const showDeviceChrome = !Capacitor.isNativePlatform()
 
 const frameChromeClass = showDeviceChrome
   ? 'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
@@ -67,13 +68,12 @@ const BrandedFrame = ({
 
   return (
     <div
-      className="min-h-[100dvh] w-full flex items-center justify-center bg-gradient-to-b from-km0-beige-50 to-km0-beige-100"
-      style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)',
-      }}
+      className={cn(
+        'w-full bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 safe-area-inset',
+        showDeviceChrome
+          ? 'flex min-h-dvh items-center justify-center'
+          : 'flex h-dvh max-h-dvh flex-col overflow-hidden'
+      )}
     >
       {/* Frame único (portrait mobile). Mientras la app prioriza solo
           portrait, todas las pantallas se ven al mismo tamaño en
@@ -83,7 +83,7 @@ const BrandedFrame = ({
         className={cn(
           'flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
           frameChromeClass,
-          !showDeviceChrome && 'h-dvh w-full'
+          !showDeviceChrome && 'min-h-0 w-full flex-1'
         )}
         style={
           showDeviceChrome

@@ -11,12 +11,8 @@ import coatMalgrat from '@/assets/coat-malgrat.png'
  * HomeHero — header superior del Home.
  *
  * Estructura: el gradiente beige y el skyline son fondo del propio
- * `<section>`. El contenido (fila header + UserGreeting) se apila
- * en flujo normal con `relative`, así los márgenes/paddings funcionan
- * de verdad entre componentes (sin posiciones absolutas frágiles).
- *
- * En landscape el Hero se vuelve `absolute inset-0` para servir de
- * fondo del body; el contenido interno mantiene `pointer-events-auto`.
+ * `<section>`. La altura la marca el contenido (fila header ± greeting),
+ * sin aspect-ratio forzado, para una cabecera compacta y fija.
  */
 export interface HomeHeroProps {
   cityName: string
@@ -42,7 +38,7 @@ const HomeHero = ({
 }: HomeHeroProps) => {
   return (
     <motion.section
-      className="relative shrink-0 flex flex-col overflow-hidden bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 pb-0 aspect-[1920/716] w-full shadow-[0_10px_28px_-10px_hsl(var(--foreground)/0.22)]"
+      className="relative shrink-0 flex flex-col overflow-hidden bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 w-full shadow-home-hero"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -56,7 +52,7 @@ const HomeHero = ({
       />
 
       {/* Fila header: escudo + nombre + KM0 + bell */}
-      <div className="relative z-10 flex items-center justify-between gap-3 pl-4 pr-5 pt-3 pb-2 vertical-mobile:!pt-4 vertical-mobile:!pb-1">
+      <div className="relative z-10 flex items-center justify-between gap-3 px-4 py-2">
         <div className="flex items-center gap-2 min-w-0">
           {onBack && (
             <button
@@ -71,14 +67,14 @@ const HomeHero = ({
           <img
             src={coatMalgrat}
             alt={`Escudo de ${cityName}`}
-            className="w-14 h-14 object-contain shrink-0 drop-shadow-[0_2px_4px_hsl(0_0%_100%/0.5)]"
+            className="h-11 w-11 object-contain shrink-0 drop-shadow-sm"
           />
           <div className="flex flex-col items-start justify-center gap-0.5 leading-none min-w-0">
-            <h1 className="font-brand font-black text-km0-blue-700 whitespace-nowrap text-left border-0 text-lg">
+            <h1 className="font-brand font-black text-km0-blue-700 whitespace-nowrap text-left border-0 text-base">
               {cityName}
             </h1>
             <div className="flex items-center shrink-0">
-              <Km0Logo className="h-6 w-auto" />
+              <Km0Logo className="h-5 w-auto" />
             </div>
           </div>
         </div>

@@ -148,6 +148,7 @@ export default {
       },
       boxShadow: {
         'device-frame': '0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3)',
+        'home-hero': '0 10px 28px -10px hsl(var(--foreground) / 0.22)',
       },
       keyframes: {
         float: {
