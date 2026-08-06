@@ -1,11 +1,12 @@
-import { useState, FormEvent } from 'react'
+import { motion } from 'framer-motion'
+import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
-import { requestOtp } from '@km0lab/app'
+
+import { requestOtp, t, useAppStore } from '@km0lab/app'
+
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
 
 /**
  * Pantalla única de entrada (login + registro unificados).
@@ -28,11 +29,10 @@ const Login = () => {
     }
 
     setSubmitting(true)
-    const postalCode = localStorage.getItem('km0_postal_code') ?? undefined
-    const town = localStorage.getItem('km0_town') ?? undefined
+    const { postalCode, town } = useAppStore.getState()
     const { error } = await requestOtp(email.trim(), {
-      postal_code: postalCode,
-      town,
+      postal_code: postalCode ?? undefined,
+      town: town ?? undefined,
     })
 
     if (error) {

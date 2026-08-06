@@ -9,8 +9,9 @@
  *  - `postalCode` (+ `town`) — sin eso no hay Home.
  */
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
+import { persistentStorage } from '../services/storage'
 import { LANGS, type Lang } from '../utils/i18n'
 
 export interface AppUser {
@@ -181,6 +182,7 @@ export const useAppStore = create<AppState>()(
     {
       name: 'km0_app',
       version: 3,
+      storage: createJSONStorage(() => persistentStorage),
       partialize: (s) => ({
         session: s.session,
         token: s.token,

@@ -237,6 +237,12 @@ importers:
 
   packages/app:
     dependencies:
+      '@capacitor/core':
+        specifier: ^7.6.2
+        version: 7.6.2
+      '@capacitor/preferences':
+        specifier: ^7.0.4
+        version: 7.0.4(@capacitor/core@7.6.2)
       xstate:
         specifier: ^5.32.0
         version: 5.32.5
