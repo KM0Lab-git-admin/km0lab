@@ -31,17 +31,24 @@ app (`km0lab`, `lib/i18n.ts`). El backend solo persiste datos.
 
 ## 3. Alcance actual (MVP) vs. visión
 
-**Ahora (implementado en km0lab-api)**: solo **usuarios** y
-**autenticación**. Todo lo demás está **mockeado en la app** y se añadirá
-como módulos nuevos del backend cuando se implemente.
+> **Nota de estado (actualizado):** esta sección describía el MVP inicial
+> (solo usuarios + auth). El backend ha avanzado bastante desde entonces: en
+> **v0.2** ya tiene implementado casi todo el dominio (18 tablas, ~24
+> migraciones). La fuente de verdad del estado real es
+> [`km0lab-api/README.md`](https://github.com/KM0Lab-git-admin/km0lab-api).
 
-**Visión completa del modelo de datos** (7 tablas, 4 dominios):
+**Estado actual (implementado en km0lab-api, v0.2):**
 
-- **Identidad/perfil**: `users` ✅ (MVP).
-- **Gamificación**: `points_transactions` (libro mayor de puntos) —
-  diferido. Por ahora el saldo vive como columna `points` en `users`.
-- **Comercios y QR**: `shops`, `qr_scans` — diferido.
-- **Recompensas**: `rewards`, `redemptions` — diferido.
+- **Identidad/perfil**: `users`, `otp_codes`, `towns`, `town_postal_codes`,
+  `town_media`. ✅
+- **Comercios**: `shops`, `shop_categories`, `shop_media`, `shop_payments`,
+  `promotions`. ✅
+- **Catálogo**: `point_actions`, `rewards`, `reward_shops`, `reward_media`. ✅
+- **Gamificación / QR / canjes**: `points_transactions` (libro mayor de
+  puntos), `qr_scans`, `redemptions`, `redemption_events`. ✅
+
+Lo que sigue mockeado en la app es solo lo que aún no se ha conectado en el
+frontend, no lo que falta en el backend.
 
 ### Tabla `users` (MVP)
 
@@ -81,11 +88,15 @@ el header `Authorization`. Base URL por variable de entorno
 sostiene la sesión mock — al conectar, ese store pasa a llenarse con
 datos reales sin cambiar las pantallas (la frontera de KNOWLEDGE.md §0).
 
-## 6. Pendiente (cuando se implemente el resto)
+## 6. Pendiente
 
-- Módulos de backend: puntos (ledger), comercios, escaneo QR (con
-  anti-fraude: un QR por usuario y día), recompensas y canjes.
-- El **escáner de QR** en la app (acceso a cámara vía Capacitor) + el
-  endpoint que valida el QR y suma puntos. Es el núcleo del piloto.
-- Proveedor SMTP real para los OTP en producción.
+Los módulos de backend (puntos/ledger, comercios, escaneo QR con anti-fraude,
+recompensas y canjes) **ya están implementados** en km0lab-api v0.2. Lo que
+queda es sobre todo de frontend y operación:
+
+- El **escáner de QR** en la app (acceso a cámara vía Capacitor) conectado al
+  endpoint `POST /api/v1/scans` que valida el QR y suma puntos. Es el núcleo
+  del piloto.
+- Conectar en la app el resto de dominios reales (hoy parte sigue mock).
+- Proveedor SMTP/Resend real para los OTP en producción.
 - Despliegue en Railway con `alembic upgrade head` en el arranque.
