@@ -4,12 +4,6 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
-  useHomeRewards,
-  useUserPoints,
-  useAppStore,
-  readPendingReward,
-  clearPendingReward,
-  claimBirthday,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -20,17 +14,13 @@ import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
 import { useLang } from '@/contexts/LangContext'
+
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
 import { PROMOS } from '@/data/promos'
 
 type HomeProps = {
-  /** Forzar estado para previews (`/home-registered`, `/home-unregistered`). */
+  /** Forzar estado para previews (`/home-registered`, `/home-no-registrado`). */
   forceAuthState?: 'authed' | 'guest'
-}
-
-type RewardState = {
-  points: number
-  message: string
 }
 
 const Home = ({ forceAuthState }: HomeProps = {}) => {
@@ -44,16 +34,19 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   } = useNotifications()
   const { user, loading: authLoading } = useAuth()
   const { profile } = useProfile()
-  const { points: userPoints } = useUserPoints()
-  const { rewards } = useHomeRewards()
   const { lang } = useLang()
   const navigate = useNavigate()
 
+  // Estado real según sesión: sin user → mostrar CTA de login y ocultar
+  // puntos / acceso a perfil. Con user → al revés.
+  // Las rutas de preview pueden forzar el estado con `forceAuthState`.
   const isAuthed = forceAuthState ? forceAuthState === 'authed' : !!user
   const showLogin = !isAuthed
   const showProfile = isAuthed
   const showPoints = isAuthed
 
+  // Bandera de preview: permite que las rutas protegidas (historial, premis
+  // canjats, perfil) sean navegables desde `/home-registered` sin sesión real.
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (forceAuthState === 'authed') {
@@ -67,40 +60,11 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const [notifOpen, setNotifOpen] = useState(
     searchParams.get('notifs') === 'open'
   )
-  const [reward, setReward] = useState<RewardState | null>(() => {
-    if (searchParams.get('welcome') !== '1') return null
-    const pending = readPendingReward()
-    if (pending) {
-      return {
-        points: pending.points,
-        message: pending.message?.trim() || 'KM0 LAB',
-      }
-    }
-    return null
-  })
+  const [rewardOpen, setRewardOpen] = useState(
+    searchParams.get('welcome') === '1'
+  )
   const [moduleSeeds, setModuleSeeds] =
     useState<HomeModuleSeed[]>(INITIAL_MODULES)
-
-  useEffect(() => {
-    if (!isAuthed || forceAuthState === 'guest') return
-    if (searchParams.get('welcome') === '1') return
-    if (authLoading) return
-    let cancelled = false
-    ;(async () => {
-      const claim = await claimBirthday()
-      if (cancelled || !claim?.awarded || claim.points <= 0) return
-      setReward(
-        (prev) =>
-          prev ?? {
-            points: claim.points,
-            message: claim.message?.trim() || 'Happy birthday',
-          }
-      )
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [isAuthed, forceAuthState, authLoading, searchParams])
 
   const { promos: apiPromos } = useFeaturedPromos(4)
   const promos = apiPromos.length > 0 ? apiPromos : PROMOS
@@ -156,8 +120,10 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const goToPoints = () => navigate('/points-history')
   const goToRewards = () => navigate('/redeemed-rewards')
 
+  // Nombre: solo si el usuario está registrado Y ha guardado un first_name.
   const firstName = showProfile ? profile?.first_name?.trim() || null : null
 
+  // Saludo + subtítulo localizados según estado.
   const greeting = showLogin
     ? t('home.greeting.guest', lang)
     : t('home.greeting.registered', lang).replace('{name}', firstName ?? '')
@@ -165,22 +131,22 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  const storedTown = useAppStore((s) => s.town)
+  // Ciudad: prioriza perfil → localStorage → fallback.
+  const storedTown = (() => {
+    try {
+      return localStorage.getItem('km0_town')
+    } catch {
+      return null
+    }
+  })()
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
-  const points = isAuthed ? userPoints : 0
-  const level = 1
-
-  const nextRewardTarget = useMemo(() => {
-    if (!isAuthed) return null
-    const candidates = rewards
-      .filter((r) => r.status === 'active' && r.costPoints > points)
-      .sort((a, b) => a.costPoints - b.costPoints)
-    return candidates[0] ?? null
-  }, [isAuthed, rewards, points])
-
-  const nextLevel = nextRewardTarget?.costPoints ?? 1000
-  const nextReward = nextRewardTarget?.title
+  // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
+  // barra de progreso al 10% hacia el nivel 2 en 1.000 pts).
+  const points = isAuthed ? 100 : 0
+  const level = isAuthed ? 1 : 1
+  const nextLevel = 1000
+  const nextReward = isAuthed ? 'Val de 5€ al Forn Rovira' : undefined
 
   const sharedProps = {
     cityName,
@@ -197,6 +163,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     activeTab: 'home' as const,
     isAuthed,
     onLogin: goToLogin,
+    onHowItWorks: () => navigate('/how-it-works'),
     onHome: () => {},
     onProfile: goToProfile,
     onPoints: goToPoints,
@@ -209,16 +176,6 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     onSeeAllPromos: () => navigate('/rewards?tab=promos'),
     onOpenEvent: (id: string) => navigate(`/event?id=${id}`),
     onOpenPointsHistory: () => navigate('/points-history'),
-  }
-
-  const closeReward = () => {
-    setReward(null)
-    clearPendingReward()
-    if (searchParams.get('welcome')) {
-      const next = new URLSearchParams(searchParams)
-      next.delete('welcome')
-      setSearchParams(next, { replace: true })
-    }
   }
 
   return (
@@ -235,12 +192,19 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
             onClose={() => setNotifOpen(false)}
             onReload={reloadNotifs}
           />
-          {reward && isAuthed && (
+          {rewardOpen && isAuthed && (
             <PointsRewardOverlay
-              points={reward.points}
-              message={reward.message}
+              points={100}
+              message="Per registrar-te a KM0 LAB"
               contained
-              onClose={closeReward}
+              onClose={() => {
+                setRewardOpen(false)
+                if (searchParams.get('welcome')) {
+                  const next = new URLSearchParams(searchParams)
+                  next.delete('welcome')
+                  setSearchParams(next, { replace: true })
+                }
+              }}
             />
           )}
         </div>

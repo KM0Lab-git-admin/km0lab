@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { MapPin, Clock, Calendar, Tag } from 'lucide-react'
+
 import type { Evento } from '@km0lab/app'
 
 interface EventCardProps {

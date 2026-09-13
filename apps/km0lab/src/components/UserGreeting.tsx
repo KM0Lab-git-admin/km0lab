@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react'
-import handStarIcon from '@/assets/icon-hand-star.png'
+
 import giftIcon from '@/assets/icon-gift.png'
+import handStarIcon from '@/assets/icon-hand-star.png'
 
 /**
  * UserGreeting — saludo del usuario autenticado con puntos y progreso

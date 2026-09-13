@@ -1,9 +1,10 @@
 /**
  * Utilidades para shops.opening_hours (JSON semanal de km0lab-api).
  */
-import type { DayHoursOut, OpeningHoursOut } from '../services/km0labClient'
+import { t, type TKey } from './i18nProd'
+
 import type { Lang } from './i18n'
-import { t, type TKey } from './i18n'
+import type { DayHoursOut, OpeningHoursOut } from '../services/km0labClient'
 
 export const WEEKDAY_KEYS = [
   'monday',

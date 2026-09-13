@@ -1,5 +1,5 @@
 import { env } from './env'
-import { t } from './i18n'
+import { t } from './i18nProd'
 
 import type { Lang } from './i18n'
 import type { RewardOut } from '../services/km0labClient'

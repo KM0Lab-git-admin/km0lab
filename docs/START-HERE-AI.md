@@ -17,15 +17,15 @@ mayoritariamente móvil, portrait. Corre en web (Vercel) y móvil
 
 ## 2. Arquitectura: siete repositorios
 
-| Repo                                          | Rol                                                                                              | Rama de trabajo |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------- |
-| **`KM0Lab-git-admin/km0lab`**                 | Monorepo de producción (pnpm + Turbo). App de vecinos + docs de proceso (fuente de verdad).      | `develop`       |
-| **`KM0Lab-git-admin/km0lab-lovable`**         | Proyecto de **Lovable** de la app: prototipado visual, source of truth de pantallas/diseño/assets. | `main`          |
-| **`KM0Lab-git-admin/km0lab-backoffice`**      | Panel web de admin (gestor de població) y comerç. TanStack Start. Ver su `docs/KNOWLEDGE.md`.    | `develop`       |
-| **`KM0Lab-git-admin/km0lab-backoffice-lovable`** | Proyecto de **Lovable** del backoffice: prototipado visual del panel.                          | `main`          |
-| **`KM0Lab-git-admin/km0lab-api`**             | Backend de negocio (FastAPI + MySQL): usuarios, auth, puntos, comercios, QR, recompensas. Ver `docs/BACKEND.md`. | `develop` |
-| **`KM0Lab-git-admin/events-query`**           | API de eventos y noticias del municipio (FastAPI + IA). Solo se consume (lectura).              | `develop`       |
-| **`KM0Lab-git-admin/km0lab-web`**             | Web corporativa de KM0 LAB (landing + contacto).                                                | `main`          |
+| Repo                                             | Rol                                                                                                              | Rama de trabajo |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | --------------- |
+| **`KM0Lab-git-admin/km0lab`**                    | Monorepo de producción (pnpm + Turbo). App de vecinos + docs de proceso (fuente de verdad).                      | `develop`       |
+| **`KM0Lab-git-admin/km0lab-lovable`**            | Proyecto de **Lovable** de la app: prototipado visual, source of truth de pantallas/diseño/assets.               | `main`          |
+| **`KM0Lab-git-admin/km0lab-backoffice`**         | Panel web de admin (gestor de població) y comerç. TanStack Start. Ver su `docs/KNOWLEDGE.md`.                    | `develop`       |
+| **`KM0Lab-git-admin/km0lab-backoffice-lovable`** | Proyecto de **Lovable** del backoffice: prototipado visual del panel.                                            | `main`          |
+| **`KM0Lab-git-admin/km0lab-api`**                | Backend de negocio (FastAPI + MySQL): usuarios, auth, puntos, comercios, QR, recompensas. Ver `docs/BACKEND.md`. | `develop`       |
+| **`KM0Lab-git-admin/events-query`**              | API de eventos y noticias del municipio (FastAPI + IA). Solo se consume (lectura).                               | `develop`       |
+| **`KM0Lab-git-admin/km0lab-web`**                | Web corporativa de KM0 LAB (landing + contacto).                                                                 | `main`          |
 
 > Visión global de todo el ecosistema (para cualquier persona, no solo agentes):
 > [`docs/PROYECTO-GLOBAL.md`](PROYECTO-GLOBAL.md).

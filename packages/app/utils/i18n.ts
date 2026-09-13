@@ -166,10 +166,97 @@ const D = {
     es: 'Escoge tu idioma',
     en: 'Choose your language',
   } as Dict,
+  'language.image_alt': {
+    ca: "Plaça d'un municipi mediterrani plena de vida",
+    es: 'Plaza de un municipio mediterráneo llena de vida',
+    en: 'A lively Mediterranean town square',
+  } as Dict,
+  'language.catalan': { ca: 'Català', es: 'Català', en: 'Català' } as Dict,
+  'language.catalan_description': {
+    ca: 'Comença en català',
+    es: 'Comença en català',
+    en: 'Comença en català',
+  } as Dict,
+  'language.spanish': { ca: 'Español', es: 'Español', en: 'Español' } as Dict,
+  'language.spanish_description': {
+    ca: 'Empieza en español',
+    es: 'Empieza en español',
+    en: 'Empieza en español',
+  } as Dict,
+  'language.english': { ca: 'English', es: 'English', en: 'English' } as Dict,
+  'language.english_description': {
+    ca: 'Start in English',
+    es: 'Start in English',
+    en: 'Start in English',
+  } as Dict,
 
   // ── Onboarding ───────────────────────────────────────────
   'onboarding.skip': { ca: 'SALTAR', es: 'SALTAR', en: 'SKIP' } as Dict,
   'onboarding.finish': { ca: 'INICI', es: 'INICIO', en: 'START' } as Dict,
+
+  // ── How it works (carrusel de 5 pasos) ───────────────────
+  'how_it_works.subtitle': {
+    ca: 'Participa, suma punts i gaudeix de avantatges a prop teu.',
+    es: 'Participa, suma puntos y disfruta de ventajas cerca de ti.',
+    en: 'Take part, earn points and enjoy perks near you.',
+  } as Dict,
+  'how_it_works.badge': { ca: 'PAS', es: 'PASO', en: 'STEP' } as Dict,
+  'how_it_works.skip': { ca: 'SALTAR', es: 'SALTAR', en: 'SKIP' } as Dict,
+  'how_it_works.finish': {
+    ca: 'CREA EL TEU COMPTE',
+    es: 'CREA TU CUENTA',
+    en: 'CREATE YOUR ACCOUNT',
+  } as Dict,
+  'how_it_works.step1.title': {
+    ca: "Registra't",
+    es: 'Regístrate',
+    en: 'Sign up',
+  } as Dict,
+  'how_it_works.step1.desc': {
+    ca: 'Crea el teu compte a KM0 Lab i comença a formar part de la teva comunitat.',
+    es: 'Crea tu cuenta en KM0 Lab y empieza a formar parte de tu comunidad.',
+    en: 'Create your KM0 Lab account and start being part of your community.',
+  } as Dict,
+  'how_it_works.step2.title': {
+    ca: 'Visita comerços adherits',
+    es: 'Visita comercios adheridos',
+    en: 'Visit participating shops',
+  } as Dict,
+  'how_it_works.step2.desc': {
+    ca: "Descobreix els comerços i serveis que formen part de KM0 Lab i visita'ls.",
+    es: 'Descubre los comercios y servicios que forman parte de KM0 Lab y visítalos.',
+    en: 'Discover the shops and services that are part of KM0 Lab and visit them.',
+  } as Dict,
+  'how_it_works.step3.title': {
+    ca: 'Escaneja i suma punts',
+    es: 'Escanea y suma puntos',
+    en: 'Scan and earn points',
+  } as Dict,
+  'how_it_works.step3.desc': {
+    ca: "Busca el codi QR de l'establiment, escaneja'l des de l'app i aconsegueix punts per la teva visita.",
+    es: 'Busca el código QR del establecimiento, escanéalo desde la app y consigue puntos por tu visita.',
+    en: "Find the venue's QR code, scan it from the app and earn points for your visit.",
+  } as Dict,
+  'how_it_works.step4.title': {
+    ca: 'Segueix sumant',
+    es: 'Sigue sumando',
+    en: 'Keep earning',
+  } as Dict,
+  'how_it_works.step4.desc': {
+    ca: 'Aconsegueix més punts participant en esdeveniments, respondent enquestes, completant accions o celebrant moments especials com el teu aniversari.',
+    es: 'Consigue más puntos participando en eventos, respondiendo encuestas, completando acciones o celebrando momentos especiales como tu cumpleaños.',
+    en: 'Earn more points by taking part in events, answering surveys, completing actions or celebrating special moments like your birthday.',
+  } as Dict,
+  'how_it_works.step5.title': {
+    ca: 'Gaudeix dels teus punts',
+    es: 'Disfruta tus puntos',
+    en: 'Enjoy your points',
+  } as Dict,
+  'how_it_works.step5.desc': {
+    ca: 'Bescanvia els teus punts per productes, experiències, promocions o vals descompte en comerços locals. Els teus punts, tu tries.',
+    es: 'Canjea tus puntos por productos, experiencias, promociones o vales descuento en comercios locales. Tus puntos, tú eliges.',
+    en: 'Redeem your points for products, experiences, promotions or discount vouchers in local shops. Your points, your choice.',
+  } as Dict,
 
   // ── Postal code ──────────────────────────────────────────
   'postal.title': {
@@ -181,6 +268,11 @@ const D = {
     ca: 'Descobreix comerços i serveis al teu barri',
     es: 'Descubre comercios y servicios en tu barrio',
     en: 'Discover shops and services in your neighborhood',
+  } as Dict,
+  'postal.image_alt': {
+    ca: "Maqueta isomètrica d'una plaça mediterrània amb font, comerços i ajuntament",
+    es: 'Maqueta isométrica de una plaza mediterránea con fuente, comercios y ayuntamiento',
+    en: 'Isometric model of a Mediterranean square with a fountain, shops and town hall',
   } as Dict,
   'postal.placeholder': { ca: '08380', es: '08380', en: '08380' } as Dict,
   'postal.error_numeric': {
@@ -230,6 +322,43 @@ const D = {
     ca: "T'hem enviat un codi per correu",
     es: 'Te hemos enviado un código por email',
     en: "We've sent you a code by email",
+  } as Dict,
+
+  // ── Email OTP (plantilla de correo) ──────────────────────
+  'email_otp.title': {
+    ca: "El teu codi d'accés",
+    es: 'Tu código de acceso',
+    en: 'Your access code',
+  } as Dict,
+  'email_otp.intro': {
+    ca: 'Fes servir aquest codi per entrar a KM0 LAB o recuperar la teva sessió.',
+    es: 'Usa este código para entrar en KM0 LAB o recuperar tu sesión.',
+    en: 'Use this code to sign in to KM0 LAB or recover your session.',
+  } as Dict,
+  'email_otp.code_label': {
+    ca: 'Codi de 6 dígits',
+    es: 'Código de 6 dígitos',
+    en: '6-digit code',
+  } as Dict,
+  'email_otp.validity': {
+    ca: 'Vàlid durant {minutes} minuts',
+    es: 'Válido durante {minutes} minutos',
+    en: 'Valid for {minutes} minutes',
+  } as Dict,
+  'email_otp.security': {
+    ca: 'Si no has demanat aquest codi, ignora aquest correu. No el comparteixis amb ningú.',
+    es: 'Si no has pedido este código, ignora este correo. No lo compartas con nadie.',
+    en: "If you didn't request this code, ignore this email. Never share it.",
+  } as Dict,
+  'email_otp.footer_hint': {
+    ca: "No el trobes a la safata d'entrada? Mira a spam o promocions.",
+    es: '¿No lo encuentras en la bandeja de entrada? Mira en spam o promociones.',
+    en: "Can't find it in your inbox? Check spam or promotions.",
+  } as Dict,
+  'email_otp.footer_signature': {
+    ca: 'KM0 LAB · Comerç local de proximitat',
+    es: 'KM0 LAB · Comercio local de proximidad',
+    en: 'KM0 LAB · Local neighbourhood commerce',
   } as Dict,
 
   // ── OTP / Check email ────────────────────────────────────
@@ -331,11 +460,6 @@ const D = {
     es: 'Premios',
     en: 'Rewards',
   } as Dict,
-  'home.demo.badge': {
-    ca: 'Mode demo',
-    es: 'Modo demo',
-    en: 'Demo mode',
-  } as Dict,
   'home.section.promos': {
     ca: 'Promocions dels comerços',
     es: 'Promociones de los comercios',
@@ -399,9 +523,9 @@ const D = {
     en: 'You earned 100 welcome points',
   } as Dict,
   'home.join.title': {
-    ca: "Registra't i comença a guanyar 🎁",
-    es: 'Regístrate y empieza a ganar 🎁',
-    en: 'Sign up and start earning 🎁',
+    ca: "Registra't i comença a guanyar",
+    es: 'Regístrate y empieza a ganar',
+    en: 'Sign up and start earning',
   } as Dict,
   'home.join.body': {
     ca: "Acumula punts als comerços del poble i bescanvia'ls per vals i descomptes.",
@@ -417,6 +541,11 @@ const D = {
     ca: 'Només et cal un correu · 30 segons',
     es: 'Solo necesitas un email · 30 segundos',
     en: 'Just your email · 30 seconds',
+  } as Dict,
+  'home.join.how_it_works': {
+    ca: 'Com funciona?',
+    es: '¿Cómo funciona?',
+    en: 'How does it work?',
   } as Dict,
   'home.earn.title': {
     ca: 'Com guanyar punts',
@@ -632,7 +761,6 @@ const D = {
     en: 'No actions available.',
   } as Dict,
 
-  // Chips de tipo (API `type` → etiqueta corta)
   'points.actions.type.birthday': {
     ca: 'Aniversari',
     es: 'Aniversario',
@@ -642,11 +770,6 @@ const D = {
     ca: "Registre en l'app",
     es: 'Registro en la app',
     en: 'App sign-up',
-  } as Dict,
-  'points.actions.type.qr_scan': {
-    ca: "Escaneig d'un comerç",
-    es: 'Escaneo de un comercio',
-    en: 'Shop scan',
   } as Dict,
   'points.actions.type.first_scan': {
     ca: "Primer escaneig d'un comerç",
@@ -663,30 +786,15 @@ const D = {
     es: 'Visita web',
     en: 'Web visit',
   } as Dict,
-  'points.actions.type.web_signup': {
-    ca: 'Registre web',
-    es: 'Registro web',
-    en: 'Web sign-up',
-  } as Dict,
   'points.actions.type.newsletter': {
     ca: 'Registre web',
     es: 'Registro web',
     en: 'Web sign-up',
   } as Dict,
-  'points.actions.type.event': {
-    ca: 'Inscripció a esdeveniment',
-    es: 'Inscripción a evento',
-    en: 'Event sign-up',
-  } as Dict,
   'points.actions.type.event_signup': {
     ca: 'Inscripció a esdeveniment',
     es: 'Inscripción a evento',
     en: 'Event sign-up',
-  } as Dict,
-  'points.actions.type.custom': {
-    ca: 'Enquesta',
-    es: 'Encuesta',
-    en: 'Survey',
   } as Dict,
   'points.actions.type.survey': {
     ca: 'Enquesta',
@@ -694,7 +802,6 @@ const D = {
     en: 'Survey',
   } as Dict,
 
-  // Títulos canónicos por type de API (diccionario de acciones)
   'points.actions.birthday.title': {
     ca: 'Perquè avui és el teu aniversari!',
     es: '¡Porque hoy es tu aniversario!',
@@ -708,22 +815,12 @@ const D = {
   'points.actions.signup.title': {
     ca: "Primer registre a l'app",
     es: 'Primer registro en la app',
-    en: 'First app sign-up',
+    en: 'App sign-up',
   } as Dict,
   'points.actions.signup.description': {
     ca: "Els veïns reben un impuls inicial en donar-se d'alta.",
     es: 'Los vecinos reciben un impulso inicial al darse de alta.',
     en: 'Neighbours get an initial boost when signing up.',
-  } as Dict,
-  'points.actions.qr_scan.title': {
-    ca: "Primer escaneig d'un comerç",
-    es: 'Primer escaneo de un comercio',
-    en: 'First shop scan',
-  } as Dict,
-  'points.actions.qr_scan.description': {
-    ca: "Bonificació la primera vegada que s'escaneja un QR de comerç.",
-    es: 'Bonificación la primera vez que se escanea un QR de comercio.',
-    en: 'Bonus the first time a shop QR is scanned.',
   } as Dict,
   'points.actions.first_scan.title': {
     ca: "Primer escaneig d'un comerç",
@@ -755,16 +852,6 @@ const D = {
     es: 'Descubre los puntos de interés de Malgrat.',
     en: "Discover Malgrat's points of interest.",
   } as Dict,
-  'points.actions.web_signup.title': {
-    ca: 'Registre al butlletí municipal',
-    es: 'Registro al boletín municipal',
-    en: 'Sign up to the municipal newsletter',
-  } as Dict,
-  'points.actions.web_signup.description': {
-    ca: 'Rep les novetats del teu ajuntament al correu.',
-    es: 'Recibe las novedades de tu ayuntamiento en el correo.',
-    en: 'Get the latest news from your town hall by email.',
-  } as Dict,
   'points.actions.newsletter.title': {
     ca: 'Registre al butlletí municipal',
     es: 'Registro al boletín municipal',
@@ -775,16 +862,6 @@ const D = {
     es: 'Recibe las novedades de tu ayuntamiento en el correo.',
     en: 'Get the latest news from your town hall by email.',
   } as Dict,
-  'points.actions.event.title': {
-    ca: 'Inscripció a la Festa Major',
-    es: 'Inscripción a la Festa Major',
-    en: 'Sign up for the Festa Major',
-  } as Dict,
-  'points.actions.event.description': {
-    ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
-    es: 'Inscríbete a las actividades oficiales de la Festa Major.',
-    en: 'Sign up for official Festa Major activities.',
-  } as Dict,
   'points.actions.event_signup.title': {
     ca: 'Inscripció a la Festa Major',
     es: 'Inscripción a la Festa Major',
@@ -794,16 +871,6 @@ const D = {
     ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
     es: 'Inscríbete a las actividades oficiales de la Festa Major.',
     en: 'Sign up for official Festa Major activities.',
-  } as Dict,
-  'points.actions.custom.title': {
-    ca: 'Enquesta de satisfacció',
-    es: 'Encuesta de satisfacción',
-    en: 'Satisfaction survey',
-  } as Dict,
-  'points.actions.custom.description': {
-    ca: 'Respon una enquesta breu sobre el programa KM0 LAB.',
-    es: 'Responde una encuesta breve sobre el programa KM0 LAB.',
-    en: 'Answer a short survey about the KM0 LAB programme.',
   } as Dict,
   'points.actions.survey.title': {
     ca: 'Enquesta de satisfacció',
@@ -847,32 +914,11 @@ const D = {
     es: '{count} comercios',
     en: '{count} shops',
   } as Dict,
-  'merchants.scan_filter.all': { ca: 'Tots', es: 'Todos', en: 'All' } as Dict,
-  'merchants.scan_filter.scanned': {
-    ca: 'Escanejats',
-    es: 'Escaneados',
-    en: 'Scanned',
-  } as Dict,
-  'merchants.scan_filter.pending': {
-    ca: 'Pendents',
-    es: 'Pendientes',
-    en: 'Pending',
-  } as Dict,
   'merchants.card.qr': { ca: 'QR', es: 'QR', en: 'QR' } as Dict,
   'merchants.card.points': {
     ca: '+{n} pts',
     es: '+{n} pts',
     en: '+{n} pts',
-  } as Dict,
-  'merchants.card.scanned': {
-    ca: 'Ja escanejat',
-    es: 'Ya escaneado',
-    en: 'Scanned',
-  } as Dict,
-  'merchants.card.not_scanned': {
-    ca: 'Encara no escanejat',
-    es: 'Aún no escaneado',
-    en: 'Not scanned',
   } as Dict,
   'merchants.card.member': {
     ca: 'Adherit',
@@ -931,16 +977,6 @@ const D = {
     ca: 'tanca a les {h}',
     es: 'cierra a las {h}',
     en: 'closes at {h}',
-  } as Dict,
-  'merchant.status.scanned': {
-    ca: 'Ja escanejat',
-    es: 'Ya escaneado',
-    en: 'Already scanned',
-  } as Dict,
-  'merchant.status.not_scanned': {
-    ca: 'Encara no visitat',
-    es: 'Aún no visitado',
-    en: 'Not visited yet',
   } as Dict,
   'merchant.points.earn_title': {
     ca: 'Guanya +{n} punts',
@@ -1011,47 +1047,6 @@ const D = {
     ca: "Horari d'avui",
     es: 'Horario de hoy',
     en: "Today's schedule",
-  } as Dict,
-  'merchant.info.week': {
-    ca: 'Horari setmanal',
-    es: 'Horario semanal',
-    en: 'Weekly hours',
-  } as Dict,
-  'merchant.hours.closed': {
-    ca: 'Tancat',
-    es: 'Cerrado',
-    en: 'Closed',
-  } as Dict,
-  'merchant.day.monday': { ca: 'Dilluns', es: 'Lunes', en: 'Monday' } as Dict,
-  'merchant.day.tuesday': {
-    ca: 'Dimarts',
-    es: 'Martes',
-    en: 'Tuesday',
-  } as Dict,
-  'merchant.day.wednesday': {
-    ca: 'Dimecres',
-    es: 'Miércoles',
-    en: 'Wednesday',
-  } as Dict,
-  'merchant.day.thursday': {
-    ca: 'Dijous',
-    es: 'Jueves',
-    en: 'Thursday',
-  } as Dict,
-  'merchant.day.friday': {
-    ca: 'Divendres',
-    es: 'Viernes',
-    en: 'Friday',
-  } as Dict,
-  'merchant.day.saturday': {
-    ca: 'Dissabte',
-    es: 'Sábado',
-    en: 'Saturday',
-  } as Dict,
-  'merchant.day.sunday': {
-    ca: 'Diumenge',
-    es: 'Domingo',
-    en: 'Sunday',
   } as Dict,
   'merchant.info.phone': { ca: 'Telèfon', es: 'Teléfono', en: 'Phone' } as Dict,
   'merchant.info.web': { ca: 'Web', es: 'Web', en: 'Website' } as Dict,
@@ -1222,11 +1217,6 @@ const D = {
     es: 'Te faltan {n} puntos',
     en: '{n} points short',
   } as Dict,
-  'rewards.status.need_register': {
-    ca: "Registra't per bescanviar",
-    es: 'Regístrate para canjear',
-    en: 'Sign up to redeem',
-  } as Dict,
   'rewards.value': { ca: 'Valor', es: 'Valor', en: 'Value' } as Dict,
   'rewards.stock': { ca: 'Estoc', es: 'Stock', en: 'Stock' } as Dict,
   'rewards.stock_unlimited': {
@@ -1265,16 +1255,6 @@ const D = {
     en: 'Unavailable',
   } as Dict,
   'rewards.cost': { ca: '{n} pts', es: '{n} pts', en: '{n} pts' } as Dict,
-  'rewards.scope.all': {
-    ca: 'Tots els comerços adherits',
-    es: 'Todos los comercios adheridos',
-    en: 'All member shops',
-  } as Dict,
-  'rewards.scope.shops': {
-    ca: '{n} comerços adherits',
-    es: '{n} comercios adheridos',
-    en: '{n} member shops',
-  } as Dict,
   'rewards.empty': {
     ca: 'Encara no hi ha premis en aquesta categoria.',
     es: 'Aún no hay premios en esta categoría.',
@@ -1448,9 +1428,9 @@ const D = {
     en: 'Birth date',
   } as Dict,
   'profile.birth_date_hint': {
-    ca: 'Si configures la data, et donarem punts el dia del teu aniversari',
-    es: 'Si configuras la fecha, te daremos puntos el día de tu cumpleaños',
-    en: "If you set your birth date, you'll get points on your birthday",
+    ca: 'Rebràs 500 punts pel teu aniversari 🎂',
+    es: 'Recibirás 500 puntos por tu cumpleaños 🎂',
+    en: "You'll get 500 points on your birthday 🎂",
   } as Dict,
 
   'profile.error_phone': {
@@ -1741,31 +1721,6 @@ const D = {
     es: 'Cada comercio tiene su QR único',
     en: 'Each shop has its own unique QR',
   } as Dict,
-  'scanner.camera.permission_denied': {
-    ca: 'Cal permís de càmera per escanejar. Activa’l al navegador o puja una imatge del QR.',
-    es: 'Se necesita permiso de cámara para escanear. Actívalo en el navegador o sube una imagen del QR.',
-    en: 'Camera permission is needed to scan. Enable it in your browser or upload a QR image.',
-  } as Dict,
-  'scanner.camera.unavailable': {
-    ca: 'No hem trobat cap càmera. Pots pujar una imatge del QR del comerç.',
-    es: 'No hemos encontrado ninguna cámara. Puedes subir una imagen del QR del comercio.',
-    en: 'No camera found. You can upload an image of the shop QR.',
-  } as Dict,
-  'scanner.upload.cta': {
-    ca: 'Pujar imatge',
-    es: 'Subir imagen',
-    en: 'Upload image',
-  } as Dict,
-  'scanner.upload.hint': {
-    ca: 'O arrossega una foto del QR del comerç',
-    es: 'O arrastra una foto del QR del comercio',
-    en: 'Or drag a photo of the shop QR',
-  } as Dict,
-  'scanner.deeplink.invalid': {
-    ca: 'El codi del enllaç no és vàlid.',
-    es: 'El código del enlace no es válido.',
-    en: 'The link code is invalid.',
-  } as Dict,
   'scanner.debug.title': {
     ca: 'Simulació (només preview)',
     es: 'Simulación (solo preview)',
@@ -1815,9 +1770,9 @@ const D = {
     en: "You've already visited this shop",
   } as Dict,
   'scanner.error.ja_visitat.subtitle': {
-    ca: 'Els punts de {nom} ja són teus. Tornaran a estar actius el {data}. Mentrestant pots consultar les seves promocions!',
-    es: 'Los puntos de {nom} ya son tuyos. Volverán a estar activos el {data}. Mientras tanto puedes consultar sus promociones!',
-    en: "You already earned {nom}'s points. They unlock again on {data}. Meanwhile you can still check its promotions!",
+    ca: 'Els punts de {nom} ja són teus. Cada comerç dona punts un sol cop — però pots consultar les seves promocions!',
+    es: 'Los puntos de {nom} ya son tuyos. Cada comercio da puntos una sola vez — ¡pero puedes consultar sus promociones!',
+    en: "You already earned {nom}'s points. Each shop gives points only once — but you can still check its promotions!",
   } as Dict,
   'scanner.error.ja_visitat.cta_promos': {
     ca: 'Veure les promocions del comerç',
@@ -1896,69 +1851,6 @@ const D = {
     es: 'Volver al inicio',
     en: 'Back home',
   } as Dict,
-  'scanner.confirmation.history': {
-    ca: 'Veure historial',
-    es: 'Ver historial',
-    en: 'View history',
-  } as Dict,
-  'shopCategories.bakery': {
-    ca: 'Fleca',
-    es: 'Panadería',
-    en: 'Bakery',
-  } as Dict,
-  'shopCategories.food': {
-    ca: 'Alimentació',
-    es: 'Alimentación',
-    en: 'Food',
-  } as Dict,
-  'shopCategories.cafe': { ca: 'Cafè', es: 'Café', en: 'Café' } as Dict,
-  'shopCategories.restaurant': {
-    ca: 'Restaurant',
-    es: 'Restaurante',
-    en: 'Restaurant',
-  } as Dict,
-  'shopCategories.bar': { ca: 'Bar', es: 'Bar', en: 'Bar' } as Dict,
-  'shopCategories.butcher': {
-    ca: 'Carnisseria',
-    es: 'Carnicería',
-    en: 'Butcher',
-  } as Dict,
-  'shopCategories.greengrocer': {
-    ca: 'Fruiteria',
-    es: 'Frutería',
-    en: 'Greengrocer',
-  } as Dict,
-  'shopCategories.fishmonger': {
-    ca: 'Peixateria',
-    es: 'Pescadería',
-    en: 'Fishmonger',
-  } as Dict,
-  'shopCategories.pharmacy': {
-    ca: 'Farmàcia',
-    es: 'Farmacia',
-    en: 'Pharmacy',
-  } as Dict,
-  'shopCategories.bookstore': {
-    ca: 'Llibreria',
-    es: 'Librería',
-    en: 'Bookstore',
-  } as Dict,
-  'shopCategories.clothing': {
-    ca: 'Roba',
-    es: 'Ropa',
-    en: 'Clothing',
-  } as Dict,
-  'shopCategories.hairdresser': {
-    ca: 'Perruqueria',
-    es: 'Peluquería',
-    en: 'Hairdresser',
-  } as Dict,
-  'shopCategories.services': {
-    ca: 'Serveis',
-    es: 'Servicios',
-    en: 'Services',
-  } as Dict,
-  'shopCategories.other': { ca: 'Altres', es: 'Otros', en: 'Other' } as Dict,
 } as const
 
 export type TKey = keyof typeof D

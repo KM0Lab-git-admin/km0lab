@@ -6,6 +6,7 @@
  * la query correspondiente — la firma async se mantiene a propósito.
  */
 import { MOCK_POSTAL_CODES } from '../data/mockPostalCodes'
+import { DEMO_TOWN_NAME, isDemoPostalCode } from './demoTown'
 
 const cache = new Map<string, string | null>()
 
@@ -16,7 +17,11 @@ export async function lookupTown(postalCode: string): Promise<string | null> {
 
   // Simula latencia de red mínima para mantener los estados de loading.
   await new Promise((r) => setTimeout(r, 120))
-  const town = MOCK_POSTAL_CODES[cp] ?? null
+  // 00000 es producción (Demo KM0). El mock de Lovable no lo trae y el
+  // sync lo borra; no depende de ese diccionario.
+  const town = isDemoPostalCode(cp)
+    ? DEMO_TOWN_NAME
+    : (MOCK_POSTAL_CODES[cp] ?? null)
   cache.set(cp, town)
   return town
 }

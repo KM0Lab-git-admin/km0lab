@@ -29,13 +29,13 @@ navegador para ver las pantallas. Está en **catalán** (idioma de contenido de 
 
 Contiene **6 bloques numerados**:
 
-| #   | Bloque                               | Estado prompt                               | Notas                                                                                                                |
-| --- | ------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 1   | Llistat de comerços adherits         | ✅ hecho → `prompts/01-llistat-comercos.md` | Sin buscador. Filtro de categoría **desplegable**. Escáner **global** (botón central).                               |
-| 2   | Fitxa del comerç                     | ✅ hecho → `prompts/02-fitxa-comerc.md`     | Dos estados: **no visitat** vs **ja escanejat · actiu**.                                                             |
-| 3   | Promocions del comerç (vista usuari) | ⬜ pendiente                                | Promociones **solo informativas** (sin canje/código).                                                                |
-| 4   | Procés d'escaneig del QR — estats    | ⬜ pendiente                                | Lectura · validació · error · èxit. QR de **puntos** (visitar → escanear).                                           |
-| 5   | Confirmació de punts obtinguts       | ⬜ pendiente                                | Pantalla de celebración tras escaneo correcto.                                                                       |
+| #   | Bloque                               | Estado prompt                               | Notas                                                                                                                      |
+| --- | ------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Llistat de comerços adherits         | ✅ hecho → `prompts/01-llistat-comercos.md` | Sin buscador. Filtro de categoría **desplegable**. Escáner **global** (botón central).                                     |
+| 2   | Fitxa del comerç                     | ✅ hecho → `prompts/02-fitxa-comerc.md`     | Dos estados: **no visitat** vs **ja escanejat · actiu**.                                                                   |
+| 3   | Promocions del comerç (vista usuari) | ⬜ pendiente                                | Promociones **solo informativas** (sin canje/código).                                                                      |
+| 4   | Procés d'escaneig del QR — estats    | ⬜ pendiente                                | Lectura · validació · error · èxit. QR de **puntos** (visitar → escanear).                                                 |
+| 5   | Confirmació de punts obtinguts       | ⬜ pendiente                                | Pantalla de celebración tras escaneo correcto.                                                                             |
 | 6   | Backoffice del comerç (web)          | ⬜ pendiente                                | Dos vistas: **El meu QR** y **Promocions** (alta/edición/activación). Es **escritorio** (repo propio `km0lab-backoffice`). |
 
 ## 2. Decisiones funcionales ya tomadas (respétalas en los prompts)

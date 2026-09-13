@@ -1,11 +1,12 @@
 /**
  * Mapper ShopOut (km0lab-api) → modelos de UI de comercios.
  */
-import { t, type Lang, type TKey } from './i18n'
+import { t, type TKey } from './i18nProd'
 import { closesAtToday, isOpenNow, todayHoursLabel } from './openingHours'
 import { resolveMediaUrl } from './rewardMapper'
 import { shopCategoryEmoji } from './shopCategoryEmoji'
 
+import type { Lang } from './i18n'
 import type { ShopOut, ShopResidentOut } from '../services/km0labClient'
 import type {
   CategoriaAdherit,

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNotifications } from '@km0lab/app'
+import { t, type Lang, listNews, type Noticia } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -8,20 +8,13 @@ import {
   Newspaper,
   RefreshCw,
 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import ScreenTitle from '@/components/ScreenTitle'
 import { useLang } from '@/contexts/LangContext'
-import {
-  contentPoblacion,
-  listNews,
-  t,
-  useAppStore,
-  useNotifications,
-  type Lang,
-  type Noticia,
-} from '@km0lab/app'
 import { cn } from '@/lib/utils'
 
 /* ─────────────────────────────────────────────────────────────
@@ -241,9 +234,6 @@ const Noticias = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { lang } = useLang()
   const { hasUnread, markAllRead } = useNotifications()
-  const postalCode = useAppStore((s) => s.postalCode)
-  const town = useAppStore((s) => s.town)
-  const poblacion = contentPoblacion(postalCode, town)
 
   const forced = parseForcedState(searchParams.get('state'))
   const openId = searchParams.get('id')
@@ -272,16 +262,13 @@ const Noticias = () => {
     }
 
     let cancelled = false
-    // Demo KM0 hereda noticias de Malgrat vía contentPoblacion.
-    listNews({ city: poblacion, limit: 20, offset: 0 })
+    listNews({ city: 'Malgrat de Mar', limit: 20, offset: 0 })
       .then((res) => {
         if (!cancelled) setNoticias(res.noticias)
       })
-      .catch((e) => {
-        if (!cancelled) {
-          setNoticias([])
-          setError(e instanceof Error ? e.message : 'Error')
-        }
+      .catch((err) => {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'fetch_error')
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -289,7 +276,7 @@ const Noticias = () => {
     return () => {
       cancelled = true
     }
-  }, [forced, poblacion])
+  }, [forced])
 
   useEffect(() => {
     const cleanup = load()
@@ -321,7 +308,7 @@ const Noticias = () => {
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
       <div className="-mx-4 -mt-2 shrink-0">
         <HomeHero
-          cityName={town || poblacion}
+          cityName="Malgrat de Mar"
           hasAlerts={hasUnread}
           onToggleAlerts={markAllRead}
           onBack={() => navigate('/home')}

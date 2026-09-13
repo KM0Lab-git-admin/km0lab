@@ -1,7 +1,9 @@
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { useLang } from '@/contexts/LangContext'
 import { t } from '@km0lab/app'
+import { Calendar as CalendarIcon } from 'lucide-react'
+
 import type { Lang } from '@km0lab/app'
+
+import { useLang } from '@/contexts/LangContext'
 
 /**
  * ScreenTitle — sustituye al UserGreeting dentro del HomeHero en pantallas

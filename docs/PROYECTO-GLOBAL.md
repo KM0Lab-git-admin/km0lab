@@ -31,12 +31,12 @@ gestionan todo esto desde un **backoffice** web.
 
 **Características transversales del producto:**
 
-| Rasgo | Detalle |
-| --- | --- |
-| Plataforma | Uso mayoritariamente **móvil, en vertical (portrait)**. Corre en **web** (Vercel) y como **app móvil** (iOS/Android vía Capacitor). |
-| Idiomas | **Trilingüe**: català (por defecto), castellano, inglés. |
-| Ámbito | Multi-municipio por diseño: cada **població** tiene 1 administrador y N comercios. |
-| Fidelización | Puntos por escaneo de QR + acciones bonificadas → catálogo de recompensas canjeables. |
+| Rasgo        | Detalle                                                                                                                             |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Plataforma   | Uso mayoritariamente **móvil, en vertical (portrait)**. Corre en **web** (Vercel) y como **app móvil** (iOS/Android vía Capacitor). |
+| Idiomas      | **Trilingüe**: català (por defecto), castellano, inglés.                                                                            |
+| Ámbito       | Multi-municipio por diseño: cada **població** tiene 1 administrador y N comercios.                                                  |
+| Fidelización | Puntos por escaneo de QR + acciones bonificadas → catálogo de recompensas canjeables.                                               |
 
 ---
 
@@ -66,15 +66,15 @@ flowchart TB
   BO   -->|"lee/escribe"| API
 ```
 
-| Repositorio | Familia | Rol | Rama de trabajo |
-| --- | --- | --- | --- |
-| **`km0lab`** | App (prod) | Monorepo de la **app de vecinos** + **fuente de verdad de la documentación de proceso**. | `develop` |
-| **`km0lab-lovable`** | App (proto) | Prototipo visual de la app en **Lovable**. Source of truth de pantallas/diseño/assets. | `main` |
-| **`km0lab-backoffice`** | Backoffice (prod) | Panel web para **administradores** (gestor de població) y **comerços**. | `develop` |
-| **`km0lab-backoffice-lovable`** | Backoffice (proto) | Prototipo visual del backoffice en **Lovable**. | `main` |
-| **`km0lab-api`** | Backend | **Backend de negocio**: usuarios, auth, puntos, comercios, QR, recompensas. FastAPI + MySQL. | `develop` |
-| **`events-query`** | Backend | **API de eventos y noticias** del municipio con búsqueda en lenguaje natural (IA). Solo lectura. | `develop` |
-| **`km0lab-web`** | Web | **Web corporativa** de KM0 LAB (landing, contacto). | `main` |
+| Repositorio                     | Familia            | Rol                                                                                              | Rama de trabajo |
+| ------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------ | --------------- |
+| **`km0lab`**                    | App (prod)         | Monorepo de la **app de vecinos** + **fuente de verdad de la documentación de proceso**.         | `develop`       |
+| **`km0lab-lovable`**            | App (proto)        | Prototipo visual de la app en **Lovable**. Source of truth de pantallas/diseño/assets.           | `main`          |
+| **`km0lab-backoffice`**         | Backoffice (prod)  | Panel web para **administradores** (gestor de població) y **comerços**.                          | `develop`       |
+| **`km0lab-backoffice-lovable`** | Backoffice (proto) | Prototipo visual del backoffice en **Lovable**.                                                  | `main`          |
+| **`km0lab-api`**                | Backend            | **Backend de negocio**: usuarios, auth, puntos, comercios, QR, recompensas. FastAPI + MySQL.     | `develop`       |
+| **`events-query`**              | Backend            | **API de eventos y noticias** del municipio con búsqueda en lenguaje natural (IA). Solo lectura. | `develop`       |
+| **`km0lab-web`**                | Web                | **Web corporativa** de KM0 LAB (landing, contacto).                                              | `main`          |
 
 > **Nota sobre los "-lovable".** No son proyectos independientes: son el
 > entorno donde se **diseña** la interfaz antes de llevarla a producción. Ver
@@ -120,13 +120,13 @@ de cada frontend. El backend solo persiste **datos**.
 
 ### Stacks por repositorio
 
-| Repo | Lenguaje / framework | UI | Datos / estado | Paquetes |
-| --- | --- | --- | --- | --- |
-| `km0lab` (app) | Vite + **React 19** + TypeScript ~5.9 + **Capacitor** | Tailwind v3 + shadcn/ui + Radix + Framer Motion | React Query · Zustand · XState · RHF + Zod | **pnpm** + Turbo (monorepo) |
-| `km0lab-backoffice` | **TanStack Start + Router** + React 19 + TS | Tailwind **v4** + shadcn/ui | React Query · Zustand · RHF + Zod | **bun** |
-| `km0lab-web` | Vite + React + TS | Tailwind + shadcn/ui | RHF + Zod | npm/bun |
-| `km0lab-api` | **FastAPI** (Python 3.11) | — | SQLAlchemy 2.0 async + aiomysql · Alembic | pip |
-| `events-query` | **FastAPI** (Python 3.11) | — | aiomysql · **OpenAI** (GPT-4.1-mini + embeddings) | pip |
+| Repo                | Lenguaje / framework                                  | UI                                              | Datos / estado                                    | Paquetes                    |
+| ------------------- | ----------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- | --------------------------- |
+| `km0lab` (app)      | Vite + **React 19** + TypeScript ~5.9 + **Capacitor** | Tailwind v3 + shadcn/ui + Radix + Framer Motion | React Query · Zustand · XState · RHF + Zod        | **pnpm** + Turbo (monorepo) |
+| `km0lab-backoffice` | **TanStack Start + Router** + React 19 + TS           | Tailwind **v4** + shadcn/ui                     | React Query · Zustand · RHF + Zod                 | **bun**                     |
+| `km0lab-web`        | Vite + React + TS                                     | Tailwind + shadcn/ui                            | RHF + Zod                                         | npm/bun                     |
+| `km0lab-api`        | **FastAPI** (Python 3.11)                             | —                                               | SQLAlchemy 2.0 async + aiomysql · Alembic         | pip                         |
+| `events-query`      | **FastAPI** (Python 3.11)                             | —                                               | aiomysql · **OpenAI** (GPT-4.1-mini + embeddings) | pip                         |
 
 ---
 
@@ -163,10 +163,10 @@ en **Lovable**. Todo lo que toca **el mundo real** vive en **producción**.
 
 > **Prueba de fuego:** ¿esto necesita un secreto/credencial/BD, escribe datos
 > reales, autentica de verdad o es lógica de backend? → **NO se hace en
-> Lovable.** En Lovable se deja una firma *mock* estable (un service async con
+> Lovable.** En Lovable se deja una firma _mock_ estable (un service async con
 > latencia simulada) y producción la implementa después **sin tocar la UI**.
 
-Ejemplos de piezas *mock en Lovable / reales en producción*: login y registro,
+Ejemplos de piezas _mock en Lovable / reales en producción_: login y registro,
 generación del QR, alta/edición de promociones, acciones de puntos, recompensas
 y todas las métricas.
 
@@ -198,14 +198,14 @@ verdad de la documentación** de todo el proyecto.
 
 **Workspaces:**
 
-| Path | Paquete | Qué es |
-| --- | --- | --- |
-| `apps/km0lab` | — | App principal cross-platform (Vite + React 19 + Capacitor). |
-| `packages/components` | `@km0lab/ui` | Librería de UI compartida (primitivos shadcn). |
-| `packages/app` | `@km0lab/app` | Lógica compartida (hooks, services, stores, machines, design-system). |
-| `packages/km0lab-web-theme` | `@km0lab/web-theme` | Tokens CSS/Tailwind para apps web. |
-| `packages/eslint-config` | `@km0lab/eslint-config` | Config ESLint flat compartida. |
-| `packages/jest-config` | `@km0lab/jest-config` | Config Jest compartida. |
+| Path                        | Paquete                 | Qué es                                                                |
+| --------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| `apps/km0lab`               | —                       | App principal cross-platform (Vite + React 19 + Capacitor).           |
+| `packages/components`       | `@km0lab/ui`            | Librería de UI compartida (primitivos shadcn).                        |
+| `packages/app`              | `@km0lab/app`           | Lógica compartida (hooks, services, stores, machines, design-system). |
+| `packages/km0lab-web-theme` | `@km0lab/web-theme`     | Tokens CSS/Tailwind para apps web.                                    |
+| `packages/eslint-config`    | `@km0lab/eslint-config` | Config ESLint flat compartida.                                        |
+| `packages/jest-config`      | `@km0lab/jest-config`   | Config Jest compartida.                                               |
 
 **Cómo se corre:**
 
@@ -254,11 +254,11 @@ FastAPI + MySQL. Persiste **todo el dominio de negocio** (no eventos/noticias).
 
 **Dominio (v0.2):**
 
-| Área | Tablas |
-| --- | --- |
-| Identidad | `users`, `otp_codes`, `towns`, `town_postal_codes` |
-| Comercios | `shops`, `promotions` |
-| Catálogo | `point_actions`, `rewards`, `reward_shops` |
+| Área                 | Tablas                                                                |
+| -------------------- | --------------------------------------------------------------------- |
+| Identidad            | `users`, `otp_codes`, `towns`, `town_postal_codes`                    |
+| Comercios            | `shops`, `promotions`                                                 |
+| Catálogo             | `point_actions`, `rewards`, `reward_shops`                            |
 | Ledger / QR / canjes | `points_transactions`, `qr_scans`, `redemptions`, `redemption_events` |
 
 **Roles y contexto.** La misma identidad (email) puede usar app y backoffice
@@ -415,21 +415,21 @@ flowchart LR
 Principio: **mínimo número de entornos**. Solo tres, y UAT ≈ producción, para
 que el pase a prod no sorprenda.
 
-| Entorno | Qué es | URLs |
-| --- | --- | --- |
-| **local** | Máquina del desarrollador | `localhost:5173` (app), `:8000` (APIs) |
-| **UAT** | Único entorno de prueba desplegado | `*.uat.km0lab.com` |
-| **producción** | Público real (cuando UAT dé el OK) | `*.km0lab.com` |
+| Entorno        | Qué es                             | URLs                                   |
+| -------------- | ---------------------------------- | -------------------------------------- |
+| **local**      | Máquina del desarrollador          | `localhost:5173` (app), `:8000` (APIs) |
+| **UAT**        | Único entorno de prueba desplegado | `*.uat.km0lab.com`                     |
+| **producción** | Público real (cuando UAT dé el OK) | `*.km0lab.com`                         |
 
 **Mapa de despliegue:**
 
-| Pieza | Host UAT | Plataforma |
-| --- | --- | --- |
-| App vecinos (`km0lab`) | `app.uat.km0lab.com` | **Vercel** |
-| Backoffice (`km0lab-backoffice`) | `backoffice.uat.km0lab.com` | **Vercel** |
-| API negocio (`km0lab-api`) | `api.uat.km0lab.com` | **Railway** |
-| API eventos (`events-query`) | `eventquery.uat.km0lab.com` | **Railway** |
-| Web corporativa (`km0lab-web`) | (más adelante) | Vercel |
+| Pieza                            | Host UAT                    | Plataforma  |
+| -------------------------------- | --------------------------- | ----------- |
+| App vecinos (`km0lab`)           | `app.uat.km0lab.com`        | **Vercel**  |
+| Backoffice (`km0lab-backoffice`) | `backoffice.uat.km0lab.com` | **Vercel**  |
+| API negocio (`km0lab-api`)       | `api.uat.km0lab.com`        | **Railway** |
+| API eventos (`events-query`)     | `eventquery.uat.km0lab.com` | **Railway** |
+| Web corporativa (`km0lab-web`)   | (más adelante)              | Vercel      |
 
 **Ramas → entorno.** En los repos de producción: `develop` → **UAT**,
 `main` → **producción** (merge `develop` → `main` es una decisión humana
@@ -496,18 +496,18 @@ Resumen transversal:
 
 ## 12. Glosario
 
-| Término | Significació |
-| --- | --- |
-| **Població** | Municipio del programa (Malgrat de Mar, Blanes, Lloret…). 1 admin + N comerços. |
-| **Comerç** | Establecimiento adherido. Tiene un QR físico y una ficha. |
-| **Resident / vecino** | Usuario final de la app; gana y canjea puntos. |
-| **Admin** | Gestor de una població desde el backoffice. |
-| **La frontera** | La regla que separa lo que se hace en Lovable (mock) de lo que se hace en producción (real). Ver §4. |
-| **sync:lovable** | Script que porta mecánicamente el código de Lovable al repo de producción. |
-| **locked** | Destino que es propiedad de producción; el sync no lo sobrescribe. |
-| **OTP** | Código de un solo uso por email; el método de login (passwordless). |
-| **UAT** | Único entorno de prueba desplegado (`*.uat.km0lab.com`), casi idéntico a producción. |
-| **Ledger de puntos** | Registro histórico de movimientos de puntos (`points_transactions`). |
+| Término               | Significació                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Població**          | Municipio del programa (Malgrat de Mar, Blanes, Lloret…). 1 admin + N comerços.                      |
+| **Comerç**            | Establecimiento adherido. Tiene un QR físico y una ficha.                                            |
+| **Resident / vecino** | Usuario final de la app; gana y canjea puntos.                                                       |
+| **Admin**             | Gestor de una població desde el backoffice.                                                          |
+| **La frontera**       | La regla que separa lo que se hace en Lovable (mock) de lo que se hace en producción (real). Ver §4. |
+| **sync:lovable**      | Script que porta mecánicamente el código de Lovable al repo de producción.                           |
+| **locked**            | Destino que es propiedad de producción; el sync no lo sobrescribe.                                   |
+| **OTP**               | Código de un solo uso por email; el método de login (passwordless).                                  |
+| **UAT**               | Único entorno de prueba desplegado (`*.uat.km0lab.com`), casi idéntico a producción.                 |
+| **Ledger de puntos**  | Registro histórico de movimientos de puntos (`points_transactions`).                                 |
 
 ---
 
@@ -515,19 +515,19 @@ Resumen transversal:
 
 Cuándo bajar del mapa global al detalle de cada repo:
 
-| Necesitas… | Documento |
-| --- | --- |
-| Contexto y onboarding para agentes de IA | `km0lab/docs/START-HERE-AI.md` |
-| Reglas de arquitectura, estilos, git (app) | `km0lab/AGENTS.md` + `km0lab/docs/CONVENTIONS.md` |
-| El contrato del sync Lovable → producción | `km0lab/docs/PORTING-FROM-LOVABLE.md` · `km0lab/docs/LOVABLE-KNOWLEDGE.md` |
-| Design system y catálogo de componentes | `km0lab/docs/DESIGN-SYSTEM.md` |
-| Modelo de datos y auth del backend | `km0lab/docs/BACKEND.md` · `km0lab-api/README.md` |
-| Entornos, DNS, despliegue paso a paso | `km0lab/docs/ENVIRONMENTS.md` |
-| Dominio y reglas del backoffice | `km0lab-backoffice/docs/KNOWLEDGE.md` |
-| Arquitectura de la búsqueda de eventos | `events-query/ReadMes/Arquitectura Final - Events Query API.md` |
-| Reglas de assets/i18n de la web | `km0lab-web/AGENTS.md` |
+| Necesitas…                                 | Documento                                                                  |
+| ------------------------------------------ | -------------------------------------------------------------------------- |
+| Contexto y onboarding para agentes de IA   | `km0lab/docs/START-HERE-AI.md`                                             |
+| Reglas de arquitectura, estilos, git (app) | `km0lab/AGENTS.md` + `km0lab/docs/CONVENTIONS.md`                          |
+| El contrato del sync Lovable → producción  | `km0lab/docs/PORTING-FROM-LOVABLE.md` · `km0lab/docs/LOVABLE-KNOWLEDGE.md` |
+| Design system y catálogo de componentes    | `km0lab/docs/DESIGN-SYSTEM.md`                                             |
+| Modelo de datos y auth del backend         | `km0lab/docs/BACKEND.md` · `km0lab-api/README.md`                          |
+| Entornos, DNS, despliegue paso a paso      | `km0lab/docs/ENVIRONMENTS.md`                                              |
+| Dominio y reglas del backoffice            | `km0lab-backoffice/docs/KNOWLEDGE.md`                                      |
+| Arquitectura de la búsqueda de eventos     | `events-query/ReadMes/Arquitectura Final - Events Query API.md`            |
+| Reglas de assets/i18n de la web            | `km0lab-web/AGENTS.md`                                                     |
 
 ---
 
-*Documento de visión global. Para el detalle vinculante de cada repositorio,
-prevalece siempre el `AGENTS.md` / `KNOWLEDGE.md` del repo correspondiente.*
+_Documento de visión global. Para el detalle vinculante de cada repositorio,
+prevalece siempre el `AGENTS.md` / `KNOWLEDGE.md` del repo correspondiente._

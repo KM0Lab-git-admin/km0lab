@@ -1,8 +1,10 @@
-import { ReactNode } from 'react'
-import { Home as HomeIcon, User, Coins, Gift, Sparkles } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useLang } from '@/contexts/LangContext'
 import { t } from '@km0lab/app'
+import { Home as HomeIcon, User, Coins, Gift, Sparkles } from 'lucide-react'
+
+import type { ReactNode } from 'react'
+
+import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 export type HomeTab = 'home' | 'actions' | 'puntos' | 'rewards' | 'perfil'
 

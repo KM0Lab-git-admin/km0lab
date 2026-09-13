@@ -1,9 +1,10 @@
+import { requestOtp, t } from '@km0lab/app'
 import { motion } from 'framer-motion'
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
-import { requestOtp, t, useAppStore } from '@km0lab/app'
+import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
@@ -29,10 +30,11 @@ const Login = () => {
     }
 
     setSubmitting(true)
-    const { postalCode, town } = useAppStore.getState()
+    const postalCode = localStorage.getItem('km0_postal_code') ?? undefined
+    const town = localStorage.getItem('km0_town') ?? undefined
     const { error } = await requestOtp(email.trim(), {
-      postal_code: postalCode ?? undefined,
-      town: town ?? undefined,
+      postal_code: postalCode,
+      town,
     })
 
     if (error) {

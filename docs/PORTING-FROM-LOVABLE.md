@@ -8,10 +8,10 @@ Esta guía es **operativa**: pasos concretos, comandos exactos, anti-patrones ap
 
 ## 1. Contexto: por qué hay dos repos
 
-| Repo                                                  | Rol                                                           | Stack                                                                                                                                       |
-| ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repo                                            | Rol                                                           | Stack                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Lovable** — `KM0Lab-git-admin/km0lab-lovable` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                                                    |
-| **Producción** — `KM0Lab-git-admin/km0lab`            | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor 7 (shell Android commiteada en `apps/km0lab/android/`) |
+| **Producción** — `KM0Lab-git-admin/km0lab`      | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor 7 (shell Android commiteada en `apps/km0lab/android/`) |
 
 Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan **casi 1:1** al monorepo. Los componentes en `packages/components` (`@km0lab/ui`) se mantienen en sintonía con `src/components/ui/` de Lovable (estilo shadcn).
 
@@ -31,7 +31,14 @@ Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan *
 
 Antes de copiar un solo archivo, ejecuta estos pasos en orden:
 
-### 2.1. Clonar / actualizar los dos repos en local
+### 2.1. Traer el `main` remoto de Lovable — PASO OBLIGATORIO Y VERIFICABLE
+
+**Esto es lo primero que se hace en cualquier porte, sin excepción.** Lovable
+commitea constantemente y tu clon local puede llevar semanas parado. Si analizas
+el alcance sobre un clon viejo, _todo lo que decidas después estará mal_: darás
+por portado lo que no existe, no verás pantallas nuevas y el manifest quedará
+incompleto. El fallo es silencioso — no hay ningún error, simplemente portas un
+estado que ya no existe.
 
 ```bash
 # si es la primera vez:
@@ -42,6 +49,35 @@ git clone git@github.com:KM0Lab-git-admin/km0lab-lovable.git lovable
 cd produccion && git checkout develop && git pull
 cd ../lovable && git checkout main && git pull
 ```
+
+**Verificación obligatoria antes de seguir.** No sirve con "creo que hice pull":
+los dos comandos tienen que devolver **salida vacía**.
+
+```bash
+cd lovable     && git fetch origin main    && git log HEAD..origin/main --oneline
+cd ../produccion && git fetch origin develop && git log HEAD..origin/develop --oneline
+```
+
+Si alguno devuelve commits, **no sigas**: haz el pull y repite la verificación.
+
+Anota el hash de `HEAD` de Lovable antes de empezar: es el alcance congelado del
+porte y lo que hay que citar en el PR. Si durante el porte aparecen commits
+nuevos en Lovable, no los mezcles — van a la ronda siguiente.
+
+Dos avisos sobre el pull, aprendidos a base de tropezar:
+
+- Si el `pull` falla con _"Your local changes would be overwritten"_ y los
+  archivos señalados no tienen diff real (`git diff -w --stat -- <archivos>`
+  vacío), es ruido de finales de línea CRLF/LF: `git checkout -- <archivos>` y
+  reintenta.
+- Si git se queja de `.git/index.lock` (`Operation not permitted` al borrarlo),
+  hay un lock huérfano del montaje de disco: bórralo a mano y reintenta.
+
+**El changelog de Lovable no sustituye al diff.** `docs/PORTABILITY-CHANGELOG.md`
+va por detrás del código: en septiembre de 2026 tres pantallas nuevas
+(`HowItWorks`, `howItWorksSteps`, `EmailOtpTemplate`) y los rediseños de
+`Language` y `PostalCode` no estaban documentados ahí. La fuente de verdad del
+alcance es siempre `git diff <hash-del-ultimo-porte>..<HEAD>`.
 
 ### 2.2. Comparar `tailwind.config` de los dos repos
 
@@ -444,6 +480,26 @@ Fix: commit `ebb8e41` re-añade los aliases (`short-landscape`, `wide-landscape`
 - **Valida en ventana real**, no en DevTools responsive — al menos en algún punto.
 - **Cada nueva pantalla portada hace `grep` de breakpoints** y los compara con el config. Si falta alguno, añádelo antes de copiar.
 
+### Segundo caso: el clon desactualizado (septiembre 2026)
+
+**Síntoma:** se analizó el alcance del porte y se concluyó que solo faltaba una
+pantalla nueva. El análisis era minucioso —comparación archivo a archivo del
+código portable contra el manifest, revisión del changelog— y aun así estaba
+equivocado de raíz.
+
+**Causa:** nadie hizo `git fetch` en el repo de Lovable antes de analizar. El
+clon local estaba **66 commits por detrás** (del 3 de agosto al 13 de
+septiembre). El alcance real incluía dos pantallas nuevas, el rediseño completo
+del onboarding y del selector de idioma, y 12 assets nuevos.
+
+**Cómo se detectó:** no fue por ninguna herramienta, sino porque el usuario miró
+la lista de commits en GitHub y preguntó si el clon estaba al día.
+
+**Lección:** el rigor en el análisis no compensa partir de datos viejos, y un
+clon desactualizado no da ningún error — simplemente produce conclusiones
+seguras y falsas. Por eso §2.1 es ahora una verificación con salida esperada, no
+un "acuérdate de hacer pull".
+
 ---
 
 ## 10. Plantillas de prompt para agentes nuevos
@@ -454,7 +510,9 @@ Cuando arranques un chat nuevo (Sonnet, Opus, otro modelo) y le quieras pedir qu
 
 > Tengo dos repos: `KM0Lab-git-admin/km0lab-lovable` (Lovable, source of truth visual) y `KM0Lab-git-admin/km0lab` (producción). Quiero portar la pantalla `<X>` desde Lovable al monorepo de producción.
 >
-> Antes de tocar nada: lee `docs/PORTING-FROM-LOVABLE.md` del repo de producción, `AGENTS.md` y `docs/CONVENTIONS.md`. Sigue la receta de la sección 4 paso a paso. Si dudas, pregunta antes de actuar.
+> Tu primera acción, antes de analizar nada: `git fetch` en los dos repos y comprobar que `git log HEAD..origin/main` (Lovable) y `git log HEAD..origin/develop` (producción) devuelven salida vacía. Si no, haz pull. Dime el hash de HEAD de Lovable con el que vas a trabajar.
+>
+> Después: lee `docs/PORTING-FROM-LOVABLE.md` del repo de producción, `AGENTS.md` y `docs/CONVENTIONS.md`. Sigue la receta de la sección 4 paso a paso. Si dudas, pregunta antes de actuar.
 >
 > Cuando termines, pásame el commit/PR para revisar.
 
@@ -462,7 +520,9 @@ Cuando arranques un chat nuevo (Sonnet, Opus, otro modelo) y le quieras pedir qu
 
 > Quiero portar de Lovable a producción los siguientes archivos: `<lista>`.
 >
-> Antes de tocar nada: lee `docs/PORTING-FROM-LOVABLE.md`, `AGENTS.md` y `docs/CONVENTIONS.md`. Ejecuta primero la sección 2 (pre-flight checklist) entera. Después porta uno por uno siguiendo §4 (pantallas) o §5 (componentes shadcn). Para los assets, usa la receta §6.
+> Tu primera acción, antes de analizar nada: `git fetch` en los dos repos y comprobar que `git log HEAD..origin/main` (Lovable) y `git log HEAD..origin/develop` (producción) devuelven salida vacía. Si no, haz pull. Dime el hash de HEAD de Lovable con el que vas a trabajar, y saca el alcance del `git diff` contra el último porte, no del changelog.
+>
+> Después: lee `docs/PORTING-FROM-LOVABLE.md`, `AGENTS.md` y `docs/CONVENTIONS.md`. Ejecuta primero la sección 2 (pre-flight checklist) entera. Después porta uno por uno siguiendo §4 (pantallas) o §5 (componentes shadcn). Para los assets, usa la receta §6.
 >
 > Si descubres alguna divergencia entre los configs (Tailwind, fuentes, deps), repórtamela antes de avanzar.
 
@@ -625,3 +685,68 @@ que cambie las reglas.
 
 Además: cualquier cambio de UI o copy que deba llegar a producción se
 commitea primero en Lovable `main`; producción solo consume vía sync.
+
+---
+
+### 12.4. i18n: overlay de claves propias de producción
+
+`packages/app/utils/i18n.ts` es **propiedad de Lovable** (está en `files`, no en
+`locked`): cada `pnpm sync:lovable` lo sobrescribe entero. Durante la ronda de
+septiembre de 2026 se descubrió que producción había ido añadiendo claves
+propias a ese archivo y **el sync se llevaba 52 por delante** en cada pase.
+
+Las claves afectadas eran de módulos que solo existen en producción y que
+Lovable no maqueta: `shopCategories.*`, `merchant.day.*`, `merchant.hours.*`,
+`merchants.scan_filter.*`, `points.actions.type.*`, `rewards.scope.*`,
+`scanner.camera.*`, `scanner.upload.*`, `home.demo.badge`.
+
+El caso peligroso no era el ruidoso sino el silencioso: `shopCategories.*` se
+construye dinámicamente en `packages/app/utils/shopMapper.ts` con
+`` `shopCategories.${slug}` as TKey ``, así que **no da error de compilación**:
+la UI simplemente pasaba a mostrar `shopCategories.bakery` en vez de `Fleca`.
+
+**Solución adoptada — overlay:**
+
+- `packages/app/utils/i18nProd.ts` contiene el diccionario de claves propias de
+  producción. Está en `locked`: el sync nunca lo toca.
+- Ese módulo importa `t` y `TKey` de `./i18n` (lo de Lovable), expone
+  `TKey = TKeyBase | TKeyProd` y un `t` que resuelve primero contra el
+  diccionario propio y **delega** en el de Lovable si la clave no es suya. El
+  fallback es el mismo: idioma pedido → castellano → la propia clave.
+- `packages/app/utils/index.ts` reexporta `t` y `TKey` **desde el overlay**:
+
+  ```ts
+  export * from './i18n'
+  export { t, type TKey } from './i18nProd'
+  ```
+
+  El re-export explícito tiene precedencia sobre el `export *` según la
+  semántica de módulos ES, así que los consumidores siguen importando lo mismo
+  de `@km0lab/app` y reciben el diccionario fusionado. No hay que tocar ningún
+  componente portado.
+
+**No borres la línea `export * from './i18n'` de ese barrel**: `ensureBarrelExport`
+en `scripts/sync-lovable.mjs` comprueba si esa cadena existe y la volvería a
+añadir al final del archivo en el siguiente sync, dejando el `export *` por
+debajo del explícito y cambiando la precedencia.
+
+**Dónde va cada clave nueva a partir de ahora:**
+
+| La clave la usa…                                                                 | Va en                                        |
+| -------------------------------------------------------------------------------- | -------------------------------------------- |
+| una pantalla que Lovable maqueta                                                 | Lovable (`src/lib/i18n.ts`) y llega por sync |
+| código que solo existe en producción (servicios reales, mappers, escáner nativo) | `packages/app/utils/i18nProd.ts`             |
+
+**Verificación tras cada sync** (§8): comparar las claves antes y después y
+comprobar que el diff de `i18n.ts` solo **añade**:
+
+```bash
+git show HEAD:packages/app/utils/i18n.ts \
+  | grep -oE "^\s*['\"][a-zA-Z0-9_.]+['\"]\s*:" | tr -d " '\":" | sort -u > /tmp/antes.txt
+grep -oE "^\s*['\"][a-zA-Z0-9_.]+['\"]\s*:" packages/app/utils/i18n.ts \
+  | tr -d " '\":" | sort -u > /tmp/despues.txt
+comm -23 /tmp/antes.txt /tmp/despues.txt   # debe salir vacío
+```
+
+Si sale algo, son claves que Lovable ya no tiene: decide si se han eliminado a
+propósito o si son propias de producción y deben moverse a `i18nProd.ts`.

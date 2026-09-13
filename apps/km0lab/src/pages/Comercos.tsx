@@ -1,45 +1,38 @@
-import {
-  t,
-  useAuth,
-  useNotifications,
-  useMyShops,
-  usePublicShops,
-  usePublicTown,
-  useAppStore,
-} from '@km0lab/app'
+import { useAuth, useNotifications } from '@km0lab/app'
+import { t, type Lang, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   QrCode,
   MapPin,
   ChevronDown,
   ScanLine,
+  X,
   RefreshCw,
   Store,
-  Check,
-  X,
+  BadgeCheck,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { CategoriaAdherit, ComercAdherit, Lang } from '@km0lab/app'
-
 import BottomTabs from '@/components/BottomTabs'
-import CategoryFilterSheet from '@/components/CategoryFilterSheet'
 import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
 import { useLang } from '@/contexts/LangContext'
+import {
+  COMERCIOS_ADHERITS,
+  CATEGORIES_ADHERITS,
+} from '@/data/comerciosAdheridos'
 import { cn } from '@/lib/utils'
 
 /* ─────────────────────────────────────────────────────────────
- * Comerços — Llistat de comerços adherits.
- * Authed → GET /shops/for-me (amb estat d'escaneig).
- * Guest  → GET /shops/public (sense indicador ni filtre d'escaneig).
+ * Comerços — Llistat de comerços adherits al programa de punts.
+ *
+ * MOCK: totes les dades locals (`data/comerciosAdheridos.ts`).
+ * Estats forçables per query param: ?state=loading|empty|error
  * ───────────────────────────────────────────────────────────── */
 
-type ScanFilter = 'all' | 'scanned' | 'pending'
-
-const formatDistance = (m: number): string =>
-  m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
+const formatDistance = (m: number | null): string | null =>
+  m == null ? null : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
 
 const interpolate = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''))
@@ -48,14 +41,10 @@ const interpolate = (tpl: string, vars: Record<string, string | number>) =>
 interface CardProps {
   c: ComercAdherit
   lang: Lang
-  showScanStatus: boolean
   onOpen: () => void
 }
-const ComercCard = ({ c, lang, showScanStatus, onOpen }: CardProps) => {
-  const [imgFailed, setImgFailed] = useState(false)
-  const showImage = Boolean(c.imatge) && !imgFailed
-  const thumb = c.emoji ?? '🏪'
-
+const ComercCard = ({ c, lang, onOpen }: CardProps) => {
+  const distance = formatDistance(c.distanciaM)
   return (
     <motion.article
       layout
@@ -68,6 +57,7 @@ const ComercCard = ({ c, lang, showScanStatus, onOpen }: CardProps) => {
         onClick={onOpen}
         className="w-full text-left flex items-stretch gap-3 p-3"
       >
+        {/* Miniatura */}
         <div className="relative shrink-0">
           <div
             className={cn(
@@ -75,36 +65,32 @@ const ComercCard = ({ c, lang, showScanStatus, onOpen }: CardProps) => {
               c.bg ?? 'bg-km0-beige-100'
             )}
           >
-            {showImage ? (
+            {c.imatge ? (
               <img
                 src={c.imatge}
                 alt=""
                 loading="lazy"
                 className="w-full h-full object-contain p-2"
-                onError={() => setImgFailed(true)}
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                }}
               />
             ) : (
               <span className="text-3xl" aria-hidden>
-                {thumb}
+                {c.emoji ?? '🏪'}
               </span>
             )}
           </div>
-          {showScanStatus && c.scanned === true && (
-            <span
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-white flex items-center justify-center text-white"
-              aria-label={t('merchants.card.scanned', lang)}
-            >
-              <Check size={14} strokeWidth={2.8} />
-            </span>
-          )}
-          {showScanStatus && c.scanned === false && (
-            <span
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-beige-50 border-2 border-km0-blue-200 flex items-center justify-center"
-              aria-label={t('merchants.card.not_scanned', lang)}
-            />
-          )}
+          {/* Segell adherit */}
+          <span
+            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-white flex items-center justify-center text-white"
+            aria-label={t('merchants.card.member', lang)}
+          >
+            <BadgeCheck size={14} strokeWidth={2.6} />
+          </span>
         </div>
 
+        {/* Cos */}
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
@@ -119,11 +105,11 @@ const ComercCard = ({ c, lang, showScanStatus, onOpen }: CardProps) => {
                 <span className="truncate">{c.adreca}</span>
               </p>
             </div>
-            {typeof c.distanciaM === 'number' && (
+            {distance ? (
               <span className="shrink-0 font-ui text-[10px] text-km0-blue-700/60 pt-0.5">
-                {formatDistance(c.distanciaM)}
+                {distance}
               </span>
-            )}
+            ) : null}
           </div>
 
           {c.teQR && (
@@ -140,6 +126,7 @@ const ComercCard = ({ c, lang, showScanStatus, onOpen }: CardProps) => {
   )
 }
 
+/* ─── Skeleton ──────────────────────────────────────────────── */
 const CardSkeleton = () => (
   <div className="bg-white border border-km0-blue-100 rounded-2xl p-3 flex gap-3 animate-pulse">
     <div className="w-20 h-20 rounded-xl bg-km0-blue-100/60 shrink-0" />
@@ -152,32 +139,124 @@ const CardSkeleton = () => (
   </div>
 )
 
-/* ─── Vista compartida ──────────────────────────────────────── */
-interface ComercosViewProps {
-  allItems: ComercAdherit[]
+/* ─── Filtre sheet (absolute: queda dentro de DeviceShell) ─── */
+interface FilterProps {
+  open: boolean
+  onOpenChange: (v: boolean) => void
   categories: CategoriaAdherit[]
-  apiLoading: boolean
-  apiError: string | null
-  reload: () => void
-  isAuthed: boolean
-  showScanStatus: boolean
+  selected: string
+  onSelect: (slug: string) => void
+  lang: Lang
 }
-
-const ComercosView = ({
-  allItems,
+const CategorySheet = ({
+  open,
+  onOpenChange,
   categories,
-  apiLoading,
-  apiError,
-  reload,
-  isAuthed,
-  showScanStatus,
-}: ComercosViewProps) => {
+  selected,
+  onSelect,
+  lang,
+}: FilterProps) => (
+  <AnimatePresence>
+    {open ? (
+      <div className="absolute inset-0 z-50 flex items-end justify-center">
+        <motion.button
+          type="button"
+          aria-label={t('common.close', lang)}
+          onClick={() => onOpenChange(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="absolute inset-0 bg-km0-blue-900/40"
+        />
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('merchants.filter_by_category', lang)}
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+          className="relative w-full max-h-[75%] rounded-t-3xl bg-white shadow-2xl flex flex-col overflow-hidden"
+        >
+          <header className="shrink-0 flex items-center justify-between gap-2 p-4 border-b border-km0-blue-100">
+            <h2 className="font-brand text-base text-km0-blue-900">
+              {t('merchants.filter_by_category', lang)}
+            </h2>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              aria-label={t('common.close', lang)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-km0-blue-800 hover:bg-km0-beige-100 active:scale-95 transition"
+            >
+              <X size={18} strokeWidth={2.2} />
+            </button>
+          </header>
+          <ul className="flex-1 min-h-0 overflow-y-auto py-1">
+            {categories.map((cat) => {
+              const isSelected = cat.slug === selected
+              const label = cat.nom[lang === 'en' ? 'es' : lang]
+              return (
+                <li key={cat.slug}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelect(cat.slug)
+                      onOpenChange(false)
+                    }}
+                    aria-pressed={isSelected}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                      isSelected
+                        ? 'bg-km0-blue-50 text-km0-blue-900'
+                        : 'hover:bg-km0-beige-50 text-km0-blue-800'
+                    )}
+                  >
+                    <span className="w-6 text-lg" aria-hidden>
+                      {cat.emoji ?? '🏷️'}
+                    </span>
+                    <span
+                      className={cn(
+                        'flex-1 font-ui text-sm',
+                        isSelected && 'font-bold'
+                      )}
+                    >
+                      {label}
+                    </span>
+                    <span className="text-[11px] font-ui text-km0-blue-700/60 tabular-nums">
+                      {cat.count}
+                    </span>
+                    <span
+                      className={cn(
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+                        isSelected
+                          ? 'border-km0-teal-500 bg-km0-teal-500'
+                          : 'border-km0-blue-200'
+                      )}
+                      aria-hidden
+                    >
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </motion.div>
+      </div>
+    ) : null}
+  </AnimatePresence>
+)
+
+/* ─── Pàgina ────────────────────────────────────────────────── */
+const Comercos = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
-  const town = useAppStore((s) => s.town)
+  const { user } = useAuth()
   const { hasUnread, markAllSeen } = useNotifications()
-  const { visitPoints } = usePublicTown()
-
+  const isAuthed = !!user
   const goToHome = () => navigate('/home')
   const goToLogin = () => navigate('/login')
   const goToPoints = () => navigate('/points-history')
@@ -187,62 +266,55 @@ const ComercosView = ({
 
   const forced = new URLSearchParams(window.location.search).get('state')
 
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState('totes')
-  const [scanFilter, setScanFilter] = useState<ScanFilter>('all')
   const [filterOpen, setFilterOpen] = useState(false)
-  const [, setNotifOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
 
-  const loading = forced === 'loading' || (forced !== 'error' && apiLoading)
-  const error =
-    forced === 'error' ? 'FORCED_ERROR' : forced === 'empty' ? null : apiError
+  useEffect(() => {
+    if (forced === 'loading') {
+      setLoading(true)
+      return
+    }
+    if (forced === 'error') {
+      setLoading(false)
+      setError('FORCED_ERROR')
+      return
+    }
+    const timer = setTimeout(() => setLoading(false), 400)
+    return () => clearTimeout(timer)
+  }, [forced])
 
   const items = useMemo<ComercAdherit[]>(() => {
     if (forced === 'empty') return []
-    let rows = allItems
-    if (showScanStatus && scanFilter === 'scanned') {
-      rows = rows.filter((c) => c.scanned === true)
-    } else if (showScanStatus && scanFilter === 'pending') {
-      rows = rows.filter((c) => c.scanned !== true)
-    }
-    if (selected !== 'totes') {
-      rows = rows.filter((c) => c.categoriaSlug === selected)
-    }
-    return rows
-  }, [selected, scanFilter, forced, allItems, showScanStatus])
+    if (selected === 'totes') return COMERCIOS_ADHERITS
+    return COMERCIOS_ADHERITS.filter((c) => c.categoriaSlug === selected)
+  }, [selected, forced])
 
   const totalPrograma =
-    categories.find((c) => c.slug === 'totes')?.count ?? allItems.length
+    CATEGORIES_ADHERITS.find((c) => c.slug === 'totes')?.count ??
+    COMERCIOS_ADHERITS.length
 
-  const selectedCat = categories.find((c) => c.slug === selected)
+  const selectedCat = CATEGORIES_ADHERITS.find((c) => c.slug === selected)
   const selectedLabel =
     selectedCat?.nom[lang === 'en' ? 'es' : lang] ??
     t('merchants.filter_all', lang)
 
   const openScanner = () => navigate('/scanner')
 
-  const clearFilters = () => {
-    setSelected('totes')
-    setScanFilter('all')
+  const retry = () => {
+    setError(null)
+    setLoading(true)
+    setTimeout(() => setLoading(false), 400)
   }
-
-  const scanFilters: {
-    id: ScanFilter
-    labelKey:
-      | 'merchants.scan_filter.all'
-      | 'merchants.scan_filter.scanned'
-      | 'merchants.scan_filter.pending'
-  }[] = [
-    { id: 'all', labelKey: 'merchants.scan_filter.all' },
-    { id: 'scanned', labelKey: 'merchants.scan_filter.scanned' },
-    { id: 'pending', labelKey: 'merchants.scan_filter.pending' },
-  ]
 
   return (
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           <HomeHero
-            cityName={town || 'Malgrat de Mar'}
+            cityName="Malgrat de Mar"
             hasAlerts={hasUnread}
             onToggleAlerts={() => {
               setNotifOpen((v) => !v)
@@ -252,7 +324,9 @@ const ComercosView = ({
             showGreeting={false}
           />
 
+          {/* Body */}
           <section className="relative flex-1 min-h-0 flex flex-col px-4 pt-3 pb-2 overflow-hidden">
+            {/* Títol + subtítol */}
             <header className="shrink-0 mb-3">
               <h2 className="font-brand text-lg leading-tight text-km0-blue-900">
                 {t('merchants.title', lang)}
@@ -264,36 +338,11 @@ const ComercosView = ({
               </p>
               <p className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-km0-coral-500 text-white text-[11px] font-ui font-bold">
                 <QrCode size={12} strokeWidth={2.4} />
-                {interpolate(t('merchants.points_notice', lang), {
-                  n: visitPoints,
-                })}
+                {interpolate(t('merchants.points_notice', lang), { n: 20 })}
               </p>
             </header>
 
-            {showScanStatus && (
-              <div
-                className="shrink-0 mb-3 inline-flex rounded-full bg-km0-beige-200 p-0.5"
-                role="group"
-                aria-label={t('merchants.scan_filter.all', lang)}
-              >
-                {scanFilters.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setScanFilter(f.id)}
-                    className={cn(
-                      'flex-1 px-3 py-1.5 rounded-full font-ui text-[11px] font-bold transition-colors',
-                      scanFilter === f.id
-                        ? 'bg-km0-blue-800 text-white'
-                        : 'text-km0-blue-800/70'
-                    )}
-                  >
-                    {t(f.labelKey, lang)}
-                  </button>
-                ))}
-              </div>
-            )}
-
+            {/* Filtre + comptador */}
             <div className="shrink-0 flex items-center gap-2 mb-3">
               <button
                 type="button"
@@ -317,7 +366,11 @@ const ComercosView = ({
               </span>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-28">
+            {/* Llista */}
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-24"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               <AnimatePresence mode="wait">
                 {loading ? (
                   <motion.div
@@ -344,7 +397,7 @@ const ComercosView = ({
                     </p>
                     <button
                       type="button"
-                      onClick={() => reload()}
+                      onClick={retry}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <RefreshCw size={12} />
@@ -367,7 +420,7 @@ const ComercosView = ({
                     </p>
                     <button
                       type="button"
-                      onClick={clearFilters}
+                      onClick={() => setSelected('totes')}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-blue-700 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <X size={12} />
@@ -387,7 +440,6 @@ const ComercosView = ({
                         <ComercCard
                           c={c}
                           lang={lang}
-                          showScanStatus={showScanStatus}
                           onOpen={() => navigate(`/merchants/${c.id}`)}
                         />
                       </li>
@@ -397,24 +449,21 @@ const ComercosView = ({
               </AnimatePresence>
             </div>
 
-            <div className="absolute left-0 right-0 bottom-0 z-20 px-4 pb-4 pt-4 bg-gradient-to-t from-km0-beige-50 via-km0-beige-50/95 to-transparent">
-              <button
-                type="button"
-                onClick={openScanner}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-km0-blue-800 text-white font-ui text-sm font-bold shadow-lg shadow-km0-blue-800/30 active:scale-[0.99] transition-transform"
-              >
-                <ScanLine size={18} strokeWidth={2.4} />
-                {interpolate(t('merchant.cta.scan_earn', lang), {
-                  n: visitPoints,
-                })}
-              </button>
-            </div>
+            {/* FAB escàner (centrat sobre la tab bar) */}
+            <button
+              type="button"
+              onClick={openScanner}
+              aria-label={t('merchants.fab.scan', lang)}
+              className="absolute left-1/2 -translate-x-1/2 bottom-3 w-14 h-14 rounded-full bg-km0-teal-500 text-white shadow-lg shadow-km0-teal-500/40 flex items-center justify-center active:scale-95 transition-transform z-20 border-4 border-km0-beige-50"
+            >
+              <ScanLine size={24} strokeWidth={2.4} />
+            </button>
           </section>
 
-          <CategoryFilterSheet
+          <CategorySheet
             open={filterOpen}
             onOpenChange={setFilterOpen}
-            categories={categories}
+            categories={CATEGORIES_ADHERITS}
             selected={selected}
             onSelect={setSelected}
             lang={lang}
@@ -434,55 +483,6 @@ const ComercosView = ({
       </div>
     </DeviceShell>
   )
-}
-
-const ComercosAuthed = () => {
-  const {
-    items: allItems,
-    categories,
-    loading: apiLoading,
-    error: apiError,
-    reload,
-  } = useMyShops()
-
-  return (
-    <ComercosView
-      allItems={allItems}
-      categories={categories}
-      apiLoading={apiLoading}
-      apiError={apiError}
-      reload={reload}
-      isAuthed
-      showScanStatus
-    />
-  )
-}
-
-const ComercosGuest = () => {
-  const {
-    items: allItems,
-    categories,
-    loading: apiLoading,
-    error: apiError,
-    reload,
-  } = usePublicShops()
-
-  return (
-    <ComercosView
-      allItems={allItems}
-      categories={categories}
-      apiLoading={apiLoading}
-      apiError={apiError}
-      reload={reload}
-      isAuthed={false}
-      showScanStatus={false}
-    />
-  )
-}
-
-const Comercos = () => {
-  const { user } = useAuth()
-  return user ? <ComercosAuthed /> : <ComercosGuest />
 }
 
 export default Comercos

@@ -7,6 +7,14 @@
 
 export * from './env'
 export * from './i18n'
+
+// `t` y `TKey` se reexportan desde el overlay de produccion (i18nProd), que
+// fusiona el diccionario de Lovable con las claves propias de produccion. El
+// re-export explicito tiene precedencia sobre el `export *` de arriba.
+// OJO: no borres la linea `export * from './i18n'` — sync-lovable.mjs la
+// volveria a anadir automaticamente (ensureBarrelExport).
+export { t, type TKey } from './i18nProd'
+export type { TKeyProd } from './i18nProd'
 export * from './postalCodes'
 export * from './demoTown'
 export * from './shopPromotionMapper'

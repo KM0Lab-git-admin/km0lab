@@ -1,22 +1,20 @@
-import { useEffect, useState, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { getProfile, updateProfile, useAuth, t } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import type { FormEvent } from 'react'
+
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
-import flagCa from '@/assets/flags/flag-ca.svg'
-import flagEs from '@/assets/flags/flag-es.svg'
-import flagEn from '@/assets/flags/flag-en.svg'
-import { cn } from '@/lib/utils'
-import { getProfile, updateProfile, useAuth, t, type Lang } from '@km0lab/app'
 
 /**
  * Profile — Edición y visualización del perfil del usuario.
  *
- * Campos editables: nombre, apellidos, teléfono, idioma preferido.
+ * Campos editables: nombre, apellidos, teléfono.
  * Email → solo lectura (viene de la sesión).
  * CP/población no se editan aquí: se eligen antes del registro y se
  * guardan al sembrar el perfil.
@@ -27,28 +25,19 @@ type ProfileForm = {
   last_name: string
   phone: string
   birth_date: string
-  lang: Lang
 }
-
-const LANG_OPTIONS: { id: Lang; flag: string; name: string }[] = [
-  { id: 'ca', flag: flagCa, name: 'Català' },
-  { id: 'es', flag: flagEs, name: 'Español' },
-  { id: 'en', flag: flagEn, name: 'English' },
-]
 
 const Profile = () => {
   const navigate = useNavigate()
-  const { lang, setLang } = useLang()
+  const { lang } = useLang()
   const { user, signOut } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [savingLang, setSavingLang] = useState(false)
   const [form, setForm] = useState<ProfileForm>({
     first_name: '',
     last_name: '',
     phone: '',
     birth_date: '',
-    lang,
   })
 
   const todayIso = new Date().toISOString().slice(0, 10)
@@ -79,63 +68,33 @@ const Profile = () => {
   })
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!user) {
       setLoading(false)
       return
     }
     let cancelled = false
-    setLoading(true)
     ;(async () => {
-      try {
-        const data = await getProfile(user.id)
-        if (cancelled) return
-        if (data) {
-          const preferred =
-            data.lang === 'ca' || data.lang === 'es' || data.lang === 'en'
-              ? data.lang
-              : lang
-          setForm({
-            first_name: data.first_name ?? '',
-            last_name: data.last_name ?? '',
-            phone: data.phone ?? '',
-            birth_date: data.birth_date ?? '',
-            lang: preferred,
-          })
-        }
-      } finally {
-        if (!cancelled) setLoading(false)
+      const data = await getProfile(user.id)
+      if (cancelled) return
+      if (data) {
+        setForm({
+          first_name: data.first_name ?? '',
+          last_name: data.last_name ?? '',
+          phone: data.phone ?? '',
+          birth_date: data.birth_date ?? '',
+        })
       }
+      setLoading(false)
     })()
     return () => {
       cancelled = true
     }
-  }, [user?.id])
+  }, [user])
 
   const handleChange =
     (key: keyof ProfileForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, [key]: e.target.value }))
     }
-
-  const handleLangSelect = async (next: Lang) => {
-    if (!user || next === form.lang || savingLang) return
-    const previous = form.lang
-    setForm((prev) => ({ ...prev, lang: next }))
-    setLang(next)
-    setSavingLang(true)
-    const { error } = await updateProfile(user.id, {
-      first_name: form.first_name.trim() || null,
-      last_name: form.last_name.trim() || null,
-      phone: form.phone.trim() || null,
-      birth_date: form.birth_date.trim() || null,
-      lang: next,
-    })
-    setSavingLang(false)
-    if (error) {
-      setForm((prev) => ({ ...prev, lang: previous }))
-      setLang(previous)
-      toast.error(t('profile.toast_save_fail', lang))
-    }
-  }
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault()
@@ -155,7 +114,6 @@ const Profile = () => {
       last_name: form.last_name.trim() || null,
       phone: form.phone.trim() || null,
       birth_date: form.birth_date.trim() || null,
-      lang: form.lang,
     })
 
     setSaving(false)
@@ -163,7 +121,6 @@ const Profile = () => {
       toast.error(t('profile.toast_save_fail', lang))
       return
     }
-    setLang(form.lang)
     toast.success(t('profile.toast_saved', lang))
   }
 
@@ -256,48 +213,6 @@ const Profile = () => {
                 {t('profile.birth_date_hint', lang)}
               </span>
             </Field>
-
-            <fieldset className="flex flex-col gap-1.5">
-              <legend className="font-ui text-xs text-km0-blue-800/70 px-1">
-                {t('profile.language', lang)}
-              </legend>
-              <div
-                className="grid grid-cols-3 gap-2"
-                role="radiogroup"
-                aria-label={t('profile.language', lang)}
-              >
-                {LANG_OPTIONS.map((opt) => {
-                  const selected = form.lang === opt.id
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      disabled={savingLang}
-                      onClick={() => void handleLangSelect(opt.id)}
-                      className={cn(
-                        'flex flex-col items-center gap-1.5 rounded-xl border-2 px-2 py-2.5 transition-all active:scale-[0.98]',
-                        selected
-                          ? 'border-km0-yellow-500 bg-km0-yellow-50'
-                          : 'border-km0-blue-700/20 bg-background hover:border-km0-blue-700/40',
-                        savingLang && 'opacity-70'
-                      )}
-                    >
-                      <img
-                        src={opt.flag}
-                        alt=""
-                        aria-hidden
-                        className="w-8 h-8 object-cover rounded-full"
-                      />
-                      <span className="font-ui text-[11px] font-bold text-km0-blue-900">
-                        {opt.name}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
 
             <button
               type="submit"

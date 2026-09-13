@@ -6,9 +6,11 @@
     { "from": "src/pages/CheckEmail.tsx" },
     { "from": "src/pages/ComercDetall.tsx" },
     { "from": "src/pages/Comercos.tsx" },
+    { "from": "src/pages/EmailOtpTemplate.tsx" },
     { "from": "src/pages/Evento.tsx" },
     { "from": "src/pages/HistorialPunts.tsx" },
     { "from": "src/pages/Home.tsx" },
+    { "from": "src/pages/HowItWorks.tsx" },
     { "from": "src/pages/Index.tsx" },
     { "from": "src/pages/Language.tsx" },
     { "from": "src/pages/Login.tsx" },
@@ -77,6 +79,7 @@
     { "from": "src/data/comerciosAdheridos.ts" },
     { "from": "src/data/coupons.ts" },
     { "from": "src/data/homeModules.ts" },
+    { "from": "src/data/howItWorksSteps.ts" },
     { "from": "src/data/onboardingSlides.ts" },
     { "from": "src/data/pointsActions.ts" },
     { "from": "src/data/pointsHistory.ts" },
@@ -121,6 +124,8 @@
     "packages/app/hooks/useAuth.ts",
     "packages/app/hooks/useProfile.ts",
     "packages/app/utils/env.ts",
-    "packages/app/data/notifications.ts"
+    "packages/app/data/notifications.ts",
+    "packages/app/utils/i18nProd.ts",
+    "packages/app/utils/postalCodes.ts"
   ]
 }

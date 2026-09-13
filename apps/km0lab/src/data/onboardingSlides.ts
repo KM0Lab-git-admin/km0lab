@@ -6,11 +6,12 @@ import {
   BarChart3,
   type LucideIcon,
 } from 'lucide-react'
-import slide1 from '@/assets/onboarding/01_connecta_barri.jpg'
-import slide2 from '@/assets/onboarding/02_agenda_avisos.jpg'
-import slide3 from '@/assets/onboarding/03_punts_recompenses.jpg'
-import slide4 from '@/assets/onboarding/04_assistent_247.jpg'
-import slide5 from '@/assets/onboarding/05_municipi_sostenible.jpg'
+
+import slide2 from '@/assets/onboarding/onboarding-local-updates.png.asset.json'
+import slide1 from '@/assets/onboarding/onboarding-neighborhood-shop.png.asset.json'
+import slide3 from '@/assets/onboarding/onboarding-slide-3.png.asset.json'
+import slide4 from '@/assets/onboarding/onboarding-slide-4.png.asset.json'
+import slide5 from '@/assets/onboarding/onboarding-slide-5.png.asset.json'
 
 export interface Slide {
   id: string
@@ -48,7 +49,7 @@ export const slides: Slide[] = [
     altEs: 'Dos personas saludándose delante de un comercio local de barrio.',
     altEn: 'Two people high-fiving in front of a local neighborhood shop.',
     color: 'hsl(var(--km0-beige-100))',
-    image: slide1,
+    image: slide1.url,
     icon: HeartHandshake,
   },
   {
@@ -65,7 +66,7 @@ export const slides: Slide[] = [
     altEs: 'Calendario local con actividades, mercado, cultura y deportes.',
     altEn: 'Local calendar with activities, market, culture and sports.',
     color: 'hsl(var(--km0-teal-100))',
-    image: slide2,
+    image: slide2.url,
     icon: CalendarDays,
   },
   {
@@ -85,7 +86,7 @@ export const slides: Slide[] = [
     altEs: 'Persona celebrando puntos, cupones y recompensas locales.',
     altEn: 'Person celebrating local points, coupons and rewards.',
     color: 'hsl(var(--km0-yellow-100))',
-    image: slide3,
+    image: slide3.url,
     icon: TicketPercent,
   },
   {
@@ -102,7 +103,7 @@ export const slides: Slide[] = [
     altEs: 'Asistente virtual KM0 respondiendo preguntas desde un ordenador.',
     altEn: 'KM0 virtual assistant answering questions from a laptop.',
     color: 'hsl(var(--km0-blue-100))',
-    image: slide4,
+    image: slide4.url,
     icon: BotMessageSquare,
   },
   {
@@ -125,7 +126,7 @@ export const slides: Slide[] = [
     altEn:
       'Lively town scene with local commerce, services, health and sustainability.',
     color: 'hsl(var(--km0-coral-100))',
-    image: slide5,
+    image: slide5.url,
     icon: BarChart3,
   },
 ]

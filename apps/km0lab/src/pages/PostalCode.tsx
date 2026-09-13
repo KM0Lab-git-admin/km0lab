@@ -1,11 +1,10 @@
+import { lookupTown, t, useAppStore } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { lookupTown, t, useAppStore } from '@km0lab/app'
-
-import cityMap from '@/assets/km0_city_map.png'
+import postalCodeMapAsset from '@/assets/postal-code-map.png.asset.json'
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
 
@@ -75,8 +74,8 @@ const PostalCode = () => {
           transition={{ duration: 0.45, delay: 0.15 }}
         >
           <img
-            src={cityMap}
-            alt="Isometric city map"
+            src={postalCodeMapAsset.url}
+            alt={t('postal.image_alt', lang)}
             className="w-full h-auto object-cover"
           />
         </motion.div>

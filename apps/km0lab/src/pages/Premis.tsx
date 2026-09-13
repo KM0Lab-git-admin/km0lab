@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import type {
+  PromocioInfo,
+  Reward,
+  RewardCategory,
+  RewardKind,
+} from '@km0lab/app'
+import { t, type TKey } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
-  ChevronDown,
   Gift,
   Ticket,
   Percent,
@@ -11,75 +15,29 @@ import {
   Package,
   Coins,
   Tag,
-  Store,
   type LucideIcon,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import CategoryFilterSheet from '@/components/CategoryFilterSheet'
 import DeviceShell from '@/components/DeviceShell'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import { useLang } from '@/contexts/LangContext'
-import {
-  t,
-  useAuth,
-  useHomeRewards,
-  useShopCategories,
-  useShopPromotions,
-  useUserPoints,
-  type TKey,
-} from '@km0lab/app'
+import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
+import { REWARDS } from '@/data/rewards'
 import { cn } from '@/lib/utils'
-import type {
-  CategoriaAdherit,
-  Reward,
-  RewardCategory,
-  RewardKind,
-  ShopPromotion,
-} from '@km0lab/app'
 
 type TopTab = 'rewards' | 'promos'
+type Filter = 'all' | RewardCategory
 
-const CATEGORY_ORDER: RewardCategory[] = [
-  'balance',
-  'experience',
-  'merchandising',
-  'discount',
-]
-
-/** Orden fijo de slugs API con i18n `shopCategories.*`. */
-const SHOP_CATEGORY_ORDER = [
-  'bakery',
-  'food',
-  'cafe',
-  'restaurant',
-  'bar',
-  'butcher',
-  'greengrocer',
-  'fishmonger',
-  'pharmacy',
-  'bookstore',
-  'clothing',
-  'hairdresser',
-  'services',
-  'other',
-] as const
-
-const SHOP_CATEGORY_KEY: Record<string, TKey> = {
-  bakery: 'shopCategories.bakery',
-  food: 'shopCategories.food',
-  cafe: 'shopCategories.cafe',
-  restaurant: 'shopCategories.restaurant',
-  bar: 'shopCategories.bar',
-  butcher: 'shopCategories.butcher',
-  greengrocer: 'shopCategories.greengrocer',
-  fishmonger: 'shopCategories.fishmonger',
-  pharmacy: 'shopCategories.pharmacy',
-  bookstore: 'shopCategories.bookstore',
-  clothing: 'shopCategories.clothing',
-  hairdresser: 'shopCategories.hairdresser',
-  services: 'shopCategories.services',
-  other: 'shopCategories.other',
+interface PromoRow {
+  promo: PromocioInfo
+  shopId: string
+  shopName: string
+  shopEmoji?: string
+  shopImage?: string
+  shopBg?: string
 }
 
 const CATEGORY_KEY: Record<RewardCategory, TKey> = {
@@ -94,13 +52,6 @@ const KIND_ICON: Record<RewardKind, LucideIcon> = {
   ticket: Ticket,
   product: ShoppingBag,
   discount: Percent,
-}
-
-const KIND_GRADIENT: Record<RewardKind, string> = {
-  voucher: 'from-km0-yellow-100 to-km0-yellow-300',
-  ticket: 'from-km0-teal-100 to-km0-teal-300',
-  product: 'from-km0-coral-100 to-km0-coral-300',
-  discount: 'from-km0-blue-100 to-km0-blue-300',
 }
 
 const fmt = (n: number) => n.toLocaleString('es-ES')
@@ -134,28 +85,20 @@ interface RewardCardProps {
   reward: Reward
   points: number
   index: number
-  isAuthed: boolean
   onRedeem?: (reward: Reward) => void
-  onNeedLogin?: () => void
 }
 
-const RewardCard = ({
-  reward,
-  points,
-  index,
-  isAuthed,
-  onRedeem,
-  onNeedLogin,
-}: RewardCardProps) => {
+const RewardCard = ({ reward, points, index, onRedeem }: RewardCardProps) => {
   const { lang } = useLang()
   const KindIcon = KIND_ICON[reward.kind]
-  const [imgFailed, setImgFailed] = useState(false)
 
   const isSoldOut = reward.status === 'sold_out'
   const isInactive = reward.status === 'inactive'
   const missingPoints = Math.max(0, reward.costPoints - points)
   const canAfford = missingPoints === 0
 
+  // Esgotat / inactiu conserven el seu propi estat visual; la resta mostra
+  // clarament si l'usuari pot bescanviar el premi o li falten punts.
   const dimmed = isSoldOut || isInactive
 
   const statusChip = isSoldOut
@@ -178,101 +121,81 @@ const RewardCard = ({
       ? t('rewards.stock_unlimited', lang)
       : t('rewards.stock_units', lang).replace('{n}', String(reward.stock))
 
-  const costActive = isAuthed && canAfford && !isSoldOut && !isInactive
+  const costActive = canAfford && !isSoldOut && !isInactive
 
-  const redeemStatus = !isAuthed
+  const redeemStatus = isSoldOut
     ? {
-        key: 'rewards.status.need_register' as TKey,
+        key: 'rewards.status.sold_out' as TKey,
         cls: 'bg-km0-coral-100 text-km0-coral-500',
       }
-    : isSoldOut
+    : isInactive
       ? {
-          key: 'rewards.status.sold_out' as TKey,
-          cls: 'bg-km0-coral-100 text-km0-coral-500',
+          key: 'rewards.status.inactive' as TKey,
+          cls: 'bg-km0-blue-100 text-km0-blue-800/70',
         }
-      : isInactive
+      : canAfford
         ? {
-            key: 'rewards.status.inactive' as TKey,
-            cls: 'bg-km0-blue-100 text-km0-blue-800/70',
+            key: 'rewards.status.can_redeem' as TKey,
+            cls: 'bg-km0-teal-100 text-km0-teal-700',
           }
-        : canAfford
-          ? {
-              key: 'rewards.status.can_redeem' as TKey,
-              cls: 'bg-km0-teal-100 text-km0-teal-700',
-            }
-          : {
-              key: 'rewards.status.missing_points' as TKey,
-              cls: 'bg-km0-coral-100 text-km0-coral-500',
-            }
+        : {
+            key: 'rewards.status.missing_points' as TKey,
+            cls: 'bg-km0-coral-100 text-km0-coral-500',
+          }
 
   const statusLabel = t(redeemStatus.key, lang).replace(
     '{n}',
     fmt(missingPoints)
   )
 
-  const isRedeemable = isAuthed && canAfford && !isSoldOut && !isInactive
-  const isGuestAction = !isAuthed && !isSoldOut && !isInactive
-  const isClickable = isRedeemable || isGuestAction
-  const showImage = Boolean(reward.hasImage && reward.imageUrl && !imgFailed)
+  const isRedeemable = canAfford && !isSoldOut && !isInactive
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.28) }}
-      onClick={
-        isRedeemable
-          ? () => onRedeem?.(reward)
-          : isGuestAction
-            ? () => onNeedLogin?.()
-            : undefined
-      }
-      role={isClickable ? 'button' : undefined}
-      tabIndex={isClickable ? 0 : undefined}
+      onClick={isRedeemable ? () => onRedeem?.(reward) : undefined}
+      role={isRedeemable ? 'button' : undefined}
+      tabIndex={isRedeemable ? 0 : undefined}
       className={cn(
         'relative overflow-hidden rounded-2xl bg-white border border-km0-blue-100',
         'shadow-[0_8px_20px_-14px_hsl(var(--km0-blue-900)/0.35)]',
         'flex flex-col',
-        isClickable && 'cursor-pointer active:scale-[0.98] transition-transform'
+        isRedeemable &&
+          'cursor-pointer active:scale-[0.98] transition-transform'
       )}
     >
+      {/* Cabecera: banda con icono grande + chip estado */}
       <div
         className={cn(
-          'relative h-32 flex items-center justify-center overflow-hidden',
-          'bg-gradient-to-br',
-          KIND_GRADIENT[reward.kind],
+          'relative h-32 flex items-center justify-center',
+          'bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300',
           dimmed && 'opacity-60'
         )}
       >
-        <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-white/85 text-[10px] font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
+        {/* Chip categoría (top-left) */}
+        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/85 text-[10px] font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
           {t(CATEGORY_KEY[reward.category], lang)}
         </span>
+        {/* Chip estado (top-right) */}
         <span
           className={cn(
-            'absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
+            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
             statusChip.cls
           )}
         >
           {t(statusChip.key, lang)}
         </span>
 
-        {showImage ? (
-          <img
-            src={reward.imageUrl!}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={() => setImgFailed(true)}
-          />
-        ) : (
-          <KindIcon
-            size={56}
-            strokeWidth={1.8}
-            className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
-          />
-        )}
+        <KindIcon
+          size={56}
+          strokeWidth={1.8}
+          className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
+        />
       </div>
 
+      {/* Cuerpo */}
       <div className="p-3 flex flex-col gap-2 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-brand font-black text-sm text-km0-blue-900 leading-tight">
@@ -300,7 +223,7 @@ const RewardCard = ({
               {t('rewards.value', lang)}
             </p>
             <p className="font-ui font-bold text-xs text-km0-blue-900">
-              {reward.valueLabel || '—'}
+              {reward.valueLabel}
             </p>
           </div>
           <div>
@@ -333,12 +256,14 @@ const RewardCard = ({
 
 /* ─── Tarjeta de promoción de comercio ───────────────────── */
 interface PromoCardProps {
-  promo: ShopPromotion
+  row: PromoRow
   index: number
 }
 
-const PromoCard = ({ promo, index }: PromoCardProps) => {
+const PromoCard = ({ row, index }: PromoCardProps) => {
   const { lang } = useLang()
+  const l = lang === 'en' ? 'es' : lang
+  const { promo, shopName, shopEmoji, shopImage, shopBg } = row
 
   return (
     <motion.article
@@ -352,45 +277,48 @@ const PromoCard = ({ promo, index }: PromoCardProps) => {
       )}
     >
       <div className="flex items-center gap-2">
-        <span className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-km0-blue-100 bg-km0-beige-100">
-          {promo.shopImageUrl ? (
+        <span
+          className={cn(
+            'shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-km0-blue-100',
+            shopBg ?? 'bg-km0-beige-100'
+          )}
+        >
+          {shopImage ? (
             <img
-              src={promo.shopImageUrl}
+              src={shopImage}
               alt=""
               aria-hidden
               className="w-full h-full object-contain p-1"
             />
           ) : (
             <span className="text-lg" aria-hidden>
-              {promo.shopEmoji ?? '🛍️'}
+              {shopEmoji ?? '🛍️'}
             </span>
           )}
         </span>
         <div className="min-w-0 flex-1">
-          {promo.shopName ? (
-            <p className="font-body text-[10px] uppercase tracking-wide text-km0-blue-800/60 truncate">
-              {t('rewards.promos.at', lang).replace('{shop}', promo.shopName)}
-            </p>
-          ) : null}
+          <p className="font-body text-[10px] uppercase tracking-wide text-km0-blue-800/60 truncate">
+            {t('rewards.promos.at', lang).replace('{shop}', shopName)}
+          </p>
           <h3 className="font-brand font-black text-sm text-km0-blue-900 leading-tight truncate">
-            {promo.title}
+            {promo.titol[l]}
           </h3>
         </div>
         <span className="shrink-0 rounded-full px-2 py-1 text-[11px] font-ui font-black bg-km0-coral-400 text-white">
-          {promo.label}
+          {promo.etiqueta}
         </span>
       </div>
 
       <p className="font-body text-xs text-km0-blue-800/80 leading-snug">
-        {promo.detail}
+        {promo.detall[l]}
       </p>
 
-      {promo.conditions ? (
+      {promo.condicio && (
         <p className="font-body text-[11px] text-km0-blue-800/60 leading-snug flex items-start gap-1">
           <Tag size={11} className="mt-0.5 shrink-0 text-km0-blue-800/50" />
-          <span>{promo.conditions}</span>
+          <span>{promo.condicio[l]}</span>
         </p>
-      ) : null}
+      )}
     </motion.article>
   )
 }
@@ -399,120 +327,50 @@ const PromoCard = ({ promo, index }: PromoCardProps) => {
 const Premis = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
-  const { user } = useAuth()
-  const isAuthed = !!user
-  const { points: userPoints, setPoints } = useUserPoints()
-  const { rewards, loading, error } = useHomeRewards()
-  const {
-    promotions,
-    loading: promosLoading,
-    error: promosError,
-  } = useShopPromotions()
-  const { emojiFor } = useShopCategories()
 
+  // Demo: saldo de ejemplo alto para visualizar el estado "Pots bescanviar".
+  const [points, setPoints] = useState(2500)
   const [redeeming, setRedeeming] = useState<Reward | null>(null)
-  const [promoCategory, setPromoCategory] = useState('totes')
-  const [promoFilterOpen, setPromoFilterOpen] = useState(false)
 
   const [searchParams] = useSearchParams()
   const initialTab: TopTab =
     searchParams.get('tab') === 'promos' ? 'promos' : 'rewards'
   const [topTab, setTopTab] = useState<TopTab>(initialTab)
-  const [filter, setFilter] = useState<RewardCategory>('balance')
+  const [filter, setFilter] = useState<Filter>('balance')
 
   const categories = useMemo<RewardCategory[]>(() => {
-    const present = new Set(rewards.map((r) => r.category))
-    return CATEGORY_ORDER.filter((c) => present.has(c))
-  }, [rewards])
-
-  useEffect(() => {
-    if (categories.length === 0) return
-    if (!categories.includes(filter)) {
-      setFilter(categories.includes('balance') ? 'balance' : categories[0])
-    }
-  }, [categories, filter])
+    const set = new Set<RewardCategory>()
+    for (const r of REWARDS) set.add(r.category)
+    return Array.from(set)
+  }, [])
 
   const filtered = useMemo(
-    () => rewards.filter((r) => r.category === filter),
-    [rewards, filter]
+    () => REWARDS.filter((r) => r.category === filter),
+    [filter]
   )
 
-  const promoCategories = useMemo<CategoriaAdherit[]>(() => {
-    const counts = new Map<string, number>()
-    for (const p of promotions) {
-      const seen = new Set(p.shopCategories)
-      for (const slug of seen) {
-        counts.set(slug, (counts.get(slug) ?? 0) + 1)
+  const promoRows = useMemo<PromoRow[]>(() => {
+    const rows: PromoRow[] = []
+    for (const shop of Object.values(COMERCIOS_DETALL)) {
+      for (const promo of shop.promocions) {
+        rows.push({
+          promo,
+          shopId: shop.id,
+          shopName: shop.nom,
+          shopEmoji: shop.emoji,
+          shopImage: shop.imatge,
+          shopBg: shop.bg,
+        })
       }
-    }
-    const rows: CategoriaAdherit[] = [
-      {
-        slug: 'totes',
-        nom: {
-          ca: t('merchants.filter_all', 'ca'),
-          es: t('merchants.filter_all', 'es'),
-        },
-        count: promotions.length,
-        emoji: '🗂️',
-      },
-    ]
-    for (const slug of SHOP_CATEGORY_ORDER) {
-      const count = counts.get(slug) ?? 0
-      if (count === 0) continue
-      const key = SHOP_CATEGORY_KEY[slug]
-      rows.push({
-        slug,
-        nom: {
-          ca: key ? t(key, 'ca') : slug,
-          es: key ? t(key, 'es') : slug,
-        },
-        count,
-        emoji: emojiFor(slug),
-      })
-    }
-    // Slugs desconocidos presentes en datos
-    for (const [slug, count] of counts) {
-      if (
-        SHOP_CATEGORY_ORDER.includes(
-          slug as (typeof SHOP_CATEGORY_ORDER)[number]
-        )
-      ) {
-        continue
-      }
-      if (rows.some((r) => r.slug === slug)) continue
-      rows.push({
-        slug,
-        nom: { ca: slug, es: slug },
-        count,
-        emoji: emojiFor(slug),
-      })
     }
     return rows
-  }, [promotions, emojiFor])
-
-  useEffect(() => {
-    if (promoCategories.length === 0) return
-    if (!promoCategories.some((c) => c.slug === promoCategory)) {
-      setPromoCategory('totes')
-    }
-  }, [promoCategories, promoCategory])
-
-  const filteredPromotions = useMemo(() => {
-    if (promoCategory === 'totes') return promotions
-    return promotions.filter((p) => p.shopCategories.includes(promoCategory))
-  }, [promotions, promoCategory])
-
-  const selectedPromoCat = promoCategories.find((c) => c.slug === promoCategory)
-  const selectedPromoLabel =
-    selectedPromoCat?.nom[lang === 'en' ? 'es' : lang] ??
-    t('merchants.filter_all', lang)
-
-  const displayPoints = isAuthed ? userPoints : 0
+  }, [])
 
   return (
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
+          {/* Header */}
           <header className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3 bg-km0-beige-50">
             <button
               type="button"
@@ -527,24 +385,17 @@ const Premis = () => {
             </h1>
           </header>
 
+          {/* Saldo */}
           <section className="shrink-0 px-4 pb-2">
-            {isAuthed ? (
-              <div className="flex items-center gap-2 rounded-full bg-white border border-km0-blue-100 px-3 py-1.5 w-fit">
-                <Coins size={14} className="text-km0-yellow-500" />
-                <span className="font-ui font-bold text-xs text-km0-blue-900">
-                  {t('rewards.balance_label', lang).replace(
-                    '{n}',
-                    fmt(displayPoints)
-                  )}
-                </span>
-              </div>
-            ) : (
-              <p className="font-ui font-bold text-xs text-km0-coral-400">
-                {t('rewards.guest_label', lang)}
-              </p>
-            )}
+            <div className="flex items-center gap-2 rounded-full bg-white border border-km0-blue-100 px-3 py-1.5 w-fit">
+              <Coins size={14} className="text-km0-yellow-500" />
+              <span className="font-ui font-bold text-xs text-km0-blue-900">
+                {t('rewards.balance_label', lang).replace('{n}', fmt(points))}
+              </span>
+            </div>
           </section>
 
+          {/* Top tabs: Premis / Promocions */}
           <div className="shrink-0 px-4 pb-2 flex items-center gap-1 bg-km0-beige-50">
             <div className="flex items-center gap-1 rounded-full bg-white border border-km0-blue-100 p-1 w-full">
               {(['rewards', 'promos'] as TopTab[]).map((tab) => (
@@ -570,7 +421,8 @@ const Premis = () => {
             </div>
           </div>
 
-          {topTab === 'rewards' && categories.length > 0 && (
+          {/* Filtros (solo en Premis) */}
+          {topTab === 'rewards' && (
             <div className="shrink-0 px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
               {categories.map((c) => (
                 <FilterChip
@@ -584,42 +436,15 @@ const Premis = () => {
           )}
 
           {topTab === 'promos' && (
-            <div className="shrink-0 px-4 pb-2 space-y-2">
-              <p className="font-body text-[11px] text-km0-blue-800/60 leading-snug">
-                {t('rewards.promos.info', lang)}
-              </p>
-              {promoCategories.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setPromoFilterOpen(true)}
-                  className="w-full min-w-0 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-km0-blue-100 shadow-sm active:scale-[0.99] transition-transform"
-                  aria-haspopup="dialog"
-                  aria-expanded={promoFilterOpen}
-                >
-                  <span className="text-km0-blue-700" aria-hidden>
-                    <Store size={16} strokeWidth={2.2} />
-                  </span>
-                  <span className="flex-1 min-w-0 truncate text-left font-ui text-sm text-km0-blue-900 font-bold">
-                    {selectedPromoLabel}
-                  </span>
-                  <ChevronDown
-                    size={16}
-                    className="text-km0-blue-700 shrink-0"
-                  />
-                </button>
-              )}
-            </div>
+            <p className="shrink-0 px-4 pb-2 font-body text-[11px] text-km0-blue-800/60 leading-snug">
+              {t('rewards.promos.info', lang)}
+            </p>
           )}
 
+          {/* Grid */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pt-1 pb-6">
             {topTab === 'rewards' ? (
-              loading ? (
-                <div className="h-full flex items-center justify-center text-center px-6">
-                  <p className="font-body text-sm text-km0-blue-800/60">
-                    {t('common.loading', lang)}
-                  </p>
-                </div>
-              ) : error || filtered.length === 0 ? (
+              filtered.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-center px-6">
                   <p className="font-body text-sm text-km0-blue-800/60">
                     {t('rewards.empty', lang)}
@@ -631,22 +456,14 @@ const Premis = () => {
                     <RewardCard
                       key={r.id}
                       reward={r}
-                      points={displayPoints}
+                      points={points}
                       index={i}
-                      isAuthed={isAuthed}
                       onRedeem={setRedeeming}
-                      onNeedLogin={() => navigate('/login')}
                     />
                   ))}
                 </div>
               )
-            ) : promosLoading ? (
-              <div className="h-full flex items-center justify-center text-center px-6">
-                <p className="font-body text-sm text-km0-blue-800/60">
-                  {t('common.loading', lang)}
-                </p>
-              </div>
-            ) : promosError || filteredPromotions.length === 0 ? (
+            ) : promoRows.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('rewards.promos.empty', lang)}
@@ -654,39 +471,34 @@ const Premis = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                {filteredPromotions.map((promo, i) => (
-                  <PromoCard key={promo.id} promo={promo} index={i} />
+                {promoRows.map((row, i) => (
+                  <PromoCard
+                    key={`${row.shopId}-${row.promo.id}`}
+                    row={row}
+                    index={i}
+                  />
                 ))}
               </div>
             )}
           </div>
 
-          <CategoryFilterSheet
-            open={promoFilterOpen}
-            onOpenChange={setPromoFilterOpen}
-            categories={promoCategories}
-            selected={promoCategory}
-            onSelect={setPromoCategory}
-            lang={lang}
-          />
-
-          {isAuthed && redeeming && redeeming.category === 'balance' && (
+          {redeeming && redeeming.category === 'balance' && (
             <RedeemBalanceOverlay
               reward={redeeming}
-              currentPoints={userPoints}
+              currentPoints={points}
               onClose={() => setRedeeming(null)}
               onConfirmed={({ costPoints }) =>
-                setPoints(Math.max(0, userPoints - costPoints))
+                setPoints((p) => Math.max(0, p - costPoints))
               }
             />
           )}
-          {isAuthed && redeeming && redeeming.category !== 'balance' && (
+          {redeeming && redeeming.category !== 'balance' && (
             <RedeemMerchandiseOverlay
               reward={redeeming}
-              currentPoints={userPoints}
+              currentPoints={points}
               onClose={() => setRedeeming(null)}
               onConfirmed={({ costPoints }) =>
-                setPoints(Math.max(0, userPoints - costPoints))
+                setPoints((p) => Math.max(0, p - costPoints))
               }
             />
           )}

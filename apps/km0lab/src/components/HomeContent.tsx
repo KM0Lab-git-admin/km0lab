@@ -1,17 +1,19 @@
-import HomeModules, { type HomeModule } from './HomeModules'
-import HomeHero from './HomeHero'
-import EventHeroCarousel from './EventHeroCarousel'
-import PointsCard from './PointsCard'
-import JoinCard from './JoinCard'
-import EarnPointsCard from './EarnPointsCard'
-import RewardsPreview from './RewardsPreview'
-import MerchantPromosPreview from './MerchantPromosPreview'
-import BottomTabs, { type HomeTab } from './BottomTabs'
+import { t } from '@km0lab/app'
 import { ArrowRight } from 'lucide-react'
-import { useLang } from '@/contexts/LangContext'
-import { isDemoPostalCode, t, useAppStore } from '@km0lab/app'
+
+import BottomTabs, { type HomeTab } from './BottomTabs'
+import EarnPointsCard from './EarnPointsCard'
+import EventHeroCarousel from './EventHeroCarousel'
+import HomeHero from './HomeHero'
+import HomeModules, { type HomeModule } from './HomeModules'
+import JoinCard from './JoinCard'
+import MerchantPromosPreview from './MerchantPromosPreview'
+import PointsCard from './PointsCard'
+import RewardsPreview from './RewardsPreview'
 
 import type { Promo } from '@km0lab/app'
+
+import { useLang } from '@/contexts/LangContext'
 
 export interface HomeContentProps {
   cityName: string
@@ -31,6 +33,7 @@ export interface HomeContentProps {
   activeTab: HomeTab
   isAuthed: boolean
   onLogin: () => void
+  onHowItWorks: () => void
   onHome: () => void
   onProfile: () => void
   onPoints: () => void
@@ -61,6 +64,7 @@ const HomeContent = ({
   activeTab,
   isAuthed,
   onLogin,
+  onHowItWorks,
   onHome,
   onProfile,
   onPoints,
@@ -76,11 +80,9 @@ const HomeContent = ({
   onOpenPointsHistory,
 }: HomeContentProps) => {
   const { lang } = useLang()
-  const postalCode = useAppStore((s) => s.postalCode)
-  const showDemoBadge = isDemoPostalCode(postalCode)
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+    <>
       <HomeHero
         cityName={cityName}
         hasAlerts={hasAlerts}
@@ -88,16 +90,12 @@ const HomeContent = ({
         showGreeting={false}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
         <div className="relative z-10 flex flex-col gap-5 px-2 pt-4 pb-6">
-          {showDemoBadge ? (
-            <p className="text-center font-ui font-bold text-xs text-km0-teal-600 uppercase tracking-wide px-4">
-              {t('home.demo.badge', lang)}
-            </p>
-          ) : null}
-
           <section className="flex flex-col gap-3 px-2">
-            {showLogin && <JoinCard onCreateAccount={onLogin} />}
+            {showLogin && (
+              <JoinCard onCreateAccount={onLogin} onHowItWorks={onHowItWorks} />
+            )}
             {showPoints && (
               <PointsCard
                 points={points}
@@ -162,7 +160,7 @@ const HomeContent = ({
         onRewards={onRewards}
         onActions={onActions}
       />
-    </div>
+    </>
   )
 }
 

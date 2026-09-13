@@ -1,9 +1,7 @@
-import type { TKey } from '../utils/i18n'
+import type { TKey } from '../utils/i18nProd'
 
 export type PointsTxType =
   | 'signup'
-  | 'welcome'
-  | 'action'
   | 'first_scan'
   | 'scan'
   | 'web_visit'
@@ -15,15 +13,11 @@ export type PointsTxType =
 export type PointActionId =
   | 'birthday'
   | 'signup'
-  | 'qr_scan'
   | 'first_scan'
   | 'scan'
   | 'web_visit'
-  | 'web_signup'
   | 'newsletter'
-  | 'event'
   | 'event_signup'
-  | 'custom'
   | 'survey'
 
 export type PointActionIcon =
@@ -37,17 +31,11 @@ export type PointActionIcon =
   | 'clipboard-list'
 
 export interface PointAction {
-  /** UUID de API o id mock legado. */
+  /** UUID de API o id estable del mock Lovable. */
   id: string
-  /** Tipo de acción de API (birthday, qr_scan, …). */
-  type?: PointActionId | string
-  titleKey?: TKey
-  descriptionKey?: TKey
-  typeKey?: TKey
-  /** Override de título cuando no hay clave i18n (fallback API). */
-  title?: string
-  /** Override de descripción cuando no hay clave i18n (fallback API). */
-  description?: string
+  titleKey: TKey
+  descriptionKey: TKey
+  typeKey: TKey
   points: number
   completed: boolean
   icon: PointActionIcon
@@ -56,10 +44,8 @@ export interface PointAction {
 export interface PointsTransaction {
   id: string
   type: PointsTxType
-  /** Clave i18n del concepto (ej. "points.history.type.scan"). Opcional si hay concept. */
-  conceptKey?: TKey
-  /** Título ya resuelto por la API (preferido sobre conceptKey). */
-  concept?: string
+  /** Clave i18n del concepto (ej. "points.history.type.scan"). */
+  conceptKey: TKey
   /** Establecimiento o acción concreta. */
   place?: string
   /** ISO 8601. */

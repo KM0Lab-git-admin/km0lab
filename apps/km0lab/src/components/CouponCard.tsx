@@ -1,9 +1,11 @@
-import { ChevronRight, Percent, Gift, Ticket, Lock } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import type { Coupon } from '@km0lab/app'
-import { useLang } from '@/contexts/LangContext'
 import { t } from '@km0lab/app'
+import { motion } from 'framer-motion'
+import { ChevronRight, Percent, Gift, Ticket, Lock } from 'lucide-react'
+
+import type { Coupon } from '@km0lab/app'
+
+import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 /**
  * CouponCard — tarjeta horizontal para "Bescanvia amb punts".

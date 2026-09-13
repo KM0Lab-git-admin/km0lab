@@ -1,8 +1,10 @@
-import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState } from 'react'
+
 import type { Promo } from '@km0lab/app'
+
+import { cn } from '@/lib/utils'
 
 /**
  * PromoCarousel — carrusel de promos/eventos con flechas izq/der,

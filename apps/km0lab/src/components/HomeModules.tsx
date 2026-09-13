@@ -1,13 +1,14 @@
-import { cn } from '@/lib/utils'
-import { useLang } from '@/contexts/LangContext'
 import { t } from '@km0lab/app'
-import chatMascot from '@/assets/chat-mascot.png'
+
 import agendaIcon from '@/assets/agenda-icon.png'
+import chatMascot from '@/assets/chat-mascot.png'
 import cityHallIcon from '@/assets/cityhall-icon.png'
-import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
 import newsIcon from '@/assets/news-icon.png'
-import servicesIcon from '@/assets/services-icon.png'
 import rewardsIcon from '@/assets/rewards-icon.png.asset.json'
+import servicesIcon from '@/assets/services-icon.png'
+import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
+import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 /**
  * HomeModules — accesos rápidos de la Home.

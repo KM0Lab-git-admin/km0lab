@@ -1,12 +1,16 @@
+import { t, type Lang } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
+import { ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import BrandedFrame from '@/components/BrandedFrame'
+import Km0Logo from '@/components/Km0Logo'
 import StackCarousel, {
   type StackCarouselItem,
 } from '@/components/StackCarousel'
-import { slides, type Slide } from '@/data/onboardingSlides'
 import { useLang } from '@/contexts/LangContext'
-import { t, type Lang } from '@km0lab/app'
+import { slides, type Slide } from '@/data/onboardingSlides'
 
 const getTitle = (slide: Slide, lang: Lang) =>
   lang === 'ca' ? slide.titleCa : lang === 'en' ? slide.titleEn : slide.titleEs
@@ -26,31 +30,46 @@ const Onboarding = () => {
   const [current, setCurrent] = useState(0)
 
   return (
-    <BrandedFrame
-      onBack={() => navigate('/')}
-      backAriaLabel={t('common.back', lang)}
-    >
-      <StackCarousel
-        items={items}
-        index={current}
-        onIndexChange={setCurrent}
-        skipLabel={t('onboarding.skip', lang)}
-        finishLabel={t('onboarding.finish', lang)}
-        onFinish={() => navigate('/postal-code')}
-        renderSlideContent={(s, { isActive }) => (
-          <OnboardingCard slide={s} isActive={isActive} lang={lang} />
-        )}
-        renderThumbnail={(s, { isActive }) => {
-          const Icon = s.icon
-          return (
-            <Icon
-              size={22}
-              strokeWidth={2.2}
-              className={isActive ? 'text-primary' : 'text-km0-blue-400'}
-            />
-          )
-        }}
-      />
+    <BrandedFrame hideHeader portraitContentClassName="!p-0 !overflow-hidden">
+      <div className="relative h-full min-h-0 overflow-hidden bg-background">
+        <div className="absolute inset-x-0 top-0 z-40 flex items-center justify-center px-5 pt-5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/')}
+            className="absolute left-5 rounded-xl border-2 border-dashed border-km0-yellow-500 bg-km0-blue-900/60 text-km0-yellow-400 backdrop-blur-sm hover:bg-km0-blue-800"
+            aria-label={t('common.back', lang)}
+          >
+            <ChevronLeft size={20} strokeWidth={2.5} />
+          </Button>
+          <Km0Logo className="h-9 w-auto max-w-[190px] drop-shadow-lg" />
+        </div>
+
+        <StackCarousel
+          items={items}
+          index={current}
+          onIndexChange={setCurrent}
+          skipLabel={t('onboarding.skip', lang)}
+          finishLabel={t('onboarding.finish', lang)}
+          previousLabel={t('common.previous', lang)}
+          nextLabel={t('common.next', lang)}
+          onFinish={() => navigate('/postal-code')}
+          renderSlideContent={(s, { isActive }) => (
+            <OnboardingCard slide={s} isActive={isActive} lang={lang} />
+          )}
+          renderThumbnail={(s, { isActive }) => {
+            const Icon = s.icon
+            return (
+              <Icon
+                size={22}
+                strokeWidth={2.2}
+                className={isActive ? 'text-primary' : 'text-km0-blue-400'}
+              />
+            )
+          }}
+        />
+      </div>
     </BrandedFrame>
   )
 }
@@ -64,30 +83,30 @@ const OnboardingCard = ({
   isActive: boolean
   lang: Lang
 }) => (
-  <div className="flex flex-col h-full max-h-full">
-    <div className="relative mx-2 mt-2 shrink-0 h-[clamp(140px,28vh,220px)] rounded-2xl overflow-hidden bg-km0-beige-100">
+  <article className="relative h-full overflow-hidden bg-background">
+    <div className="absolute inset-0 bg-background">
       <img
         src={slide.image}
         alt={getAlt(slide, lang)}
         loading={isActive ? 'eager' : 'lazy'}
-        className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+        className="absolute inset-x-0 top-24 h-auto w-full object-contain select-none pointer-events-none"
         draggable={false}
       />
+    </div>
+    <div className="absolute inset-x-5 bottom-32 z-10 rounded-xl bg-background/95 px-3 py-3 shadow-md">
       {isActive && (
-        <span className="absolute top-2 right-2 bg-km0-coral-400 text-white font-ui font-bold text-xs px-2 py-0.5 rounded-xl shadow-md">
+        <span className="mb-3 inline-flex rounded-xl bg-km0-yellow-500 px-3 py-1 font-ui text-xs font-bold text-km0-blue-900 shadow-md">
           +{slide.xp} XP
         </span>
       )}
-    </div>
-    <div className="px-3 pt-2 pb-3 text-center flex-1 min-h-0 overflow-hidden flex flex-col justify-start">
-      <h2 className="font-brand font-bold text-base text-primary leading-tight mb-1">
+      <h2 className="max-w-[290px] font-brand text-3xl text-foreground leading-tight">
         {getTitle(slide, lang)}
       </h2>
-      <p className="font-body text-xs text-muted-foreground leading-snug">
+      <p className="mt-3 max-w-[290px] font-body text-sm font-medium text-muted-foreground leading-relaxed">
         {getDesc(slide, lang)}
       </p>
     </div>
-  </div>
+  </article>
 )
 
 export default Onboarding

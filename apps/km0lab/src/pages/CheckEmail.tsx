@@ -1,10 +1,7 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  KeyboardEvent,
-  ClipboardEvent,
-} from 'react'
+import { requestOtp, verifyOtp, t } from '@km0lab/app'
+import { motion } from 'framer-motion'
+import { Mail } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import {
   useNavigate,
   useLocation,
@@ -12,12 +9,11 @@ import {
   Navigate,
 } from 'react-router-dom'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
-import { Mail } from 'lucide-react'
-import { requestOtp, verifyOtp } from '@km0lab/app'
+
+import type { KeyboardEvent, ClipboardEvent } from 'react'
+
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
-import { t } from '@km0lab/app'
 
 const RESEND_COOLDOWN_SECONDS = 30
 const CODE_LENGTH = 6

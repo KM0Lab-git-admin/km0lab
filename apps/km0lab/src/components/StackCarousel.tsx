@@ -1,6 +1,8 @@
-import { useState, useRef, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useRef, type ReactNode } from 'react'
+
 import { cn } from '@/lib/utils'
 
 /**
@@ -52,9 +54,20 @@ export interface StackCarouselProps<T extends StackCarouselItem> {
   /** Index controlado (opcional) */
   index?: number
   onIndexChange?: (i: number) => void
+  previousLabel: string
+  nextLabel: string
 }
 
-const SLOT = 260
+/**
+ * Controles laterales prev/next. Relleno blanco opaco + borde de 2px en el
+ * azul de marca: se leen sobre ilustraciones claras y sobre el fondo beige.
+ */
+const ARROW_BUTTON_BASE =
+  'absolute top-[42%] -translate-y-1/2 h-11 w-11 rounded-full bg-card border-[2px] shadow-xl transition-all duration-200 z-20 active:scale-90'
+const ARROW_BUTTON_ACTIVE =
+  'border-km0-blue-700 text-km0-blue-700 hover:bg-km0-blue-50 hover:text-km0-blue-700 hover:scale-110 cursor-pointer'
+const ARROW_BUTTON_DISABLED =
+  'border-km0-blue-200 text-km0-blue-300 opacity-50 cursor-not-allowed'
 
 function StackCarousel<T extends StackCarouselItem>({
   items,
@@ -66,6 +79,8 @@ function StackCarousel<T extends StackCarouselItem>({
   defaultIndex = 0,
   index,
   onIndexChange,
+  previousLabel,
+  nextLabel,
 }: StackCarouselProps<T>) {
   const [internalIndex, setInternalIndex] = useState(defaultIndex)
   const current = index ?? internalIndex
@@ -115,7 +130,7 @@ function StackCarousel<T extends StackCarouselItem>({
     },
   }
 
-  const trackX = -(current * SLOT + SLOT / 2)
+  const trackX = -((current + 0.5) / total) * 100
 
   const handleSkip = () => {
     onFinish?.()
@@ -124,10 +139,10 @@ function StackCarousel<T extends StackCarouselItem>({
   const buttonLabel = isLast ? finishLabel : skipLabel
 
   return (
-    <div className="w-full max-w-[390px] mx-auto flex flex-col gap-3 overflow-hidden min-h-full justify-center py-2">
+    <div className="relative w-full h-full min-h-0 overflow-hidden bg-background">
       <motion.div
         ref={carouselRef}
-        className="relative shrink-0 h-[clamp(300px,48dvh,360px)] overflow-visible select-none cursor-grab active:cursor-grabbing"
+        className="absolute inset-0 overflow-visible select-none cursor-grab active:cursor-grabbing"
         style={{ touchAction: 'none' }}
         onPointerDown={pointerHandlers.onPointerDown}
         onPointerMove={pointerHandlers.onPointerMove}
@@ -138,73 +153,44 @@ function StackCarousel<T extends StackCarouselItem>({
         transition={{ duration: 0.45, delay: 0.2 }}
       >
         <div
-          className="absolute top-1/2 left-1/2 flex items-start"
+          className="absolute inset-y-0 left-1/2 flex items-stretch"
           style={{
-            transform: `translateX(${trackX + dragOffset}px) translateY(-50%)`,
+            transform: `translateX(calc(${trackX}% + ${dragOffset}px))`,
             transition:
               dragOffset !== 0
                 ? 'none'
                 : 'transform 420ms cubic-bezier(0.4, 0, 0.2, 1)',
-            width: `${total * SLOT}px`,
+            width: `${total * 100}%`,
           }}
         >
           {items.map((item, i) => {
             const dist = Math.abs(i - current)
             const isActive = i === current
-            const scale = isActive ? 1 : dist === 1 ? 0.92 : 0.76
-            const opacity = isActive ? 1 : dist === 1 ? 0.85 : 0.45
-            const topOffset = isActive ? 0 : dist === 1 ? 12 : 32
+            const scale = isActive ? 1 : dist === 1 ? 0.94 : 0.88
+            const opacity = isActive ? 1 : dist === 1 ? 0.72 : 0.28
             return (
               <div
                 key={item.id}
                 onClick={() => !isActive && goTo(i)}
                 style={{
-                  width: `${SLOT}px`,
-                  paddingLeft: '5px',
-                  paddingRight: '5px',
-                  transform: `scale(${scale}) translateY(${topOffset}px)`,
+                  width: `${100 / total}%`,
+                  transform: `scale(${scale})`,
                   opacity,
                   transition:
                     'transform 420ms cubic-bezier(0.4,0,0.2,1), opacity 420ms ease',
-                  transformOrigin: 'top center',
+                  transformOrigin: 'center',
                   cursor: isActive ? 'default' : 'pointer',
                   zIndex: isActive ? 10 : 1,
                   position: 'relative',
                   pointerEvents: 'auto',
+                  height: '100%',
                 }}
               >
-                {isActive && (
-                  <>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: -10,
-                        left: 22,
-                        right: 22,
-                        height: 28,
-                        background: 'rgba(255,255,255,0.55)',
-                        borderRadius: 20,
-                        zIndex: -1,
-                        boxShadow: '0 8px 24px -4px rgba(0,0,0,0.10)',
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: -18,
-                        left: 38,
-                        right: 38,
-                        height: 28,
-                        background: 'rgba(255,255,255,0.30)',
-                        borderRadius: 20,
-                        zIndex: -2,
-                        boxShadow: '0 8px 24px -4px rgba(0,0,0,0.06)',
-                      }}
-                    />
-                  </>
-                )}
                 <div
-                  className={`bg-white rounded-3xl overflow-hidden ${isActive ? 'shadow-2xl' : 'shadow-none'}`}
+                  className={cn(
+                    'h-full overflow-hidden bg-background',
+                    !isActive && 'rounded-3xl my-4'
+                  )}
                 >
                   {renderSlideContent(item, { isActive, index: i })}
                 </div>
@@ -213,94 +199,102 @@ function StackCarousel<T extends StackCarouselItem>({
           })}
         </div>
 
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
           onClick={prev}
           onPointerDown={(e) => e.stopPropagation()}
           disabled={isFirst}
           className={cn(
-            'absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border-[2px] flex items-center justify-center shadow-lg transition-all duration-200 z-20',
-            isFirst
-              ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
-              : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
+            ARROW_BUTTON_BASE,
+            'left-3',
+            isFirst ? ARROW_BUTTON_DISABLED : ARROW_BUTTON_ACTIVE
           )}
-          aria-label="Previous"
+          aria-label={previousLabel}
         >
-          <ChevronLeft size={18} strokeWidth={2.5} />
-        </button>
-        <button
+          <ChevronLeft className="!size-5" strokeWidth={2.5} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
           onClick={next}
           onPointerDown={(e) => e.stopPropagation()}
           disabled={isLast}
           className={cn(
-            'absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border-[2px] flex items-center justify-center shadow-lg transition-all duration-200 z-20',
-            isLast
-              ? 'border-km0-beige-200 text-km0-beige-300 opacity-40 cursor-not-allowed'
-              : 'border-km0-yellow-400 text-km0-blue-700 hover:bg-km0-yellow-50 hover:scale-110 cursor-pointer'
+            ARROW_BUTTON_BASE,
+            'right-3',
+            isLast ? ARROW_BUTTON_DISABLED : ARROW_BUTTON_ACTIVE
           )}
-          aria-label="Next"
+          aria-label={nextLabel}
         >
-          <ChevronRight size={18} strokeWidth={2.5} />
-        </button>
+          <ChevronRight className="!size-5" strokeWidth={2.5} />
+        </Button>
       </motion.div>
 
-      {/* Thumbnails */}
       <motion.div
-        className="flex justify-center gap-2"
+        className="absolute inset-x-4 bottom-[72px] z-30 flex justify-center gap-2"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       >
         {items.map((item, i) => (
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             key={item.id}
             onClick={() => goTo(i)}
             className={cn(
-              'w-12 h-12 rounded-xl flex items-center justify-center text-xl transition-all duration-200 border-[2px]',
+              'w-11 h-11 rounded-xl text-xl transition-all duration-200 border-[2px] bg-card/85 backdrop-blur-sm',
               i === current
                 ? 'border-km0-yellow-500 scale-110 shadow-md'
-                : 'border-km0-beige-200 bg-white opacity-70 hover:opacity-100 hover:scale-105'
+                : 'border-km0-beige-200 opacity-70 hover:opacity-100 hover:scale-105'
             )}
-            style={{ background: i === current ? item.color : 'white' }}
             aria-label={`Slide ${i + 1}`}
           >
             {renderThumbnail
               ? renderThumbnail(item, { isActive: i === current, index: i })
               : item.thumb}
-          </button>
+          </Button>
         ))}
       </motion.div>
 
-      {/* Footer */}
       <motion.div
-        className="flex items-center justify-between px-1"
+        className="absolute inset-x-5 bottom-4 z-30 flex items-center justify-between"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.4 }}
       >
-        <span className="font-ui font-bold text-lg text-primary w-12">
+        <span className="font-ui font-bold text-base text-km0-blue-700 w-12">
           {current + 1}/{total}
         </span>
         <div className="flex gap-2 items-center">
           {items.map((_, i) => (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               key={i}
               onClick={() => goTo(i)}
               className={cn(
-                'rounded-full transition-all duration-300',
+                'rounded-full p-0 min-w-0 transition-all duration-300',
                 i === current
-                  ? 'w-4 h-4 bg-km0-yellow-500'
-                  : 'w-2.5 h-2.5 bg-km0-blue-200'
+                  ? 'w-6 h-2 bg-km0-yellow-500'
+                  : 'w-2 h-2 bg-km0-blue-200'
               )}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
-        <button
+        <Button
+          type="button"
           onClick={handleSkip}
-          className="bg-primary text-primary-foreground font-ui font-semibold text-sm px-5 py-2.5 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95"
+          className="h-11 bg-primary text-primary-foreground font-ui font-semibold text-sm px-5 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95"
         >
           {buttonLabel}
-        </button>
+        </Button>
       </motion.div>
     </div>
   )

@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
+
 import PromoCarousel from './PromoCarousel'
+
 import type { Promo } from '@km0lab/app'
 
 /**

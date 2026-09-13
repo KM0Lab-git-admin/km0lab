@@ -1,5 +1,5 @@
-import { SonnerToaster, Toaster, TooltipProvider } from '@km0lab/ui'
 import { Capacitor } from '@capacitor/core'
+import { SonnerToaster, Toaster, TooltipProvider } from '@km0lab/ui'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
@@ -15,6 +15,7 @@ const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter
 
 const Index = lazy(() => import('./pages/Index'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
+const HowItWorks = lazy(() => import('./pages/HowItWorks'))
 const PostalCode = lazy(() => import('./pages/PostalCode'))
 const Login = lazy(() => import('./pages/Login'))
 const CheckEmail = lazy(() => import('./pages/CheckEmail'))
@@ -33,6 +34,7 @@ const ComercDetall = lazy(() => import('./pages/ComercDetall'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const ScannerSuccess = lazy(() => import('./pages/ScannerSuccess'))
 const ScanDeepLink = lazy(() => import('./pages/ScanDeepLink'))
+const EmailOtpTemplate = lazy(() => import('./pages/EmailOtpTemplate'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const queryClient = new QueryClient()
@@ -54,6 +56,16 @@ export default function App() {
                   element={
                     <RequireSetup need="language">
                       <Onboarding />
+                    </RequireSetup>
+                  }
+                />
+                {/* Se entra desde la Home ("Com funciona?"), que ya exige
+                    need="location"; el mismo guard mantiene la coherencia. */}
+                <Route
+                  path="/how-it-works"
+                  element={
+                    <RequireSetup need="location">
+                      <HowItWorks />
                     </RequireSetup>
                   }
                 />
@@ -229,6 +241,9 @@ export default function App() {
                     </RequireSetup>
                   }
                 />
+                {/* Maqueta visual del email OTP: referencia de diseno, no
+                    forma parte del funnel de usuario. Sin guard. */}
+                <Route path="/email/otp" element={<EmailOtpTemplate />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

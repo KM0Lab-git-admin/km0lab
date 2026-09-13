@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react'
 
 import { listEvents, type AgendaEvent } from '../services/eventsApi'
 import { useAppStore } from '../stores/useAppStore'
+
 import type { Promo } from '../types/promo'
-import { contentPoblacion } from '../utils/demoTown'
 
 /**
  * useFeaturedPromos — obtiene los N primeros eventos de la API y los
  * adapta al shape `Promo` que consume `EventHeroCarousel`.
  *
- * Filtra por población del store; Demo KM0 hereda agenda de Malgrat.
- * Si la API falla o no devuelve nada, el hook devuelve una lista vacía;
- * el consumidor decide el fallback.
+ * Solo lectura. Si la API falla o no devuelve nada, el hook devuelve una
+ * lista vacía; el consumidor decide el fallback (por ejemplo, ocultar la
+ * sección o mostrar los PROMOS mock).
  */
 const GRADIENTS = [
   'from-km0-blue-800 via-km0-blue-700 to-km0-blue-900',
@@ -72,9 +72,6 @@ export function useFeaturedPromos(limit = 4): {
   error: string | null
 } {
   const lang = useAppStore((s) => s.lang)
-  const postalCode = useAppStore((s) => s.postalCode)
-  const town = useAppStore((s) => s.town)
-  const poblacion = contentPoblacion(postalCode, town)
   const [promos, setPromos] = useState<Promo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -86,7 +83,6 @@ export function useFeaturedPromos(limit = 4): {
     listEvents({
       pageSize: limit,
       page: 1,
-      poblacion,
       lang: lang === 'ca' ? 'ca' : 'es',
     })
       .then((res) => {
@@ -105,7 +101,7 @@ export function useFeaturedPromos(limit = 4): {
     return () => {
       cancelled = true
     }
-  }, [limit, lang, poblacion])
+  }, [limit, lang])
 
   return { promos, loading, error }
 }

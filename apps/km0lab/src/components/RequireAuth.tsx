@@ -1,6 +1,7 @@
-import { ReactNode } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@km0lab/app'
+import { Navigate, useLocation } from 'react-router-dom'
+
+import type { ReactNode } from 'react'
 
 /**
  * RequireAuth — Guard para rutas privadas.

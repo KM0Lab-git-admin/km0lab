@@ -1,8 +1,9 @@
+import { t } from '@km0lab/app'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
 import type { CategoriaAdherit, Lang } from '@km0lab/app'
-import { t } from '@km0lab/app'
+
 import { cn } from '@/lib/utils'
 
 /**

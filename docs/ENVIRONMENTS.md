@@ -71,16 +71,16 @@ OTP en el log (`[DEV] OTP para …`).
 
 ## 3. Ramas Git → entorno
 
-| Repo                             | Rama        | Despliegue                             |
-| -------------------------------- | ----------- | -------------------------------------- |
-| `km0lab`                         | `develop`   | **UAT** (app)                          |
-| `km0lab`                         | `main`      | **producción** (cuando exista)         |
-| `km0lab-backoffice`              | `develop`   | **UAT** (backoffice)                   |
-| `km0lab-backoffice`              | `main`      | **producción**                         |
-| `km0lab-api`                     | `develop`   | **UAT** (API usuarios)                 |
-| `km0lab-api`                     | `main`      | **producción**                         |
-| `events-query`                   | `develop`   | **UAT** (API eventos)                  |
-| `events-query`                   | `main`      | **producción**                         |
+| Repo                       | Rama        | Despliegue                             |
+| -------------------------- | ----------- | -------------------------------------- |
+| `km0lab`                   | `develop`   | **UAT** (app)                          |
+| `km0lab`                   | `main`      | **producción** (cuando exista)         |
+| `km0lab-backoffice`        | `develop`   | **UAT** (backoffice)                   |
+| `km0lab-backoffice`        | `main`      | **producción**                         |
+| `km0lab-api`               | `develop`   | **UAT** (API usuarios)                 |
+| `km0lab-api`               | `main`      | **producción**                         |
+| `events-query`             | `develop`   | **UAT** (API eventos)                  |
+| `events-query`             | `main`      | **producción**                         |
 | Lovable (`km0lab-lovable`) | solo `main` | No despliega UAT/prod; sync → `km0lab` |
 
 Flujo diario:

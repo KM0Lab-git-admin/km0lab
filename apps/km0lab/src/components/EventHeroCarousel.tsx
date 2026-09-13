@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, MapPin, CalendarDays } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
+
 import type { Promo } from '@km0lab/app'
+
+import { cn } from '@/lib/utils'
 
 /**
  * EventHeroCarousel — hero de "Eventos destacados".

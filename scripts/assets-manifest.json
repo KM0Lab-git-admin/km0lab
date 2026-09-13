@@ -7,10 +7,6 @@
       "to": "apps/km0lab/src/assets/km0_robot_icon_v2.png"
     },
     {
-      "from": "src/assets/km0_city_map.png",
-      "to": "apps/km0lab/src/assets/km0_city_map.png"
-    },
-    {
       "from": "src/assets/coupon-icon.png",
       "to": "apps/km0lab/src/assets/coupon-icon.png"
     },
@@ -115,16 +111,52 @@
       "to": "apps/km0lab/src/assets/onboarding/02_agenda_avisos.jpg"
     },
     {
-      "from": "src/assets/onboarding/03_punts_recompenses.jpg",
-      "to": "apps/km0lab/src/assets/onboarding/03_punts_recompenses.jpg"
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/dcb290e0-de9c-4748-a4c5-19059c27d779/how-it-works-step1.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step1.png"
     },
     {
-      "from": "src/assets/onboarding/04_assistent_247.jpg",
-      "to": "apps/km0lab/src/assets/onboarding/04_assistent_247.jpg"
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/56ab9de5-a294-477d-bcc1-173f8fd9dca3/how-it-works-step2.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step2.png"
     },
     {
-      "from": "src/assets/onboarding/05_municipi_sostenible.jpg",
-      "to": "apps/km0lab/src/assets/onboarding/05_municipi_sostenible.jpg"
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/606643e6-e028-4d54-b336-b32d916445d9/how-it-works-step3.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step3.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/d7dd328c-b5c4-466d-b317-1e432e4d8140/how-it-works-step4.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step4.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/0e455669-ebbc-4c50-b674-5f02cd62941a/how-it-works-step5.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step5.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/8331304a-67e2-4a42-bd9c-2ef7ff232f47/language-selection.png",
+      "to": "apps/km0lab/src/assets/language-selection.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/a4c98754-a813-49bf-bcc8-d9362a5f05ba/postal-code-map.png",
+      "to": "apps/km0lab/src/assets/postal-code-map.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/17ec3fa1-81b4-4f9a-b883-ead35d747435/onboarding-neighborhood-shop.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-neighborhood-shop.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/71e565a8-a36e-4968-8036-c7558b9f6062/onboarding-local-updates.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-local-updates.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/3680578f-30e6-48d0-b4ae-5bdedc0fc50e/onboarding-slide-3.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-3.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/8582e63c-db1a-4fd6-a927-d9e2c0add612/onboarding-slide-4.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-4.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/dfa5daac-28e5-44bf-832d-9799f1c11205/onboarding-slide-5.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-5.png"
     }
   ]
 }

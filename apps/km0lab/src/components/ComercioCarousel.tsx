@@ -1,7 +1,9 @@
-import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { useState } from 'react'
+
 import type { Comercio } from '@km0lab/app'
+
+import { cn } from '@/lib/utils'
 
 /**
  * ComercioCarousel — carrusel paginado de logos de comercios con
