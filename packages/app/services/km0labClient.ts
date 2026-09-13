@@ -306,6 +306,12 @@ function detailOf(json: unknown): unknown {
   return undefined
 }
 
+/** JWT rejected or missing: drop the stale session so the UI becomes guest. */
+function isLostSession(status: number, json: unknown): boolean {
+  if (status === 401) return true
+  return status === 403 && errorMessage(json, status) === 'Not authenticated'
+}
+
 export async function apiFetch<T>(
   path: string,
   { method = 'GET', body, schema, auth = false }: FetchOpts<T> = {}
@@ -328,6 +334,9 @@ export async function apiFetch<T>(
   const json: unknown = text ? JSON.parse(text) : null
 
   if (!res.ok) {
+    if (auth && isLostSession(res.status, json)) {
+      useAppStore.getState().signOut()
+    }
     throw new ApiError(
       res.status,
       errorMessage(json, res.status),

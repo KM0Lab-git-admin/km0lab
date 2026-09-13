@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { ApiError } from '../services/km0labClient'
 import { listMyShops } from '../services/shops'
 import { useAppStore } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
@@ -57,7 +58,10 @@ export function useMyShops(): {
       .catch((e) => {
         if (!cancelled) {
           setShops([])
-          setError(e instanceof Error ? e.message : 'Error')
+          const lost =
+            e instanceof ApiError &&
+            (e.status === 401 || e.message === 'Not authenticated')
+          setError(lost ? null : e instanceof Error ? e.message : 'Error')
         }
       })
       .finally(() => {
