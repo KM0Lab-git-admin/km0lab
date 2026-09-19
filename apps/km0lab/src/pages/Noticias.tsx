@@ -65,7 +65,6 @@ const NoticiaCard = ({
 }) => {
   const titulo = noticia.titulo[lang]
   const resumen = noticia.resumen[lang]
-  const tags = noticia.tags[lang] ?? []
   return (
     <motion.article
       layout
@@ -104,21 +103,11 @@ const NoticiaCard = ({
               {resumen}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-1">
-            {noticia.fechaPublicacion && (
-              <span className="text-[10px] font-ui text-km0-blue-700/60">
-                {formatDate(noticia.fechaPublicacion, lang)}
-              </span>
-            )}
-            {tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="px-1.5 py-0.5 rounded-full text-[10px] font-ui bg-km0-blue-50 text-km0-blue-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {noticia.fechaPublicacion && (
+            <p className="text-[10px] font-ui text-km0-blue-700/60">
+              {formatDate(noticia.fechaPublicacion, lang)}
+            </p>
+          )}
         </div>
       </button>
     </motion.article>
@@ -262,7 +251,7 @@ const Noticias = () => {
     }
 
     let cancelled = false
-    listNews({ city: 'Malgrat de Mar', limit: 20, offset: 0 })
+    listNews({ limit: 100, offset: 0 })
       .then((res) => {
         if (!cancelled) setNoticias(res.noticias)
       })

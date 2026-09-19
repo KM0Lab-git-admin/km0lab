@@ -115,6 +115,8 @@ export function toPointAction(out: PointActionOut): PointAction {
   const keys = TYPE_TO_KEYS[out.type] ?? FALLBACK
   return {
     id: out.id,
+    title: out.name?.trim() ?? '',
+    description: out.description?.trim() ?? '',
     titleKey: keys.titleKey,
     descriptionKey: keys.descriptionKey,
     typeKey: keys.typeKey,

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { listPublicActions } from '../services/points'
 import { useAppStore } from '../stores/useAppStore'
+import { isDemoPostalCode } from '../utils/demoTown'
 import { toPointAction } from '../utils/pointActionMapper'
 
 import type { PointAction } from '../types/points'
@@ -13,18 +14,23 @@ import type { PointAction } from '../types/points'
  * todas las activas del municipio). Sin CP no hace fetch. El endpoint traduce
  * name/description según lang; el chip de tipo sigue por i18n local.
  * completed siempre false (endpoint público, sin auth).
+ * Con CP demo (00000) pasa demo=true para pedir la partición is_fake.
  */
 
 export function usePointsActions(): {
   actions: PointAction[]
   loading: boolean
   error: string | null
+  reload: () => void
 } {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
   const [actions, setActions] = useState<PointAction[]>([])
   const [loading, setLoading] = useState(Boolean(postalCode))
   const [error, setError] = useState<string | null>(null)
+  const [tick, setTick] = useState(0)
+
+  const reload = useCallback(() => setTick((n) => n + 1), [])
 
   useEffect(() => {
     if (!postalCode) {
@@ -38,7 +44,10 @@ export function usePointsActions(): {
     setLoading(true)
     setError(null)
 
-    listPublicActions(postalCode, { lang })
+    listPublicActions(postalCode, {
+      lang,
+      demo: isDemoPostalCode(postalCode),
+    })
       .then((rows) => {
         if (cancelled) return
         setActions(rows.map(toPointAction))
@@ -56,7 +65,7 @@ export function usePointsActions(): {
     return () => {
       cancelled = true
     }
-  }, [postalCode, lang])
+  }, [postalCode, lang, tick])
 
-  return { actions, loading, error }
+  return { actions, loading, error, reload }
 }

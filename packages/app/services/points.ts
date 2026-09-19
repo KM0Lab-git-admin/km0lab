@@ -40,7 +40,7 @@ export const listMyPointsHistory = async (): Promise<PointsHistoryOut> => {
  */
 export const listPublicActions = async (
   postalCode: string,
-  opts: { visibleHome?: boolean; lang?: string } = {}
+  opts: { visibleHome?: boolean; lang?: string; demo?: boolean } = {}
 ): Promise<PointActionOut[]> => {
   const qs = new URLSearchParams({ postal_code: postalCode })
   if (opts.visibleHome !== undefined) {
@@ -48,6 +48,9 @@ export const listPublicActions = async (
   }
   if (opts.lang) {
     qs.set('lang', opts.lang)
+  }
+  if (opts.demo) {
+    qs.set('demo', 'true')
   }
   return apiFetch(`/actions/public?${qs}`, {
     schema: z.array(pointActionOutSchema),

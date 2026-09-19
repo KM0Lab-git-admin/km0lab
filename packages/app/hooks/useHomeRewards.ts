@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { listPublicRewards } from '../services/rewards'
 import { useAppStore } from '../stores/useAppStore'
@@ -8,12 +8,12 @@ import { toReward } from '../utils/rewardMapper'
 import type { Reward } from '../types/reward'
 
 /**
- * useHomeRewards — catálogo de premios del carrusel Home.
+ * useHomeRewards — catálogo público de premios del municipio.
  *
  * Llama a GET /rewards/public?postal_code={cp}&lang={lang}
  * usando CP e idioma del store. Sin CP no hace fetch. El endpoint traduce
- * name/description/conditions según lang; la imagen se resuelve vía
- * image_url → URL absoluta del endpoint público de media.
+ * name/description/conditions según lang. Home recorta a 5 activos; el
+ * listado usa el catálogo entero.
  * Con CP demo (00000) pasa demo=true para pedir la partición is_fake.
  */
 
@@ -21,12 +21,16 @@ export function useHomeRewards(): {
   rewards: Reward[]
   loading: boolean
   error: string | null
+  reload: () => void
 } {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
   const [rewards, setRewards] = useState<Reward[]>([])
   const [loading, setLoading] = useState(Boolean(postalCode))
   const [error, setError] = useState<string | null>(null)
+  const [tick, setTick] = useState(0)
+
+  const reload = useCallback(() => setTick((n) => n + 1), [])
 
   useEffect(() => {
     if (!postalCode) {
@@ -61,7 +65,7 @@ export function useHomeRewards(): {
     return () => {
       cancelled = true
     }
-  }, [postalCode, lang])
+  }, [postalCode, lang, tick])
 
-  return { rewards, loading, error }
+  return { rewards, loading, error, reload }
 }

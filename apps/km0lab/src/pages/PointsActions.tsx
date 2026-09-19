@@ -1,58 +1,36 @@
-import { useAuth } from '@km0lab/app'
-import { t, type Lang, PointAction, PointActionIcon } from '@km0lab/app'
+import {
+  t,
+  useAuth,
+  usePointsActions,
+  type Lang,
+  type PointAction,
+} from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
-  ChevronLeft,
-  Cake,
-  UserPlus,
-  Star,
-  QrCode,
-  Globe,
-  Mail,
-  CalendarCheck,
-  ClipboardList,
   CheckCircle2,
+  ChevronLeft,
   Circle,
-  type LucideIcon,
+  Globe,
+  RefreshCw,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import ActionTypeMark from '@/components/ActionTypeMark'
 import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
-import { POINTS_ACTIONS } from '@/data/pointsActions'
 import { cn } from '@/lib/utils'
 
-/* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'pending' | 'completed'
-
-/* ─── Mapa icono ─────────────────────────────────────────── */
-const ICONS: Record<PointActionIcon, LucideIcon> = {
-  cake: Cake,
-  'user-plus': UserPlus,
-  star: Star,
-  qr: QrCode,
-  globe: Globe,
-  mail: Mail,
-  'calendar-check': CalendarCheck,
-  'clipboard-list': ClipboardList,
-}
-
-const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
-  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
-  'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
-  qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
-  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
-}
 
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
-/* ─── Chip filtro ────────────────────────────────────────── */
+const actionCopy = (action: PointAction, lang: Lang) => ({
+  title: action.title || t(action.titleKey, lang),
+  description: action.description || t(action.descriptionKey, lang),
+})
+
 const FilterChip = ({
   active,
   onClick,
@@ -76,7 +54,6 @@ const FilterChip = ({
   </button>
 )
 
-/* ─── Fila de acción ─────────────────────────────────────── */
 const ActionRow = ({
   action,
   lang,
@@ -86,8 +63,7 @@ const ActionRow = ({
   lang: Lang
   index: number
 }) => {
-  const Icon = ICONS[action.icon]
-  const meta = ICON_META[action.icon]
+  const copy = actionCopy(action, lang)
 
   return (
     <motion.li
@@ -99,21 +75,14 @@ const ActionRow = ({
         action.completed && 'opacity-80'
       )}
     >
-      <span
-        className={cn(
-          'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
-          meta.ring
-        )}
-      >
-        <Icon size={20} className={meta.text} strokeWidth={2.2} />
-      </span>
+      <ActionTypeMark icon={action.icon} />
 
       <div className="flex-1 min-w-0">
         <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-          {t(action.titleKey, lang)}
+          {copy.title}
         </p>
         <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-          {t(action.descriptionKey, lang)}
+          {copy.description}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span
@@ -153,50 +122,41 @@ const ActionRow = ({
   )
 }
 
-/* ─── Pantalla ───────────────────────────────────────────── */
 const PointsActions = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
+  const { actions, loading, error, reload } = usePointsActions()
   const [filter, setFilter] = useState<Filter>('all')
-  const [loading, setLoading] = useState(true)
 
   const isAuthed =
     !!user ||
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
-  // Simulación de carga para respetar los 4 estados de UI.
-  useMemo(() => {
-    const timer = setTimeout(() => setLoading(false), 300)
-    return () => clearTimeout(timer)
-  }, [])
-
   const { completedCount, pendingCount, totalPoints } = useMemo(() => {
-    const completed = POINTS_ACTIONS.filter((a) => a.completed).length
-    const pending = POINTS_ACTIONS.length - completed
-    const points = POINTS_ACTIONS.filter((a) => !a.completed).reduce(
-      (sum, a) => sum + a.points,
-      0
-    )
+    const completed = actions.filter((a) => a.completed).length
+    const pending = actions.length - completed
+    const points = actions
+      .filter((a) => !a.completed)
+      .reduce((sum, a) => sum + a.points, 0)
     return {
       completedCount: completed,
       pendingCount: pending,
       totalPoints: points,
     }
-  }, [])
+  }, [actions])
 
   const filtered = useMemo(() => {
-    if (filter === 'completed') return POINTS_ACTIONS.filter((a) => a.completed)
-    if (filter === 'pending') return POINTS_ACTIONS.filter((a) => !a.completed)
-    return POINTS_ACTIONS
-  }, [filter])
+    if (filter === 'completed') return actions.filter((a) => a.completed)
+    if (filter === 'pending') return actions.filter((a) => !a.completed)
+    return actions
+  }, [filter, actions])
 
   return (
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
-          {/* Header */}
           <header className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3 bg-km0-beige-50">
             <button
               type="button"
@@ -211,7 +171,6 @@ const PointsActions = () => {
             </h1>
           </header>
 
-          {/* Resumen */}
           <section className="shrink-0 px-4 pb-3">
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -255,7 +214,6 @@ const PointsActions = () => {
             </motion.div>
           </section>
 
-          {/* Filtros */}
           <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
             <FilterChip
               active={filter === 'all'}
@@ -274,13 +232,26 @@ const PointsActions = () => {
             />
           </div>
 
-          {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
             {loading ? (
               <div className="h-full flex items-center justify-center">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('common.loading', lang)}
                 </p>
+              </div>
+            ) : error ? (
+              <div className="mt-8 mx-auto max-w-xs text-center bg-white border border-km0-coral-100 rounded-2xl p-5">
+                <p className="font-brand text-sm text-km0-blue-900 mb-3">
+                  {t('merchants.error.title', lang)}
+                </p>
+                <button
+                  type="button"
+                  onClick={reload}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
+                >
+                  <RefreshCw size={12} />
+                  {t('merchants.error.retry', lang)}
+                </button>
               </div>
             ) : filtered.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">

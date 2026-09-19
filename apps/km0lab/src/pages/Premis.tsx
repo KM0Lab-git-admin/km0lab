@@ -1,16 +1,19 @@
-import type {
-  PromocioInfo,
-  Reward,
-  RewardCategory,
-  RewardKind,
+import {
+  t,
+  useHomeRewards,
+  type PromocioInfo,
+  type Reward,
+  type RewardCategory,
+  type RewardKind,
+  type TKey,
 } from '@km0lab/app'
-import { t, type TKey } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
   Gift,
   Ticket,
   Percent,
+  RefreshCw,
   ShoppingBag,
   Package,
   Coins,
@@ -25,7 +28,6 @@ import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import { useLang } from '@/contexts/LangContext'
 import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
-import { REWARDS } from '@/data/rewards'
 import { cn } from '@/lib/utils'
 
 type TopTab = 'rewards' | 'promos'
@@ -332,21 +334,23 @@ const Premis = () => {
   const [points, setPoints] = useState(2500)
   const [redeeming, setRedeeming] = useState<Reward | null>(null)
 
+  const { rewards, loading, error, reload } = useHomeRewards()
   const [searchParams] = useSearchParams()
   const initialTab: TopTab =
     searchParams.get('tab') === 'promos' ? 'promos' : 'rewards'
   const [topTab, setTopTab] = useState<TopTab>(initialTab)
-  const [filter, setFilter] = useState<Filter>('balance')
+  const [filter, setFilter] = useState<Filter>('all')
 
   const categories = useMemo<RewardCategory[]>(() => {
     const set = new Set<RewardCategory>()
-    for (const r of REWARDS) set.add(r.category)
+    for (const r of rewards) set.add(r.category)
     return Array.from(set)
-  }, [])
+  }, [rewards])
 
   const filtered = useMemo(
-    () => REWARDS.filter((r) => r.category === filter),
-    [filter]
+    () =>
+      filter === 'all' ? rewards : rewards.filter((r) => r.category === filter),
+    [filter, rewards]
   )
 
   const promoRows = useMemo<PromoRow[]>(() => {
@@ -424,6 +428,11 @@ const Premis = () => {
           {/* Filtros (solo en Premis) */}
           {topTab === 'rewards' && (
             <div className="shrink-0 px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                label={t('rewards.filter_all', lang)}
+              />
               {categories.map((c) => (
                 <FilterChip
                   key={c}
@@ -444,7 +453,27 @@ const Premis = () => {
           {/* Grid */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pt-1 pb-6">
             {topTab === 'rewards' ? (
-              filtered.length === 0 ? (
+              loading ? (
+                <div className="h-full flex items-center justify-center">
+                  <p className="font-body text-sm text-km0-blue-800/60">
+                    {t('common.loading', lang)}
+                  </p>
+                </div>
+              ) : error ? (
+                <div className="mt-8 mx-auto max-w-xs text-center bg-white border border-km0-coral-100 rounded-2xl p-5">
+                  <p className="font-brand text-sm text-km0-blue-900 mb-3">
+                    {t('merchants.error.title', lang)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={reload}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
+                  >
+                    <RefreshCw size={12} />
+                    {t('merchants.error.retry', lang)}
+                  </button>
+                </div>
+              ) : filtered.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-center px-6">
                   <p className="font-body text-sm text-km0-blue-800/60">
                     {t('rewards.empty', lang)}

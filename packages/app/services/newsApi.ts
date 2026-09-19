@@ -17,6 +17,7 @@ import {
   newsDetailResponseSchema,
   type NewsItem,
 } from '../services/apiSchemas'
+import { env } from '../utils/env'
 
 import type { Lang } from '../utils/i18n'
 
@@ -32,7 +33,7 @@ export interface Noticia {
   fuenteUrl: string | null
 }
 
-const NEWS_ASSET_BASE = 'https://eventquery.uat.km0lab.com'
+const NEWS_ASSET_BASE = env.eventsApiUrl.replace(/\/$/, '')
 
 function absolutizeImageUrl(url?: string | null): string | null {
   if (!url) return null
@@ -71,6 +72,18 @@ export interface ListNewsParams {
   offset?: number
 }
 
+/** Más recientes primero. Sin fecha válida van al final. */
+export function sortNoticiasByDate(noticias: Noticia[]): Noticia[] {
+  return [...noticias].sort((a, b) => {
+    const ta = a.fechaPublicacion ? Date.parse(a.fechaPublicacion) : NaN
+    const tb = b.fechaPublicacion ? Date.parse(b.fechaPublicacion) : NaN
+    if (Number.isNaN(ta) && Number.isNaN(tb)) return 0
+    if (Number.isNaN(ta)) return 1
+    if (Number.isNaN(tb)) return -1
+    return tb - ta
+  })
+}
+
 /** Noticias activas, más recientes primero. Rate limit 100/min. */
 export async function listNews(
   params: ListNewsParams = {}
@@ -84,7 +97,10 @@ export async function listNews(
     `/api/v1/news${qs ? `?${qs}` : ''}`,
     newsListResponseSchema
   )
-  return { noticias: res.data.map(adaptNoticia), total: res.total }
+  return {
+    noticias: sortNoticiasByDate(res.data.map(adaptNoticia)),
+    total: res.total,
+  }
 }
 
 /** Detalle de una noticia activa. */
