@@ -22,7 +22,7 @@ El resto de la guía detalla el proceso manual paso a paso.
 
 ## 1. Prerrequisitos (una vez por máquina)
 
-- **Android Studio** con Android SDK (Platform 35 + Build-Tools 35).
+- **Android Studio** con Android SDK (Platform 36 + Build-Tools 35 o 36).
 - **JDK 21** (`java -version`).
 - `ANDROID_HOME` configurado.
 - Un dispositivo físico Android con depuración USB activada (recomendado para
@@ -126,8 +126,8 @@ Play Console exige `versionCode` estrictamente creciente entre uploads.
 ## Notas
 
 - `minSdkVersion = 26` (Android 8.0) — requisito del plugin de escáner.
-- `targetSdkVersion = compileSdkVersion = 35` — cumple el requisito actual de
-  Google Play para nuevas apps.
+- `targetSdkVersion = compileSdkVersion = 36` — Google Play exige API 36
+  desde el 31 de agosto de 2026 para apps nuevas y actualizaciones.
 - Deep links `/scan?c=…` nativos y `InAppBrowser` para links externos quedan
   fuera del scope v1 (rama `feat/android-native-v2`).
 - iOS no está incluido en este flujo (decisión de producto).
