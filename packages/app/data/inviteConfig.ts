@@ -1,3 +1,5 @@
+import { getShareLink } from '../utils/shareUrl'
+
 export const INVITE_REWARDS = {
   person: 100,
   business: 500,
@@ -36,24 +38,15 @@ export const buildInviteLink = ({
   reference,
   town,
   lang,
-}: InviteLinkOptions): string => {
-  const url = new URL(
-    kind === 'person' ? '/home' : '/business-signup',
-    window.location.origin
-  )
-  url.searchParams.set('invite', kind)
-  url.searchParams.set('ref', reference)
-  if (town) url.searchParams.set('town', town)
-  if (lang) url.searchParams.set('lang', lang)
-  return url.toString()
-}
+}: InviteLinkOptions): string =>
+  getShareLink(kind === 'person' ? '/home' : '/business-signup', {
+    invite: kind,
+    ref: reference,
+    town,
+    lang,
+  })
 
 export const buildPublicShareLink = (
   town?: string | null,
   lang?: string | null
-): string => {
-  const url = new URL('/home', window.location.origin)
-  if (town) url.searchParams.set('town', town)
-  if (lang) url.searchParams.set('lang', lang)
-  return url.toString()
-}
+): string => getShareLink('/home', { town, lang })

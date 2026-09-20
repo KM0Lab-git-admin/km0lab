@@ -74,10 +74,7 @@ const Invite = () => {
     : t('share.message', lang)
         .replace('{town}', townLabel)
         .replace('{link}', link)
-  const subject = t(
-    isAuthed ? 'invite.title' : 'share.email_subject',
-    lang
-  ).replace('{town}', townLabel)
+  const subject = t('share.email_subject', lang).replace('{town}', townLabel)
 
   const renderLoading = () => (
     <div className="flex min-h-full items-center justify-center">

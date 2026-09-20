@@ -9,6 +9,9 @@ interface ImportMetaEnv {
   readonly MODE: string
   readonly VITE_KM0LAB_API_URL: string
   readonly VITE_EVENTS_API_URL: string
+  readonly VITE_PUBLIC_APP_URL: string
+  readonly VITE_ANDROID_STORE_URL: string
+  readonly VITE_IOS_STORE_URL?: string
 }
 
 interface ImportMeta {

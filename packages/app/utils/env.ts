@@ -11,22 +11,41 @@ import { z } from 'zod'
  * formato incorrecto, parse() lanza al inicio de la app, evitando errores
  * silenciosos en runtime.
  */
+const emptyToUndefined = (value: unknown): unknown =>
+  value === '' || value === undefined ? undefined : value
+
 const envSchema = z.object({
   MODE: z.enum(['development', 'production']),
   VITE_KM0LAB_API_URL: z.string().url(),
   VITE_EVENTS_API_URL: z.string().url(),
+  VITE_PUBLIC_APP_URL: z.string().url(),
+  VITE_ANDROID_STORE_URL: z.string().url(),
+  VITE_IOS_STORE_URL: z.preprocess(
+    emptyToUndefined,
+    z.string().url().optional()
+  ),
 })
 
 const parsed = envSchema.parse({
   MODE: import.meta.env.MODE,
   VITE_KM0LAB_API_URL: import.meta.env.VITE_KM0LAB_API_URL,
   VITE_EVENTS_API_URL: import.meta.env.VITE_EVENTS_API_URL,
+  VITE_PUBLIC_APP_URL: import.meta.env.VITE_PUBLIC_APP_URL,
+  VITE_ANDROID_STORE_URL: import.meta.env.VITE_ANDROID_STORE_URL,
+  VITE_IOS_STORE_URL: import.meta.env.VITE_IOS_STORE_URL,
 })
+
+const stripTrailingSlash = (url: string): string => url.replace(/\/+$/, '')
 
 export const env = {
   appEnv: parsed.MODE,
   km0labApiUrl: parsed.VITE_KM0LAB_API_URL,
   eventsApiUrl: parsed.VITE_EVENTS_API_URL,
+  publicAppUrl: stripTrailingSlash(parsed.VITE_PUBLIC_APP_URL),
+  androidStoreUrl: parsed.VITE_ANDROID_STORE_URL,
+  iosStoreUrl: parsed.VITE_IOS_STORE_URL
+    ? stripTrailingSlash(parsed.VITE_IOS_STORE_URL)
+    : undefined,
 } as const
 
 export type Env = typeof env

@@ -42,6 +42,7 @@ function lovableAssetPointer(): Plugin {
 
 export default defineConfig({
   plugins: [lovableAssetPointer(), react()],
+  envDir: path.resolve(__dirname, 'env'),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

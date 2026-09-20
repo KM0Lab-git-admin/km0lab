@@ -1,4 +1,4 @@
-import { useShareLink, t } from '@km0lab/app'
+import { useShareLink, t, openShareChannel } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { Copy, Mail, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
 
@@ -37,10 +37,6 @@ const ShareChannelList = ({
     title: t('share.title', lang),
   })
 
-  const openExternal = (url: string): void => {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
-
   const hasNativeShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
@@ -50,24 +46,36 @@ const ShareChannelList = ({
       label: t('share.channel.whatsapp', lang),
       icon: MessageCircle,
       onSelect: () =>
-        openExternal(`https://wa.me/?text=${encodeURIComponent(message)}`),
+        void openShareChannel({
+          channel: 'whatsapp',
+          message,
+          subject,
+          link,
+        }),
     },
     {
       id: 'email',
       label: t('share.channel.email', lang),
       icon: Mail,
-      onSelect: () => {
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
-      },
+      onSelect: () =>
+        void openShareChannel({
+          channel: 'email',
+          message,
+          subject,
+          link,
+        }),
     },
     {
       id: 'facebook',
       label: t('share.channel.facebook', lang),
       icon: ThumbsUp,
       onSelect: () =>
-        openExternal(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`
-        ),
+        void openShareChannel({
+          channel: 'facebook',
+          message,
+          subject,
+          link,
+        }),
     },
     ...(hasNativeShare
       ? [
