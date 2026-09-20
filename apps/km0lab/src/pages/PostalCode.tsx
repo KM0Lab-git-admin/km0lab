@@ -1,4 +1,4 @@
-import { lookupTown, t } from '@km0lab/app'
+import { lookupTown, t, useAppStore } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -11,6 +11,7 @@ import { useLang } from '@/contexts/LangContext'
 const PostalCode = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
+  const setLocation = useAppStore((s) => s.setLocation)
 
   const [value, setValue] = useState('')
   const [touched, setTouched] = useState(false)
@@ -54,13 +55,9 @@ const PostalCode = () => {
 
   const handleSubmit = () => {
     if (!isComplete || !cityName) return
-    // localStorage para que sobreviva recargas y se pueda leer desde Home/Login.
-    try {
-      localStorage.setItem('km0_postal_code', value)
-      localStorage.setItem('km0_town', cityName)
-    } catch {
-      /* localStorage puede fallar en modo privado */
-    }
+    // Zustand es la máquina de setup de producción. RequireSetup lee
+    // postalCode del store, no las claves sueltas de Lovable.
+    setLocation(value, cityName)
     navigate('/home')
   }
 

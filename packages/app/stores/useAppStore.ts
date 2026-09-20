@@ -7,6 +7,10 @@
  * Setup mínimo (guest):
  *  - `langChosen` — idioma elegido explícitamente (sin eso, ninguna pantalla).
  *  - `postalCode` (+ `town`) — sin eso no hay Home.
+ *
+ * Las claves sueltas `km0_postal_code` / `km0_town` son un puente de
+ * escritura hacia la maqueta de Lovable. RequireSetup, Login y Home
+ * leen solo este store.
  */
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
@@ -124,6 +128,8 @@ export const useAppStore = create<AppState>()(
       },
       setLocation: (postalCode, town) => {
         set({ postalCode, town })
+        // Puente unidireccional: el store es la fuente de verdad.
+        // Lovable aún lee km0_postal_code/km0_town; nunca al revés.
         if (postalCode && town) {
           try {
             localStorage.setItem('km0_postal_code', postalCode)
