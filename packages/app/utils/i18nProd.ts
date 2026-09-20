@@ -261,6 +261,31 @@ const DP = {
     es: 'Servicios',
     en: 'Services',
   } as Dict,
+  'points.overlay.earned': {
+    ca: 'Has guanyat punts!',
+    es: '¡Has ganado puntos!',
+    en: 'You earned points!',
+  } as Dict,
+  'points.overlay.cta': {
+    ca: 'Genial!',
+    es: '¡Genial!',
+    en: 'Great!',
+  } as Dict,
+  'points.overlay.welcome': {
+    ca: 'Benvingut!',
+    es: '¡Bienvenido!',
+    en: 'Welcome!',
+  } as Dict,
+  'points.overlay.signup': {
+    ca: 'Per registrar-te a KM0 LAB',
+    es: 'Por registrarte en KM0 LAB',
+    en: 'For signing up to KM0 LAB',
+  } as Dict,
+  'rewards.load_error': {
+    ca: "No s'han pogut carregar els premis del municipi.",
+    es: 'No se han podido cargar los premios del municipio.',
+    en: "Could not load this town's rewards.",
+  } as Dict,
 } as const
 
 /** Claves que solo existen en produccion. */

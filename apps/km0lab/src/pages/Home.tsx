@@ -3,6 +3,7 @@ import {
   useProfile,
   useNotifications,
   t,
+  useAppStore,
   useFeaturedPromos,
   usePublicRewards,
   INVITATIONS_MOCK_SUMMARY,
@@ -53,6 +54,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const { user, loading: authLoading } = useAuth()
   const { profile } = useProfile()
   const { lang } = useLang()
+  const storedTown = useAppStore((s) => s.town)
   const navigate = useNavigate()
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
@@ -152,14 +154,6 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  // Ciudad: prioriza perfil → localStorage → fallback.
-  const storedTown = (() => {
-    try {
-      return localStorage.getItem('km0_town')
-    } catch {
-      return null
-    }
-  })()
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
   // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
@@ -223,7 +217,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           {rewardOpen && isAuthed && (
             <PointsRewardOverlay
               points={100}
-              message="Per registrar-te a KM0 LAB"
+              message={t('points.overlay.signup', lang)}
               contained
               onClose={() => {
                 setRewardOpen(false)

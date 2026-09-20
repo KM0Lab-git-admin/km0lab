@@ -1,7 +1,9 @@
+import { t } from '@km0lab/app'
 import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
 
 import starIcon from '@/assets/icon-star-rewards.png'
+import { useLang } from '@/contexts/LangContext'
 
 /**
  * PointsRewardOverlay — overlay de recompensa de puntos al estilo Glovo.
@@ -31,10 +33,12 @@ const CONFETTI_COLORS = ['#174094', '#F5C542', '#FF664D', '#FFFFFF']
 
 const PointsRewardOverlay = ({
   points,
-  message = '¡Bienvenido!',
+  message,
   onClose,
   contained = false,
 }: PointsRewardOverlayProps) => {
+  const { lang } = useLang()
+  const heading = message ?? t('points.overlay.welcome', lang)
   const [displayPoints, setDisplayPoints] = useState(0)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -105,7 +109,7 @@ const PointsRewardOverlay = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={message}
+      aria-label={heading}
       onClick={onClose}
       className={`${positionClass} z-50 flex items-center justify-center overflow-hidden animate-fade-in-overlay bg-km0-blue-700/55 backdrop-blur-sm`}
     >
@@ -156,7 +160,7 @@ const PointsRewardOverlay = ({
           </div>
         </div>
 
-        <p className="mb-1 font-body text-sm text-km0-blue-700/70">{message}</p>
+        <p className="mb-1 font-body text-sm text-km0-blue-700/70">{heading}</p>
 
         <div className="flex items-baseline gap-2">
           <span className="font-brand text-5xl tabular-nums text-km0-blue-700">
@@ -166,7 +170,7 @@ const PointsRewardOverlay = ({
         </div>
 
         <p className="mt-2 font-ui text-sm text-km0-blue-700">
-          ¡Has ganado puntos!
+          {t('points.overlay.earned', lang)}
         </p>
 
         <button
@@ -174,7 +178,7 @@ const PointsRewardOverlay = ({
           onClick={onClose}
           className="mt-6 rounded-full px-7 py-2.5 font-ui text-sm text-white bg-km0-blue-700 hover:bg-km0-blue-600 active:scale-95 transition-all"
         >
-          ¡Genial!
+          {t('points.overlay.cta', lang)}
         </button>
       </div>
     </div>
