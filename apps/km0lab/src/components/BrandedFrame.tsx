@@ -18,8 +18,9 @@ import { cn } from '@/lib/utils'
  *   horizontal-mobile   (≤1279 landscape)  → 667×375
  *   horizontal-desktop  (≥1280 landscape)  → 1280×550
  *
- * En desarrollo local se muestra el marco azul “teléfono”. En producción
- * (Vercel / build) el marco desaparece y la pantalla ocupa el viewport.
+ * En desktop/tablet web se muestra el marco azul “teléfono”. En móvil
+ * web y en nativo (Android/iOS) el halo desaparece y la pantalla ocupa
+ * el viewport.
  *
  * Las pantallas de chat u otras que necesiten pantalla completa NO
  * usan este componente: tienen su propio layout (FullBleed).
@@ -37,13 +38,6 @@ interface BrandedFrameProps {
   landscapeContentClassName?: string
 }
 
-/** Marco "teléfono" siempre visible (dev y prod) hasta que exista layout landscape propio. */
-const showDeviceChrome = true
-
-const frameChromeClass = showDeviceChrome
-  ? 'rounded-3xl border-2 border-km0-blue-700/80 shadow-device-frame'
-  : 'rounded-none border-0 shadow-none'
-
 const BrandedFrame = ({
   children,
   onBack,
@@ -57,7 +51,7 @@ const BrandedFrame = ({
     return (
       <button
         onClick={onBack}
-        className={`absolute top-1/2 -translate-y-1/2 ${sizeClasses} flex items-center justify-center rounded-xl border-[2px] border-dashed border-km0-yellow-500 text-km0-yellow-600 hover:bg-km0-yellow-50 transition-all duration-200 hover:scale-105`}
+        className={`absolute top-1/2 -translate-y-1/2 ${sizeClasses} flex items-center justify-center rounded-xl border-2 border-dashed border-km0-yellow-500 text-km0-yellow-600 hover:bg-km0-yellow-50 transition-all duration-200 hover:scale-105`}
         aria-label={backAriaLabel}
       >
         <ChevronLeft size={iconSize} strokeWidth={2.5} />
@@ -66,34 +60,10 @@ const BrandedFrame = ({
   }
 
   return (
-    <div
-      className="min-h-[100dvh] w-full flex items-center justify-center bg-gradient-to-b from-km0-beige-50 to-km0-beige-100"
-      style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)',
-      }}
-    >
-      {/* Frame único (portrait mobile). Mientras la app prioriza solo
-          portrait, todas las pantallas se ven al mismo tamaño en
-          cualquier orientación del viewport. */}
+    <div className="device-shell safe-area-inset">
       <div
         data-bp="vertical-mobile portrait"
-        className={cn(
-          'flex flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
-          frameChromeClass,
-          !showDeviceChrome && 'h-dvh w-full'
-        )}
-        style={
-          showDeviceChrome
-            ? {
-                width: 'min(100vw, 420px)',
-                height:
-                  'min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 920px)',
-              }
-            : undefined
-        }
+        className="device-frame device-frame-branded"
       >
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
@@ -103,7 +73,12 @@ const BrandedFrame = ({
         )}
 
         <div
-          className={`flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden ${hideHeader ? 'pt-5' : ''} ${portraitContentClassName} ${landscapeContentClassName}`}
+          className={cn(
+            'flex-1 min-h-0 flex flex-col w-full px-4 pb-6 overflow-y-auto overflow-x-hidden',
+            hideHeader && 'pt-5',
+            portraitContentClassName,
+            landscapeContentClassName
+          )}
         >
           {children}
         </div>

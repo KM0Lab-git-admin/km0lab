@@ -3,6 +3,17 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 
 /**
+ * Marca el documento como nativo para que el CSS oculte el halo azul
+ * del marco también en iPad / tablets (viewport grande).
+ */
+export function applyNativeDocumentClass(): void {
+  document.documentElement.classList.toggle(
+    'is-native',
+    Capacitor.isNativePlatform()
+  )
+}
+
+/**
  * Inicializa plugins nativos de Capacitor (StatusBar + SplashScreen).
  *
  * No-op en web: `Capacitor.isNativePlatform()` filtra toda la lógica
@@ -11,6 +22,7 @@ import { StatusBar, Style } from '@capacitor/status-bar'
  * Se llama desde `main.tsx` antes de montar React.
  */
 export async function setupCapacitor(): Promise<void> {
+  applyNativeDocumentClass()
   if (!Capacitor.isNativePlatform()) return
 
   try {

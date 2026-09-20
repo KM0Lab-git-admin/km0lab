@@ -150,7 +150,7 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        'device-frame': '0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3)',
+        'device-frame': 'var(--shadow-device-frame)',
         'home-hero': '0 10px 28px -10px hsl(var(--foreground) / 0.22)',
       },
       keyframes: {

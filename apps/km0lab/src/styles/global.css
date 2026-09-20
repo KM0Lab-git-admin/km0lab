@@ -121,6 +121,9 @@
     --input: var(--km0-beige-200);
     --ring: var(--km0-blue-700);
     --radius: 0.75rem;
+    --device-frame-max-width: 26.25rem;
+    --device-frame-max-height: 57.5rem;
+    --shadow-device-frame: 0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3);
 
     /* Sidebar tokens */
     --sidebar-background: 0 0% 98%;
@@ -187,6 +190,23 @@
   .reward-cover-thumb {
     @apply relative overflow-hidden shrink-0 flex items-center justify-center;
   }
+
+  /*
+   * Marco "teléfono": por defecto sin halo (móvil web y nativo).
+   * En desktop/tablet web (html:not(.is-native) + viewport grande) aparece
+   * el borde azul centrado para previsualizar la app.
+   */
+  .device-shell {
+    @apply flex h-dvh max-h-dvh w-full flex-col overflow-hidden bg-gradient-to-b from-km0-beige-50 to-km0-beige-100;
+  }
+
+  .device-frame {
+    @apply relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-0 bg-km0-beige-50 shadow-none;
+  }
+
+  .device-frame-branded {
+    @apply bg-gradient-to-b from-km0-beige-50 to-km0-beige-100;
+  }
 }
 
 @layer utilities {
@@ -196,5 +216,35 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  /*
+   * Halo azul del marco: solo desktop/tablet en navegador.
+   * Móvil (portrait ≤767 / landscape ≤1279) y Capacitor (html.is-native):
+   * el borde queda invisible y el contenido ocupa el viewport.
+   */
+  @media (orientation: portrait) and (min-width: 768px),
+    (orientation: landscape) and (min-width: 1280px) {
+    html:not(.is-native) .device-shell {
+      height: auto;
+      max-height: none;
+      min-height: 100dvh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    html:not(.is-native) .device-frame {
+      flex: none;
+      width: min(100vw, var(--device-frame-max-width));
+      height: min(
+        calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)),
+        var(--device-frame-max-height)
+      );
+      border-radius: 1.5rem;
+      border-width: 2px;
+      border-style: solid;
+      border-color: hsl(var(--km0-blue-700) / 0.8);
+      box-shadow: var(--shadow-device-frame);
+    }
   }
 }
