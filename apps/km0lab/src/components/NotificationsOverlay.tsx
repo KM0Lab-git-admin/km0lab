@@ -1,8 +1,7 @@
-import { t, type Lang } from '@km0lab/app'
+import { t, type Lang, NotificationItem } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ArrowRight, Loader2, RefreshCw, Newspaper } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { NotificationItem } from '@km0lab/app'
 
 import { cn } from '@/lib/utils'
 

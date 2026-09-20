@@ -1,4 +1,4 @@
-import { t, type TKey } from '@km0lab/app'
+import { t, type TKey, ScanErrorKind } from '@km0lab/app'
 import { scannerMachine, useAppStore } from '@km0lab/app'
 import { useMachine } from '@xstate/react'
 import { motion } from 'framer-motion'
@@ -12,7 +12,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { ScanErrorKind } from '@km0lab/app'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import Km0Logo from '@/components/Km0Logo'

@@ -10,8 +10,6 @@ import type { PointAction } from '@km0lab/app'
 export const POINTS_ACTIONS: PointAction[] = [
   {
     id: 'birthday',
-    title: '',
-    description: '',
     titleKey: 'points.actions.birthday.title',
     descriptionKey: 'points.actions.birthday.description',
     typeKey: 'points.actions.type.birthday',
@@ -21,8 +19,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'signup',
-    title: '',
-    description: '',
     titleKey: 'points.actions.signup.title',
     descriptionKey: 'points.actions.signup.description',
     typeKey: 'points.actions.type.signup',
@@ -32,8 +28,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'first_scan',
-    title: '',
-    description: '',
     titleKey: 'points.actions.first_scan.title',
     descriptionKey: 'points.actions.first_scan.description',
     typeKey: 'points.actions.type.first_scan',
@@ -43,8 +37,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'scan',
-    title: '',
-    description: '',
     titleKey: 'points.actions.scan.title',
     descriptionKey: 'points.actions.scan.description',
     typeKey: 'points.actions.type.scan',
@@ -54,8 +46,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'web_visit',
-    title: '',
-    description: '',
     titleKey: 'points.actions.web_visit.title',
     descriptionKey: 'points.actions.web_visit.description',
     typeKey: 'points.actions.type.web_visit',
@@ -65,8 +55,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'newsletter',
-    title: '',
-    description: '',
     titleKey: 'points.actions.newsletter.title',
     descriptionKey: 'points.actions.newsletter.description',
     typeKey: 'points.actions.type.newsletter',
@@ -76,8 +64,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'event_signup',
-    title: '',
-    description: '',
     titleKey: 'points.actions.event_signup.title',
     descriptionKey: 'points.actions.event_signup.description',
     typeKey: 'points.actions.type.event_signup',
@@ -87,8 +73,6 @@ export const POINTS_ACTIONS: PointAction[] = [
   },
   {
     id: 'survey',
-    title: '',
-    description: '',
     titleKey: 'points.actions.survey.title',
     descriptionKey: 'points.actions.survey.description',
     typeKey: 'points.actions.type.survey',

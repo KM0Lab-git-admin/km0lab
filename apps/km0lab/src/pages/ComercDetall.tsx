@@ -1,5 +1,6 @@
 import { useNotifications } from '@km0lab/app'
-import { t, type Lang, ComercDetall, PromocioInfo } from '@km0lab/app'
+import type { ComercDetall, PromocioInfo } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin,
@@ -36,8 +37,8 @@ const interpolate = (tpl: string, vars: Record<string, string | number>) =>
 
 const langKey = (lang: Lang): 'ca' | 'es' => (lang === 'en' ? 'es' : lang)
 
-const formatDistance = (m: number | null): string | null =>
-  m == null ? null : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
+const formatDistance = (m: number | null): string =>
+  m == null ? '' : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
 
 /* ─── Header imatge ─────────────────────────────────────────── */
 const HeroImage = ({ c, lang }: { c: ComercDetall; lang: Lang }) => (
@@ -410,9 +411,7 @@ const ComercDetallPage = () => {
                           })}
                         </span>
                       )}
-                      {comerc.distanciaM != null && (
-                        <span>· {formatDistance(comerc.distanciaM)}</span>
-                      )}
+                      <span>· {formatDistance(comerc.distanciaM)}</span>
                     </p>
                   </header>
 

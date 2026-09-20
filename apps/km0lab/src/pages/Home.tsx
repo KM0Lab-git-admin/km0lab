@@ -4,9 +4,13 @@ import {
   useNotifications,
   t,
   useFeaturedPromos,
+  usePublicRewards,
+  INVITATIONS_MOCK_SUMMARY,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import type { ApiReward } from '@km0lab/app'
 
 import DeviceShell from '@/components/DeviceShell'
 import HomeContent from '@/components/HomeContent'
@@ -14,9 +18,23 @@ import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
 import { useLang } from '@/contexts/LangContext'
-
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
 import { PROMOS } from '@/data/promos'
+import { REWARDS } from '@/data/rewards'
+
+/** Fallback mock mientras la API carga o si falla: catálogo local activo. */
+const MOCK_REWARDS: ApiReward[] = REWARDS.filter(
+  (r) => r.status === 'active'
+).map((r) => ({
+  id: r.id,
+  title: r.title,
+  description: r.description,
+  kind: r.kind,
+  costPoints: r.costPoints,
+  valueLabel: r.valueLabel,
+  stock: r.stock,
+  imageUrl: null,
+}))
 
 type HomeProps = {
   /** Forzar estado para previews (`/home-registered`, `/home-no-registrado`). */
@@ -68,6 +86,9 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const { promos: apiPromos } = useFeaturedPromos(4)
   const promos = apiPromos.length > 0 ? apiPromos : PROMOS
+
+  const { rewards: apiRewards } = usePublicRewards()
+  const rewards = apiRewards.length > 0 ? apiRewards : MOCK_REWARDS
 
   const toggleModule = (id: HomeModuleId) => {
     setModuleSeeds((prev) =>
@@ -160,6 +181,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     level,
     modules: modulesWithHandlers,
     promos,
+    rewards,
     activeTab: 'home' as const,
     isAuthed,
     onLogin: goToLogin,
@@ -169,6 +191,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     onPoints: goToPoints,
     onRewards: goToRewards,
     onActions: () => navigate('/points-actions'),
+    onInvite: () => navigate('/invite'),
+    onViewInvitations: () =>
+      navigate('/my-invitations?from=home', {
+        state: { invitationOrigin: 'home' },
+      }),
+    invitationSummary: isAuthed ? INVITATIONS_MOCK_SUMMARY : null,
     showLogin,
     showPoints,
     onSeeAllEvents: () => navigate('/events'),

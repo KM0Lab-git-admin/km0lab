@@ -1,7 +1,7 @@
 import { requestOtp, t } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import type { FormEvent } from 'react'
@@ -18,6 +18,7 @@ import { useLang } from '@/contexts/LangContext'
  */
 const Login = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { lang } = useLang()
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -44,7 +45,18 @@ const Login = () => {
     }
 
     toast.success(t('login.toast_sent', lang))
-    navigate('/check-email', { state: { email: email.trim(), mode: 'login' } })
+    const referralReference = searchParams.get('ref')
+    const returnTo =
+      searchParams.get('returnTo') ??
+      (searchParams.get('invite') === 'person' ? '/invite' : null)
+    navigate('/check-email', {
+      state: {
+        email: email.trim(),
+        mode: 'login',
+        returnTo,
+        referralReference,
+      },
+    })
   }
 
   return (
@@ -58,6 +70,11 @@ const Login = () => {
         transition={{ duration: 0.4 }}
         className="min-h-full flex flex-col justify-center gap-4"
       >
+        {searchParams.get('ref') && (
+          <p className="mx-auto rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-bold text-km0-teal-700">
+            {t('invite.applied', lang)}
+          </p>
+        )}
         <div className="flex flex-col gap-3 min-w-0">
           <div className="text-center space-y-1 mt-2">
             <h1 className="font-brand text-2xl text-km0-blue-700">

@@ -1,5 +1,6 @@
 import { useAuth, useNotifications } from '@km0lab/app'
-import { t, type Lang, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
+import type { ComercAdherit, CategoriaAdherit } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   QrCode,
@@ -31,8 +32,8 @@ import { cn } from '@/lib/utils'
  * Estats forçables per query param: ?state=loading|empty|error
  * ───────────────────────────────────────────────────────────── */
 
-const formatDistance = (m: number | null): string | null =>
-  m == null ? null : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
+const formatDistance = (m: number | null): string =>
+  m == null ? '' : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
 
 const interpolate = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''))
@@ -43,88 +44,83 @@ interface CardProps {
   lang: Lang
   onOpen: () => void
 }
-const ComercCard = ({ c, lang, onOpen }: CardProps) => {
-  const distance = formatDistance(c.distanciaM)
-  return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform"
+const ComercCard = ({ c, lang, onOpen }: CardProps) => (
+  <motion.article
+    layout
+    initial={{ opacity: 0, y: 6 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform"
+  >
+    <button
+      type="button"
+      onClick={onOpen}
+      className="w-full text-left flex items-stretch gap-3 p-3"
     >
-      <button
-        type="button"
-        onClick={onOpen}
-        className="w-full text-left flex items-stretch gap-3 p-3"
-      >
-        {/* Miniatura */}
-        <div className="relative shrink-0">
-          <div
-            className={cn(
-              'w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden',
-              c.bg ?? 'bg-km0-beige-100'
-            )}
-          >
-            {c.imatge ? (
-              <img
-                src={c.imatge}
-                alt=""
-                loading="lazy"
-                className="w-full h-full object-contain p-2"
-                onError={(e) => {
-                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            ) : (
-              <span className="text-3xl" aria-hidden>
-                {c.emoji ?? '🏪'}
-              </span>
-            )}
+      {/* Miniatura */}
+      <div className="relative shrink-0">
+        <div
+          className={cn(
+            'w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden',
+            c.bg ?? 'bg-km0-beige-100'
+          )}
+        >
+          {c.imatge ? (
+            <img
+              src={c.imatge}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-contain p-2"
+              onError={(e) => {
+                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+              }}
+            />
+          ) : (
+            <span className="text-3xl" aria-hidden>
+              {c.emoji ?? '🏪'}
+            </span>
+          )}
+        </div>
+        {/* Segell adherit */}
+        <span
+          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-white flex items-center justify-center text-white"
+          aria-label={t('merchants.card.member', lang)}
+        >
+          <BadgeCheck size={14} strokeWidth={2.6} />
+        </span>
+      </div>
+
+      {/* Cos */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-ui text-[10px] font-bold uppercase tracking-wide text-km0-teal-600 mb-0.5 truncate">
+              {c.categoriaNom[lang === 'en' ? 'es' : lang]}
+            </p>
+            <h3 className="font-brand text-sm leading-tight text-km0-blue-900 truncate">
+              {c.nom}
+            </h3>
+            <p className="mt-1 flex items-center gap-1 text-[11px] font-ui text-km0-blue-700/70 truncate">
+              <MapPin size={11} className="shrink-0" />
+              <span className="truncate">{c.adreca}</span>
+            </p>
           </div>
-          {/* Segell adherit */}
-          <span
-            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-white flex items-center justify-center text-white"
-            aria-label={t('merchants.card.member', lang)}
-          >
-            <BadgeCheck size={14} strokeWidth={2.6} />
+          <span className="shrink-0 font-ui text-[10px] text-km0-blue-700/60 pt-0.5">
+            {formatDistance(c.distanciaM)}
           </span>
         </div>
 
-        {/* Cos */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="font-ui text-[10px] font-bold uppercase tracking-wide text-km0-teal-600 mb-0.5 truncate">
-                {c.categoriaNom[lang === 'en' ? 'es' : lang]}
-              </p>
-              <h3 className="font-brand text-sm leading-tight text-km0-blue-900 truncate">
-                {c.nom}
-              </h3>
-              <p className="mt-1 flex items-center gap-1 text-[11px] font-ui text-km0-blue-700/70 truncate">
-                <MapPin size={11} className="shrink-0" />
-                <span className="truncate">{c.adreca}</span>
-              </p>
-            </div>
-            {distance ? (
-              <span className="shrink-0 font-ui text-[10px] text-km0-blue-700/60 pt-0.5">
-                {distance}
-              </span>
-            ) : null}
+        {c.teQR && (
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+            <span className="px-2 py-0.5 rounded-full bg-km0-blue-50 text-km0-blue-800 text-[10px] font-ui font-bold flex items-center gap-1 border border-km0-blue-100">
+              <QrCode size={10} strokeWidth={2.4} />
+              {t('merchants.card.qr', lang)}
+            </span>
           </div>
-
-          {c.teQR && (
-            <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full bg-km0-blue-50 text-km0-blue-800 text-[10px] font-ui font-bold flex items-center gap-1 border border-km0-blue-100">
-                <QrCode size={10} strokeWidth={2.4} />
-                {t('merchants.card.qr', lang)}
-              </span>
-            </div>
-          )}
-        </div>
-      </button>
-    </motion.article>
-  )
-}
+        )}
+      </div>
+    </button>
+  </motion.article>
+)
 
 /* ─── Skeleton ──────────────────────────────────────────────── */
 const CardSkeleton = () => (

@@ -412,6 +412,11 @@ const D = {
     es: '¿No lo encuentras? Mira en spam o promociones.',
     en: "Can't find it? Check spam or promotions.",
   } as Dict,
+  'otp.demo_hint': {
+    ca: "Prototip: encara no s'envien correus. Fes servir el codi 123456.",
+    es: 'Prototipo: aún no se envían correos. Usa el código 123456.',
+    en: "Prototype: emails aren't sent yet. Use the code 123456.",
+  } as Dict,
 
   // ── Home ─────────────────────────────────────────────────
   'home.hello': { ca: 'Hola', es: 'Hola', en: 'Hi' } as Dict,
@@ -1618,6 +1623,7 @@ const D = {
     es: 'Próximos 30 días',
     en: 'Next 30 days',
   } as Dict,
+  'agenda.when.all': { ca: 'Tots', es: 'Todos', en: 'All' } as Dict,
   'agenda.when.aria': {
     ca: 'Rang temporal',
     es: 'Rango temporal',
@@ -1635,6 +1641,17 @@ const D = {
   'agenda.cat.fiestas': { ca: 'Festes', es: 'Fiestas', en: 'Parties' } as Dict,
   'agenda.cat.gastronomia': { ca: 'Gastro', es: 'Gastro', en: 'Food' } as Dict,
   'agenda.cat.todos': { ca: 'Tots', es: 'Todos', en: 'All' } as Dict,
+  'agenda.cats.label': {
+    ca: 'Categories',
+    es: 'Categorías',
+    en: 'Categories',
+  } as Dict,
+  'agenda.cats.hide': { ca: 'Ocultar', es: 'Ocultar', en: 'Hide' } as Dict,
+  'agenda.cats.show': {
+    ca: 'Mostrar',
+    es: 'Mostrar',
+    en: 'Show',
+  } as Dict,
   'agenda.searching': {
     ca: 'Cercant…',
     es: 'Buscando…',
@@ -1850,6 +1867,660 @@ const D = {
     ca: "Tornar a l'inici",
     es: 'Volver al inicio',
     en: 'Back home',
+  } as Dict,
+  // ── Invite and earn ───────────────────────────────────────
+  'invite.title': {
+    ca: 'Invita i guanya',
+    es: 'Invita y gana',
+    en: 'Invite and earn',
+  } as Dict,
+  'invite.subtitle': {
+    ca: 'Tu comparteixes. Es registren. Tu sumes punts',
+    es: 'Tú compartes. Se registran. Tú sumas puntos',
+    en: 'You share. They sign up. You earn points',
+  } as Dict,
+  'invite.home.title': {
+    ca: 'Invita i guanya punts',
+    es: 'Invita y gana puntos',
+    en: 'Invite and earn points',
+  } as Dict,
+  'invite.home.description': {
+    ca: 'Comparteix KM0 Lab amb persones i negocis del teu municipi',
+    es: 'Comparte KM0 Lab con personas y negocios de tu municipio',
+    en: 'Share KM0 Lab with people and businesses in your town',
+  } as Dict,
+  'invite.home.cta': { ca: 'Invitar', es: 'Invitar', en: 'Invite' } as Dict,
+  'invite.home.note': {
+    ca: 'Guanyes punts quan completen el registre amb la teva invitació',
+    es: 'Ganas puntos cuando completan el registro con tu invitación',
+    en: 'You earn points when they complete registration with your invitation',
+  } as Dict,
+  'invite.person.short': { ca: 'Persona', es: 'Persona', en: 'Person' } as Dict,
+  'invite.business.short': {
+    ca: 'Negoci',
+    es: 'Negocio',
+    en: 'Business',
+  } as Dict,
+  'invite.person.title': {
+    ca: 'Invita una persona',
+    es: 'Invitar a una persona',
+    en: 'Invite a person',
+  } as Dict,
+  'invite.person.description': {
+    ca: 'Els rebràs quan es registri amb la teva invitació',
+    es: 'Los recibirás cuando se registre con tu invitación',
+    en: 'You will receive them when they register with your invitation',
+  } as Dict,
+  'invite.business.title': {
+    ca: 'Invita un negoci',
+    es: 'Invitar a un negocio',
+    en: 'Invite a business',
+  } as Dict,
+  'invite.business.description': {
+    ca: "Els rebràs quan completi l'alta del seu negoci",
+    es: 'Los recibirás cuando complete el alta de su negocio',
+    en: 'You will receive them when they complete their business registration',
+  } as Dict,
+  'invite.share.person_title': {
+    ca: 'La teva invitació per a una persona',
+    es: 'Tu invitación para una persona',
+    en: 'Your invitation for a person',
+  } as Dict,
+  'invite.share.business_title': {
+    ca: 'La teva invitació per a un negoci',
+    es: 'Tu invitación para un negocio',
+    en: 'Your invitation for a business',
+  } as Dict,
+  'invite.share.explanation': {
+    ca: 'Aquest enllaç permet saber que la invitació ve de tu',
+    es: 'Este enlace permite saber que la invitación viene de ti',
+    en: 'This link identifies that the invitation came from you',
+  } as Dict,
+  'invite.share.person_text': {
+    ca: "Descobreix el que tens a prop amb KM0 Lab: comerços, activitats i premis al teu municipi. Registra't amb la meva invitació: {link}",
+    es: 'Descubre lo que tienes cerca con KM0 Lab: comercios, actividades y premios en tu municipio. Regístrate con mi invitación: {link}',
+    en: 'Discover what is near you with KM0 Lab: shops, activities and rewards in your town. Sign up with my invitation: {link}',
+  } as Dict,
+  'invite.share.business_text': {
+    ca: "Tens un negoci? Suma't a KM0 Lab i dona a conèixer el teu establiment al municipi. Registra el teu negoci aquí: {link}",
+    es: '¿Tienes un negocio? Súmate a KM0 Lab y da a conocer tu establecimiento en el municipio. Registra tu negocio aquí: {link}',
+    en: 'Do you own a business? Join KM0 Lab and promote your establishment locally. Register your business here: {link}',
+  } as Dict,
+  'invite.copied': {
+    ca: 'Enllaç copiat',
+    es: 'Enlace copiado',
+    en: 'Link copied',
+  } as Dict,
+  'invite.copy_failed': {
+    ca: "Selecciona i copia l'enllaç manualment",
+    es: 'Selecciona y copia el enlace manualmente',
+    en: 'Select and copy the link manually',
+  } as Dict,
+  'invite.applied': {
+    ca: 'Invitació aplicada',
+    es: 'Invitación aplicada',
+    en: 'Invitation applied',
+  } as Dict,
+  'invite.empty.title': {
+    ca: 'Encara no hi ha cap invitació',
+    es: 'Todavía no hay ninguna invitación',
+    en: 'There are no invitations yet',
+  } as Dict,
+  'invite.empty.description': {
+    ca: 'Quan estiguis a punt, podràs crear el teu enllaç personal aquí.',
+    es: 'Cuando estés listo, podrás crear tu enlace personal aquí.',
+    en: 'When you are ready, you can create your personal link here.',
+  } as Dict,
+  'invite.error.title': {
+    ca: 'No hem pogut preparar la invitació',
+    es: 'No hemos podido preparar la invitación',
+    en: 'We could not prepare the invitation',
+  } as Dict,
+  'invite.error.description': {
+    ca: 'Torna-ho a provar per obtenir el teu enllaç personal.',
+    es: 'Vuelve a intentarlo para obtener tu enlace personal.',
+    en: 'Try again to get your personal link.',
+  } as Dict,
+  'invite.error.retry': {
+    ca: 'Tornar-ho a provar',
+    es: 'Reintentar',
+    en: 'Try again',
+  } as Dict,
+  'invite.action.description': {
+    ca: 'Convida persones o negocis i guanya punts quan completin el registre',
+    es: 'Invita a personas o negocios y gana puntos cuando completen el registro',
+    en: 'Invite people or businesses and earn points when they complete registration',
+  } as Dict,
+  'invite.action.type': {
+    ca: 'Invitacions',
+    es: 'Invitaciones',
+    en: 'Invitations',
+  } as Dict,
+  'share.title': {
+    ca: 'Comparteix KM0 Lab',
+    es: 'Comparte KM0 Lab',
+    en: 'Share KM0 Lab',
+  } as Dict,
+  'share.home.description': {
+    ca: 'Ajuda altres persones a descobrir els comerços, serveis i activitats del teu municipi',
+    es: 'Ayuda a otras personas a descubrir los comercios, servicios y actividades de tu municipio',
+    en: 'Help other people discover the shops, services and activities in your town',
+  } as Dict,
+  'share.cta': { ca: 'Compartir', es: 'Compartir', en: 'Share' } as Dict,
+  'share.copy': {
+    ca: "Copia l'enllaç",
+    es: 'Copiar enlace',
+    en: 'Copy link',
+  } as Dict,
+  'share.points_question': {
+    ca: 'Vols guanyar punts amb les teves invitacions?',
+    es: '¿Quieres ganar puntos por tus invitaciones?',
+    en: 'Do you want to earn points for your invitations?',
+  } as Dict,
+  'share.create_account': {
+    ca: 'Crea el teu compte',
+    es: 'Crea tu cuenta',
+    en: 'Create your account',
+  } as Dict,
+  'share.login': {
+    ca: 'Inicia sessió',
+    es: 'Iniciar sesión',
+    en: 'Sign in',
+  } as Dict,
+  'share.points_block.title': {
+    ca: 'Guanya punts amb les teves invitacions',
+    es: 'Gana puntos por tus invitaciones',
+    en: 'Earn points for your invitations',
+  } as Dict,
+  'share.points_block.description': {
+    ca: 'Inicia sessió o crea el teu compte per obtenir el teu enllaç personal i guanyar punts quan algú es registri.',
+    es: 'Inicia sesión o crea tu cuenta para obtener tu enlace personal y ganar puntos cuando alguien se registre.',
+    en: 'Sign in or create your account to get your personal link and earn points when someone registers.',
+  } as Dict,
+  'invite.home.description_authed': {
+    ca: 'Comparteix KM0 Lab amb altres persones i negocis del municipi',
+    es: 'Comparte KM0 Lab con otras personas y negocios del municipio',
+    en: 'Share KM0 Lab with other people and businesses in your town',
+  } as Dict,
+  'invite.header.subtitle': {
+    ca: 'Tria a qui vols convidar i com vols enviar la invitació',
+    es: 'Elige a quién quieres invitar y cómo quieres enviar la invitación',
+    en: 'Choose who you want to invite and how to send the invitation',
+  } as Dict,
+  'invite.select.person': {
+    ca: 'Una persona',
+    es: 'Una persona',
+    en: 'A person',
+  } as Dict,
+  'invite.select.business': {
+    ca: 'Un negoci',
+    es: 'Un negocio',
+    en: 'A business',
+  } as Dict,
+  'invite.explain.person': {
+    ca: 'Guanyaràs {points} punts quan una persona nova completi el registre amb la teva invitació',
+    es: 'Ganarás {points} puntos cuando una persona nueva complete el registro con tu invitación',
+    en: 'You will earn {points} points when a new person completes registration with your invitation',
+  } as Dict,
+  'invite.explain.business': {
+    ca: "Guanyaràs {points} punts quan un negoci nou completi el formulari d'alta amb la teva invitació",
+    es: 'Ganarás {points} puntos cuando un negocio nuevo complete el formulario de alta con tu invitación',
+    en: 'You will earn {points} points when a new business completes the registration form with your invitation',
+  } as Dict,
+  'invite.channels.title': {
+    ca: 'Com vols enviar la invitació?',
+    es: '¿Cómo quieres enviar la invitación?',
+    en: 'How do you want to send the invitation?',
+  } as Dict,
+  'invite.session.expired.title': {
+    ca: 'La teva sessió ha caducat',
+    es: 'Tu sesión ha caducado',
+    en: 'Your session has expired',
+  } as Dict,
+  'invite.session.expired.description': {
+    ca: 'Recupera la sessió per generar invitacions amb punts.',
+    es: 'Recupera la sesión para generar invitaciones con puntos.',
+    en: 'Restore your session to create invitations with points.',
+  } as Dict,
+  'share.panel.notice': {
+    ca: 'Com que no has iniciat sessió, aquesta invitació no et donarà punts. Si vols guanyar-ne quan algú es registri amb la teva invitació, crea un compte o inicia sessió abans de compartir.',
+    es: 'Como no has iniciado sesión, esta invitación no te dará puntos. Si quieres ganarlos cuando alguien se registre con tu invitación, crea una cuenta o inicia sesión antes de compartir.',
+    en: 'As you are not signed in, this invitation will not earn you points. To earn them when someone registers with your invitation, create an account or sign in before sharing.',
+  } as Dict,
+  'share.panel.how': {
+    ca: 'Com ho vols compartir?',
+    es: '¿Cómo quieres compartirlo?',
+    en: 'How do you want to share it?',
+  } as Dict,
+  'share.channel.whatsapp': {
+    ca: 'WhatsApp',
+    es: 'WhatsApp',
+    en: 'WhatsApp',
+  } as Dict,
+  'share.channel.email': {
+    ca: 'Correu electrònic',
+    es: 'Correo electrónico',
+    en: 'Email',
+  } as Dict,
+  'share.channel.facebook': {
+    ca: 'Facebook',
+    es: 'Facebook',
+    en: 'Facebook',
+  } as Dict,
+  'share.channel.more': {
+    ca: 'Més opcions',
+    es: 'Más opciones',
+    en: 'More options',
+  } as Dict,
+  'share.message': {
+    ca: "Descobreix l'agenda, les notícies, els comerços i els serveis de {town} a KM0 Lab. Pots consultar-ho sense registrar-te: {link}",
+    es: 'Descubre la agenda, las noticias, los comercios y los servicios de {town} en KM0 Lab. Puedes consultarlo sin registrarte: {link}',
+    en: 'Discover the events, news, shops and services of {town} on KM0 Lab. You can browse it without signing up: {link}',
+  } as Dict,
+  'share.email_subject': {
+    ca: 'Descobreix KM0 Lab a {town}',
+    es: 'Descubre KM0 Lab en {town}',
+    en: 'Discover KM0 Lab in {town}',
+  } as Dict,
+  'share.town_fallback': {
+    ca: 'el teu municipi',
+    es: 'tu municipio',
+    en: 'your town',
+  } as Dict,
+
+  // ── Business registration ─────────────────────────────────
+  'business.title': {
+    ca: "Dona d'alta el teu negoci",
+    es: 'Da de alta tu negocio',
+    en: 'Register your business',
+  } as Dict,
+  'business.description': {
+    ca: 'Forma part de la xarxa de comerços i serveis del teu municipi',
+    es: 'Forma parte de la red de comercios y servicios de tu municipio',
+    en: "Join your town's network of shops and services",
+  } as Dict,
+  'business.group.business': {
+    ca: 'El teu negoci',
+    es: 'Tu negocio',
+    en: 'Your business',
+  } as Dict,
+  'business.group.location': {
+    ca: 'On ets',
+    es: 'Dónde estás',
+    en: 'Where you are',
+  } as Dict,
+  'business.group.contact': {
+    ca: 'Contacte i accés',
+    es: 'Contacto y acceso',
+    en: 'Contact and access',
+  } as Dict,
+  'business.name': {
+    ca: 'Nom comercial',
+    es: 'Nombre comercial',
+    en: 'Business name',
+  } as Dict,
+  'business.tax_id': { ca: 'NIF/CIF', es: 'NIF/CIF', en: 'Tax ID' } as Dict,
+  'business.category': {
+    ca: 'Categoria',
+    es: 'Categoría',
+    en: 'Category',
+  } as Dict,
+  'business.category.placeholder': {
+    ca: 'Selecciona una categoria',
+    es: 'Selecciona una categoría',
+    en: 'Select a category',
+  } as Dict,
+  'business.category.shop': {
+    ca: 'Comerç',
+    es: 'Comercio',
+    en: 'Retail',
+  } as Dict,
+  'business.category.food': {
+    ca: 'Restauració',
+    es: 'Restauración',
+    en: 'Food and drink',
+  } as Dict,
+  'business.category.service': {
+    ca: 'Serveis',
+    es: 'Servicios',
+    en: 'Services',
+  } as Dict,
+  'business.category.culture': {
+    ca: 'Cultura i oci',
+    es: 'Cultura y ocio',
+    en: 'Culture and leisure',
+  } as Dict,
+  'business.short_description': {
+    ca: 'Breu descripció',
+    es: 'Breve descripción',
+    en: 'Short description',
+  } as Dict,
+  'business.website': {
+    ca: 'Web o perfil a xarxes socials',
+    es: 'Web o perfil en redes sociales',
+    en: 'Website or social profile',
+  } as Dict,
+  'business.logo': { ca: 'Logotip', es: 'Logo', en: 'Logo' } as Dict,
+  'business.logo.add': {
+    ca: 'Afegir logotip',
+    es: 'Añadir logo',
+    en: 'Add logo',
+  } as Dict,
+  'business.logo.replace': {
+    ca: 'Substituir',
+    es: 'Sustituir',
+    en: 'Replace',
+  } as Dict,
+  'business.logo.remove': {
+    ca: 'Eliminar',
+    es: 'Eliminar',
+    en: 'Remove',
+  } as Dict,
+  'business.address': { ca: 'Adreça', es: 'Dirección', en: 'Address' } as Dict,
+  'business.town': { ca: 'Municipi', es: 'Municipio', en: 'Town' } as Dict,
+  'business.contact_name': {
+    ca: 'Nom de la persona de contacte',
+    es: 'Nombre de la persona de contacto',
+    en: 'Contact person name',
+  } as Dict,
+  'business.email': {
+    ca: 'Correu electrònic',
+    es: 'Correo electrónico',
+    en: 'Email',
+  } as Dict,
+  'business.email.session_hint': {
+    ca: 'Utilitzarem el correu del teu compte actual.',
+    es: 'Usaremos el correo de tu cuenta actual.',
+    en: 'We will use your current account email.',
+  } as Dict,
+  'business.email.access_hint': {
+    ca: "T'enviarem les instruccions per accedir a l'espai del negoci.",
+    es: 'Te enviaremos las instrucciones para acceder al espacio del negocio.',
+    en: 'We will send instructions to access the business area.',
+  } as Dict,
+  'business.phone': {
+    ca: 'Telèfon (opcional)',
+    es: 'Teléfono (opcional)',
+    en: 'Phone (optional)',
+  } as Dict,
+  'business.terms': {
+    ca: "Accepto les condicions d'ús i la política de privacitat",
+    es: 'Acepto las condiciones de uso y la política de privacidad',
+    en: 'I accept the terms of use and privacy policy',
+  } as Dict,
+  'business.submit': {
+    ca: 'Crear el meu negoci',
+    es: 'Crear mi negocio',
+    en: 'Create my business',
+  } as Dict,
+  'business.submitting': {
+    ca: 'Creant el teu negoci…',
+    es: 'Creando tu negocio…',
+    en: 'Creating your business…',
+  } as Dict,
+  'business.error.required': {
+    ca: 'Aquest camp és obligatori',
+    es: 'Este campo es obligatorio',
+    en: 'This field is required',
+  } as Dict,
+  'business.error.email': {
+    ca: 'Introdueix un correu vàlid',
+    es: 'Introduce un correo válido',
+    en: 'Enter a valid email',
+  } as Dict,
+  'business.error.url': {
+    ca: 'Introdueix una adreça web vàlida',
+    es: 'Introduce una dirección web válida',
+    en: 'Enter a valid web address',
+  } as Dict,
+  'business.error.terms': {
+    ca: "Has d'acceptar les condicions i la privacitat",
+    es: 'Debes aceptar las condiciones y la privacidad',
+    en: 'You must accept the terms and privacy policy',
+  } as Dict,
+  'business.error.submit': {
+    ca: 'No hem pogut crear el negoci. Conservem les dades perquè ho tornis a provar.',
+    es: 'No hemos podido crear el negocio. Conservamos los datos para que vuelvas a intentarlo.',
+    en: 'We could not create the business. Your details are preserved so you can retry.',
+  } as Dict,
+  'business.retry': {
+    ca: 'Tornar-ho a provar',
+    es: 'Reintentar',
+    en: 'Try again',
+  } as Dict,
+  'business.already.title': {
+    ca: 'Aquest negoci ja està registrat',
+    es: 'Este negocio ya está registrado',
+    en: 'This business is already registered',
+  } as Dict,
+  'business.already.description': {
+    ca: 'Inicia sessió amb el compte gestor o contacta amb ajuda si no hi pots accedir.',
+    es: 'Inicia sesión con la cuenta gestora o contacta con ayuda si no puedes acceder.',
+    en: 'Sign in with the manager account or contact support if you cannot access it.',
+  } as Dict,
+  'business.already.login': {
+    ca: 'Iniciar sessió',
+    es: 'Iniciar sesión',
+    en: 'Sign in',
+  } as Dict,
+  'business.already.help': {
+    ca: 'Demanar ajuda',
+    es: 'Solicitar ayuda',
+    en: 'Get help',
+  } as Dict,
+  'business.success.title': {
+    ca: 'El teu negoci ja està registrat',
+    es: 'Tu negocio ya está registrado',
+    en: 'Your business is registered',
+  } as Dict,
+  'business.success.description': {
+    ca: 'Ja pots accedir al teu espai i completar la informació del teu negoci.',
+    es: 'Ya puedes acceder a tu espacio y completar la información de tu negocio.',
+    en: 'You can now access your space and complete your business information.',
+  } as Dict,
+  'business.success.cta': {
+    ca: 'Accedir al meu negoci',
+    es: 'Acceder a mi negocio',
+    en: 'Access my business',
+  } as Dict,
+  'business.success.mock_note': {
+    ca: 'Accés simulat per al pilot',
+    es: 'Acceso simulado para el piloto',
+    en: 'Simulated access for the pilot',
+  } as Dict,
+  'business.empty.title': {
+    ca: 'No hi ha dades del negoci',
+    es: 'No hay datos del negocio',
+    en: 'No business details',
+  } as Dict,
+  'business.empty.cta': {
+    ca: "Començar l'alta",
+    es: 'Empezar el alta',
+    en: 'Start registration',
+  } as Dict,
+
+  'invites.link': {
+    ca: 'Les meves invitacions',
+    es: 'Mis invitaciones',
+    en: 'My invitations',
+  } as Dict,
+  'invites.title': {
+    ca: 'Les meves invitacions',
+    es: 'Mis invitaciones',
+    en: 'My invitations',
+  } as Dict,
+  'invites.subtitle': {
+    ca: 'Registres vinculats a les teves invitacions',
+    es: 'Registros vinculados a tus invitaciones',
+    en: 'Registrations linked to your invitations',
+  } as Dict,
+  'invites.cta': { ca: 'Invitar', es: 'Invitar', en: 'Invite' } as Dict,
+  'invites.summary.persons': {
+    ca: 'Persones registrades',
+    es: 'Personas registradas',
+    en: 'People registered',
+  } as Dict,
+  'invites.summary.businesses': {
+    ca: 'Negocis registrats',
+    es: 'Negocios registrados',
+    en: 'Businesses registered',
+  } as Dict,
+  'invites.summary.points': {
+    ca: 'Punts guanyats',
+    es: 'Puntos ganados',
+    en: 'Points earned',
+  } as Dict,
+  'invites.filter.all': { ca: 'Totes', es: 'Todas', en: 'All' } as Dict,
+  'invites.filter.persons': {
+    ca: 'Persones',
+    es: 'Personas',
+    en: 'People',
+  } as Dict,
+  'invites.filter.businesses': {
+    ca: 'Negocis',
+    es: 'Negocios',
+    en: 'Businesses',
+  } as Dict,
+  'invites.status.started': {
+    ca: 'Registre iniciat',
+    es: 'Registro iniciado',
+    en: 'Registration started',
+  } as Dict,
+  'invites.status.pending': {
+    ca: 'Registre completat · Punts pendents',
+    es: 'Registro completado · Puntos pendientes',
+    en: 'Registration completed · Points pending',
+  } as Dict,
+  'invites.status.granted': {
+    ca: 'Punts concedits',
+    es: 'Puntos concedidos',
+    en: 'Points granted',
+  } as Dict,
+  'invites.row.person': {
+    ca: 'Persona convidada',
+    es: 'Persona invitada',
+    en: 'Invited person',
+  } as Dict,
+  'invites.row.business': {
+    ca: 'Negoci convidat',
+    es: 'Negocio invitado',
+    en: 'Invited business',
+  } as Dict,
+  'invites.milestone.started': {
+    ca: 'Registre iniciat',
+    es: 'Registro iniciado',
+    en: 'Registration started',
+  } as Dict,
+  'invites.milestone.completed': {
+    ca: 'Registre completat',
+    es: 'Registro completado',
+    en: 'Registration completed',
+  } as Dict,
+  'invites.milestone.granted': {
+    ca: 'Punts concedits',
+    es: 'Puntos concedidos',
+    en: 'Points granted',
+  } as Dict,
+  'invites.detail.see_points': {
+    ca: 'Veure als meus punts',
+    es: 'Ver en mis puntos',
+    en: 'See in my points',
+  } as Dict,
+  'invites.detail.pending_note': {
+    ca: 'Els punts pendents encara no formen part del teu saldo.',
+    es: 'Los puntos pendientes todavía no forman parte de tu saldo.',
+    en: 'Pending points are not part of your balance yet.',
+  } as Dict,
+  'invites.detail.open': {
+    ca: 'Veure el detall',
+    es: 'Ver el detalle',
+    en: 'View details',
+  } as Dict,
+  'invites.empty.title': {
+    ca: 'Encara no hi ha registres vinculats a les teves invitacions.',
+    es: 'Todavía no hay registros vinculados a tus invitaciones.',
+    en: 'There are no registrations linked to your invitations yet.',
+  } as Dict,
+  'invites.empty.description': {
+    ca: 'Comparteix el teu enllaç i consulta aquí els resultats.',
+    es: 'Comparte tu enlace y consulta aquí los resultados.',
+    en: 'Share your link and check the results here.',
+  } as Dict,
+  'invites.disclaimer': {
+    ca: "Compartir un enllaç no confirma que s'hagi enviat ni que algú s'hagi registrat.",
+    es: 'Compartir un enlace no confirma que se haya enviado ni que alguien se haya registrado.',
+    en: 'Sharing a link does not confirm it was sent or that anyone registered.',
+  } as Dict,
+  'invites.filter_empty.title': {
+    ca: 'Cap registre amb aquest filtre',
+    es: 'Ningún registro con este filtro',
+    en: 'No registrations with this filter',
+  } as Dict,
+  'invites.filter_empty.description': {
+    ca: 'Prova amb «Totes» per veure tots els registres.',
+    es: 'Prueba con «Todas» para ver todos los registros.',
+    en: 'Try “All” to see every registration.',
+  } as Dict,
+  'invites.error.title': {
+    ca: 'No hem pogut carregar les teves invitacions',
+    es: 'No hemos podido cargar tus invitaciones',
+    en: 'We could not load your invitations',
+  } as Dict,
+  'invites.error.description': {
+    ca: 'Torna-ho a provar en un moment.',
+    es: 'Vuelve a intentarlo en un momento.',
+    en: 'Please try again in a moment.',
+  } as Dict,
+  'invites.error.retry': {
+    ca: 'Tornar-ho a provar',
+    es: 'Reintentar',
+    en: 'Try again',
+  } as Dict,
+  'invites.compact.person.one': {
+    ca: '{count} persona registrada',
+    es: '{count} persona registrada',
+    en: '{count} person registered',
+  } as Dict,
+  'invites.compact.person.other': {
+    ca: '{count} persones registrades',
+    es: '{count} personas registradas',
+    en: '{count} people registered',
+  } as Dict,
+  'invites.compact.business.one': {
+    ca: '{count} negoci registrat',
+    es: '{count} negocio registrado',
+    en: '{count} business registered',
+  } as Dict,
+  'invites.compact.business.other': {
+    ca: '{count} negocis registrats',
+    es: '{count} negocios registrados',
+    en: '{count} businesses registered',
+  } as Dict,
+  'invites.compact.and': { ca: 'i', es: 'y', en: 'and' } as Dict,
+  'invites.compact.points': {
+    ca: 'punts guanyats',
+    es: 'puntos ganados',
+    en: 'points earned',
+  } as Dict,
+  'invites.points.title': {
+    ca: 'Punts per invitacions',
+    es: 'Puntos por invitaciones',
+    en: 'Invitation points',
+  } as Dict,
+  'invites.points.earned': {
+    ca: '{points} punts guanyats',
+    es: '{points} puntos ganados',
+    en: '{points} points earned',
+  } as Dict,
+  'invites.points.empty': {
+    ca: 'Encara no has guanyat punts per invitacions',
+    es: 'Todavía no has ganado puntos por invitaciones',
+    en: 'You have not earned invitation points yet',
+  } as Dict,
+  'invites.points.action': {
+    ca: 'Veure invitacions',
+    es: 'Ver invitaciones',
+    en: 'View invitations',
   } as Dict,
 } as const
 

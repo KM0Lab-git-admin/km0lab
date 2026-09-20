@@ -35,6 +35,9 @@ const Scanner = lazy(() => import('./pages/Scanner'))
 const ScannerSuccess = lazy(() => import('./pages/ScannerSuccess'))
 const ScanDeepLink = lazy(() => import('./pages/ScanDeepLink'))
 const EmailOtpTemplate = lazy(() => import('./pages/EmailOtpTemplate'))
+const Invite = lazy(() => import('./pages/Invite'))
+const MyInvitations = lazy(() => import('./pages/MyInvitations'))
+const BusinessSignup = lazy(() => import('./pages/BusinessSignup'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const queryClient = new QueryClient()
@@ -238,6 +241,32 @@ export default function App() {
                       <RequireAuth>
                         <ScanDeepLink />
                       </RequireAuth>
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/invite"
+                  element={
+                    <RequireSetup need="location">
+                      <Invite />
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/my-invitations"
+                  element={
+                    <RequireSetup need="location">
+                      <RequireAuth>
+                        <MyInvitations />
+                      </RequireAuth>
+                    </RequireSetup>
+                  }
+                />
+                <Route
+                  path="/business-signup"
+                  element={
+                    <RequireSetup need="location">
+                      <BusinessSignup />
                     </RequireSetup>
                   }
                 />

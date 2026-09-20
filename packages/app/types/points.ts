@@ -33,10 +33,10 @@ export type PointActionIcon =
 export interface PointAction {
   /** UUID de API o id estable del mock Lovable. */
   id: string
-  /** Texto ya traducido por la API (name). */
-  title: string
-  /** Texto ya traducido por la API (description). */
-  description: string
+  /** Texto ya traducido por la API (name). Opcional en mocks. */
+  title?: string
+  /** Texto ya traducido por la API (description). Opcional en mocks. */
+  description?: string
   titleKey: TKey
   descriptionKey: TKey
   typeKey: TKey

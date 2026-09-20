@@ -12,6 +12,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useProfile } from '../hooks/useProfile'
 import { listNews, type Noticia } from '../services/newsApi'
 import { useAppStore } from '../stores/useAppStore'
 
@@ -20,9 +21,15 @@ export interface NotificationItem {
   read: boolean
 }
 
+const DEFAULT_CITY = 'Malgrat de Mar'
+
 export const useNotifications = () => {
+  const { profile } = useProfile()
+  const storeTown = useAppStore((s) => s.town)
   const lastSeenAt = useAppStore((s) => s.notificationsLastSeenAt)
   const markNotificationsSeen = useAppStore((s) => s.markNotificationsSeen)
+
+  const city = profile?.town || storeTown || DEFAULT_CITY
 
   const [noticias, setNoticias] = useState<Noticia[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -32,7 +39,7 @@ export const useNotifications = () => {
     let cancelled = false
     setLoading(true)
     setError(null)
-    listNews({ limit: 100, offset: 0 })
+    listNews({ city, limit: 20, offset: 0 })
       .then((res) => {
         if (cancelled) return
         setNoticias(res.noticias)
@@ -48,7 +55,7 @@ export const useNotifications = () => {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [city])
 
   useEffect(() => {
     const cancel = load()

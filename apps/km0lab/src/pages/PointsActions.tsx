@@ -1,36 +1,62 @@
-import {
-  t,
-  useAuth,
-  usePointsActions,
-  type Lang,
-  type PointAction,
-} from '@km0lab/app'
+import { useAuth } from '@km0lab/app'
+import type { PointAction, PointActionIcon } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
-  CheckCircle2,
   ChevronLeft,
-  Circle,
+  Cake,
+  UserPlus,
+  Star,
+  QrCode,
   Globe,
-  RefreshCw,
+  Mail,
+  CalendarCheck,
+  ClipboardList,
+  Share2,
+  CheckCircle2,
+  Circle,
+  type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import ActionTypeMark from '@/components/ActionTypeMark'
 import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
+import { INVITE_REWARDS } from '@/data/inviteConfig'
+import { POINTS_ACTIONS } from '@/data/pointsActions'
 import { cn } from '@/lib/utils'
 
+/* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'pending' | 'completed'
+
+/* ─── Mapa icono ─────────────────────────────────────────── */
+const ICONS: Record<PointActionIcon, LucideIcon> = {
+  cake: Cake,
+  'user-plus': UserPlus,
+  star: Star,
+  qr: QrCode,
+  globe: Globe,
+  mail: Mail,
+  'calendar-check': CalendarCheck,
+  'clipboard-list': ClipboardList,
+}
+
+const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
+  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
+  'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+}
 
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
-const actionCopy = (action: PointAction, lang: Lang) => ({
-  title: action.title || t(action.titleKey, lang),
-  description: action.description || t(action.descriptionKey, lang),
-})
-
+/* ─── Chip filtro ────────────────────────────────────────── */
 const FilterChip = ({
   active,
   onClick,
@@ -54,6 +80,7 @@ const FilterChip = ({
   </button>
 )
 
+/* ─── Fila de acción ─────────────────────────────────────── */
 const ActionRow = ({
   action,
   lang,
@@ -63,7 +90,8 @@ const ActionRow = ({
   lang: Lang
   index: number
 }) => {
-  const copy = actionCopy(action, lang)
+  const Icon = ICONS[action.icon]
+  const meta = ICON_META[action.icon]
 
   return (
     <motion.li
@@ -75,14 +103,21 @@ const ActionRow = ({
         action.completed && 'opacity-80'
       )}
     >
-      <ActionTypeMark icon={action.icon} />
+      <span
+        className={cn(
+          'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
+          meta.ring
+        )}
+      >
+        <Icon size={20} className={meta.text} strokeWidth={2.2} />
+      </span>
 
       <div className="flex-1 min-w-0">
         <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-          {copy.title}
+          {t(action.titleKey, lang)}
         </p>
         <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-          {copy.description}
+          {t(action.descriptionKey, lang)}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span
@@ -122,41 +157,50 @@ const ActionRow = ({
   )
 }
 
+/* ─── Pantalla ───────────────────────────────────────────── */
 const PointsActions = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
-  const { actions, loading, error, reload } = usePointsActions()
   const [filter, setFilter] = useState<Filter>('all')
+  const [loading, setLoading] = useState(true)
 
   const isAuthed =
     !!user ||
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
+  // Simulación de carga para respetar los 4 estados de UI.
+  useMemo(() => {
+    const timer = setTimeout(() => setLoading(false), 300)
+    return () => clearTimeout(timer)
+  }, [])
+
   const { completedCount, pendingCount, totalPoints } = useMemo(() => {
-    const completed = actions.filter((a) => a.completed).length
-    const pending = actions.length - completed
-    const points = actions
-      .filter((a) => !a.completed)
-      .reduce((sum, a) => sum + a.points, 0)
+    const completed = POINTS_ACTIONS.filter((a) => a.completed).length
+    const pending = POINTS_ACTIONS.length - completed
+    const points = POINTS_ACTIONS.filter((a) => !a.completed).reduce(
+      (sum, a) => sum + a.points,
+      0
+    )
     return {
       completedCount: completed,
       pendingCount: pending,
       totalPoints: points,
     }
-  }, [actions])
+  }, [])
 
   const filtered = useMemo(() => {
-    if (filter === 'completed') return actions.filter((a) => a.completed)
-    if (filter === 'pending') return actions.filter((a) => !a.completed)
-    return actions
-  }, [filter, actions])
+    if (filter === 'completed') return POINTS_ACTIONS.filter((a) => a.completed)
+    if (filter === 'pending') return POINTS_ACTIONS.filter((a) => !a.completed)
+    return POINTS_ACTIONS
+  }, [filter])
 
   return (
     <DeviceShell>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
+          {/* Header */}
           <header className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3 bg-km0-beige-50">
             <button
               type="button"
@@ -171,6 +215,7 @@ const PointsActions = () => {
             </h1>
           </header>
 
+          {/* Resumen */}
           <section className="shrink-0 px-4 pb-3">
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -214,6 +259,7 @@ const PointsActions = () => {
             </motion.div>
           </section>
 
+          {/* Filtros */}
           <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
             <FilterChip
               active={filter === 'all'}
@@ -232,26 +278,13 @@ const PointsActions = () => {
             />
           </div>
 
+          {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
             {loading ? (
               <div className="h-full flex items-center justify-center">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('common.loading', lang)}
                 </p>
-              </div>
-            ) : error ? (
-              <div className="mt-8 mx-auto max-w-xs text-center bg-white border border-km0-coral-100 rounded-2xl p-5">
-                <p className="font-brand text-sm text-km0-blue-900 mb-3">
-                  {t('merchants.error.title', lang)}
-                </p>
-                <button
-                  type="button"
-                  onClick={reload}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
-                >
-                  <RefreshCw size={12} />
-                  {t('merchants.error.retry', lang)}
-                </button>
               </div>
             ) : filtered.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
@@ -261,6 +294,35 @@ const PointsActions = () => {
               </div>
             ) : (
               <ul className="flex flex-col gap-3 pt-2">
+                {filter !== 'completed' && (
+                  <li>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate('/invite')}
+                      className="h-auto w-full justify-start gap-3 rounded-2xl border-km0-blue-100 bg-card px-3 py-3 text-left"
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-km0-coral-100 text-km0-coral-400">
+                        <Share2 size={20} aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1 whitespace-normal">
+                        <span className="block font-ui text-sm font-bold text-km0-blue-900">
+                          {t('invite.title', lang)}
+                        </span>
+                        <span className="mt-0.5 block font-body text-xs font-normal leading-snug text-km0-blue-800/60">
+                          {t('invite.action.description', lang)}
+                        </span>
+                        <span className="mt-1.5 inline-flex rounded-full bg-km0-blue-100 px-2 py-0.5 font-ui text-[10px] font-bold uppercase text-km0-blue-800">
+                          {t('invite.action.type', lang)}
+                        </span>
+                      </span>
+                      <span className="shrink-0 whitespace-normal rounded-full bg-km0-yellow-400/90 px-2 py-1 text-center font-ui text-[10px] font-black text-km0-blue-900">
+                        +{INVITE_REWARDS.person}
+                        <br />+{INVITE_REWARDS.business}
+                      </span>
+                    </Button>
+                  </li>
+                )}
                 {filtered.map((action, i) => (
                   <ActionRow
                     key={action.id}

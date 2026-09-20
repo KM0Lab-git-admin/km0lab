@@ -30,3 +30,15 @@ export * from './apiSchemas'
 export * from './eventsApi'
 export * from './newsApi'
 export * from './mock/scanner'
+export * from './mock/invitations'
+export * from './mock/businessRegistration'
+export {
+  RewardsApiError,
+  RewardsApiContractError,
+  publicRewardsResponseSchema,
+} from './rewardsApi'
+export type {
+  ApiReward,
+  PublicReward,
+  ListPublicRewardsParams,
+} from './rewardsApi'

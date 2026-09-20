@@ -50,9 +50,17 @@ export async function getTodayEvents(): Promise<TodayResponse> {
   return apiFetch('/api/v1/events/today', todayResponseSchema)
 }
 
-/** Categorías con conteo (filtros de Agenda). */
-export async function getCategories(): Promise<Category[]> {
-  const res = await apiFetch('/api/v1/categories', categoriesResponseSchema)
+/**
+ * Categorías con conteo (filtros de Agenda). La API solo devuelve
+ * categorías con eventos activos; `poblacion` acota el recuento a ese
+ * municipio (misma convención que /api/v1/events).
+ */
+export async function getCategories(poblacion?: string): Promise<Category[]> {
+  const qs = poblacion ? `?poblacion=${encodeURIComponent(poblacion)}` : ''
+  const res = await apiFetch(
+    `/api/v1/categories${qs}`,
+    categoriesResponseSchema
+  )
   return res.data
 }
 

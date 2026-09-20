@@ -6,12 +6,13 @@ import EarnPointsCard from './EarnPointsCard'
 import EventHeroCarousel from './EventHeroCarousel'
 import HomeHero from './HomeHero'
 import HomeModules, { type HomeModule } from './HomeModules'
+import InviteHomeCard from './InviteHomeCard'
 import JoinCard from './JoinCard'
 import MerchantPromosPreview from './MerchantPromosPreview'
 import PointsCard from './PointsCard'
 import RewardsPreview from './RewardsPreview'
 
-import type { Promo } from '@km0lab/app'
+import type { Promo, ApiReward, InvitationsSummary } from '@km0lab/app'
 
 import { useLang } from '@/contexts/LangContext'
 
@@ -29,6 +30,8 @@ export interface HomeContentProps {
   level?: number
   modules: HomeModule[]
   promos: Promo[]
+  /** Premios públicos (API UAT); Home resuelve fallback mock si falla. */
+  rewards: ApiReward[]
 
   activeTab: HomeTab
   isAuthed: boolean
@@ -39,6 +42,9 @@ export interface HomeContentProps {
   onPoints: () => void
   onRewards: () => void
   onActions: () => void
+  onInvite: () => void
+  onViewInvitations: () => void
+  invitationSummary: InvitationsSummary | null
 
   /** Solo se muestra PointsCard si hay sesión. */
   showLogin: boolean
@@ -60,6 +66,7 @@ const HomeContent = ({
   level,
   modules,
   promos,
+  rewards,
 
   activeTab,
   isAuthed,
@@ -70,6 +77,9 @@ const HomeContent = ({
   onPoints,
   onRewards,
   onActions,
+  onInvite,
+  onViewInvitations,
+  invitationSummary,
   showLogin,
   showPoints,
 
@@ -88,14 +98,14 @@ const HomeContent = ({
         hasAlerts={hasAlerts}
         onToggleAlerts={onToggleAlerts}
         showGreeting={false}
+        showHowItWorks={showLogin}
+        onHowItWorks={onHowItWorks}
       />
 
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
         <div className="relative z-10 flex flex-col gap-5 px-2 pt-4 pb-6">
           <section className="flex flex-col gap-3 px-2">
-            {showLogin && (
-              <JoinCard onCreateAccount={onLogin} onHowItWorks={onHowItWorks} />
-            )}
+            {showLogin && <JoinCard onCreateAccount={onLogin} />}
             {showPoints && (
               <PointsCard
                 points={points}
@@ -111,6 +121,17 @@ const HomeContent = ({
             <SectionHeader title={t('home.section.quick', lang)} />
             <HomeModules modules={modules} />
           </section>
+
+          <div className="px-2">
+            <InviteHomeCard
+              isAuthed={isAuthed}
+              onInvite={onInvite}
+              onLogin={onLogin}
+              onCreateAccount={onLogin}
+              onViewInvitations={onViewInvitations}
+              invitationSummary={invitationSummary}
+            />
+          </div>
 
           <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 px-6 py-6 space-y-3">
             <SectionHeader
@@ -133,7 +154,14 @@ const HomeContent = ({
             onLogin={onLogin}
           />
 
-          <RewardsPreview onSeeAll={onSeeAllRewards} />
+          <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 px-6 py-6 space-y-3">
+            <SectionHeader
+              title={t('home.section.rewards', lang)}
+              actionLabel={t('home.action.see_all_m', lang)}
+              onAction={onSeeAllRewards}
+            />
+            <RewardsPreview items={rewards} onSeeAll={onSeeAllRewards} />
+          </section>
 
           <MerchantPromosPreview
             onSeeAll={onSeeAllPromos}

@@ -6,6 +6,7 @@
  * la query correspondiente — la firma async se mantiene a propósito.
  */
 import { MOCK_POSTAL_CODES } from '../data/mockPostalCodes'
+
 import { DEMO_TOWN_NAME, isDemoPostalCode } from './demoTown'
 
 const cache = new Map<string, string | null>()

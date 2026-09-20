@@ -1,11 +1,6 @@
 import { useAuth } from '@km0lab/app'
-import {
-  t,
-  type Lang,
-  Redemption,
-  RedemptionStatus,
-  RewardKind,
-} from '@km0lab/app'
+import type { Redemption, RedemptionStatus, RewardKind } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,

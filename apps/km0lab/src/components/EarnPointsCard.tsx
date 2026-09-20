@@ -1,9 +1,24 @@
-import { t, useHomeActions, type Lang, type PointAction } from '@km0lab/app'
+import { t } from '@km0lab/app'
 import { motion } from 'framer-motion'
-import { ArrowRight, Circle, Lock, RefreshCw } from 'lucide-react'
+import {
+  Cake,
+  UserPlus,
+  Star,
+  QrCode,
+  Globe,
+  Mail,
+  CalendarCheck,
+  ClipboardList,
+  Circle,
+  ArrowRight,
+  Lock,
+  type LucideIcon,
+} from 'lucide-react'
 
-import ActionTypeMark from '@/components/ActionTypeMark'
+import type { PointAction, PointActionIcon } from '@km0lab/app'
+
 import { useLang } from '@/contexts/LangContext'
+import { POINTS_ACTIONS } from '@/data/pointsActions'
 import { cn } from '@/lib/utils'
 
 /**
@@ -22,12 +37,29 @@ export interface EarnPointsCardProps {
   onLogin?: () => void
 }
 
-const fmtInt = (n: number) => n.toLocaleString('es-ES')
+const ICONS: Record<PointActionIcon, LucideIcon> = {
+  cake: Cake,
+  'user-plus': UserPlus,
+  star: Star,
+  qr: QrCode,
+  globe: Globe,
+  mail: Mail,
+  'calendar-check': CalendarCheck,
+  'clipboard-list': ClipboardList,
+}
 
-const actionCopy = (action: PointAction, lang: Lang) => ({
-  title: action.title || t(action.titleKey, lang),
-  description: action.description || t(action.descriptionKey, lang),
-})
+const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
+  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
+  'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
+  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
+  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+}
+
+const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
 const EarnPointsCard = ({
   className,
@@ -36,12 +68,11 @@ const EarnPointsCard = ({
   onLogin,
 }: EarnPointsCardProps) => {
   const { lang } = useLang()
-  const { actions, loading, error, reload } = useHomeActions()
 
-  const pending = actions.filter((a) => !a.completed).slice(0, 3)
+  const pending: PointAction[] = POINTS_ACTIONS.filter(
+    (a) => !a.completed
+  ).slice(0, 3)
   const handleSeeAll = locked ? onLogin : onSeeAll
-
-  if (!loading && !error && pending.length === 0) return null
 
   return (
     <motion.section
@@ -69,7 +100,7 @@ const EarnPointsCard = ({
             </span>
           )}
         </h2>
-        {handleSeeAll && !loading && !error && (
+        {handleSeeAll && (
           <button
             type="button"
             onClick={handleSeeAll}
@@ -81,73 +112,58 @@ const EarnPointsCard = ({
         )}
       </div>
 
-      {loading ? (
-        <p className="font-body text-sm text-km0-blue-800/60 py-4 text-center">
-          {t('common.loading', lang)}
-        </p>
-      ) : error ? (
-        <div className="py-3 text-center space-y-3">
-          <p className="font-brand text-sm text-km0-blue-900">
-            {t('merchants.error.title', lang)}
-          </p>
-          <button
-            type="button"
-            onClick={reload}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
-          >
-            <RefreshCw size={12} />
-            {t('merchants.error.retry', lang)}
-          </button>
-        </div>
-      ) : (
-        <ul
-          className={cn(
-            'flex flex-col gap-3',
-            locked && 'pointer-events-none opacity-60'
-          )}
-          aria-hidden={locked || undefined}
-        >
-          {pending.map((action, i) => {
-            const copy = actionCopy(action, lang)
-            return (
-              <motion.li
-                key={action.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.25,
-                  delay: Math.min(i * 0.06, 0.25),
-                }}
-                className="flex items-center gap-3 px-3 py-3 bg-white rounded-2xl border border-km0-blue-100"
+      <ul
+        className={cn(
+          'flex flex-col gap-3',
+          locked && 'pointer-events-none opacity-60'
+        )}
+        aria-hidden={locked || undefined}
+      >
+        {pending.map((action, i) => {
+          const Icon = ICONS[action.icon]
+          const meta = ICON_META[action.icon]
+          return (
+            <motion.li
+              key={action.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: Math.min(i * 0.06, 0.25) }}
+              className="flex items-center gap-3 px-3 py-3 bg-white rounded-2xl border border-km0-blue-100"
+            >
+              <span
+                className={cn(
+                  'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
+                  meta.ring
+                )}
               >
-                <ActionTypeMark icon={action.icon} />
+                <Icon size={20} className={meta.text} strokeWidth={2.2} />
+              </span>
 
-                <div className="flex-1 min-w-0">
-                  <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-                    {copy.title}
-                  </p>
-                  <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-                    {copy.description}
-                  </p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-blue-100 text-km0-blue-800">
-                      {t(action.typeKey, lang)}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-beige-100 text-km0-blue-800 flex items-center gap-1">
-                      <Circle size={10} strokeWidth={2.4} />
-                      {t('points.actions.pending', lang)}
-                    </span>
-                  </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
+                  {t(action.titleKey, lang)}
+                </p>
+                <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
+                  {t(action.descriptionKey, lang)}
+                </p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-blue-100 text-km0-blue-800">
+                    {t(action.typeKey, lang)}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-beige-100 text-km0-blue-800 flex items-center gap-1">
+                    <Circle size={10} strokeWidth={2.4} />
+                    {t('points.actions.pending', lang)}
+                  </span>
                 </div>
+              </div>
 
-                <span className="shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums bg-km0-yellow-400/90 text-km0-blue-900">
-                  +{fmtInt(action.points)} pts
-                </span>
-              </motion.li>
-            )
-          })}
-        </ul>
-      )}
+              <span className="shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums bg-km0-yellow-400/90 text-km0-blue-900">
+                +{fmtInt(action.points)} pts
+              </span>
+            </motion.li>
+          )
+        })}
+      </ul>
     </motion.section>
   )
 }

@@ -14,7 +14,6 @@ import { useMemo, useState } from 'react'
 
 import type { Reward, RewardKind } from '@km0lab/app'
 
-import RewardCover from '@/components/RewardCover'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -117,16 +116,11 @@ const RedeemMerchandiseOverlay = ({
               className="px-4 pb-5 flex flex-col gap-4"
             >
               <div className="rounded-2xl border border-km0-blue-100 bg-white p-4 flex items-center gap-3">
-                <div className="reward-cover-thumb w-14 h-14 rounded-xl bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300">
-                  <RewardCover
-                    imageUrl={reward.imageUrl}
-                    fallback={
-                      <KindIcon
-                        size={28}
-                        className="text-km0-blue-900"
-                        strokeWidth={1.8}
-                      />
-                    }
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300 flex items-center justify-center shrink-0">
+                  <KindIcon
+                    size={28}
+                    className="text-km0-blue-900"
+                    strokeWidth={1.8}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -221,16 +215,11 @@ const RedeemMerchandiseOverlay = ({
               </div>
 
               <div className="rounded-2xl border border-km0-blue-100 bg-white p-4 flex items-center gap-3">
-                <div className="reward-cover-thumb w-11 h-11 rounded-xl bg-km0-yellow-100">
-                  <RewardCover
-                    imageUrl={reward.imageUrl}
-                    fallback={
-                      <KindIcon
-                        size={22}
-                        className="text-km0-blue-900"
-                        strokeWidth={1.8}
-                      />
-                    }
+                <div className="w-11 h-11 rounded-xl bg-km0-yellow-100 flex items-center justify-center shrink-0">
+                  <KindIcon
+                    size={22}
+                    className="text-km0-blue-900"
+                    strokeWidth={1.8}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
