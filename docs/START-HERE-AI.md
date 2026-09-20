@@ -101,7 +101,10 @@ El frontend de Lovable está sincronizado al monorepo vía
   `EventosHoy` se eliminó (Lovable ya no la tiene).
 - **Componentes** (~30) y **lógica compartida** en `@km0lab/app`: i18n,
   `LangContext`, store Zustand (`useAppStore` con token JWT +
-  `notificationsLastSeenAt`), hooks (`useAuth`, `useProfile`,
+  `notificationsLastSeenAt` + setup guest `langChosen`/`postalCode`).
+  El CP se escribe con `setLocation` (PostalCode locked); Lovable usa
+  `localStorage` suelto y producción no lo honra. Ver
+  `docs/PORTING-FROM-LOVABLE.md` §12.5. Hooks (`useAuth`, `useProfile`,
   `useNotifications`, `useFeaturedPromos`, breakpoints), types y data.
   Primitivos en `@km0lab/ui`.
 - **Backend real (km0lab-api)**: `km0labClient`, `auth`, `profile`

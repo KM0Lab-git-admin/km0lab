@@ -96,7 +96,10 @@ lo que toca el mundo real. La prueba de fuego ante cualquier duda:
 **Permitido en Lovable**: pantallas y flujos completos, estado global
 (Zustand), máquinas de estados (XState), validaciones de formulario,
 services mock con firmas estables, y **consumo de APIs públicas de solo
-lectura** (ver §6).
+lectura** (ver §6). El `localStorage` suelto (`km0_postal_code`,
+`km0_town`) es solo de la maqueta: producción no lo lee. El funnel
+idioma/CP de KM0lab vive en su propio store; un rediseño de
+`PostalCode`/`Login` se porta a mano, no entra por `pnpm sync:lovable`.
 
 **Prohibido en Lovable**: escrituras contra backends reales, auth real,
 acceso a BD, secretos, procesamiento de datos de negocio.

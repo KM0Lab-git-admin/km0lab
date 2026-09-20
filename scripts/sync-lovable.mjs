@@ -268,6 +268,25 @@ async function checkDependencies(content, zone, report, pkgJsonCache) {
   }
 }
 
+const LOVABLE_SETUP_STORAGE =
+  /localStorage\.(?:get|set|remove)Item\(\s*['"]km0_(?:postal_code|town)['"]/
+
+/**
+ * Lovable persiste el CP en claves sueltas. Producción no las lee:
+ * RequireSetup usa Zustand (`postalCode` / `town` / `setLocation`).
+ * El único archivo que puede tocar esas claves es el store (puente
+ * de escritura unidireccional).
+ */
+function checkLovableSetupStorage(content, destTo, report) {
+  if (destTo === 'packages/app/stores/useAppStore.ts') return
+  if (!LOVABLE_SETUP_STORAGE.test(content)) return
+  report.errors.push(
+    'máquina de setup de Lovable (localStorage km0_postal_code / km0_town): ' +
+      'RequireSetup lee Zustand. Escribe con setLocation y lee postalCode/town ' +
+      'del store. Ver docs/PORTING-FROM-LOVABLE.md §12.5'
+  )
+}
+
 async function checkBreakpoints(content, report, tailwindCache) {
   if (!tailwindCache.value) {
     tailwindCache.value = await readFile(
@@ -439,6 +458,17 @@ async function main() {
         content = rewriteImports(content, dest.zone, report)
         await checkDependencies(content, dest.zone, report, pkgJsonCache)
         await checkBreakpoints(content, report, tailwindCache)
+        checkLovableSetupStorage(content, dest.to, report)
+      }
+
+      const setupBlocked = report.errors.some((e) =>
+        e.includes('máquina de setup de Lovable')
+      )
+      if (setupBlocked) {
+        console.log('BLOQUEADO (setup Lovable)')
+        for (const line of report.errors) console.error(`      ✗ ${line}`)
+        summary.fail += 1
+        continue
       }
 
       const destAbs = resolve(REPO_ROOT, dest.to)

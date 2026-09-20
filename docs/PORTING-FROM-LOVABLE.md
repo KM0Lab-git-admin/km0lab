@@ -575,17 +575,26 @@ Reglas duras:
 
 Candados actuales (`locked`):
 
-| Destino                                 | Por qué es de producción                                     |
-| --------------------------------------- | ------------------------------------------------------------ |
-| `packages/app/services/km0labClient.ts` | Cliente HTTP real (JWT / API)                                |
-| `packages/app/services/apiClient.ts`    | Env real (`VITE_EVENTS_API_URL`); Lovable usa proxy Supabase |
-| `packages/app/services/auth.ts`         | OTP/JWT reales (no mock)                                     |
-| `packages/app/services/profile.ts`      | Perfil real                                                  |
-| `packages/app/stores/useAppStore.ts`    | Store real (sesión, token, notificaciones)                   |
-| `packages/app/hooks/useAuth.ts`         | Hook real sobre el store                                     |
-| `packages/app/hooks/useProfile.ts`      | Hook real sobre el store                                     |
-| `packages/app/utils/env.ts`             | Variables de entorno de producción                           |
-| `packages/app/data/notifications.ts`    | Datos/notificaciones de producción                           |
+| Destino                                       | Por qué es de producción                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `packages/app/services/km0labClient.ts`       | Cliente HTTP real (JWT / API)                                                         |
+| `packages/app/services/apiClient.ts`          | Env real (`VITE_EVENTS_API_URL`); Lovable usa proxy Supabase                          |
+| `packages/app/services/auth.ts`               | OTP/JWT reales (no mock)                                                              |
+| `packages/app/services/profile.ts`            | Perfil real                                                                           |
+| `packages/app/stores/useAppStore.ts`          | Store real (sesión, token, setup guest)                                               |
+| `packages/app/hooks/useAuth.ts`               | Hook real sobre el store                                                              |
+| `packages/app/hooks/useProfile.ts`            | Hook real sobre el store                                                              |
+| `packages/app/utils/env.ts`                   | Variables de entorno de producción                                                    |
+| `packages/app/utils/shareUrl.ts`              | URL canónica de compartir (Play Store vs `VITE_PUBLIC_APP_URL`; no `window.location`) |
+| `packages/app/utils/openShareChannel.ts`      | WhatsApp/correo nativos (scheme + WebView); Lovable solo pinta botones                |
+| `packages/app/data/notifications.ts`          | Datos/notificaciones de producción                                                    |
+| `packages/app/utils/i18nProd.ts`              | Overlay de claves i18n propias de producción (§12.4)                                  |
+| `packages/app/utils/postalCodes.ts`           | Lookup de CP real (no el mock suelto de Lovable)                                      |
+| `apps/km0lab/src/contexts/LangContext.tsx`    | Seam de idioma: `setLang` de Lovable → `chooseLang` (§12.5)                           |
+| `apps/km0lab/src/pages/PostalCode.tsx`        | Escribe ubicación con `setLocation`; Lovable usa `localStorage` (§12.5)               |
+| `apps/km0lab/src/pages/Login.tsx`             | Lee CP/town del store para el OTP; Lovable lee `localStorage` (§12.5)                 |
+| `apps/km0lab/src/components/RequireSetup.tsx` | Lockout guest: solo Zustand (`langChosen`, `postalCode`)                              |
+| `apps/km0lab/src/App.tsx`                     | Router + guards de producción; las rutas nuevas se añaden a mano                      |
 
 Nunca se sincronizan (fuera de `files` a propósito):
 
@@ -750,3 +759,64 @@ comm -23 /tmp/antes.txt /tmp/despues.txt   # debe salir vacío
 
 Si sale algo, son claves que Lovable ya no tiene: decide si se han eliminado a
 propósito o si son propias de producción y deben moverse a `i18nProd.ts`.
+
+---
+
+### 12.5. Setup guest: Zustand, no la máquina de Lovable
+
+Hay **dos máquinas de estado** para el funnel idioma → onboarding → CP → Home.
+No se mezclan.
+
+|                      | Lovable (maqueta)                                    | KM0lab (producción)                     |
+| -------------------- | ---------------------------------------------------- | --------------------------------------- |
+| Persistencia         | `localStorage` suelto: `km0_postal_code`, `km0_town` | Zustand persistido en `km0_app`         |
+| Idioma elegido       | `setLang` del context de maqueta                     | `langChosen` vía `chooseLang`           |
+| Ubicación            | esas dos claves                                      | `postalCode` + `town` vía `setLocation` |
+| Candado de pantallas | no existe                                            | `RequireSetup` lee **solo** el store    |
+
+`RequireSetup` (`need="location"`) redirige a `/onboarding` si `postalCode`
+es `null`. No mira `km0_postal_code`. Por eso un `PostalCode` que solo haga
+`localStorage.setItem` deja Home inaccesible.
+
+**Cómo se separó (y cómo no):**
+
+- **Idioma — seam locked.** Las pantallas de Lovable llaman a `useLang().setLang()`.
+  `LangContext.tsx` está locked y traduce esa llamada a `chooseLang()`.
+  `Language.tsx` **sí se sincroniza**: el visual viene de Lovable; la escritura
+  al store la intercepta producción.
+- **Ubicación — no hay seam equivalente.** Lovable escribe `localStorage` a
+  pelo. Un adapter no puede interceptar `setItem`. El `setLocation` de
+  producción tiene que vivir **en la pantalla**. Si `PostalCode.tsx` está en
+  `files` sin `locked`, el próximo `pnpm sync:lovable` restaura el escritor
+  de Lovable y el funnel se rompe (pasó en septiembre de 2026).
+
+Por eso `PostalCode.tsx` y `Login.tsx` están **locked**. Un rediseño visual
+en Lovable se porta a mano: se copia el JSX y se conserva `setLocation` /
+lectura del store. `Language.tsx` no hace falta lockearlo.
+
+`setLocation` en el store también escribe las claves de Lovable (puente
+**unidireccional**, para no romper previews). El camino inverso no existe:
+escribir `km0_postal_code` no rellena Zustand.
+
+**Contrato para el próximo sync:**
+
+1. No quites de `locked` `PostalCode.tsx`, `Login.tsx`, `RequireSetup.tsx`,
+   `App.tsx`, `LangContext.tsx` ni `useAppStore.ts`.
+2. `scripts/sync-lovable.mjs` **no escribe** el archivo si toca
+   `localStorage` `km0_postal_code` / `km0_town` (salvo el store). Si
+   Lovable reintroduce esas claves en `Home.tsx` u otra pantalla, el
+   sync las deja fuera: sustituye la lectura/escritura por `useAppStore`
+   (`postalCode`, `town`, `setLocation`) y reintenta. Hoy `Home.tsx` de
+   Lovable aún lee `km0_town`; hasta que lo quiten, ese archivo no entra
+   por sync.
+3. Tras un rediseño de PostalCode/Login en Lovable: copiar visual a mano,
+   no desbloquear el candado para “traer el archivo entero”.
+
+### 12.6. Compartir: canales nativos en `@km0lab/app`
+
+`ShareChannelList` y `inviteConfig` viven en `files` (visual de Lovable).
+La URL y el intent no: `shareUrl.ts` / `openShareChannel.ts` / `env.ts`
+están locked. El contrato es “solo pinta botones y llama a
+`openShareChannel` / `getShareLink`”. No reintroducir `https://wa.me` +
+`window.open` ni `window.location.origin` a pelo (en Capacitor es
+localhost). Si el sync restaura eso, volver a cablear el helper.

@@ -1,5 +1,5 @@
 {
-  "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas en files: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data). locked: destinos propiedad de producción (implementación real ya conectada); el sync se niega a sobrescribirlos — un path acabado en / bloquea el directorio entero. Nunca se sincronizan: src/integrations/, supabase/, src/design-system/, PreviewAll, DesignSystem, DeviceShell, SimulatedDevice, ScreenFrame, SocialAuthButtons, VoiceRecorder (dependen del harness/integraciones de Lovable o de tipos Web Speech no estándar; solo los usa la preview), src/services/mock/ (auth y profile: sus firmas las implementan los servicios reales locked; scanner: produccion tiene su propia version locked en packages/app/services/mock/scanner.ts porque el mock de Lovable importa @/data/comerciosAdheridos, que vive en la app por depender de assets, y packages/app no puede depender de la app), src/services/apiClient.ts (producción tiene su propia versión con env real y tipado estricto, locked), src/services/eventQueryApi.ts y src/services/types.ts (duplican Evento/QueryResponse de apiSchemas y llaman a Supabase directamente), src/hooks/useAuth.ts, src/hooks/useProfile.ts, src/stores/useAppStore.ts (mocks cuya implementación real vive locked en packages/app), src/contexts/LangContext.tsx (producción tiene su propia versión locked: es el único seam por el que las pantallas cambian de idioma, y debe marcar langChosen vía chooseLang para que RequireSetup deje pasar) y src/hooks/use-toast.ts (shim; la implementación se sincroniza vía components/ui/use-toast.ts).",
+  "$docs": "Manifest de sync de código Lovable → producción. Ver docs/PORTING-FROM-LOVABLE.md §12. Entradas en files: { \"from\": \"src/pages/X.tsx\" } — el destino se deriva del mapping de AGENTS.md §2; \"to\" explícito solo para excepciones (p. ej. data compartido hacia packages/app/data). locked: destinos propiedad de producción (implementación real ya conectada); el sync se niega a sobrescribirlos — un path acabado en / bloquea el directorio entero. Setup guest (idioma + CP): RequireSetup lee Zustand (langChosen, postalCode); LangContext (locked) traduce setLang de Lovable a chooseLang; PostalCode y Login están locked porque escriben/leen ubicación y Lovable usa localStorage suelto (km0_postal_code/km0_town), que producción no honra. Nunca se sincronizan: src/integrations/, supabase/, src/design-system/, PreviewAll, DesignSystem, DeviceShell, SimulatedDevice, ScreenFrame, SocialAuthButtons, VoiceRecorder (dependen del harness/integraciones de Lovable o de tipos Web Speech no estándar; solo los usa la preview), src/services/mock/ (auth y profile: sus firmas las implementan los servicios reales locked; scanner: produccion tiene su propia version locked en packages/app/services/mock/scanner.ts porque el mock de Lovable importa @/data/comerciosAdheridos, que vive en la app por depender de assets, y packages/app no puede depender de la app), src/services/apiClient.ts (producción tiene su propia versión con env real y tipado estricto, locked), src/services/eventQueryApi.ts y src/services/types.ts (duplican Evento/QueryResponse de apiSchemas y llaman a Supabase directamente), src/hooks/useAuth.ts, src/hooks/useProfile.ts, src/stores/useAppStore.ts (mocks cuya implementación real vive locked en packages/app), src/contexts/LangContext.tsx (producción tiene su propia versión locked: es el único seam por el que las pantallas cambian de idioma, y debe marcar langChosen vía chooseLang para que RequireSetup deje pasar) y src/hooks/use-toast.ts (shim; la implementación se sincroniza vía components/ui/use-toast.ts).",
   "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/km0lab-lovable/main",
   "files": [
     { "from": "src/pages/Agenda.tsx" },
@@ -127,7 +127,11 @@
     { "from": "src/lib/postalCodes.ts" }
   ],
   "locked": [
+    "apps/km0lab/src/App.tsx",
+    "apps/km0lab/src/components/RequireSetup.tsx",
     "apps/km0lab/src/contexts/LangContext.tsx",
+    "apps/km0lab/src/pages/Login.tsx",
+    "apps/km0lab/src/pages/PostalCode.tsx",
     "packages/app/services/km0labClient.ts",
     "packages/app/services/apiClient.ts",
     "packages/app/services/auth.ts",
@@ -137,6 +141,8 @@
     "packages/app/hooks/useAuth.ts",
     "packages/app/hooks/useProfile.ts",
     "packages/app/utils/env.ts",
+    "packages/app/utils/shareUrl.ts",
+    "packages/app/utils/openShareChannel.ts",
     "packages/app/data/notifications.ts",
     "packages/app/utils/i18nProd.ts",
     "packages/app/utils/postalCodes.ts"

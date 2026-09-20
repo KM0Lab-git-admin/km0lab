@@ -104,7 +104,10 @@ No se sincronizan nunca (piezas solo-Lovable): `src/integrations/`,
 `DesignSystem`, `Components`) y los componentes `DeviceShell` y
 `SimulatedDevice`. Los destinos listados en `"locked"` del manifest son
 propiedad de producción (implementación real) y el sync se niega a
-sobrescribirlos.
+sobrescribirlos. El funnel guest (idioma + CP) es de Zustand, no del
+`localStorage` de Lovable: ver `docs/PORTING-FROM-LOVABLE.md` §12.5.
+`Language.tsx` se sincroniza (el seam es `LangContext`); `PostalCode.tsx`
+y `Login.tsx` están locked porque escriben/leen ubicación.
 
 La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 `/index.tsx` en producción. La conversión nunca se discute caso a caso.
