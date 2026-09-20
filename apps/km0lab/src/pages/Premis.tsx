@@ -26,6 +26,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import DeviceShell from '@/components/DeviceShell'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
+import RewardCover from '@/components/RewardCover'
 import { useLang } from '@/contexts/LangContext'
 import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
 import { cn } from '@/lib/utils'
@@ -190,10 +191,15 @@ const RewardCard = ({ reward, points, index, onRedeem }: RewardCardProps) => {
           {t(statusChip.key, lang)}
         </span>
 
-        <KindIcon
-          size={56}
-          strokeWidth={1.8}
-          className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
+        <RewardCover
+          imageUrl={reward.imageUrl}
+          fallback={
+            <KindIcon
+              size={56}
+              strokeWidth={1.8}
+              className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
+            />
+          }
         />
       </div>
 

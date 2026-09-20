@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 
 import type { RewardKind } from '@km0lab/app'
 
+import RewardCover from '@/components/RewardCover'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -144,14 +145,19 @@ const RewardsPreview = ({ onSeeAll, className }: RewardsPreviewProps) => {
                   onClick={onSeeAll}
                   aria-label={reward.title}
                   className={cn(
-                    'relative w-full aspect-[16/10] bg-gradient-to-br overflow-hidden text-left flex items-center justify-center',
+                    'relative w-full aspect-hero-cover bg-gradient-to-br overflow-hidden text-left flex items-center justify-center',
                     gradient
                   )}
                 >
-                  <Icon
-                    size={96}
-                    strokeWidth={1.6}
-                    className="text-km0-blue-900/85"
+                  <RewardCover
+                    imageUrl={reward.imageUrl}
+                    fallback={
+                      <Icon
+                        size={96}
+                        strokeWidth={1.6}
+                        className="text-km0-blue-900/85"
+                      />
+                    }
                   />
                   <div
                     aria-hidden

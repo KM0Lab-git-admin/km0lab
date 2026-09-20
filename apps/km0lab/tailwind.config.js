@@ -141,6 +141,9 @@ export default {
         ui: ["'Inter'", 'sans-serif'],
         body: ["'DM Sans'", "'Inter'", 'sans-serif'],
       },
+      aspectRatio: {
+        'hero-cover': '16 / 10',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
