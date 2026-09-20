@@ -5,6 +5,7 @@ import {
   Globe,
   Mail,
   QrCode,
+  Share2,
   Star,
   UserPlus,
   type LucideIcon,
@@ -23,6 +24,7 @@ const ICONS: Record<PointActionIcon, LucideIcon> = {
   mail: Mail,
   'calendar-check': CalendarCheck,
   'clipboard-list': ClipboardList,
+  share: Share2,
 }
 
 const GRADIENT: Record<PointActionIcon, string> = {
@@ -34,6 +36,7 @@ const GRADIENT: Record<PointActionIcon, string> = {
   mail: 'from-km0-yellow-200 to-km0-yellow-400',
   'calendar-check': 'from-km0-teal-200 to-km0-teal-400',
   'clipboard-list': 'from-km0-yellow-200 to-km0-yellow-400',
+  share: 'from-km0-teal-200 to-km0-teal-400',
 }
 
 export interface ActionTypeMarkProps {
