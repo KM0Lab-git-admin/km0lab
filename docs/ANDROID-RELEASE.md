@@ -3,6 +3,23 @@
 Guía para generar un APK de prueba y un AAB firmado publicable en Google Play
 para `apps/km0lab` (Capacitor 7). Solo Android.
 
+## 0. Script único (recomendado)
+
+Una vez hechos los prerrequisitos (§1) y el keystore (§2), todo el flujo se
+ejecuta con un solo comando:
+
+```powershell
+apps\km0lab\scripts\release-android.ps1 -BumpVersion
+```
+
+Hace: build web de producción → `cap sync` → incrementa `versionCode`
+(`-BumpVersion`, necesario en cada subida a Play) → `gradlew bundleRelease
+assembleRelease` firmado → verifica la firma e imprime las rutas del AAB/APK.
+
+Flags: `-SkipBuildWeb` reutiliza el `dist/` actual (más rápido para iterar).
+
+El resto de la guía detalla el proceso manual paso a paso.
+
 ## 1. Prerrequisitos (una vez por máquina)
 
 - **Android Studio** con Android SDK (Platform 35 + Build-Tools 35).
