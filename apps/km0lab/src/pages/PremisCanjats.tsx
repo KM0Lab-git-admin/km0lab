@@ -1,5 +1,15 @@
-import { useAuth } from '@km0lab/app'
-import type { Redemption, RedemptionStatus, RewardKind } from '@km0lab/app'
+import {
+  useAuth,
+  useMyRedemptions,
+  useHomeRewards,
+  isLocalhostApp,
+} from '@km0lab/app'
+import type {
+  Redemption,
+  RedemptionStatus,
+  Reward,
+  RewardKind,
+} from '@km0lab/app'
 import { t, type Lang } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
@@ -14,6 +24,7 @@ import {
   CheckCircle2,
   Copy,
   Check,
+  Loader2,
   type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -21,8 +32,9 @@ import { useNavigate } from 'react-router-dom'
 
 import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
+import RewardCover from '@/components/RewardCover'
 import { useLang } from '@/contexts/LangContext'
-import { REDEMPTIONS } from '@/data/redemptions'
+import { LOCALHOST_REDEMPTION_MOCK } from '@/data/redemptions'
 import { cn } from '@/lib/utils'
 
 /* ─── Filtros ────────────────────────────────────────────── */
@@ -64,6 +76,26 @@ const STATUS_META: Record<
 
 /* ─── Helpers de formato ─────────────────────────────────── */
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
+
+function localhostMockFromCatalog(rewards: Reward[]): Redemption {
+  const pick =
+    rewards.find((r) => r.imageUrl && r.kind === 'voucher') ??
+    rewards.find((r) => Boolean(r.imageUrl)) ??
+    rewards[0]
+  if (!pick) return LOCALHOST_REDEMPTION_MOCK
+  return {
+    ...LOCALHOST_REDEMPTION_MOCK,
+    rewardId: pick.id,
+    rewardTitle: pick.title,
+    rewardDescription: pick.description,
+    rewardCategory: pick.category,
+    rewardKind: pick.kind,
+    costPoints: pick.costPoints,
+    valueLabel: pick.valueLabel,
+    imageUrl: pick.imageUrl,
+    hasImage: Boolean(pick.imageUrl),
+  }
+}
 
 const formatDate = (iso: string, lang: Lang): string => {
   const d = new Date(iso)
@@ -141,31 +173,41 @@ const RedemptionCard = ({
       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
       className="rounded-2xl bg-white border border-km0-blue-100 overflow-hidden shadow-[0_8px_20px_-14px_hsl(var(--km0-blue-900)/0.35)]"
     >
-      {/* Cabecera con icono */}
+      {/* Cabecera: foto del premio o icono + chip estado */}
       <div
         className={cn(
-          'relative h-28 flex items-center justify-center',
+          'relative h-28 flex items-center justify-center overflow-hidden',
           'bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300',
           redemption.status === 'expired' && 'opacity-60'
         )}
       >
+        <RewardCover
+          imageUrl={redemption.imageUrl}
+          fallback={
+            <KindIcon
+              size={48}
+              strokeWidth={1.8}
+              className={cn(
+                'text-km0-blue-900',
+                redemption.status === 'expired' && 'grayscale-[0.4]'
+              )}
+            />
+          }
+        />
         <span
           className={cn(
-            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide flex items-center gap-1',
+            'absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide flex items-center gap-1',
             status.cls
           )}
         >
           <StatusIcon size={12} />
           {t(status.labelKey, lang)}
         </span>
-        <KindIcon
-          size={48}
-          strokeWidth={1.8}
-          className={cn(
-            'text-km0-blue-900',
-            redemption.status === 'expired' && 'grayscale-[0.4]'
-          )}
-        />
+        {redemption.isMock ? (
+          <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-km0-coral-100 text-[10px] font-ui font-bold uppercase tracking-wide text-km0-coral-500">
+            {t('redemptions.mock.badge', lang)}
+          </span>
+        ) : null}
       </div>
 
       {/* Cuerpo */}
@@ -285,6 +327,8 @@ const PremisCanjats = () => {
   const { lang } = useLang()
   const { user } = useAuth()
   const isAuthed = !!user
+  const { redemptions, loading, error } = useMyRedemptions()
+  const { rewards: catalog, loading: catalogLoading } = useHomeRewards()
   const [filter, setFilter] = useState<Filter>('all')
 
   const goToHome = () => navigate('/home')
@@ -294,14 +338,22 @@ const PremisCanjats = () => {
   const goToRewards = () => {}
   const goToActions = () => navigate('/points-actions')
 
-  const sorted = useMemo(
-    () =>
-      [...REDEMPTIONS].sort(
-        (a, b) =>
-          new Date(b.redeemedAt).getTime() - new Date(a.redeemedAt).getTime()
-      ),
-    []
-  )
+  const sorted = useMemo(() => {
+    const waiting =
+      loading ||
+      (isLocalhostApp() && redemptions.length === 0 && catalogLoading)
+    const source = waiting
+      ? []
+      : redemptions.length > 0
+        ? redemptions
+        : isLocalhostApp()
+          ? [localhostMockFromCatalog(catalog)]
+          : []
+    return [...source].sort(
+      (a, b) =>
+        new Date(b.redeemedAt).getTime() - new Date(a.redeemedAt).getTime()
+    )
+  }, [redemptions, loading, catalog, catalogLoading])
 
   const filtered = useMemo(() => {
     if (filter === 'all') return sorted
@@ -380,7 +432,7 @@ const PremisCanjats = () => {
           </section>
 
           {/* Filtros */}
-          <div className="shrink-0 px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <div className="chip-row shrink-0 px-4 pb-2">
             {filters.map((f) => (
               <FilterChip
                 key={f.key}
@@ -393,7 +445,20 @@ const PremisCanjats = () => {
 
           {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <Loader2
+                  className="animate-spin text-km0-blue-700"
+                  aria-label={t('common.loading', lang)}
+                />
+              </div>
+            ) : error ? (
+              <div className="flex h-full items-center justify-center px-6 text-center">
+                <p className="font-body text-sm text-km0-coral-600">
+                  {t('redemptions.empty', lang)}
+                </p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('redemptions.empty', lang)}

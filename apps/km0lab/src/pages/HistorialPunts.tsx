@@ -1,8 +1,9 @@
-import { useAuth, INVITATIONS_MOCK_SUMMARY } from '@km0lab/app'
+import { useAuth, useInviteSummary, usePointsHistory } from '@km0lab/app'
 import { t, type Lang, PointsTransaction, PointsTxType } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
+  Building2,
   ChevronLeft,
   UserPlus,
   Star,
@@ -16,6 +17,7 @@ import {
   Gift as GiftIcon,
   ChevronRight,
   Share2,
+  Loader2,
   type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -24,7 +26,6 @@ import { useNavigate } from 'react-router-dom'
 import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
-import { POINTS_HISTORY } from '@/data/pointsHistory'
 import { cn } from '@/lib/utils'
 
 /* ─── Filtros ────────────────────────────────────────────── */
@@ -67,6 +68,16 @@ const TYPE_META: Record<
     text: 'text-km0-teal-700',
   },
   redeem: { Icon: Tag, ring: 'bg-km0-coral-100', text: 'text-km0-coral-500' },
+  invite_person: {
+    Icon: UserPlus,
+    ring: 'bg-km0-yellow-100',
+    text: 'text-km0-blue-800',
+  },
+  invite_business: {
+    Icon: Building2,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
+  },
 }
 
 /* ─── Agrupación por rango ───────────────────────────────── */
@@ -116,7 +127,7 @@ const TxRow = ({
   lang: Lang
   index: number
 }) => {
-  const meta = TYPE_META[tx.type]
+  const meta = TYPE_META[tx.type] ?? TYPE_META.scan
   const positive = tx.points >= 0
   return (
     <motion.li
@@ -183,6 +194,8 @@ const HistorialPunts = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
+  const { summary: invitationSummary } = useInviteSummary()
+  const { history, loading, error } = usePointsHistory()
   const [filter, setFilter] = useState<Filter>('all')
 
   const isAuthed =
@@ -190,29 +203,13 @@ const HistorialPunts = () => {
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
-  const sorted = useMemo(
-    () =>
-      [...POINTS_HISTORY].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      ),
-    []
-  )
-
-  const { balance, earned, spent } = useMemo(() => {
-    let e = 0
-    let s = 0
-    for (const tx of sorted) {
-      if (tx.points >= 0) e += tx.points
-      else s += -tx.points
-    }
-    return { balance: e - s, earned: e, spent: s }
-  }, [sorted])
+  const { balance, earnedTotal: earned, spentTotal: spent } = history
 
   const filtered = useMemo(() => {
-    if (filter === 'earned') return sorted.filter((tx) => tx.points >= 0)
-    if (filter === 'spent') return sorted.filter((tx) => tx.points < 0)
-    return sorted
-  }, [sorted, filter])
+    if (filter === 'earned') return history.items.filter((tx) => tx.points >= 0)
+    if (filter === 'spent') return history.items.filter((tx) => tx.points < 0)
+    return history.items
+  }, [history.items, filter])
 
   const groups = useMemo(() => {
     const map = new Map<Group, PointsTransaction[]>()
@@ -322,10 +319,10 @@ const HistorialPunts = () => {
                   {t('invites.points.title', lang)}
                 </span>
                 <span className="block font-body text-xs leading-snug text-km0-blue-800/65">
-                  {INVITATIONS_MOCK_SUMMARY.pointsEarned > 0
+                  {invitationSummary.pointsEarned > 0
                     ? t('invites.points.earned', lang).replace(
                         '{points}',
-                        fmtInt(INVITATIONS_MOCK_SUMMARY.pointsEarned)
+                        fmtInt(invitationSummary.pointsEarned)
                       )
                     : t('invites.points.empty', lang)}
                 </span>
@@ -338,7 +335,7 @@ const HistorialPunts = () => {
           </section>
 
           {/* Filtros */}
-          <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
+          <div className="chip-row shrink-0 px-4 pb-2">
             <FilterChip
               active={filter === 'all'}
               onClick={() => setFilter('all')}
@@ -358,7 +355,20 @@ const HistorialPunts = () => {
 
           {/* Lista */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
-            {groups.length === 0 ? (
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <Loader2
+                  className="animate-spin text-km0-blue-700"
+                  aria-label={t('common.loading', lang)}
+                />
+              </div>
+            ) : error ? (
+              <div className="flex h-full items-center justify-center px-6 text-center">
+                <p className="font-body text-sm text-km0-coral-600">
+                  {t('points.history.load_error', lang)}
+                </p>
+              </div>
+            ) : groups.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center px-6">
                 <p className="font-body text-sm text-km0-blue-800/60">
                   {t('points.history.empty', lang)}

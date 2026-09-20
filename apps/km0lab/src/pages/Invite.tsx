@@ -1,4 +1,10 @@
-import { useAuth, useAppStore, t } from '@km0lab/app'
+import {
+  useAuth,
+  useAppStore,
+  t,
+  getMyInviteLink,
+  useInviteRewards,
+} from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import {
   AlertCircle,
@@ -8,7 +14,7 @@ import {
   RefreshCw,
   UserRound,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import BottomTabs from '@/components/BottomTabs'
@@ -18,8 +24,6 @@ import { useLang } from '@/contexts/LangContext'
 import {
   buildInviteLink,
   buildPublicShareLink,
-  getReferralReferenceForUser,
-  INVITE_REWARDS,
   type InviteKind,
 } from '@/data/inviteConfig'
 import { cn } from '@/lib/utils'
@@ -35,6 +39,9 @@ const Invite = () => {
   const { lang } = useLang()
   const town = useAppStore((state) => state.town)
   const [kind, setKind] = useState<InviteKind>('person')
+  const rewards = useInviteRewards()
+  const [code, setCode] = useState<string | null>(null)
+  const [linkFailed, setLinkFailed] = useState(false)
   const forcedState = searchParams.get('state')
 
   const previewAuthed = useMemo(
@@ -52,17 +59,38 @@ const Invite = () => {
 
   const townLabel = town ?? t('share.town_fallback', lang)
 
+  useEffect(() => {
+    if (!user?.id) {
+      setCode(null)
+      setLinkFailed(false)
+      return
+    }
+    let active = true
+    setLinkFailed(false)
+    getMyInviteLink(kind)
+      .then((row) => {
+        if (active) setCode(row.public_code)
+      })
+      .catch(() => {
+        if (active) setLinkFailed(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [user?.id, kind])
+
   /** Enlace personal con atribución (sesión) o enlace público (sin sesión). */
   const link = useMemo(() => {
     if (typeof window === 'undefined') return ''
     if (!userId) return buildPublicShareLink(town, lang)
+    if (!code) return ''
     return buildInviteLink({
       kind,
-      reference: getReferralReferenceForUser(userId),
+      reference: code,
       town,
       lang,
     })
-  }, [userId, kind, town, lang])
+  }, [userId, kind, town, lang, code])
 
   const message = isAuthed
     ? t(
@@ -159,7 +187,7 @@ const Invite = () => {
                 {t(`invite.select.${option}`, lang)}
               </span>
               <span className="shrink-0 rounded-full bg-km0-teal-100 px-2 py-1 font-ui text-xs font-black text-km0-teal-700">
-                +{INVITE_REWARDS[option]} {t('common.points', lang)}
+                +{rewards[option]} {t('common.points', lang)}
               </span>
             </Button>
           )
@@ -169,7 +197,7 @@ const Invite = () => {
       <p className="rounded-xl bg-km0-beige-100 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
         {t(`invite.explain.${kind}`, lang).replace(
           '{points}',
-          String(INVITE_REWARDS[kind])
+          String(rewards[kind])
         )}
       </p>
 
@@ -178,7 +206,12 @@ const Invite = () => {
           {t('invite.channels.title', lang)}
         </h2>
         <div className="mt-2">
-          <ShareChannelList link={link} message={message} subject={subject} />
+          <ShareChannelList
+            link={link}
+            message={message}
+            subject={subject}
+            inviteCode={code}
+          />
         </div>
       </section>
 
@@ -222,18 +255,28 @@ const Invite = () => {
           {t('share.panel.how', lang)}
         </h2>
         <div className="mt-2">
-          <ShareChannelList link={link} message={message} subject={subject} />
+          <ShareChannelList
+            link={link}
+            message={message}
+            subject={subject}
+            inviteCode={code}
+          />
         </div>
       </section>
     </div>
   )
 
   const renderMain = () => {
-    if (loading || forcedState === 'loading') return renderLoading()
-    if (forcedState === 'error') return renderError('invite.error.title')
+    if (
+      loading ||
+      forcedState === 'loading' ||
+      (isAuthed && !link && !linkFailed)
+    )
+      return renderLoading()
+    if (forcedState === 'error' || linkFailed)
+      return renderError('invite.error.title')
     if (forcedState === 'expired')
       return renderError('invite.session.expired.title')
-    if (isAuthed && !link) return renderError('invite.error.title')
     return isAuthed ? renderAuthed() : renderGuest()
   }
 

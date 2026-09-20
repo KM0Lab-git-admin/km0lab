@@ -100,6 +100,20 @@ export const TYPE_TO_KEYS: Record<string, ActionKeys> = {
     descriptionKey: 'points.actions.survey.description',
     icon: 'clipboard-list',
   },
+  invite_person: {
+    id: 'invite_person',
+    typeKey: 'points.actions.type.invite_person',
+    titleKey: 'points.actions.invite_person.title',
+    descriptionKey: 'points.actions.invite_person.description',
+    icon: 'share',
+  },
+  invite_business: {
+    id: 'invite_business',
+    typeKey: 'points.actions.type.invite_business',
+    titleKey: 'points.actions.invite_business.title',
+    descriptionKey: 'points.actions.invite_business.description',
+    icon: 'share',
+  },
 }
 
 const FALLBACK: ActionKeys = {
@@ -110,11 +124,30 @@ const FALLBACK: ActionKeys = {
   icon: 'star',
 }
 
+/** Ledger `type` que completa cada acción de catálogo. */
+const ACTION_TYPE_TO_LEDGER: Record<string, string[]> = {
+  signup: ['welcome', 'signup'],
+  birthday: ['birthday'],
+  qr_scan: ['scan', 'qr_scan'],
+  first_scan: ['first_scan'],
+  scan: ['scan', 'qr_scan'],
+  web_visit: ['web_visit'],
+  web_signup: ['web_signup'],
+  newsletter: ['web_signup'],
+  event: ['event', 'event_signup'],
+  event_signup: ['event', 'event_signup'],
+  custom: ['action', 'custom'],
+  survey: ['action', 'custom'],
+  invite_person: ['invite_person'],
+  invite_business: ['invite_business'],
+}
+
 /** Mapea PointActionOut de API a PointAction de UI (completed=false). */
 export function toPointAction(out: PointActionOut): PointAction {
   const keys = TYPE_TO_KEYS[out.type] ?? FALLBACK
   return {
     id: out.id,
+    apiType: out.type,
     title: out.name?.trim() ?? '',
     description: out.description?.trim() ?? '',
     titleKey: keys.titleKey,
@@ -124,4 +157,31 @@ export function toPointAction(out: PointActionOut): PointAction {
     completed: false,
     icon: keys.icon,
   }
+}
+
+/** Marca completadas las acciones con movimiento positivo en el ledger. */
+export function withCompletedActions(
+  actions: PointAction[],
+  ledger: ReadonlyArray<{ type: string; points: number }>
+): PointAction[] {
+  const earnedByType = new Map<string, number>()
+  for (const item of ledger) {
+    if (item.points <= 0) continue
+    earnedByType.set(
+      item.type,
+      (earnedByType.get(item.type) ?? 0) + item.points
+    )
+  }
+  return actions.map((action) => {
+    const matches = ACTION_TYPE_TO_LEDGER[action.apiType] ?? [action.apiType]
+    const earned = matches.reduce(
+      (sum, type) => sum + (earnedByType.get(type) ?? 0),
+      0
+    )
+    return {
+      ...action,
+      completed: earned > 0,
+      earnedPoints: earned > 0 ? earned : undefined,
+    }
+  })
 }

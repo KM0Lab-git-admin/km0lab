@@ -34,4 +34,6 @@ export interface Redemption {
   expiresAt?: string
   /** Data en què es va completar la validació/lliurament. */
   completedAt?: string
+  /** Mostra de UI local; no existeix en API. */
+  isMock?: boolean
 }

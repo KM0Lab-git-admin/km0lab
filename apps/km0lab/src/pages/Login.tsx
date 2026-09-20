@@ -1,4 +1,4 @@
-import { requestOtp, t, useAppStore } from '@km0lab/app'
+import { requestOtp, t, useAppStore, currentInviteCode } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -22,6 +22,7 @@ const Login = () => {
   const { lang } = useLang()
   const postalCode = useAppStore((s) => s.postalCode) ?? undefined
   const town = useAppStore((s) => s.town) ?? undefined
+  const pendingInvite = useAppStore((s) => s.pendingInvite)
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -33,9 +34,12 @@ const Login = () => {
     }
 
     setSubmitting(true)
+    const inviteCode =
+      currentInviteCode() ?? searchParams.get('ref') ?? undefined
     const { error } = await requestOtp(email.trim(), {
       postal_code: postalCode,
       town,
+      invite_code: inviteCode,
     })
 
     if (error) {
@@ -45,16 +49,14 @@ const Login = () => {
     }
 
     toast.success(t('login.toast_sent', lang))
-    const referralReference = searchParams.get('ref')
     const returnTo =
       searchParams.get('returnTo') ??
-      (searchParams.get('invite') === 'person' ? '/invite' : null)
+      (pendingInvite?.kind === 'business' ? '/business-signup' : null)
     navigate('/check-email', {
       state: {
         email: email.trim(),
         mode: 'login',
         returnTo,
-        referralReference,
       },
     })
   }
@@ -70,7 +72,7 @@ const Login = () => {
         transition={{ duration: 0.4 }}
         className="min-h-full flex flex-col justify-center gap-4"
       >
-        {searchParams.get('ref') && (
+        {(searchParams.get('ref') || pendingInvite || currentInviteCode()) && (
           <p className="mx-auto rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-bold text-km0-teal-700">
             {t('invite.applied', lang)}
           </p>

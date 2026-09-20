@@ -4,5 +4,11 @@
   "outputDirectory": "apps/km0lab/dist",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

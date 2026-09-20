@@ -45,6 +45,13 @@ export interface AppProfile {
   lang: Lang | null
 }
 
+export type PendingInvite = {
+  code: string
+  kind: 'person' | 'business'
+  townId?: string | null
+  townName?: string | null
+}
+
 interface AppState {
   session: AppSession | null
   /** JWT del backend km0lab-api (Bearer). Null si no hay sesión. */
@@ -59,6 +66,7 @@ interface AppState {
   town: string | null
 
   pendingOtp: { email: string; postal_code?: string; town?: string } | null
+  pendingInvite: PendingInvite | null
 
   notificationsLastSeenAt: string | null
 
@@ -70,6 +78,7 @@ interface AppState {
   setSession: (s: AppSession | null) => void
   setToken: (t: string | null) => void
   setPendingOtp: (p: AppState['pendingOtp']) => void
+  setPendingInvite: (p: PendingInvite | null) => void
   /** Actualiza el saldo de puntos del usuario en sesión. */
   setUserPoints: (points: number) => void
 
@@ -116,6 +125,7 @@ export const useAppStore = create<AppState>()(
       postalCode: null,
       town: null,
       pendingOtp: null,
+      pendingInvite: null,
       notificationsLastSeenAt: null,
 
       setLang: (l) => {
@@ -143,6 +153,7 @@ export const useAppStore = create<AppState>()(
       setSession: (s) => set({ session: s }),
       setToken: (t) => set({ token: t }),
       setPendingOtp: (p) => set({ pendingOtp: p }),
+      setPendingInvite: (p) => set({ pendingInvite: p }),
       setUserPoints: (points) =>
         set((state) => {
           if (!state.session) return state
@@ -176,6 +187,7 @@ export const useAppStore = create<AppState>()(
           session: null,
           token: null,
           pendingOtp: null,
+          pendingInvite: null,
           profiles: {},
           lang: 'ca',
           langChosen: false,
@@ -187,7 +199,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'km0_app',
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => persistentStorage),
       partialize: (s) => ({
         session: s.session,
@@ -197,8 +209,21 @@ export const useAppStore = create<AppState>()(
         langChosen: s.langChosen,
         postalCode: s.postalCode,
         town: s.town,
+        pendingInvite: s.pendingInvite,
         notificationsLastSeenAt: s.notificationsLastSeenAt,
       }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Record<string, unknown>
+        const pending =
+          current.pendingInvite ??
+          (p.pendingInvite as typeof current.pendingInvite) ??
+          null
+        return {
+          ...current,
+          ...p,
+          pendingInvite: pending,
+        }
+      },
       migrate: (persisted, version) => {
         const p = persisted as Record<string, unknown>
         let next = { ...p }
@@ -227,6 +252,9 @@ export const useAppStore = create<AppState>()(
               },
             }
           }
+        }
+        if (version < 4) {
+          next = { ...next, pendingInvite: next.pendingInvite ?? null }
         }
         return next
       },

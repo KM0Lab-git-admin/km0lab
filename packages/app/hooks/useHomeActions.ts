@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { listPublicActions } from '../services/points'
+import { listMyPointsHistory, listPublicActions } from '../services/points'
 import { useAppStore } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
-import { toPointAction } from '../utils/pointActionMapper'
+import { toPointAction, withCompletedActions } from '../utils/pointActionMapper'
 
 import type { PointAction } from '../types/points'
 
@@ -24,6 +24,7 @@ export function useHomeActions(): {
 } {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
+  const token = useAppStore((s) => s.token)
   const [actions, setActions] = useState<PointAction[]>([])
   const [loading, setLoading] = useState(Boolean(postalCode))
   const [error, setError] = useState<string | null>(null)
@@ -43,14 +44,26 @@ export function useHomeActions(): {
     setLoading(true)
     setError(null)
 
-    listPublicActions(postalCode, {
-      visibleHome: true,
-      lang,
-      demo: isDemoPostalCode(postalCode),
-    })
-      .then((rows) => {
+    const load = async () => {
+      const rows = await listPublicActions(postalCode, {
+        visibleHome: true,
+        lang,
+        demo: isDemoPostalCode(postalCode),
+      })
+      const mapped = rows.map(toPointAction)
+      if (!token) return mapped
+      try {
+        const history = await listMyPointsHistory()
+        return withCompletedActions(mapped, history.items)
+      } catch {
+        return mapped
+      }
+    }
+
+    load()
+      .then((next) => {
         if (cancelled) return
-        setActions(rows.map(toPointAction))
+        setActions(next)
       })
       .catch((e) => {
         if (!cancelled) {
@@ -65,7 +78,7 @@ export function useHomeActions(): {
     return () => {
       cancelled = true
     }
-  }, [postalCode, lang, tick])
+  }, [postalCode, lang, token, tick])
 
   return { actions, loading, error, reload }
 }

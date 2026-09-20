@@ -15,6 +15,7 @@ import {
   type AppSession,
   type AppUser,
 } from '../stores/useAppStore'
+import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
 import {
   apiFetch,
@@ -78,14 +79,24 @@ export const onAuthChange = (
 
 export const requestOtp = async (
   email: string,
-  metadata?: { postal_code?: string; town?: string }
+  metadata?: {
+    postal_code?: string
+    town?: string
+    invite_code?: string
+  }
 ): Promise<Result> => {
   const trimmed = email.trim()
   if (!trimmed) return { error: { message: 'Email requerido' } }
   try {
+    const inviteCode =
+      metadata?.invite_code?.trim() || currentInviteCode() || undefined
     await apiFetch('/auth/request-otp', {
       method: 'POST',
-      body: { email: trimmed },
+      body: {
+        email: trimmed,
+        postal_code: metadata?.postal_code,
+        invite_code: inviteCode,
+      },
       schema: messageSchema,
     })
     useAppStore.getState().setPendingOtp({ email: trimmed, ...metadata })
@@ -100,12 +111,18 @@ export const verifyOtp = async (
   code: string
 ): Promise<Result> => {
   try {
+    const store = useAppStore.getState()
+    const inviteCode = currentInviteCode()
     const auth = await apiFetch('/auth/verify-otp', {
       method: 'POST',
-      body: { email: email.trim(), code },
+      body: {
+        email: email.trim(),
+        code,
+        invite_code: inviteCode,
+        postal_code: store.postalCode ?? store.pendingOtp?.postal_code,
+      },
       schema: authSchema,
     })
-    const store = useAppStore.getState()
     store.setToken(auth.access_token)
     store.setSession({
       user: {
@@ -161,6 +178,7 @@ export const verifyOtp = async (
       store.setLocation(user.postal_code ?? postal, user.town ?? town)
     }
     store.setPendingOtp(null)
+    clearPendingInvite()
     return { error: null }
   } catch (e) {
     return { error: { message: toMessage(e, 'Código no válido') } }

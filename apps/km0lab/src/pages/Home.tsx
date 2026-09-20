@@ -6,7 +6,9 @@ import {
   useAppStore,
   useFeaturedPromos,
   usePublicRewards,
-  INVITATIONS_MOCK_SUMMARY,
+  useInviteSummary,
+  useUserPoints,
+  persistPendingInvite,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -52,9 +54,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     markAllSeen,
   } = useNotifications()
   const { user, loading: authLoading } = useAuth()
+  const { points: accountPoints } = useUserPoints()
   const { profile } = useProfile()
   const { lang } = useLang()
   const storedTown = useAppStore((s) => s.town)
+  const { summary: invitationSummary, error: inviteSummaryError } =
+    useInviteSummary()
   const navigate = useNavigate()
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
@@ -80,6 +85,15 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const [notifOpen, setNotifOpen] = useState(
     searchParams.get('notifs') === 'open'
   )
+
+  useEffect(() => {
+    const leftover = searchParams.get('ref')
+    const kind =
+      searchParams.get('invite') === 'business' ? 'business' : 'person'
+    if (!leftover) return
+    persistPendingInvite({ code: leftover, kind })
+    navigate(`/i/${leftover}`, { replace: true })
+  }, [searchParams, navigate])
   const [rewardOpen, setRewardOpen] = useState(
     searchParams.get('welcome') === '1'
   )
@@ -156,10 +170,8 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
 
   const cityName = profile?.town || storedTown || 'Malgrat de Mar'
 
-  // Puntos mock: registrado empieza con 100 pts de bienvenida (nivel 1,
-  // barra de progreso al 10% hacia el nivel 2 en 1.000 pts).
-  const points = isAuthed ? 100 : 0
-  const level = isAuthed ? 1 : 1
+  const points = !isAuthed ? 0 : user ? accountPoints : 100
+  const level = Math.max(1, Math.floor(points / 500) + 1)
   const nextLevel = 1000
   const nextReward = isAuthed ? 'Val de 5€ al Forn Rovira' : undefined
 
@@ -190,7 +202,13 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
       navigate('/my-invitations?from=home', {
         state: { invitationOrigin: 'home' },
       }),
-    invitationSummary: isAuthed ? INVITATIONS_MOCK_SUMMARY : null,
+    invitationSummary:
+      isAuthed &&
+      !inviteSummaryError &&
+      (invitationSummary.personsRegistered > 0 ||
+        invitationSummary.businessesRegistered > 0)
+        ? invitationSummary
+        : null,
     showLogin,
     showPoints,
     onSeeAllEvents: () => navigate('/events'),

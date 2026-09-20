@@ -158,6 +158,36 @@ const DP = {
     es: 'Registro al boletín municipal',
     en: 'Sign up to the municipal newsletter',
   } as Dict,
+  'points.actions.invite_person.title': {
+    ca: 'Invitació de veí',
+    es: 'Invitación de vecino',
+    en: 'Neighbour invitation',
+  } as Dict,
+  'points.actions.invite_person.description': {
+    ca: "Alta d'un veí completada des d'una invitació",
+    es: 'Alta de un vecino completada desde una invitación',
+    en: 'Completed neighbour signup from an invitation',
+  } as Dict,
+  'points.actions.invite_business.title': {
+    ca: 'Invitació de comerç',
+    es: 'Invitación de comercio',
+    en: 'Shop invitation',
+  } as Dict,
+  'points.actions.invite_business.description': {
+    ca: "Alta d'un comerç completada des d'una invitació",
+    es: 'Alta de un comercio completada desde una invitación',
+    en: 'Completed shop signup from an invitation',
+  } as Dict,
+  'points.actions.type.invite_person': {
+    ca: 'Invitació',
+    es: 'Invitación',
+    en: 'Invitation',
+  } as Dict,
+  'points.actions.type.invite_business': {
+    ca: 'Invitació comerç',
+    es: 'Invitación comercio',
+    en: 'Shop invitation',
+  } as Dict,
   'rewards.scope.all': {
     ca: 'Tots els comerços adherits',
     es: 'Todos los comercios adheridos',
@@ -280,6 +310,26 @@ const DP = {
     ca: 'Per registrar-te a KM0 LAB',
     es: 'Por registrarte en KM0 LAB',
     en: 'For signing up to KM0 LAB',
+  } as Dict,
+  'points.history.type.invite_person': {
+    ca: 'Invitació de veí',
+    es: 'Invitación de vecino',
+    en: 'Neighbour invitation',
+  } as Dict,
+  'points.history.type.invite_business': {
+    ca: 'Invitació de comerç',
+    es: 'Invitación de comercio',
+    en: 'Business invitation',
+  } as Dict,
+  'points.history.load_error': {
+    ca: "No s'ha pogut carregar l'historial de punts.",
+    es: 'No se ha podido cargar el historial de puntos.',
+    en: 'Could not load points history.',
+  } as Dict,
+  'redemptions.mock.badge': {
+    ca: 'MOCK',
+    es: 'MOCK',
+    en: 'MOCK',
   } as Dict,
   'rewards.load_error': {
     ca: "No s'han pogut carregar els premis del municipi.",

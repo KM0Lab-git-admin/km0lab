@@ -14,6 +14,8 @@ const API_TYPE_TO_TX: Record<string, PointsTxType> = {
   survey: 'survey',
   suggestion: 'suggestion',
   redeem: 'redeem',
+  invite_person: 'invite_person',
+  invite_business: 'invite_business',
 }
 
 const TYPE_TO_CONCEPT: Record<PointsTxType, TKey> = {
@@ -25,6 +27,8 @@ const TYPE_TO_CONCEPT: Record<PointsTxType, TKey> = {
   survey: 'points.history.type.survey',
   suggestion: 'points.history.type.suggestion',
   redeem: 'points.history.type.redeem',
+  invite_person: 'points.history.type.invite_person',
+  invite_business: 'points.history.type.invite_business',
 }
 
 /** Mapea un item del ledger API a PointsTransaction de UI. */
@@ -33,11 +37,13 @@ export function toPointsTransaction(
 ): PointsTransaction {
   const type =
     API_TYPE_TO_TX[item.type] ?? (item.points < 0 ? 'redeem' : 'scan')
-  const place =
-    item.shop_name?.trim() ||
-    item.reward_name?.trim() ||
-    item.title?.trim() ||
-    undefined
+  const isInvite = type === 'invite_person' || type === 'invite_business'
+  const place = isInvite
+    ? undefined
+    : item.shop_name?.trim() ||
+      item.reward_name?.trim() ||
+      item.title?.trim() ||
+      undefined
 
   return {
     id: item.id,

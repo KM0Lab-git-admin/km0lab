@@ -26,11 +26,11 @@ export * from './shopCategories'
 export * from './towns'
 export * from './redemptions'
 export * from './scans'
+export * from './invites'
 export * from './apiSchemas'
 export * from './eventsApi'
 export * from './newsApi'
 export * from './mock/scanner'
-export * from './mock/invitations'
 export * from './mock/businessRegistration'
 export {
   RewardsApiError,

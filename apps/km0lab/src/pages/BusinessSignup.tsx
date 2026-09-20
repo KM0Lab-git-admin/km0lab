@@ -1,4 +1,4 @@
-import { useAuth, t, createBusinessRegistration } from '@km0lab/app'
+import { useAuth, t, publicShopSignup, useAppStore } from '@km0lab/app'
 import {
   Button,
   Checkbox,
@@ -26,8 +26,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
-
-import type { BusinessRegistrationInput } from '@km0lab/app'
 
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
@@ -61,6 +59,8 @@ const BusinessSignup = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
+  const postalCode = useAppStore((s) => s.postalCode)
+  const pendingInvite = useAppStore((s) => s.pendingInvite)
   const [searchParams] = useSearchParams()
   const forced = searchParams.get('state') as ScreenState | null
   const [screenState, setScreenState] = useState<ScreenState>(
@@ -186,23 +186,19 @@ const BusinessSignup = () => {
       return
     }
     setScreenState('ready')
-    const input: BusinessRegistrationInput = {
-      businessName: values.businessName,
-      taxId: values.taxId,
-      category: values.category,
-      description: values.description,
-      website: values.website,
-      address: values.address,
-      town: values.town,
-      contactName: values.contactName,
-      email: values.email,
-      phone: values.phone,
-      acceptedTerms: values.acceptedTerms,
-      logoName,
-      referralReference,
-    }
     try {
-      const result = await createBusinessRegistration(input)
+      const result = await publicShopSignup({
+        name: values.businessName,
+        taxId: values.taxId,
+        categories: values.category ? [values.category] : [],
+        contactEmail: values.email,
+        postalCode: postalCode ?? '',
+        address: values.address,
+        phone: values.phone,
+        website: values.website,
+        description: values.description,
+        inviteCode: pendingInvite?.code ?? referralReference,
+      })
       setScreenState(result.status === 'created' ? 'success' : 'already')
     } catch {
       setScreenState('error')
@@ -243,7 +239,7 @@ const BusinessSignup = () => {
             {t('business.success.cta', lang)}
           </Button>
           <p className="mt-2 font-body text-[11px] text-km0-blue-800/50">
-            {t('business.success.mock_note', lang)}
+            {t('business.success.description', lang)}
           </p>
         </div>
       </BrandedFrame>
@@ -310,11 +306,11 @@ const BusinessSignup = () => {
     >
       <div className="mx-auto w-full max-w-[420px] py-2">
         <header className="text-center">
-          {referralReference && (
-            <span className="inline-flex rounded-full bg-km0-teal-100 px-2.5 py-1 font-ui text-[11px] font-bold text-km0-teal-700">
+          {referralReference || pendingInvite ? (
+            <span className="inline-flex rounded-full bg-km0-teal-100 px-2.5 py-1 font-ui text-xs font-bold text-km0-teal-700">
               {t('invite.applied', lang)}
             </span>
-          )}
+          ) : null}
           <h1 className="mt-2 font-brand text-2xl font-black text-km0-blue-900">
             {t('business.title', lang)}
           </h1>

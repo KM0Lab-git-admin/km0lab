@@ -1,7 +1,6 @@
-import { useAuth } from '@km0lab/app'
+import { useAuth, usePointsActions } from '@km0lab/app'
 import type { PointAction, PointActionIcon } from '@km0lab/app'
 import { t, type Lang } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -16,6 +15,7 @@ import {
   Share2,
   CheckCircle2,
   Circle,
+  Loader2,
   type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -24,8 +24,6 @@ import { useNavigate } from 'react-router-dom'
 import BottomTabs from '@/components/BottomTabs'
 import DeviceShell from '@/components/DeviceShell'
 import { useLang } from '@/contexts/LangContext'
-import { INVITE_REWARDS } from '@/data/inviteConfig'
-import { POINTS_ACTIONS } from '@/data/pointsActions'
 import { cn } from '@/lib/utils'
 
 /* ─── Filtros ────────────────────────────────────────────── */
@@ -41,6 +39,7 @@ const ICONS: Record<PointActionIcon, LucideIcon> = {
   mail: Mail,
   'calendar-check': CalendarCheck,
   'clipboard-list': ClipboardList,
+  share: Share2,
 }
 
 const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
@@ -52,6 +51,7 @@ const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
   mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
   'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
   'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  share: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
 }
 
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
@@ -85,74 +85,86 @@ const ActionRow = ({
   action,
   lang,
   index,
+  onOpen,
 }: {
   action: PointAction
   lang: Lang
   index: number
+  onOpen?: () => void
 }) => {
-  const Icon = ICONS[action.icon]
-  const meta = ICON_META[action.icon]
+  const Icon = ICONS[action.icon] ?? Share2
+  const meta = ICON_META[action.icon] ?? ICON_META.share
+  const title = action.title?.trim() || t(action.titleKey, lang)
+  const description =
+    action.description?.trim() || t(action.descriptionKey, lang)
+  const shownPoints = action.earnedPoints ?? action.points
 
   return (
     <motion.li
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.25) }}
-      className={cn(
-        'flex items-center gap-3 px-3 py-3 bg-white rounded-2xl border border-km0-blue-100',
-        action.completed && 'opacity-80'
-      )}
     >
-      <span
+      <button
+        type="button"
+        onClick={onOpen}
         className={cn(
-          'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
-          meta.ring
+          'flex w-full items-center gap-3 rounded-2xl border border-km0-blue-100 bg-white px-3 py-3 text-left',
+          action.completed && 'opacity-80',
+          onOpen && 'active:scale-[0.99] transition-transform'
         )}
       >
-        <Icon size={20} className={meta.text} strokeWidth={2.2} />
-      </span>
+        <span
+          className={cn(
+            'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
+            meta.ring
+          )}
+        >
+          <Icon size={20} className={meta.text} strokeWidth={2.2} />
+        </span>
 
-      <div className="flex-1 min-w-0">
-        <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-          {t(action.titleKey, lang)}
-        </p>
-        <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-          {t(action.descriptionKey, lang)}
-        </p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-          <span
-            className={cn(
-              'px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
-              'bg-km0-blue-100 text-km0-blue-800'
+        <div className="flex-1 min-w-0">
+          <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
+            {title}
+          </p>
+          <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
+            {description}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn(
+                'px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
+                'bg-km0-blue-100 text-km0-blue-800'
+              )}
+            >
+              {t(action.typeKey, lang)}
+            </span>
+            {action.completed && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-teal-100 text-km0-teal-700 flex items-center gap-1">
+                <CheckCircle2 size={10} strokeWidth={2.4} />
+                {t('points.actions.completed', lang)}
+              </span>
             )}
-          >
-            {t(action.typeKey, lang)}
-          </span>
-          {action.completed && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-teal-100 text-km0-teal-700 flex items-center gap-1">
-              <CheckCircle2 size={10} strokeWidth={2.4} />
-              {t('points.actions.completed', lang)}
-            </span>
-          )}
-          {!action.completed && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-beige-100 text-km0-blue-800 flex items-center gap-1">
-              <Circle size={10} strokeWidth={2.4} />
-              {t('points.actions.pending', lang)}
-            </span>
-          )}
+            {!action.completed && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-beige-100 text-km0-blue-800 flex items-center gap-1">
+                <Circle size={10} strokeWidth={2.4} />
+                {t('points.actions.pending', lang)}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      <span
-        className={cn(
-          'shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums',
-          action.completed
-            ? 'bg-km0-teal-100 text-km0-teal-700'
-            : 'bg-km0-yellow-400/90 text-km0-blue-900'
-        )}
-      >
-        +{fmtInt(action.points)} pts
-      </span>
+        <span
+          className={cn(
+            'shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums',
+            action.completed
+              ? 'bg-km0-teal-100 text-km0-teal-700'
+              : 'bg-km0-yellow-400/90 text-km0-blue-900'
+          )}
+        >
+          +{fmtInt(shownPoints)} pts
+        </span>
+      </button>
     </motion.li>
   )
 }
@@ -162,39 +174,32 @@ const PointsActions = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
+  const { actions, loading, error } = usePointsActions()
   const [filter, setFilter] = useState<Filter>('all')
-  const [loading, setLoading] = useState(true)
 
   const isAuthed =
     !!user ||
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
-  // Simulación de carga para respetar los 4 estados de UI.
-  useMemo(() => {
-    const timer = setTimeout(() => setLoading(false), 300)
-    return () => clearTimeout(timer)
-  }, [])
-
   const { completedCount, pendingCount, totalPoints } = useMemo(() => {
-    const completed = POINTS_ACTIONS.filter((a) => a.completed).length
-    const pending = POINTS_ACTIONS.length - completed
-    const points = POINTS_ACTIONS.filter((a) => !a.completed).reduce(
-      (sum, a) => sum + a.points,
-      0
-    )
+    const completed = actions.filter((a) => a.completed).length
+    const pending = actions.length - completed
+    const points = actions
+      .filter((a) => !a.completed)
+      .reduce((sum, a) => sum + a.points, 0)
     return {
       completedCount: completed,
       pendingCount: pending,
       totalPoints: points,
     }
-  }, [])
+  }, [actions])
 
   const filtered = useMemo(() => {
-    if (filter === 'completed') return POINTS_ACTIONS.filter((a) => a.completed)
-    if (filter === 'pending') return POINTS_ACTIONS.filter((a) => !a.completed)
-    return POINTS_ACTIONS
-  }, [filter])
+    if (filter === 'completed') return actions.filter((a) => a.completed)
+    if (filter === 'pending') return actions.filter((a) => !a.completed)
+    return actions
+  }, [actions, filter])
 
   return (
     <DeviceShell>
@@ -260,7 +265,7 @@ const PointsActions = () => {
           </section>
 
           {/* Filtros */}
-          <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
+          <div className="chip-row shrink-0 px-4 pb-2">
             <FilterChip
               active={filter === 'all'}
               onClick={() => setFilter('all')}
@@ -282,8 +287,15 @@ const PointsActions = () => {
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
             {loading ? (
               <div className="h-full flex items-center justify-center">
-                <p className="font-body text-sm text-km0-blue-800/60">
-                  {t('common.loading', lang)}
+                <Loader2
+                  className="animate-spin text-km0-blue-700"
+                  aria-label={t('common.loading', lang)}
+                />
+              </div>
+            ) : error ? (
+              <div className="h-full flex items-center justify-center text-center px-6">
+                <p className="font-body text-sm text-km0-coral-600">
+                  {t('points.actions.empty', lang)}
                 </p>
               </div>
             ) : filtered.length === 0 ? (
@@ -294,41 +306,18 @@ const PointsActions = () => {
               </div>
             ) : (
               <ul className="flex flex-col gap-3 pt-2">
-                {filter !== 'completed' && (
-                  <li>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate('/invite')}
-                      className="h-auto w-full justify-start gap-3 rounded-2xl border-km0-blue-100 bg-card px-3 py-3 text-left"
-                    >
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-km0-coral-100 text-km0-coral-400">
-                        <Share2 size={20} aria-hidden />
-                      </span>
-                      <span className="min-w-0 flex-1 whitespace-normal">
-                        <span className="block font-ui text-sm font-bold text-km0-blue-900">
-                          {t('invite.title', lang)}
-                        </span>
-                        <span className="mt-0.5 block font-body text-xs font-normal leading-snug text-km0-blue-800/60">
-                          {t('invite.action.description', lang)}
-                        </span>
-                        <span className="mt-1.5 inline-flex rounded-full bg-km0-blue-100 px-2 py-0.5 font-ui text-[10px] font-bold uppercase text-km0-blue-800">
-                          {t('invite.action.type', lang)}
-                        </span>
-                      </span>
-                      <span className="shrink-0 whitespace-normal rounded-full bg-km0-yellow-400/90 px-2 py-1 text-center font-ui text-[10px] font-black text-km0-blue-900">
-                        +{INVITE_REWARDS.person}
-                        <br />+{INVITE_REWARDS.business}
-                      </span>
-                    </Button>
-                  </li>
-                )}
                 {filtered.map((action, i) => (
                   <ActionRow
                     key={action.id}
                     action={action}
                     lang={lang}
                     index={i}
+                    onOpen={
+                      action.apiType === 'invite_person' ||
+                      action.apiType === 'invite_business'
+                        ? () => navigate('/invite')
+                        : undefined
+                    }
                   />
                 ))}
               </ul>

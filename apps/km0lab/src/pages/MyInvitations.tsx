@@ -3,9 +3,8 @@ import {
   t,
   type Lang,
   type TKey,
-  fetchInvitations,
-  summarizeInvitations,
-  type InvitationsVariant,
+  listMyConversions,
+  useInviteSummary,
   type InvitationRecord,
   type InvitationStatus,
 } from '@km0lab/app'
@@ -94,26 +93,22 @@ const MyInvitations = () => {
     points: 'puntos',
     actions: 'actions',
   }
-  const variant: InvitationsVariant =
-    forcedState === 'empty'
-      ? 'empty'
-      : forcedState === 'pending'
-        ? 'pending'
-        : 'default'
 
   const [records, setRecords] = useState<InvitationRecord[] | null>(null)
   const [failed, setFailed] = useState(forcedState === 'error')
   const [filter, setFilter] = useState<Filter>('all')
   const [openId, setOpenId] = useState<string | null>(null)
   const [reloadToken, setReloadToken] = useState(0)
+  const { summary } = useInviteSummary()
 
   useEffect(() => {
     if (forcedState === 'error' || forcedState === 'loading') return
     let active = true
     setRecords(null)
-    fetchInvitations(variant)
+    setFailed(false)
+    listMyConversions()
       .then((data) => {
-        if (active) setRecords(data)
+        if (active) setRecords(forcedState === 'empty' ? [] : data)
       })
       .catch(() => {
         if (active) setFailed(true)
@@ -121,9 +116,7 @@ const MyInvitations = () => {
     return () => {
       active = false
     }
-  }, [variant, forcedState, reloadToken])
-
-  const summary = useMemo(() => summarizeInvitations(records ?? []), [records])
+  }, [forcedState, reloadToken])
 
   const filtered = useMemo(() => {
     const list = records ?? []

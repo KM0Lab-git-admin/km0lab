@@ -427,7 +427,7 @@ const Premis = () => {
 
           {/* Filtros (solo en Premis) */}
           {topTab === 'rewards' && (
-            <div className="shrink-0 px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <div className="chip-row shrink-0 px-4 pb-2">
               <FilterChip
                 active={filter === 'all'}
                 onClick={() => setFilter('all')}

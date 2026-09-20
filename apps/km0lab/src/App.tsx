@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 
+import CaptureInviteFromUrl from '@/components/CaptureInviteFromUrl'
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
@@ -36,6 +37,7 @@ const ScannerSuccess = lazy(() => import('./pages/ScannerSuccess'))
 const ScanDeepLink = lazy(() => import('./pages/ScanDeepLink'))
 const EmailOtpTemplate = lazy(() => import('./pages/EmailOtpTemplate'))
 const Invite = lazy(() => import('./pages/Invite'))
+const InviteLanding = lazy(() => import('./pages/InviteLanding'))
 const MyInvitations = lazy(() => import('./pages/MyInvitations'))
 const BusinessSignup = lazy(() => import('./pages/BusinessSignup'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -50,6 +52,7 @@ export default function App() {
           <Toaster />
           <SonnerToaster />
           <Router>
+            <CaptureInviteFromUrl />
             <TopLoadingBar />
             <Suspense fallback={null}>
               <Routes>
@@ -244,6 +247,7 @@ export default function App() {
                     </RequireSetup>
                   }
                 />
+                <Route path="/i/:code" element={<InviteLanding />} />
                 <Route
                   path="/invite"
                   element={

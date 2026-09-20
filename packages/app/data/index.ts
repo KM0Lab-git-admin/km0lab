@@ -10,3 +10,4 @@
 
 export * from './mockPostalCodes'
 export * from './notifications'
+export * from './inviteConfig'

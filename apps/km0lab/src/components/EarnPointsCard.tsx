@@ -1,4 +1,4 @@
-import { t } from '@km0lab/app'
+import { t, useHomeActions } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   Cake,
@@ -9,6 +9,7 @@ import {
   Mail,
   CalendarCheck,
   ClipboardList,
+  Share2,
   Circle,
   ArrowRight,
   Lock,
@@ -18,7 +19,6 @@ import {
 import type { PointAction, PointActionIcon } from '@km0lab/app'
 
 import { useLang } from '@/contexts/LangContext'
-import { POINTS_ACTIONS } from '@/data/pointsActions'
 import { cn } from '@/lib/utils'
 
 /**
@@ -46,6 +46,7 @@ const ICONS: Record<PointActionIcon, LucideIcon> = {
   mail: Mail,
   'calendar-check': CalendarCheck,
   'clipboard-list': ClipboardList,
+  share: Share2,
 }
 
 const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
@@ -57,6 +58,7 @@ const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
   mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
   'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
   'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
+  share: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
 }
 
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
@@ -68,10 +70,9 @@ const EarnPointsCard = ({
   onLogin,
 }: EarnPointsCardProps) => {
   const { lang } = useLang()
+  const { actions } = useHomeActions()
 
-  const pending: PointAction[] = POINTS_ACTIONS.filter(
-    (a) => !a.completed
-  ).slice(0, 3)
+  const pending: PointAction[] = actions.filter((a) => !a.completed).slice(0, 3)
   const handleSeeAll = locked ? onLogin : onSeeAll
 
   return (
@@ -120,8 +121,11 @@ const EarnPointsCard = ({
         aria-hidden={locked || undefined}
       >
         {pending.map((action, i) => {
-          const Icon = ICONS[action.icon]
-          const meta = ICON_META[action.icon]
+          const Icon = ICONS[action.icon] ?? Share2
+          const meta = ICON_META[action.icon] ?? ICON_META.share
+          const title = action.title?.trim() || t(action.titleKey, lang)
+          const description =
+            action.description?.trim() || t(action.descriptionKey, lang)
           return (
             <motion.li
               key={action.id}
@@ -141,10 +145,10 @@ const EarnPointsCard = ({
 
               <div className="flex-1 min-w-0">
                 <p className="font-ui font-bold text-sm text-km0-blue-900 leading-tight">
-                  {t(action.titleKey, lang)}
+                  {title}
                 </p>
                 <p className="font-body text-xs text-km0-blue-800/60 mt-0.5 leading-snug">
-                  {t(action.descriptionKey, lang)}
+                  {description}
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide bg-km0-blue-100 text-km0-blue-800">

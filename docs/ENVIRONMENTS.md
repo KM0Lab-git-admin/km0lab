@@ -150,7 +150,7 @@ No hace falta tocar aún `app` / `api` / `eventquery` sin `.uat` (prod).
 Variables orientativas:
 
 ```env
-ENVIRONMENT=staging   # staging = demo 123456; production desactiva el bypass
+ENVIRONMENT=staging   # staging = OTP 123456 para demo + Malgrat QA; production lo desactiva
 DB_*            # MySQL de este proyecto Railway (UAT)
 JWT_SECRET      # largo, distinto del local
 CORS_ORIGINS    # https://app.uat.km0lab.com,https://backoffice.uat.km0lab.com,http://localhost:5173
