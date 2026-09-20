@@ -247,7 +247,42 @@ Más adelante: proyecto o rama `main` → `app.km0lab.com` con URLs sin
 
 ---
 
-## 8. Qué no hacer (simplificación)
+## 8. Sincronización de datos Railway ⇄ local
+
+**Regla de oro: el flujo de datos de trabajo es siempre Railway/UAT → local.**
+Ningún script de trabajo escribe en Railway desde local; asi se puede probar
+en local con una copia controlada de datos reales sin riesgo de tocar UAT.
+
+**Excepción explícita (publicación de UAT, decisión humana):**
+`km0lab-api/scripts/sync_to_railway.py`,
+`events-query/scripts/sync_events_db_to_railway.py` y
+`events-query/scripts/upload_images_railway.py` sobrescriben Railway con la BD
+local. Solo se ejecutan al publicar (skill `km0lab-publish-uat` /
+`publish-all.ps1`), nunca como parte del trabajo diario. Los deploys de código
+(push → Vercel/Railway) **no tocan las BDs**: los arranques solo crean tablas
+si faltan (`create_all` / `init_schema_if_needed`, no destructivos).
+
+### Scripts Railway → local (trabajo diario)
+
+| Script                                             | BD          | Qué hace                                                                                                                                                                                 |
+| -------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `km0lab-api/scripts/pull_from_railway.py`          | Back Office | Descarga UNA población (`--postal-code`, `--town` o `--town-id`) de Railway a local: usuarios, puntos, premios, canjes, comercios, historial… Reemplaza solo el ámbito de esa población. |
+| `events-query/scripts/pull_events_from_railway.py` | Event Query | Descarga los últimos N eventos publicados (default 100; `--poblacion`, `--estado`) con horarios, fuentes, categorías e imágenes. Upsert por ID, no destructivo.                          |
+
+Ambos: `--dry-run` para solo leer y resumir, `--yes` para no pedir
+confirmación, y guardas que impiden escribir fuera del MySQL local.
+
+### Ingesta de eventos en UAT
+
+El cron diario de ingesta corre **dentro de Railway** (servicio cron del
+proyecto events-query) leyendo `events-query/scripts/ingest_cron.json`
+(poblaciones, modelo LLM). Detalle completo, trigger manual
+(`POST /api/v1/ingest/run`) y reporte de consumo diario por población en
+`events-query/docs/INGESTION_OPERATIONS.md`.
+
+---
+
+## 9. Qué no hacer (simplificación)
 
 - No crear `dev.km0lab.com` ni un tercer stack “development” remoto.
 - No apuntar la app UAT a `api.km0lab.com` mientras ese host no sea la
@@ -257,7 +292,7 @@ Más adelante: proyecto o rama `main` → `app.km0lab.com` con URLs sin
 
 ---
 
-## 9. Relación con otros docs
+## 10. Relación con otros docs
 
 | Doc                               | Rol                                      |
 | --------------------------------- | ---------------------------------------- |
@@ -270,7 +305,7 @@ Más adelante: proyecto o rama `main` → `app.km0lab.com` con URLs sin
 
 ---
 
-## 10. Decisión cerrada (resumen ejecutivo)
+## 11. Decisión cerrada (resumen ejecutivo)
 
 - **Local** = desarrollo diario.
 - **`develop` → UAT** en km0lab, km0lab-api y events-query.
