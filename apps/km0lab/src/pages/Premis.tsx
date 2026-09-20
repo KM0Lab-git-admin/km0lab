@@ -1,4 +1,4 @@
-import { t, type TKey } from '@km0lab/app'
+import { t, type TKey, useHomeRewards, useUserPoints } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -9,6 +9,7 @@ import {
   Package,
   Coins,
   Tag,
+  Loader2,
   type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -23,9 +24,9 @@ import type {
 import DeviceShell from '@/components/DeviceShell'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
 import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
+import RewardCover from '@/components/RewardCover'
 import { useLang } from '@/contexts/LangContext'
 import { COMERCIOS_DETALL } from '@/data/comerciosAdheridos'
-import { REWARDS } from '@/data/rewards'
 import { cn } from '@/lib/utils'
 
 type TopTab = 'rewards' | 'promos'
@@ -166,33 +167,36 @@ const RewardCard = ({ reward, points, index, onRedeem }: RewardCardProps) => {
           'cursor-pointer active:scale-[0.98] transition-transform'
       )}
     >
-      {/* Cabecera: banda con icono grande + chip estado */}
+      {/* Cabecera: foto del premio o icono + chip estado */}
       <div
         className={cn(
-          'relative h-32 flex items-center justify-center',
+          'relative h-32 flex items-center justify-center overflow-hidden',
           'bg-gradient-to-br from-km0-yellow-100 to-km0-yellow-300',
           dimmed && 'opacity-60'
         )}
       >
-        {/* Chip categoría (top-left) */}
-        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/85 text-[10px] font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
+        <RewardCover
+          imageUrl={reward.imageUrl}
+          className="absolute inset-0 h-full w-full object-cover"
+          fallback={
+            <KindIcon
+              size={56}
+              strokeWidth={1.8}
+              className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
+            />
+          }
+        />
+        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/85 text-xs font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
           {t(CATEGORY_KEY[reward.category], lang)}
         </span>
-        {/* Chip estado (top-right) */}
         <span
           className={cn(
-            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold uppercase tracking-wide',
+            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-ui font-bold uppercase tracking-wide',
             statusChip.cls
           )}
         >
           {t(statusChip.key, lang)}
         </span>
-
-        <KindIcon
-          size={56}
-          strokeWidth={1.8}
-          className={cn('text-km0-blue-900', dimmed && 'grayscale-[0.3]')}
-        />
       </div>
 
       {/* Cuerpo */}
@@ -327,26 +331,26 @@ const PromoCard = ({ row, index }: PromoCardProps) => {
 const Premis = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
-
-  // Demo: saldo de ejemplo alto para visualizar el estado "Pots bescanviar".
-  const [points, setPoints] = useState(2500)
+  const { rewards, loading, error, reload } = useHomeRewards()
+  const { points, setPoints } = useUserPoints()
   const [redeeming, setRedeeming] = useState<Reward | null>(null)
 
   const [searchParams] = useSearchParams()
   const initialTab: TopTab =
     searchParams.get('tab') === 'promos' ? 'promos' : 'rewards'
   const [topTab, setTopTab] = useState<TopTab>(initialTab)
-  const [filter, setFilter] = useState<Filter>('balance')
+  const [filter, setFilter] = useState<Filter>('all')
 
   const categories = useMemo<RewardCategory[]>(() => {
     const set = new Set<RewardCategory>()
-    for (const r of REWARDS) set.add(r.category)
+    for (const r of rewards) set.add(r.category)
     return Array.from(set)
-  }, [])
+  }, [rewards])
 
   const filtered = useMemo(
-    () => REWARDS.filter((r) => r.category === filter),
-    [filter]
+    () =>
+      filter === 'all' ? rewards : rewards.filter((r) => r.category === filter),
+    [filter, rewards]
   )
 
   const promoRows = useMemo<PromoRow[]>(() => {
@@ -424,6 +428,11 @@ const Premis = () => {
           {/* Filtros (solo en Premis) */}
           {topTab === 'rewards' && (
             <div className="shrink-0 px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                label={t('rewards.filter_all', lang)}
+              />
               {categories.map((c) => (
                 <FilterChip
                   key={c}
@@ -444,7 +453,30 @@ const Premis = () => {
           {/* Grid */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pt-1 pb-6">
             {topTab === 'rewards' ? (
-              filtered.length === 0 ? (
+              loading ? (
+                <div className="h-full flex flex-col items-center justify-center gap-2 text-center px-6">
+                  <Loader2
+                    className="animate-spin text-km0-blue-700"
+                    aria-hidden
+                  />
+                  <p className="font-body text-sm text-km0-blue-800/60">
+                    {t('common.loading', lang)}
+                  </p>
+                </div>
+              ) : error ? (
+                <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6">
+                  <p className="font-body text-sm text-km0-coral-600">
+                    {t('rewards.load_error', lang)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={reload}
+                    className="rounded-full bg-km0-blue-800 px-4 py-2 font-ui text-xs font-bold text-white"
+                  >
+                    {t('invite.error.retry', lang)}
+                  </button>
+                </div>
+              ) : filtered.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-center px-6">
                   <p className="font-body text-sm text-km0-blue-800/60">
                     {t('rewards.empty', lang)}
@@ -488,7 +520,7 @@ const Premis = () => {
               currentPoints={points}
               onClose={() => setRedeeming(null)}
               onConfirmed={({ costPoints }) =>
-                setPoints((p) => Math.max(0, p - costPoints))
+                setPoints(Math.max(0, points - costPoints))
               }
             />
           )}
@@ -498,7 +530,7 @@ const Premis = () => {
               currentPoints={points}
               onClose={() => setRedeeming(null)}
               onConfirmed={({ costPoints }) =>
-                setPoints((p) => Math.max(0, p - costPoints))
+                setPoints(Math.max(0, points - costPoints))
               }
             />
           )}
