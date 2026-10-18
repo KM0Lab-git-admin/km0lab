@@ -123,6 +123,7 @@
     --radius: 0.75rem;
     --device-frame-max-width: 26.25rem;
     --device-frame-max-height: 57.5rem;
+    --device-frame-viewport-gap: 1.5rem;
     --shadow-device-frame: 0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3);
 
     /* Sidebar tokens */
@@ -250,13 +251,18 @@
       min-height: 100dvh;
       align-items: center;
       justify-content: center;
+      box-sizing: border-box;
+      padding-block: var(--device-frame-viewport-gap);
     }
 
     html:not(.is-native) .device-frame {
       flex: none;
       width: min(100vw, var(--device-frame-max-width));
       height: min(
-        calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)),
+        calc(
+          100dvh - (2 * var(--device-frame-viewport-gap)) -
+            env(safe-area-inset-top) - env(safe-area-inset-bottom)
+        ),
         var(--device-frame-max-height)
       );
       border-radius: 1.5rem;

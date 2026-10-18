@@ -1,5 +1,7 @@
-import { useNotifications, useAppStore } from '@km0lab/app'
 import {
+  useNotifications,
+  useAppStore,
+  contentPoblacion,
   t,
   type Lang,
   getCategories,
@@ -284,8 +286,10 @@ const Agenda = () => {
   const [price, setPrice] = useState<Price>('todos')
   const [when, setWhen] = useState<WhenKey>('mes')
 
-  // Población elegida por el usuario (CP → población), con fallback.
-  const town = useAppStore((s) => s.town) ?? DEFAULT_TOWN
+  // Demo KM0 hereda el contenido municipal de Malgrat.
+  const storeTown = useAppStore((s) => s.town)
+  const storePostalCode = useAppStore((s) => s.postalCode)
+  const town = contentPoblacion(storePostalCode, storeTown) || DEFAULT_TOWN
 
   // Categorías reales de la API: solo las que tienen eventos activos en
   // esta población (el endpoint ya filtra por Estado='ACTIVO').

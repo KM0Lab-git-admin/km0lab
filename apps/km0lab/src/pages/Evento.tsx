@@ -29,12 +29,18 @@ import { cn } from '@/lib/utils'
  * dónde, descripción completa, organizador, tags, fuente original.
  * ───────────────────────────────────────────────────────────── */
 
-const formatFechaLarga = (iso?: string | null) => {
+const DATE_LOCALE: Record<string, string> = {
+  ca: 'ca-ES',
+  es: 'es-ES',
+  en: 'en-GB',
+}
+
+const formatFechaLarga = (iso: string | null | undefined, lang: string) => {
   if (!iso) return ''
   const d = new Date(iso.length === 10 ? `${iso}T00:00:00` : iso)
   if (Number.isNaN(d.getTime())) return iso
   return d
-    .toLocaleDateString('es-ES', {
+    .toLocaleDateString(DATE_LOCALE[lang] ?? 'ca-ES', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -46,15 +52,16 @@ const formatFechaLarga = (iso?: string | null) => {
 const formatHora = (t?: string | null) => (t ? t.slice(0, 5) : '')
 
 const formatRango = (
-  fInicio?: string | null,
-  fFin?: string | null,
-  hInicio?: string | null,
-  hFin?: string | null
+  fInicio: string | null | undefined,
+  fFin: string | null | undefined,
+  hInicio: string | null | undefined,
+  hFin: string | null | undefined,
+  lang: string
 ) => {
   const fecha =
     fInicio && fFin && fInicio !== fFin
-      ? `${formatFechaLarga(fInicio)} → ${formatFechaLarga(fFin)}`
-      : formatFechaLarga(fInicio ?? fFin ?? null)
+      ? `${formatFechaLarga(fInicio, lang)} → ${formatFechaLarga(fFin, lang)}`
+      : formatFechaLarga(fInicio ?? fFin ?? null, lang)
   const hi = formatHora(hInicio)
   const hf = formatHora(hFin)
   const hora = hi ? (hf ? `${hi} – ${hf}` : hi) : ''
@@ -253,7 +260,8 @@ const EventoDetalle = ({
                 h.fechaInicio,
                 h.fechaFin,
                 h.horaInicio,
-                h.horaFin
+                h.horaFin,
+                lang
               )
               if (!fecha && !hora) return null
               return (

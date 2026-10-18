@@ -15,21 +15,24 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useProfile } from '../hooks/useProfile'
 import { listNews, type Noticia } from '../services/newsApi'
 import { useAppStore } from '../stores/useAppStore'
+import { contentPoblacion } from '../utils/demoTown'
 
 export interface NotificationItem {
   noticia: Noticia
   read: boolean
 }
 
-const DEFAULT_CITY = 'Malgrat de Mar'
-
 export const useNotifications = () => {
   const { profile } = useProfile()
   const storeTown = useAppStore((s) => s.town)
+  const storePostalCode = useAppStore((s) => s.postalCode)
   const lastSeenAt = useAppStore((s) => s.notificationsLastSeenAt)
   const markNotificationsSeen = useAppStore((s) => s.markNotificationsSeen)
 
-  const city = profile?.town || storeTown || DEFAULT_CITY
+  const city = contentPoblacion(
+    profile?.postal_code ?? storePostalCode,
+    profile?.town || storeTown
+  )
 
   const [noticias, setNoticias] = useState<Noticia[]>([])
   const [loading, setLoading] = useState<boolean>(true)

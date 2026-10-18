@@ -265,16 +265,16 @@ const D = {
     en: 'ENTER YOUR POSTAL CODE',
   } as Dict,
   'postal.subtitle': {
-    ca: 'Descobreix comerços i serveis al teu barri',
-    es: 'Descubre comercios y servicios en tu barrio',
-    en: 'Discover shops and services in your neighborhood',
+    ca: 'Per a la demo, utilitza el codi 00000',
+    es: 'Para la demo, utiliza el código 00000',
+    en: 'For the demo, use postal code 00000',
   } as Dict,
   'postal.image_alt': {
     ca: "Maqueta isomètrica d'una plaça mediterrània amb font, comerços i ajuntament",
     es: 'Maqueta isométrica de una plaza mediterránea con fuente, comercios y ayuntamiento',
     en: 'Isometric model of a Mediterranean square with a fountain, shops and town hall',
   } as Dict,
-  'postal.placeholder': { ca: '08380', es: '08380', en: '08380' } as Dict,
+  'postal.placeholder': { ca: '00000', es: '00000', en: '00000' } as Dict,
   'postal.error_numeric': {
     ca: 'Només es permeten números',
     es: 'Solo se permiten números',

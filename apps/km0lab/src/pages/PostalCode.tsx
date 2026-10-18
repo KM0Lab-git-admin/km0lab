@@ -1,4 +1,4 @@
-import { lookupTown, t, useAppStore } from '@km0lab/app'
+import { DEMO_POSTAL_CODE, lookupTown, t, useAppStore } from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -7,13 +7,14 @@ import { useNavigate } from 'react-router-dom'
 import postalCodeMapAsset from '@/assets/postal-code-map.png.asset.json'
 import BrandedFrame from '@/components/BrandedFrame'
 import { useLang } from '@/contexts/LangContext'
+import { cn } from '@/lib/utils'
 
 const PostalCode = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const setLocation = useAppStore((s) => s.setLocation)
 
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(DEMO_POSTAL_CODE)
   const [touched, setTouched] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [validationResult, setValidationResult] = useState<
@@ -26,6 +27,7 @@ const PostalCode = () => {
   const cityName = validationResult === 'found' ? resolvedTown : null
   const showError = touched && !isNumeric
   const showNotFound = validationResult === 'not_found'
+  const isHintValue = !touched && value === DEMO_POSTAL_CODE
 
   useEffect(() => {
     if (!isComplete) {
@@ -51,6 +53,13 @@ const PostalCode = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value)
     if (!touched) setTouched(true)
+  }
+
+  const handleFocus = () => {
+    if (!touched && value === DEMO_POSTAL_CODE) {
+      setValue('')
+      setTouched(true)
+    }
   }
 
   const handleSubmit = () => {
@@ -143,7 +152,11 @@ const PostalCode = () => {
               placeholder={t('postal.placeholder', lang)}
               value={value}
               onChange={handleChange}
-              className="flex-1 bg-transparent font-ui text-lg text-foreground placeholder:text-muted-foreground/50 outline-none"
+              onFocus={handleFocus}
+              className={cn(
+                'flex-1 bg-transparent font-ui text-lg placeholder:text-muted-foreground/50 outline-none',
+                isHintValue ? 'text-muted-foreground/50' : 'text-foreground'
+              )}
             />
           </div>
           {showError && (

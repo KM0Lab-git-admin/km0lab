@@ -186,17 +186,19 @@ const RewardCard = ({ reward, points, index, onRedeem }: RewardCardProps) => {
             />
           }
         />
-        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/85 text-xs font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
-          {t(CATEGORY_KEY[reward.category], lang)}
-        </span>
-        <span
-          className={cn(
-            'absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-ui font-bold uppercase tracking-wide',
-            statusChip.cls
-          )}
-        >
-          {t(statusChip.key, lang)}
-        </span>
+        <div className="absolute top-2 inset-x-2 flex flex-wrap gap-1">
+          <span className="max-w-full truncate px-2 py-0.5 rounded-full bg-white/85 text-xs font-ui font-bold text-km0-blue-800 uppercase tracking-wide">
+            {t(CATEGORY_KEY[reward.category], lang)}
+          </span>
+          <span
+            className={cn(
+              'max-w-full truncate px-2 py-0.5 rounded-full text-xs font-ui font-bold uppercase tracking-wide',
+              statusChip.cls
+            )}
+          >
+            {t(statusChip.key, lang)}
+          </span>
+        </div>
       </div>
 
       {/* Cuerpo */}
