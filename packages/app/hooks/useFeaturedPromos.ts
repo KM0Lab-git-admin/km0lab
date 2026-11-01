@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import { listEvents, type AgendaEvent } from '../services/eventsApi'
+import {
+  categoryLabel,
+  getCategories,
+  listEvents,
+  type AgendaEvent,
+} from '../services/eventsApi'
 import { useAppStore } from '../stores/useAppStore'
 
 import type { Promo } from '../types/promo'
@@ -49,7 +54,8 @@ function formatDateRange(ev: AgendaEvent, lang: 'es' | 'ca' | 'en'): string {
 function toPromo(
   ev: AgendaEvent,
   index: number,
-  lang: 'es' | 'ca' | 'en'
+  lang: 'es' | 'ca' | 'en',
+  catalog: { slug: string; nombre_es: string; nombre_cat: string }[]
 ): Promo {
   return {
     id: ev.id_unico_evento,
@@ -57,7 +63,7 @@ function toPromo(
     dateRange: formatDateRange(ev, lang),
     location: ev.lugar_nombre || ev.poblacion_nombre || '',
     badge: {
-      text: ev.categorias?.[0] ?? '',
+      text: categoryLabel(ev, lang, catalog),
       bg: 'bg-km0-blue-700',
       text_color: 'text-white',
     },
@@ -80,16 +86,19 @@ export function useFeaturedPromos(limit = 4): {
     let cancelled = false
     setLoading(true)
     setError(null)
-    listEvents({
-      pageSize: limit,
-      page: 1,
-      lang: lang === 'ca' ? 'ca' : 'es',
-    })
-      .then((res) => {
+    Promise.all([
+      listEvents({
+        pageSize: limit,
+        page: 1,
+        lang: lang === 'ca' ? 'ca' : 'es',
+      }),
+      getCategories().catch(() => []),
+    ])
+      .then(([res, catalog]) => {
         if (cancelled) return
         const mapped = (res.eventos ?? [])
           .slice(0, limit)
-          .map((ev, i) => toPromo(ev, i, lang))
+          .map((ev, i) => toPromo(ev, i, lang, catalog))
         setPromos(mapped)
       })
       .catch((e) => {

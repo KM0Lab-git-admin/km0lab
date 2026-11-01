@@ -6,7 +6,9 @@ import {
   type Lang,
   getCategories,
   listEvents,
+  categoryLabel,
   type AgendaEvent as Evento,
+  type Category,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { useQuery } from '@tanstack/react-query'
@@ -166,15 +168,17 @@ const formatTime = (t?: string) => (t ? t.slice(0, 5) : '')
 /* ─── Tarjeta de evento ─────────────────────────────────────── */
 const EventListCard = ({
   evento,
+  categories,
   onOpen,
 }: {
   evento: Evento
+  categories: Category[]
   onOpen: (id: string) => void
 }) => {
   const { lang } = useLang()
   const time = formatTime(evento.hora_inicio ?? undefined)
   const timeEnd = formatTime(evento.hora_fin ?? undefined)
-  const cat = evento.categorias?.[0]
+  const cat = categoryLabel(evento, lang, categories) || undefined
   const dateLabel = evento.fecha_inicio
     ? new Date(evento.fecha_inicio).toLocaleDateString(LOCALE_FOR[lang], {
         day: 'numeric',
@@ -631,6 +635,7 @@ const Agenda = () => {
                   <EventListCard
                     key={e.id_unico_evento}
                     evento={e}
+                    categories={apiCategories}
                     onOpen={(id) =>
                       navigate(`/event?id=${encodeURIComponent(id)}`)
                     }

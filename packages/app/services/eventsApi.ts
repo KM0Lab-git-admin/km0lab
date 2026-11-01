@@ -93,6 +93,16 @@ function toAbsoluteImage(url?: string | null): string | null {
 function adaptListEvent(item: EventsListItem, lang: 'es' | 'ca'): AgendaEvent {
   const pick = (es?: string | null, ca?: string | null) =>
     (lang === 'ca' ? (ca ?? es) : (es ?? ca)) ?? ''
+  const nombresEs = item.categorias_nombres ?? []
+  const nombresCa = item.categorias_nombres_cat ?? []
+  const nombres =
+    lang === 'ca'
+      ? nombresCa.length
+        ? nombresCa
+        : nombresEs
+      : nombresEs.length
+        ? nombresEs
+        : nombresCa
   return {
     id_unico_evento: item.id,
     titulo: pick(item.titulo_es, item.titulo_cat),
@@ -104,12 +114,24 @@ function adaptListEvent(item: EventsListItem, lang: 'es' | 'ca'): AgendaEvent {
     precio_euros: item.precio ?? null,
     poblacion_nombre: item.poblacion ?? null,
     lugar_nombre: item.lugar ?? null,
-    categorias: item.categorias_nombres?.length
-      ? item.categorias_nombres
-      : item.categorias,
+    categorias: nombres.length ? nombres : item.categorias,
     tags: item.categorias,
     url_imagen: toAbsoluteImage(item.imagen_url),
   }
+}
+
+/** Nombre visible de la primera categoría, en el idioma de la app.
+ * El catálogo (GET /categories) manda: el listado histórico solo traía
+ * `categorias_nombres` en castellano. */
+export function categoryLabel(
+  evento: Pick<AgendaEvent, 'tags' | 'categorias'>,
+  lang: 'es' | 'ca' | 'en',
+  catalog: { slug: string; nombre_es: string; nombre_cat: string }[] = []
+): string {
+  const slug = evento.tags?.[0]
+  const row = slug ? catalog.find((c) => c.slug === slug) : undefined
+  if (row) return lang === 'ca' ? row.nombre_cat : row.nombre_es
+  return evento.categorias?.[0] ?? ''
 }
 
 export interface ListEventsParams {

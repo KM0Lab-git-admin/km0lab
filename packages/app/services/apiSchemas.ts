@@ -152,6 +152,7 @@ export const eventsListItemSchema = z.object({
   hora_inicio: z.string().nullish(),
   categorias: z.array(z.string()).default([]),
   categorias_nombres: z.array(z.string()).default([]),
+  categorias_nombres_cat: z.array(z.string()).default([]),
   es_familia: z.boolean().nullish(),
   actividades: z.array(z.unknown()).nullish(),
   imagenes: z.array(eventImagenSchema).default([]),
