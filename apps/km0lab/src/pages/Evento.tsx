@@ -321,6 +321,18 @@ const EventoDetalle = ({
           </section>
         )}
 
+        {ev.fuenteUrl && (
+          <a
+            href={ev.fuenteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1 font-ui text-xs font-bold text-km0-coral-500 underline underline-offset-4 active:scale-95 transition-transform"
+          >
+            {t('news.detail.source', lang)}
+            <ExternalLink size={12} />
+          </a>
+        )}
+
         {/* Organizador */}
         {ev.organizador && (
           <section className="bg-white border border-km0-blue-100 rounded-2xl p-3">
@@ -370,26 +382,15 @@ const EventoDetalle = ({
         )}
       </div>
 
-      {/* CTA sticky */}
-      {ev.fuenteUrl && (
-        <div className="px-4 pb-3 pt-2 shrink-0 bg-km0-beige-50/95 backdrop-blur border-t border-km0-blue-100 flex gap-2">
-          <a
-            href={ev.fuenteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 h-11 rounded-full font-ui font-bold text-sm inline-flex items-center justify-center gap-1.5 active:scale-95 transition-transform bg-km0-blue-900 text-white"
-          >
-            <ExternalLink size={14} /> {t('event.source', lang)}
-          </a>
-          <button
-            onClick={share}
-            className="w-11 h-11 rounded-full bg-white border border-km0-blue-200 text-km0-blue-900 inline-flex items-center justify-center active:scale-95 shrink-0"
-            aria-label="Compartir"
-          >
-            <Share2 size={16} />
-          </button>
-        </div>
-      )}
+      <div className="px-4 pb-3 pt-2 shrink-0 bg-km0-beige-50/95 backdrop-blur border-t border-km0-blue-100 flex justify-end">
+        <button
+          onClick={share}
+          className="w-11 h-11 rounded-full bg-white border border-km0-blue-200 text-km0-blue-900 inline-flex items-center justify-center active:scale-95 shrink-0"
+          aria-label="Compartir"
+        >
+          <Share2 size={16} />
+        </button>
+      </div>
     </div>
   )
 }

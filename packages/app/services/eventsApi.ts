@@ -274,7 +274,7 @@ export async function getEvento(
     direccion: raw.direccion ?? null,
     organizador: raw.organizador ?? null,
     organizadorWeb: raw.organizador_web ?? null,
-    fuenteUrl: raw.link_entradas_inscripcion ?? null,
+    fuenteUrl: raw.fuente_url_original ?? null,
     esGratuito: raw.es_gratuito ?? false,
     precio: raw.precio ?? null,
     esFamilia: raw.es_familia ?? false,

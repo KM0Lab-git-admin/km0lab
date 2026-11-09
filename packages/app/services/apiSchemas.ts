@@ -215,6 +215,7 @@ export const eventoDetailSchema = z.object({
   tags_cat: z.array(z.string()).default([]),
   estado: z.string().nullish(),
   fecha_creacion: z.string().nullish(),
+  fuente_url_original: z.string().nullish(),
   link_entradas_inscripcion: z.string().nullish(),
   requiere_inscripcion: z.boolean().nullish(),
   horarios: z.array(horarioSchema).default([]),
