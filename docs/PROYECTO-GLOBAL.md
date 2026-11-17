@@ -123,7 +123,7 @@ de cada frontend. El backend solo persiste **datos**.
 | Repo                | Lenguaje / framework                                  | UI                                              | Datos / estado                                    | Paquetes                    |
 | ------------------- | ----------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- | --------------------------- |
 | `km0lab` (app)      | Vite + **React 19** + TypeScript ~5.9 + **Capacitor** | Tailwind v3 + shadcn/ui + Radix + Framer Motion | React Query · Zustand · XState · RHF + Zod        | **pnpm** + Turbo (monorepo) |
-| `km0lab-backoffice` | **TanStack Start + Router** + React 19 + TS           | Tailwind **v4** + shadcn/ui                     | React Query · Zustand · RHF + Zod                 | **bun**                     |
+| `km0lab-backoffice` | **TanStack Start + Router** + React 19 + TS           | Tailwind **v4** + shadcn/ui                     | React Query · Zustand · RHF + Zod                 | **npm**                     |
 | `km0lab-web`        | Vite + React + TS                                     | Tailwind + shadcn/ui                            | RHF + Zod                                         | npm/bun                     |
 | `km0lab-api`        | **FastAPI** (Python 3.11)                             | —                                               | SQLAlchemy 2.0 async + aiomysql · Alembic         | pip                         |
 | `events-query`      | **FastAPI** (Python 3.11)                             | —                                               | aiomysql · **OpenAI** (GPT-4.1-mini + embeddings) | pip                         |
@@ -145,7 +145,7 @@ esta.**
         │                                       │
         ▼                                       ▼
 4. Implementación real          ←  3. Sincronización mecánica al repo de prod
-   (auth, BD, lógica de negocio)    (pnpm/bun sync:lovable)
+   (auth, BD, lógica de negocio)    (pnpm/npm sync:lovable)
 ```
 
 1. **Se diseña en Lovable.** Todo lo visual (pantallas, componentes, layout,
@@ -239,11 +239,11 @@ un store de sesión; las rutas están guardadas por rol.
 
 **Stack:** TanStack Start + Router (routing por fichero, `routeTree.gen.ts`
 autogenerado), React 19, Tailwind **v4**, shadcn/ui, Zustand, React Query, RHF +
-Zod. Gestor de paquetes **bun**.
+Zod. Gestor de paquetes **npm**.
 
 ```bash
-bun install
-bun run dev
+npm install
+npm run dev
 ```
 
 > Reglas de dominio y contrato completo: `km0lab-backoffice/docs/KNOWLEDGE.md`.

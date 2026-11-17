@@ -30,7 +30,10 @@ cap:add:ios`.
 - Tema web (Next.js/Vite): **`@km0lab/web-theme`** →
   `packages/km0lab-web-theme` (en uso para back-office cuando se
   active).
-- Solo existen entornos `development` y `production`.
+- Modos de build de Vite: solo `development` y `production`
+  (`apps/km0lab/env/`). Entornos de despliegue: tres, **local**, **UAT**
+  (`develop`) y **producción** (`main`); UAT y producción se distinguen por
+  las variables `VITE_*`, no por un tercer modo. Ver `docs/ENVIRONMENTS.md`.
 
 Comandos estándar (siempre desde la raíz del monorepo):
 
@@ -402,5 +405,7 @@ se perderá en la próxima ejecución.
   bundle, mantenimiento). Preferir lo que ya existe.
 - No mezclar sistemas de estilos (p. ej. StyleSheet.create + Tailwind).
 - No usar colores en hex o rgb en el markup; siempre tokens.
-- No romper la regla de solo dos entornos (`development`, `production`).
+- No añadir un tercer modo de build de Vite (solo `development` y
+  `production`) ni un entorno desplegado más allá de UAT y producción
+  (`docs/ENVIRONMENTS.md`).
 - No crear documentación nueva en `.md` si no se pide.

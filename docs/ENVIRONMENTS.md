@@ -294,14 +294,14 @@ proyecto events-query) leyendo `events-query/scripts/ingest_cron.json`
 
 ## 10. Relación con otros docs
 
-| Doc                               | Rol                                      |
-| --------------------------------- | ---------------------------------------- |
-| `docs/BACKEND.md`                 | Modelo de datos y auth OTP               |
-| `docs/START-HERE-AI.md`           | Onboarding agentes / repos               |
-| `AGENTS.md`                       | Reglas de agentes (actualizar si el repo |
-|                                   | pasa de 2 a 3 entornos de despliegue)    |
-| `events-query/docs/DEPLOYMENT.md` | Detalle deploy events-query              |
-| `km0lab-api/README.md`            | Stack y vars de la API de usuarios       |
+| Doc                               | Rol                                   |
+| --------------------------------- | ------------------------------------- |
+| `docs/BACKEND.md`                 | Modelo de datos y auth OTP            |
+| `docs/START-HERE-AI.md`           | Onboarding agentes / repos            |
+| `AGENTS.md`                       | Reglas de agentes (§1: modos de build |
+|                                   | frente a entornos de despliegue)      |
+| `events-query/docs/DEPLOYMENT.md` | Detalle deploy events-query           |
+| `km0lab-api/README.md`            | Stack y vars de la API de usuarios    |
 
 ---
 

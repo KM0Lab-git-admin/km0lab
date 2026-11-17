@@ -48,8 +48,9 @@ pnpm --filter km0lab cap:add:ios
 pnpm --filter km0lab cap:sync
 ```
 
-Entornos en `apps/km0lab/env/` (`.env.development`, `.env.production`). Solo
-existen esos dos entornos.
+Modos de build en `apps/km0lab/env/` (`.env.development`, `.env.production`):
+solo esos dos. Los entornos de despliegue son tres (local, UAT desde
+`develop` y producción desde `main`); ver `docs/ENVIRONMENTS.md`.
 
 ## Technology Stack
 
