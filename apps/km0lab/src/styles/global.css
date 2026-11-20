@@ -245,11 +245,12 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Prohibido scroll horizontal en la app (chips, tablas, overflow accidental). */
-  .overflow-x-auto,
-  .overflow-x-scroll {
-    overflow-x: hidden;
-  }
+  /*
+   * Los carriles horizontales (carruseles de la principal, filtro de
+   * poblaciones) se desplazan con el dedo: `overflow-x-auto` tiene que
+   * conservar su efecto. El desbordamiento accidental de la página lo
+   * cortan html, body, #root y el marco, más arriba.
+   */
 
   /*
    * Halo azul del marco: solo desktop/tablet en navegador.
