@@ -12,6 +12,7 @@
  * `@/data/fixtures/news.json` (sintética, mismo shape).
  */
 import { apiFetch } from '../services/apiClient'
+import { absolutizeEventsAsset } from '../services/eventsAssets'
 import {
   newsListResponseSchema,
   newsDetailResponseSchema,
@@ -30,14 +31,6 @@ export interface Noticia {
   fechaPublicacion: string | null
   imagenUrl: string | null
   fuenteUrl: string | null
-}
-
-const NEWS_ASSET_BASE = 'https://eventquery.uat.km0lab.com'
-
-function absolutizeImageUrl(url?: string | null): string | null {
-  if (!url) return null
-  if (/^https?:\/\//i.test(url)) return url
-  return `${NEWS_ASSET_BASE}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
 function porIdioma(
@@ -60,7 +53,7 @@ export function adaptNoticia(item: NewsItem): Noticia {
       en: item.tags_es,
     },
     fechaPublicacion: item.fecha_publicacion ?? null,
-    imagenUrl: absolutizeImageUrl(item.imagen_principal_url),
+    imagenUrl: absolutizeEventsAsset(item.imagen_principal_url),
     fuenteUrl: item.fuente_url_original ?? null,
   }
 }

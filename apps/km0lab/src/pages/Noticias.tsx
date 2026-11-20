@@ -1,5 +1,12 @@
 import { useNotifications } from '@km0lab/app'
-import { t, type Lang, listNews, type Noticia } from '@km0lab/app'
+import {
+  contentPoblacion,
+  listNews,
+  t,
+  useAppStore,
+  type Lang,
+  type Noticia,
+} from '@km0lab/app'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -234,6 +241,9 @@ const Noticias = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { lang } = useLang()
   const { hasUnread, markAllRead } = useNotifications()
+  const storeTown = useAppStore((s) => s.town)
+  const storePostalCode = useAppStore((s) => s.postalCode)
+  const town = contentPoblacion(storePostalCode, storeTown) || 'Malgrat de Mar'
 
   const forced = parseForcedState(searchParams.get('state'))
   const openId = searchParams.get('id')
@@ -262,7 +272,7 @@ const Noticias = () => {
     }
 
     let cancelled = false
-    listNews({ city: 'Malgrat de Mar', limit: 20, offset: 0 })
+    listNews({ city: town, limit: 20, offset: 0 })
       .then((res) => {
         if (!cancelled) setNoticias(res.noticias)
       })
@@ -276,7 +286,7 @@ const Noticias = () => {
     return () => {
       cancelled = true
     }
-  }, [forced])
+  }, [forced, town])
 
   useEffect(() => {
     const cleanup = load()
@@ -308,7 +318,7 @@ const Noticias = () => {
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
       <div className="-mx-4 -mt-2 shrink-0">
         <HomeHero
-          cityName="Malgrat de Mar"
+          cityName={town}
           hasAlerts={hasUnread}
           onToggleAlerts={markAllRead}
           onBack={() => navigate('/home')}
