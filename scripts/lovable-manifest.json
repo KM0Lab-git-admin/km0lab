@@ -8,6 +8,7 @@
     "apps/km0lab/src/components/DeviceShell.tsx",
     "apps/km0lab/src/components/RequireAuth.tsx",
     "apps/km0lab/src/components/RequireSetup.tsx",
+    "apps/km0lab/src/components/UpdateRequired.tsx",
     "apps/km0lab/src/contexts/LangContext.tsx",
     "apps/km0lab/src/pages/CheckEmail.tsx",
     "apps/km0lab/src/pages/InviteLanding.tsx",

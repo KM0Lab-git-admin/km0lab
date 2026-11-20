@@ -41,6 +41,32 @@ const DP = {
     en: 'For the demo, use postal code 00000',
   } as Dict,
   'postal.placeholder': { ca: '00000', es: '00000', en: '00000' } as Dict,
+  // Pantalla «actualiza la app» (docs/VERSIONES.md). Es de producción.
+  'update.title': {
+    ca: "Cal actualitzar l'app",
+    es: 'Hay que actualizar la app',
+    en: 'Please update the app',
+  } as Dict,
+  'update.body': {
+    ca: 'Aquesta versió ja no és compatible. Actualitza-la des de la botiga per continuar.',
+    es: 'Esta versión ya no es compatible. Actualízala desde la tienda para continuar.',
+    en: 'This version is no longer supported. Update it from the store to continue.',
+  } as Dict,
+  'update.body_web': {
+    ca: 'Hi ha una versió nova. Torna a carregar la pàgina per continuar.',
+    es: 'Hay una versión nueva. Vuelve a cargar la página para continuar.',
+    en: 'There is a new version. Reload the page to continue.',
+  } as Dict,
+  'update.cta': {
+    ca: 'Actualitzar',
+    es: 'Actualizar',
+    en: 'Update',
+  } as Dict,
+  'update.cta_web': {
+    ca: 'Tornar a carregar',
+    es: 'Volver a cargar',
+    en: 'Reload',
+  } as Dict,
   // La maqueta fija «100 puntos»; cada municipio configura los suyos y la
   // cifra real ya sale en grande en el mismo aviso.
   'home.welcome.points': {

@@ -16,7 +16,10 @@
 import { z } from 'zod'
 
 import { useAppStore } from '../stores/useAppStore'
+import { APP_COMMIT, APP_VERSION, appPlatform } from '../utils/appVersion'
 import { env } from '../utils/env'
+
+import { markUpdateRequired, UPDATE_REQUIRED_CODE } from './appUpdate'
 
 const BASE_URL = `${env.km0labApiUrl.replace(/\/$/, '')}/api/v1`
 
@@ -318,7 +321,12 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    // El servidor sabe así qué app le habla y puede pedirle que se
+    // actualice si es demasiado antigua (docs/VERSIONES.md).
+    'X-App-Version': APP_VERSION,
+    'X-App-Platform': appPlatform(),
   }
+  if (APP_COMMIT) headers['X-App-Build'] = APP_COMMIT.slice(0, 12)
   if (auth) {
     const token = useAppStore.getState().token
     if (token) headers.Authorization = `Bearer ${token}`
@@ -334,6 +342,16 @@ export async function apiFetch<T>(
   const json: unknown = text ? JSON.parse(text) : null
 
   if (!res.ok) {
+    if (res.status === 426) {
+      const detail = detailOf(json) as
+        | { code?: unknown; min_version?: unknown }
+        | undefined
+      if (detail?.code === UPDATE_REQUIRED_CODE) {
+        markUpdateRequired(
+          typeof detail.min_version === 'string' ? detail.min_version : ''
+        )
+      }
+    }
     if (auth && isLostSession(res.status, json)) {
       useAppStore.getState().signOut()
     }

@@ -9,6 +9,7 @@ import DeviceShell from '@/components/DeviceShell'
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
+import UpdateRequired from '@/components/UpdateRequired'
 import { LangProvider } from '@/contexts/LangContext'
 
 // En nativo (Capacitor WebView) HashRouter evita 404 al reabrir la app;
@@ -52,6 +53,7 @@ export default function App() {
         <TooltipProvider>
           <Toaster />
           <SonnerToaster />
+          <UpdateRequired />
           <Router>
             <CaptureInviteFromUrl />
             <TopLoadingBar />

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -41,6 +42,17 @@ function lovableAssetPointer(): Plugin {
 }
 
 /**
+ * Versión del producto: la del fichero `VERSION` de la raíz del repositorio,
+ * que solo cambia el comando de publicar (docs/VERSIONES.md). El commit lo
+ * pone quien compila: Vercel, GitHub o nadie en local.
+ */
+const APP_VERSION = fs
+  .readFileSync(path.resolve(__dirname, '../../VERSION'), 'utf8')
+  .trim()
+const APP_COMMIT =
+  process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? ''
+
+/**
  * Publica `version.json` junto a la app: de qué commit se construyó. Las
  * comprobaciones de después de un despliegue lo leen para saber que están
  * probando lo que se acaba de subir y no la versión anterior.
@@ -50,13 +62,15 @@ function buildVersion(): Plugin {
     name: 'km0lab-build-version',
     apply: 'build',
     generateBundle() {
-      const commit =
-        process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? null
       this.emitFile({
         type: 'asset',
         fileName: 'version.json',
         source: JSON.stringify(
-          { commit, builtAt: new Date().toISOString() },
+          {
+            version: APP_VERSION,
+            commit: APP_COMMIT || null,
+            builtAt: new Date().toISOString(),
+          },
           null,
           2
         ),
@@ -67,6 +81,10 @@ function buildVersion(): Plugin {
 
 export default defineConfig({
   plugins: [lovableAssetPointer(), react(), buildVersion()],
+  define: {
+    __APP_VERSION__: JSON.stringify(APP_VERSION),
+    __APP_COMMIT__: JSON.stringify(APP_COMMIT),
+  },
   envDir: path.resolve(__dirname, 'env'),
   resolve: {
     alias: {
