@@ -542,158 +542,111 @@ Cuando ocurra alguno de esos cambios, **actualiza este documento en el mismo PR*
 
 ---
 
-## 12. Sincronización automatizada: `pnpm sync:lovable`
+## 12. Porte automatizado: `pnpm sync:lovable` y `pnpm sync:check`
 
-El porte manual de §4–§5 está automatizado en `scripts/sync-lovable.mjs`.
-El script aplica el mapping de §3, reescribe imports y ejecuta en
-automático los pre-checks de §2.4 (deps) y §4.1/§7.1 (breakpoints).
+Desde noviembre de 2026 el porte funciona **por regla**: ya no hay una
+lista de ficheros que mantener a mano. Sustituye a las recetas manuales de
+§4–§6, que quedan como referencia histórica.
 
-### 12.0. Contrato del manifest (obligatorio)
+### 12.0. El contrato en una página
 
-`scripts/lovable-manifest.json` es el contrato de frontera entre Lovable
-(source of truth visual) y producción (owner de lógica real).
+Tres tipos de fichero, cada uno con un solo dueño:
+
+| Tipo        | Qué es                                                                                                     | Dueño      | Qué hace el porte                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
+| **Visual**  | Pantallas, componentes, primitivos ui, tipos, máquinas, datos de presentación, imágenes, traducciones      | Lovable    | Los trae y **sobrescribe** siempre      |
+| **Costura** | Hook / service / store que en Lovable se apoya en datos de ejemplo (`@/data`, `services/mock`, `useMock*`) | Producción | **No los trae.** Exige que existan aquí |
+| **Candado** | Lo listado en `locked` de `scripts/lovable-manifest.json`                                                  | Producción | Ni los toca ni sigue sus imports        |
 
 Reglas duras:
 
-1. **Siempre se porta todo lo portable.** `files` lista el inventario
-   completo de páginas, componentes de pantalla, primitivos ui usados,
-   data, hooks, services y tipos que Lovable posee. No se sincroniza
-   “a trozos” ni por tanda ad-hoc: si Lovable tiene un archivo
-   portable y no está en `files`, es un bug del manifest.
-2. **Producción no se machaca.** `locked` lista destinos cuya
-   implementación real ya vive en km0lab. El sync se niega a
-   sobrescribirlos (error). Un path acabado en `/` bloquea el
-   directorio entero.
-3. **Fixes UI van primero a Lovable `main`.** Luego `pnpm sync:lovable`
-   los trae a `develop`. Nunca “parchear solo en producción” un
-   componente que Lovable posee: en el próximo sync se pierde.
-4. **Strict TS de producción es más duro que Lovable.** Lovable
-   compila con `strict: false`. Antes de sync, los archivos nuevos o
-   cambiados deben tipar limpio bajo el `tsconfig` de km0lab (nullish,
-   exhaustividad de `switch`, refs, etc.). Si falla, se corrige en
-   Lovable y se re-sincroniza.
-
-Candados actuales (`locked`):
-
-| Destino                                       | Por qué es de producción                                                              |
-| --------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `packages/app/services/km0labClient.ts`       | Cliente HTTP real (JWT / API)                                                         |
-| `packages/app/services/apiClient.ts`          | Env real (`VITE_EVENTS_API_URL`); Lovable usa proxy Supabase                          |
-| `packages/app/services/auth.ts`               | OTP/JWT reales (no mock)                                                              |
-| `packages/app/services/profile.ts`            | Perfil real                                                                           |
-| `packages/app/stores/useAppStore.ts`          | Store real (sesión, token, setup guest)                                               |
-| `packages/app/hooks/useAuth.ts`               | Hook real sobre el store                                                              |
-| `packages/app/hooks/useProfile.ts`            | Hook real sobre el store                                                              |
-| `packages/app/utils/env.ts`                   | Variables de entorno de producción                                                    |
-| `packages/app/utils/shareUrl.ts`              | URL canónica de compartir (Play Store vs `VITE_PUBLIC_APP_URL`; no `window.location`) |
-| `packages/app/utils/openShareChannel.ts`      | WhatsApp/correo nativos (scheme + WebView); Lovable solo pinta botones                |
-| `packages/app/data/notifications.ts`          | Datos/notificaciones de producción                                                    |
-| `packages/app/utils/i18nProd.ts`              | Overlay de claves i18n propias de producción (§12.4)                                  |
-| `packages/app/utils/postalCodes.ts`           | Lookup de CP real (no el mock suelto de Lovable)                                      |
-| `apps/km0lab/src/contexts/LangContext.tsx`    | Seam de idioma: `setLang` de Lovable → `chooseLang` (§12.5)                           |
-| `apps/km0lab/src/pages/PostalCode.tsx`        | Escribe ubicación con `setLocation`; Lovable usa `localStorage` (§12.5)               |
-| `apps/km0lab/src/pages/Login.tsx`             | Lee CP/town del store para el OTP; Lovable lee `localStorage` (§12.5)                 |
-| `apps/km0lab/src/components/RequireSetup.tsx` | Lockout guest: solo Zustand (`langChosen`, `postalCode`)                              |
-| `apps/km0lab/src/App.tsx`                     | Router + guards de producción; las rutas nuevas se añaden a mano                      |
-
-Nunca se sincronizan (fuera de `files` a propósito):
-
-- `src/integrations/`, `supabase/`, `src/design-system/`
-- Preview / harness: `PreviewAll`, `DesignSystem`, `DeviceShell`,
-  `SimulatedDevice`, `ScreenFrame`, `SocialAuthButtons`, `VoiceRecorder`
-- `src/services/mock/*` (las firmas las cubren services locked)
-- `src/services/eventQueryApi.ts` y `src/services/types.ts` (duplican
-  `Evento`/`QueryResponse` de `apiSchemas` y llaman a Supabase)
-- `src/hooks/useAuth.ts`, `useProfile.ts`, `src/stores/useAppStore.ts`
-  (mocks; la implementación real está locked)
-- `src/hooks/use-toast.ts` (shim; la impl. va por `components/ui/use-toast.ts`)
-
-Al conectar un service/hook real nuevo: añádelo a `locked` en el mismo
-commit. Al añadir una pantalla/componente en Lovable: añádelo a `files`
-en el mismo sync.
+1. **En producción no se edita un fichero visual.** Un arreglo de aspecto
+   o de texto se hace en Lovable y llega con el siguiente porte. Si se
+   edita aquí, el porte siguiente lo detecta (estado en
+   `scripts/lovable-sync-state.json`) y se niega a pisarlo sin `--force`.
+2. **Los datos entran por costuras.** Una pantalla pide `useAccount()`,
+   `useShops()`, `redeemReward()`… Lovable contesta con ejemplos y
+   producción con la API. El nombre y la forma de respuesta son el
+   contrato (`docs/LOVABLE-KNOWLEDGE.md` §5.1).
+3. **En el front de producción no hay datos de ejemplo.** Lo que no dé la
+   API se oculta y se anota como hueco del backend; no se inventa.
+4. **Antes de portar, `pnpm sync:check`.** Si no dice «PASA», no se porta.
 
 ### 12.1. Uso
 
-1. Mantén `scripts/lovable-manifest.json` al día (`files` + `locked`).
-   Entrada típica: `{ "from": "src/pages/X.tsx" }`. El destino se deriva
-   solo; `"to"` explícito solo para excepciones (p. ej. data compartido
-   hacia `packages/app/data`).
-
-2. Ejecuta primero en seco y revisa el informe:
-
 ```bash
-pnpm sync:lovable -- --dry-run
-# con checkout local (recomendado):
-pnpm sync:lovable -- --dry-run --source ../km0lab-lovable
+pnpm sync:check                               # ensayo completo en una copia
+pnpm sync:lovable -- --dry-run                # informe de lo que cambiaría
+pnpm sync:lovable                             # porte real
+pnpm sync:lovable -- --prune                  # además borra huérfanos
+pnpm sync:lovable -- --source ../km0lab-lovable   # checkout local
 ```
 
-3. Ejecuta en real, revisa el diff con git y completa los pasos
-   manuales que lista el script (ruta en `App.tsx` si hay pantalla
-   nueva, `pnpm sync:assets` si hay binarios, `pnpm lint:fix`,
-   `npx turbo run type:check lint`, QA idiomas / visual):
+Sin `--source`, el porte clona en superficial el `main` de Lovable de
+GitHub: siempre porta lo último. Con un checkout local, **haz `git pull`
+antes** (el clon desactualizado ya costó un porte en septiembre de 2026).
 
-```bash
-pnpm sync:lovable -- --source ../km0lab-lovable
-```
+`sync:check` copia el repo a una carpeta temporal, porta ahí, comprueba
+tipos (y compila con `--build`) y contesta `PASA` o `NO PASA`. No toca el
+repo real. Hay un workflow de GitHub (`sync-check.yml`) que lo lanza a
+mano y cada noche.
 
-Smoke de idiomas tras sync (Language → Onboarding en ca/es/en):
+### 12.2. Cómo decide qué viaja
 
-```bash
-pnpm --filter @km0lab/e2e qa:lang
-```
+1. Raíces: todas las pantallas de `src/pages` de Lovable (menos las
+   excluidas por contrato y las que tienen candado), `src/lib/i18n.ts` y
+   lo que monta `src/App.tsx` alrededor de las pantallas.
+2. Desde ahí sigue los imports. Cada fichero alcanzado se clasifica como
+   visual (viaja), lógica pura sin datos de ejemplo (viaja, salvo candado)
+   o costura (no viaja).
+3. Para cada costura comprueba que producción la tiene: por **nombre**
+   exportado en `@km0lab/app` si la pide una pantalla o componente; por
+   **ruta** si la pide otro fichero de `packages/app`.
 
-### 12.2. Qué hace y qué no hace
+Además:
 
-**Hace automáticamente:**
+- Reescribe los imports `@/…` a `@km0lab/ui` y `@km0lab/app`, fusiona los
+  duplicados y formatea con prettier antes y después de `lint:fix`.
+- En `packages/app`, `@/lib/i18n` se reescribe a `../utils/i18nProd` para
+  que los tipos usen el diccionario fusionado (§12.4).
+- **Imágenes**: copia las que Lovable versiona y descarga las que guarda
+  como puntero `*.asset.json` (desde `assetHost` del manifest). Ya no hace
+  falta `sync:assets` para lo que importa el código portado.
+- **Estilos**: compara las variables CSS de `src/index.css` de Lovable con
+  las de producción y falla si falta alguna (antes era un fallo
+  silencioso).
+- **Huérfanos**: avisa de los ficheros de `pages`, `components` y `data`
+  de la app que ya no vienen de Lovable ni tienen candado.
+- Comprueba dependencias npm, variantes responsive y el uso de
+  `localStorage` para la ubicación, como antes.
 
-- Deriva destino según el mapping de §3 y sobrescribe (git = red de
-  seguridad; §7.7 queda cubierto porque el archivo se reemplaza entero).
-- Rechaza piezas solo-Lovable (`src/integrations/`, `supabase/`,
-  `src/design-system/`, páginas y componentes del harness de preview) —
-  frontera definida en `docs/LOVABLE-KNOWLEDGE.md` §0 y en §12.0.
-- Respeta los candados `locked` (§12.0): no se sobrescriben jamás.
-- Reescribe imports según la zona de destino: `@/components/ui/x` →
-  `@km0lab/ui`, `@/hooks|services/...` → `@km0lab/app` (en la app);
-  `@/lib/utils` → `../lib/utils` y `@/components/ui/x` → `./x` (en
-  primitivos ui); `@/hooks|services|data/...` → relativos (en
-  packages/app).
-- Añade los exports que falten a los barrels (`packages/components/index.ts`,
-  `packages/app/hooks/index.ts`, `packages/app/services/index.ts`).
-- Verifica que cada dependencia npm importada existe en el `package.json`
-  del destino; si falta, error con el comando `pnpm --filter ... add`.
-- Verifica que cada variante responsive usada (`sm:`, `wide-landscape:`,
-  `vertical-mobile:`, …) está definida en `apps/km0lab/tailwind.config.js`
-  (anti-patrón §7.1); si falta, error.
-- Detecta pantallas nuevas y recuerda el snippet de ruta para `App.tsx`.
+### 12.3. Qué queda a mano
 
-**No hace (queda para el humano/agente):**
+- **Una costura nueva.** Si Lovable crea un hook de datos que producción
+  no tiene, el porte lo dice con su nombre (`costura sin versión real`).
+  Se escribe aquí la versión real, con la misma forma, y se vuelve a
+  portar.
+- **Una pantalla nueva.** Viaja sola, pero hay que darla de alta en
+  `apps/km0lab/src/App.tsx` (candado), con su `RequireSetup`, su
+  `RequireAuth` si es privada y su `DeviceShell` si Lovable se lo pone.
+- **Una variable de estilo nueva.** El porte dice cuál; se añade a
+  `apps/km0lab/src/styles/global.css`.
+- **Pantallas con candado.** `Login`, `CheckEmail`, `PostalCode` y
+  `Scanner` son de producción (acceso real, ubicación en el store, cámara).
+  Un rediseño en Lovable se copia a mano conservando su lógica.
+- **Textos de producción.** Lo que producción dice distinto que la
+  maqueta, y los avisos de «demostración» que deben quedar vacíos, van en
+  `packages/app/utils/i18nProd.ts`.
 
-- Assets binarios (→ `pnpm sync:assets`, §6) y fuentes (§6.3).
-- Añadir la ruta en `App.tsx` y decidir data compartido vs. de pantalla.
-- Instalar dependencias que el informe marque como faltantes.
-- Validación (`pnpm validate` / `turbo type:check lint`) y QA (§4.4, §8,
-  `qa:lang`).
-- Cambios en `index.css`/tokens: siempre revisión manual.
-- Ampliar el store real cuando un hook sincronizado necesite campos
-  nuevos (p. ej. `notificationsLastSeenAt`): se hace a mano en el
-  archivo locked, no vía sync.
-
-Si el script termina con errores (exit 1), los archivos SÍ se escriben
-para que puedas inspeccionarlos, pero **no commitees** hasta resolver
-cada `✗` del informe.
-
-### 12.3. Contrato con Lovable
-
-El sync solo es fiable si Lovable genera código dentro del contrato
-definido en `docs/LOVABLE-KNOWLEDGE.md` (estructura de carpetas, alias
-`@/`, imports de primitivos archivo a archivo, lista de deps aprobadas,
-copy en `locales/`). Ese documento se pega en `Settings → Knowledge` del
-proyecto de Lovable junto con el prompt pack de
-`packages/app/design-system/aiContext.ts`, y se actualiza en el mismo PR
-que cambie las reglas.
-
-Además: cualquier cambio de UI o copy que deba llegar a producción se
-commitea primero en Lovable `main`; producción solo consume vía sync.
+Costuras que existen hoy (todas contra `km0lab-api` o `events-query`):
+`useAccount`, `redeemReward`, `usePointsActions`, `useHomeActions`,
+`usePointsConfig`, `useInviteSummary`, `useInvitations`,
+`useInviteRewards`, `useInviteLink`, `useShops`, `useShop`,
+`useShopPromotions`, `usePublicRewards`, `useFeaturedPromos`,
+`useNotifications`, `useLocationContext`, `usePreviewState`,
+`listMunicipalEvents`, `listMunicipalNews`, `createBusinessRegistration`,
+`requestOtp`, `verifyOtp`, `getProfile`, `updateProfile`, `getShareLink`,
+`getCanonicalWebLink` y `openShareChannel`.
 
 ---
 

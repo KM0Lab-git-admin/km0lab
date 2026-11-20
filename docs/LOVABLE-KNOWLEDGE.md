@@ -240,6 +240,15 @@ pantalla tenga varios componentes auxiliares propios.
   Product Owner valida los cuatro.
 - Formularios: react-hook-form + resolver de zod.
 
+### 5.1. Costuras de datos (obligatorio para el sync)
+
+- Las pantallas (src/pages) y los componentes (src/components) piden los datos del usuario, del municipio y de los comercios SOLO a través de hooks de src/hooks o funciones de src/services con nombre neutro. El nombre no dice si el dato es de ejemplo o real: prohibido «mock», «demo», «sample» o «fake» en cualquier nombre que importe una pantalla o un componente.
+- Prohibido importar desde src/pages o src/components: @/services/mock/_, @/stores/useMock_, y los ficheros de @/data que contengan datos de usuario, saldo, puntos, premios, canjes, invitaciones o comercios. Sí se puede importar de @/data lo que es pura presentación (pasos de onboarding, pasos de «Cómo funciona», módulos de la Home, ilustraciones).
+- La implementación de ejemplo vive dentro del hook o del service. En producción ese mismo hook o service tiene otra implementación, con el mismo nombre y la misma forma de respuesta. Por eso la forma de respuesta de una costura no se cambia sin avisar en el chat.
+- Nada en src/hooks, src/services, src/stores, src/machines ni src/types importa de src/components, src/pages ni src/contexts.
+- Un hook de datos devuelve siempre { …datos, loading: boolean, error: string | null, reload: () => void } y la pantalla pinta los cuatro estados a partir de ahí.
+- Las reglas de negocio (saldo, descuento de puntos, códigos de canje, caducidades, atribución de invitaciones, importes de puntos) no se calculan en pantallas ni componentes. La maqueta enseña estados; no reproduce el servidor.
+
 ## 6. Consumo de APIs reales (solo lectura)
 
 Está permitido consumir APIs públicas de solo lectura para diseñar con

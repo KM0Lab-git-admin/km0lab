@@ -1,0 +1,46 @@
+name: Sync check
+
+# Ensayo del porte Lovable → producción. No porta nada: copia el repo,
+# ejecuta `sync-lovable.mjs` contra el `main` de Lovable y comprueba tipos.
+# Si falla, el siguiente porte rompería algo (ver docs/PORTING §12).
+#
+# - A mano, desde la pestaña Actions.
+# - Cada noche, para enterarse pronto de que Lovable y producción se han
+#   separado (una costura nueva, una variable de estilo, un fichero visual
+#   editado en producción).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * *'
+
+concurrency:
+  group: sync-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync-check:
+    name: Ensayo del porte
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync check
+        run: pnpm sync:check

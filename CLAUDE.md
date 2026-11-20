@@ -19,8 +19,9 @@ pnpm build            # build all packages via Turbo
 pnpm validate         # type:check + lint + format:check (run before committing)
 pnpm lint:fix         # auto-fix ESLint issues
 pnpm format           # format with Prettier
-pnpm sync:lovable     # portar código desde el repo de Lovable (ver docs)
-pnpm sync:assets      # sincronizar assets binarios desde Lovable
+pnpm sync:check       # ensayar el porte en una copia (PASA / NO PASA)
+pnpm sync:lovable     # portar desde Lovable por regla (docs/PORTING §12)
+pnpm sync:assets      # heredado: assets que el código portado no importa
 pnpm design:doc       # regenerar docs/DESIGN-SYSTEM.md
 ```
 
