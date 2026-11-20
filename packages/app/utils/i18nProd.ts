@@ -45,6 +45,59 @@ const DP = {
     es: 'No hemos podido comprobar el código postal. Vuelve a intentarlo.',
     en: 'We could not check the postal code. Please try again.',
   } as Dict,
+  // ── Acceso y verificación: pantallas de producción ─────────────────
+  // Login y CheckEmail tienen candado y hablan de un correo real; la
+  // maqueta cambió estos textos para avisar de que allí es simulado.
+  'login.subtitle': {
+    ca: "T'enviarem un codi al teu correu",
+    es: 'Te enviaremos un código a tu correo',
+    en: "We'll send a code to your email",
+  } as Dict,
+  'login.submitting': {
+    ca: 'Enviant codi…',
+    es: 'Enviando código…',
+    en: 'Sending code…',
+  } as Dict,
+  'login.toast_sent': {
+    ca: "T'hem enviat un codi per correu",
+    es: 'Te hemos enviado un código por email',
+    en: "We've sent you a code by email",
+  } as Dict,
+  'otp.title': {
+    ca: 'Revisa el teu correu',
+    es: 'Revisa tu correo',
+    en: 'Check your email',
+  } as Dict,
+  'otp.subtitle': {
+    ca: 'Hem enviat un codi de 6 dígits a',
+    es: 'Hemos enviado un código de 6 dígitos a',
+    en: 'We sent a 6-digit code to',
+  } as Dict,
+  'otp.resend': {
+    ca: 'Reenviar codi',
+    es: 'Reenviar código',
+    en: 'Resend code',
+  } as Dict,
+  'otp.resending': {
+    ca: 'Reenviant…',
+    es: 'Reenviando…',
+    en: 'Resending…',
+  } as Dict,
+  'otp.resend_in': {
+    ca: 'Reenviar codi en',
+    es: 'Reenviar código en',
+    en: 'Resend code in',
+  } as Dict,
+  'otp.toast_resent': {
+    ca: 'Codi reenviat',
+    es: 'Código reenviado',
+    en: 'Code resent',
+  } as Dict,
+  'otp.footer_hint': {
+    ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
+    es: '¿No lo encuentras? Mira en spam o promociones.',
+    en: "Can't find it? Check spam or promotions.",
+  } as Dict,
   'home.demo.badge': {
     ca: 'Mode demo',
     es: 'Modo demo',
