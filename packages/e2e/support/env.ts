@@ -11,6 +11,9 @@
  *   E2E_REAL_POSTAL_CODE  municipio real que se mira sin escribir (08380)
  *   E2E_RUN_ID            identificador de la ejecución (se genera solo)
  */
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+
 export type Target = 'local' | 'uat' | 'production'
 
 const DEFAULTS: Record<Target, { app: string; api: string; events: string }> = {
@@ -45,7 +48,20 @@ export const apiURL = trim(process.env.E2E_API_URL ?? DEFAULTS[target].api)
 export const eventsURL = trim(
   process.env.E2E_EVENTS_URL ?? DEFAULTS[target].events
 )
-export const qaToken = process.env.E2E_QA_TOKEN ?? ''
+
+/**
+ * La clave del robot. En GitHub llega como secreto (`E2E_QA_TOKEN`). En una
+ * máquina de trabajo se puede dejar en `packages/e2e/.qa-token`, que git
+ * ignora: así no pasa por la terminal ni por ningún chat. El fichero solo
+ * se usa contra UAT; la API local no tiene clave.
+ */
+const tokenFromFile = (): string => {
+  if (target !== 'uat') return ''
+  const file = path.join(__dirname, '..', '.qa-token')
+  return existsSync(file) ? readFileSync(file, 'utf8').trim() : ''
+}
+
+export const qaToken = process.env.E2E_QA_TOKEN || tokenFromFile()
 
 /** Municipio real: solo se lee, sin sesión. */
 export const realPostalCode = process.env.E2E_REAL_POSTAL_CODE ?? '08380'
