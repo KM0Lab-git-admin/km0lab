@@ -13,6 +13,8 @@
     "sync:assets": "node scripts/sync-assets.mjs",
     "sync:lovable": "node scripts/sync-lovable.mjs",
     "sync:check": "node scripts/sync-check.mjs",
+    "e2e": "pnpm --filter @km0lab/e2e test",
+    "e2e:lectura": "pnpm --filter @km0lab/e2e test:lectura",
     "design:doc": "node scripts/generate-design-doc.mjs",
     "validate": "turbo run type:check lint && pnpm format:check",
     "prepare": "lefthook install"

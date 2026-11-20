@@ -1,16 +1,22 @@
 {
   "name": "@km0lab/e2e",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
-    "dev": "node -e \"console.log('e2e pendiente de migracion')\"",
+    "test": "playwright test",
+    "test:lectura": "playwright test --grep @lectura",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report playwright-report",
+    "type:check": "tsc --noEmit",
     "visual:language": "node scripts/compare-language-screen.cjs",
     "visual:onboarding": "node scripts/compare-onboarding-screen.cjs",
     "qa:lang": "node scripts/qa-lang-flow.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
     "pixelmatch": "^7.1.0",
-    "pngjs": "^7.0.0"
+    "pngjs": "^7.0.0",
+    "typescript": "~5.9.3"
   }
 }
