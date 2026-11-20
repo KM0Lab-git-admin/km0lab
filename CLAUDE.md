@@ -20,6 +20,7 @@ pnpm validate         # type:check + lint + format:check (run before committing)
 pnpm lint:fix         # auto-fix ESLint issues
 pnpm format           # format with Prettier
 pnpm sync:check       # ensayar el porte en una copia (PASA / NO PASA)
+pnpm e2e              # recorridos de vecino (docs/TESTING.md)
 pnpm sync:lovable     # portar desde Lovable por regla (docs/PORTING §12)
 pnpm sync:assets      # heredado: assets que el código portado no importa
 pnpm design:doc       # regenerar docs/DESIGN-SYSTEM.md

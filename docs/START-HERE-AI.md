@@ -113,6 +113,8 @@ El frontend de Lovable está sincronizado al monorepo vía
   `apiClient` locked (pega a `VITE_EVENTS_API_URL`, sin proxy Supabase).
 - **Onboarding**: imágenes locales en `src/assets/onboarding/*.jpg`
   (vía `pnpm sync:assets`). El idioma se lee del store (`useLang`).
+- **Recorridos de vecino**: `pnpm e2e` (local) o `E2E_TARGET=uat pnpm e2e`.
+  Qué se prueba y cuándo: [`TESTING.md`](TESTING.md).
 - **Smoke idiomas**: `pnpm --filter @km0lab/e2e qa:lang` (ca/es/en).
 
 **Pendiente:**
