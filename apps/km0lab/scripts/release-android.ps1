@@ -83,6 +83,22 @@ if ($BumpVersion) {
   Write-Host "versionCode: $old -> $new" -ForegroundColor Green
 }
 
+# --- 2b) La version la pone `pnpm release` (docs/VERSIONES.md) ----------------
+# El fichero VERSION de la raiz es la fuente unica. `pnpm release X.Y.Z --apply`
+# escribe versionName y versionCode en build.gradle. Aqui solo se comprueba que
+# lo que se va a compilar es esa version, para no subir a la tienda una app
+# que dice otra cosa.
+$versionFile = Join-Path (Split-Path -Parent (Split-Path -Parent $appDir)) "VERSION"
+if (Test-Path $versionFile) {
+  $productVersion = (Get-Content $versionFile -Raw).Trim()
+  $gradleName = ([regex]::Match((Get-Content $gradleFile -Raw), 'versionName\s+"([^"]+)"')).Groups[1].Value
+  if ($gradleName -ne $productVersion) {
+    Write-Host ""
+    Write-Host "AVISO: la app dice version $gradleName pero el producto esta en la $productVersion." -ForegroundColor Yellow
+    Write-Host "       Publica antes la version con: pnpm release X.Y.Z --apply" -ForegroundColor Yellow
+  }
+}
+
 # --- 3) Gradle release --------------------------------------------------------
 Write-Step "gradlew bundleRelease assembleRelease"
 Push-Location $androidDir

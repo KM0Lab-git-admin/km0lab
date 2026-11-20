@@ -14,6 +14,7 @@
     "sync:assets": "node scripts/sync-assets.mjs",
     "sync:lovable": "node scripts/sync-lovable.mjs",
     "sync:check": "node scripts/sync-check.mjs",
+    "release": "node scripts/release.mjs",
     "e2e": "pnpm --filter @km0lab/e2e e2e",
     "e2e:lectura": "pnpm --filter @km0lab/e2e e2e:lectura",
     "design:doc": "node scripts/generate-design-doc.mjs",
