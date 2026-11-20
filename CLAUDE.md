@@ -22,6 +22,7 @@ pnpm format           # format with Prettier
 pnpm sync:check       # ensayar el porte en una copia (PASA / NO PASA)
 pnpm test             # pruebas rápidas sin navegador (corren al subir)
 pnpm e2e              # recorridos con navegador (docs/TESTING.md)
+pnpm release          # versión actual y publicar una nueva (docs/VERSIONES.md)
 pnpm sync:lovable     # portar desde Lovable por regla (docs/PORTING §12)
 pnpm sync:assets      # heredado: assets que el código portado no importa
 pnpm design:doc       # regenerar docs/DESIGN-SYSTEM.md
