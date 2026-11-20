@@ -67,16 +67,29 @@ export const mapScanError = (e: unknown): ScanOutcome => {
   return { ok: false, kind: 'sense_connexio' }
 }
 
+/** Escaneos en curso, por token: evita mandar dos veces el mismo QR. */
+const inFlight = new Map<string, Promise<ScanOutcome>>()
+
 /**
  * Valida un QR contra el servidor y avisa de que la cuenta ha cambiado
  * (saldo e historial) cuando el escaneo abona puntos.
+ *
+ * Si llega el mismo token mientras su petición sigue en curso (doble
+ * detección de la cámara, efecto repetido en desarrollo), se reutiliza la
+ * petición: un escaneo no se manda dos veces.
  */
-export const scanShopQr = async (token: string): Promise<ScanOutcome> => {
-  try {
-    const out = await scanQr(token)
-    notifyAccountChanged()
-    return mapScanOk(out)
-  } catch (e) {
-    return mapScanError(e)
-  }
+export const scanShopQr = (token: string): Promise<ScanOutcome> => {
+  const pending = inFlight.get(token)
+  if (pending) return pending
+  const request = scanQr(token)
+    .then((out) => {
+      notifyAccountChanged()
+      return mapScanOk(out)
+    })
+    .catch((e: unknown) => mapScanError(e))
+    .finally(() => {
+      inFlight.delete(token)
+    })
+  inFlight.set(token, request)
+  return request
 }
