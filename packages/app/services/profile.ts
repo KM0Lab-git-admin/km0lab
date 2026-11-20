@@ -52,17 +52,23 @@ export const updateProfile = async (
   try {
     const store = useAppStore.getState()
     const nextLang = patch.lang ?? store.lang
+    // Solo viaja lo que la pantalla ha pedido cambiar. El servidor deja
+    // como está lo que no recibe; mandar `postal_code: null` cuando el
+    // formulario no lo incluye le borraba el municipio al vecino.
+    const body: Record<string, string | null> = { lang: nextLang }
+    if ('first_name' in patch) {
+      body.first_name = patch.first_name?.trim() || null
+    }
+    if ('last_name' in patch) {
+      body.last_name = patch.last_name?.trim() || null
+    }
+    if ('postal_code' in patch) body.postal_code = patch.postal_code ?? null
+    if ('phone' in patch) body.phone = patch.phone ?? null
+    if ('birth_date' in patch) body.birth_date = patch.birth_date || null
     const u = await apiFetch('/users/me', {
       method: 'PATCH',
       auth: true,
-      body: {
-        first_name: patch.first_name?.trim() || null,
-        last_name: patch.last_name?.trim() || null,
-        lang: nextLang,
-        postal_code: patch.postal_code ?? null,
-        phone: patch.phone ?? null,
-        birth_date: patch.birth_date || null,
-      },
+      body,
       schema: userSchema,
     })
     const profile = toProfile(u)
