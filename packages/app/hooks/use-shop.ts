@@ -6,6 +6,7 @@ import { isDemoPostalCode } from '../utils/demoTown'
 import { toComercDetall } from '../utils/shopMapper'
 import { toPromocioInfo } from '../utils/shopPromotionMapper'
 
+import { usePointsConfig } from './use-points-config'
 import { useShopRows } from './use-shops'
 
 import type { PromotionOut } from '../services/km0labClient'
@@ -28,6 +29,7 @@ export function useShop(id: string): {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
   const shops = useShopRows()
+  const { scan } = usePointsConfig()
   const [promos, setPromos] = useState<PromotionOut[]>([])
   const [tick, setTick] = useState(0)
 
@@ -62,11 +64,13 @@ export function useShop(id: string): {
   const shop = useMemo(() => {
     const row = shops.rows.find((s) => s.id === id)
     if (!row) return null
-    return toComercDetall(row, lang, {
+    const detail = toComercDetall(row, lang, {
       visitat: 'scanned' in row ? row.scanned : false,
       promocions: promos.filter((p) => p.shop_id === id).map(toPromocioInfo),
     })
-  }, [shops.rows, promos, id, lang])
+    // Mismo criterio que el listado: puntos que abona el municipio.
+    return { ...detail, punts: scan }
+  }, [shops.rows, promos, id, lang, scan])
 
   return { shop, loading: shops.loading, error: shops.error, reload }
 }

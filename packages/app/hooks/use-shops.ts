@@ -7,6 +7,7 @@ import { isDemoPostalCode } from '../utils/demoTown'
 import { t } from '../utils/i18n'
 import { buildShopCategories, toComercAdherit } from '../utils/shopMapper'
 
+import { usePointsConfig } from './use-points-config'
 import { useShopCategories } from './useShopCategories'
 
 import type { ShopOut, ShopResidentOut } from '../services/km0labClient'
@@ -87,7 +88,13 @@ export function useShops(): {
 } {
   const { rows, loading, error, reload } = useShopRows()
   const { emojiBySlug } = useShopCategories()
-  const shops = useMemo(() => rows.map(toComercAdherit), [rows])
+  // El servidor abona por escaneo lo que fija el municipio, no el valor
+  // de cada comercio: se enseña lo que de verdad se gana.
+  const { scan } = usePointsConfig()
+  const shops = useMemo(
+    () => rows.map((row) => ({ ...toComercAdherit(row), punts: scan })),
+    [rows, scan]
+  )
   const categories = useMemo(
     () =>
       buildShopCategories(
