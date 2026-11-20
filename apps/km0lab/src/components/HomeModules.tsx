@@ -1,12 +1,12 @@
 import { t } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 
-import agendaIcon from '@/assets/agenda-icon.png'
-import chatMascot from '@/assets/chat-mascot.png'
-import cityHallIcon from '@/assets/cityhall-icon.png'
-import newsIcon from '@/assets/news-icon.png'
-import rewardsIcon from '@/assets/rewards-icon.png.asset.json'
-import servicesIcon from '@/assets/services-icon.png'
-import shopServicesIcon from '@/assets/shop-services-icon.png.asset.json'
+import agenda from '@/assets/burbuja/module-agenda.webp.asset.json'
+import townHall from '@/assets/burbuja/module-ayuntamiento.webp.asset.json'
+import chat from '@/assets/burbuja/module-chat.webp.asset.json'
+import shops from '@/assets/burbuja/module-comercios.webp.asset.json'
+import news from '@/assets/burbuja/module-noticias.webp.asset.json'
+import rewards from '@/assets/burbuja/module-premios.webp.asset.json'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -39,145 +39,74 @@ export interface HomeModule {
 }
 
 const IMAGE_SRC: Partial<Record<HomeModuleId, string>> = {
-  chat: chatMascot,
-  agenda: agendaIcon,
-  ajuntament: cityHallIcon,
-  comerc: shopServicesIcon.url,
-  noticias: newsIcon,
-  servicios: servicesIcon,
-  premis: rewardsIcon.url,
+  chat: chat.url,
+  agenda: agenda.url,
+  ajuntament: townHall.url,
+  comerc: shops.url,
+  noticias: news.url,
+  servicios: shops.url,
+  premis: rewards.url,
 }
-
-/** Padding interno de la imagen dentro del círculo, por id. */
-const IMAGE_PADDING: Partial<Record<HomeModuleId, string>> = {
-  ajuntament: 'p-2.5',
-  comerc: 'p-2.5',
-  noticias: 'p-2.5',
-  servicios: 'p-2.5',
-  premis: 'p-2',
+const BACKGROUNDS: Partial<Record<HomeModuleId, string>> = {
+  agenda: 'bg-km0-teal-100',
+  noticias: 'bg-km0-blue-100',
+  comerc: 'bg-km0-yellow-100',
+  premis: 'bg-km0-coral-50',
 }
-
 interface HomeModulesProps {
   modules: HomeModule[]
   className?: string
 }
-
 const HomeModules = ({ modules, className }: HomeModulesProps) => {
-  if (modules.length === 0) return null
-
+  const { lang } = useLang()
   return (
-    <div className={cn('relative w-full max-w-full', className)}>
-      <div
-        className={cn('relative bg-km0-beige-100 rounded-3xl px-3 py-2 my-0')}
-      >
-        {/* Grid 2 filas × 3 columnas: distribución determinista independiente
-            del ancho del label. */}
-        <div
-          className={cn('relative grid items-center gap-2')}
-          style={{
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
-          }}
+    <div
+      className={cn(
+        'grid grid-cols-3 items-start gap-x-1 gap-y-5 pt-2',
+        className
+      )}
+    >
+      {modules.map((mod) => (
+        <Button
+          key={mod.id}
+          variant="bubbleSurface"
+          onClick={mod.onClick}
+          disabled={!mod.active}
+          className="relative h-auto min-h-11 w-full flex-col gap-2 whitespace-normal rounded-2xl p-0"
         >
-          {modules.map((mod) => (
-            <ModuleItem key={mod.id} module={mod} />
-          ))}
-        </div>
-      </div>
+          <span
+            className={cn(
+              'flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-full shadow-[var(--shadow-bubble)]',
+              mod.active
+                ? (BACKGROUNDS[mod.id] ?? 'bg-km0-blue-100')
+                : 'bg-km0-blue-50'
+            )}
+          >
+            <img
+              src={IMAGE_SRC[mod.id]}
+              alt=""
+              className={cn(
+                'h-[58px] w-[58px] object-contain',
+                !mod.active && 'grayscale opacity-60'
+              )}
+            />
+          </span>
+          {!mod.active && (
+            <span className="absolute -top-2 rounded-full bg-km0-coral-400 px-2 py-1 font-ui text-[11px] font-bold leading-tight text-destructive-foreground">
+              {t(
+                mod.disabledReason === 'requires_registration'
+                  ? 'module.register_to_enable'
+                  : 'module.coming_soon',
+                lang
+              )}
+            </span>
+          )}
+          <span className="min-h-8 text-center font-ui text-xs font-bold leading-tight text-km0-blue-800">
+            {mod.label}
+          </span>
+        </Button>
+      ))}
     </div>
   )
 }
-
-/* ─── Item individual ────────────────────────────────────────── */
-interface ModuleItemProps {
-  module: HomeModule
-}
-
-const ModuleItem = ({ module }: ModuleItemProps) => {
-  const { lang } = useLang()
-  const { id, active, label, onClick, disabledReason } = module
-  const imageSrc = IMAGE_SRC[id]
-  const imagePadding = IMAGE_PADDING[id]
-  const badgeKey =
-    disabledReason === 'requires_registration'
-      ? 'module.register_to_enable'
-      : 'module.coming_soon'
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={!active}
-      aria-disabled={!active}
-      className={cn(
-        'group relative flex flex-col items-center justify-self-center w-full min-w-0 min-h-11',
-        'transition-transform cursor-pointer active:scale-95',
-        'rounded-2xl focus-visible:outline-2 focus-visible:outline-km0-blue-500 focus-visible:outline-offset-2',
-        !active && 'opacity-50 grayscale-[0.4] cursor-not-allowed'
-      )}
-    >
-      <div className="relative flex flex-col items-center">
-        {/* Sombra elíptica bajo el círculo — sensación de flotación */}
-        <span
-          aria-hidden
-          className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 w-12 h-1.5 rounded-[50%] bg-km0-blue-900/30 blur-md"
-        />
-
-        {/* Círculo blanco con borde fino */}
-        <span
-          className={cn(
-            'relative flex items-center justify-center rounded-full bg-white shrink-0 border-2 border-km0-blue-400',
-            'w-[68px] h-[68px]'
-          )}
-        >
-          {imageSrc && (
-            <img
-              src={imageSrc}
-              alt=""
-              aria-hidden
-              className={cn(
-                'w-full h-full object-contain',
-                imagePadding,
-                !active && 'opacity-70'
-              )}
-            />
-          )}
-
-          {/* Badge para módulos aún no habilitados: pròximament o registra't */}
-          {!active && (
-            <span
-              aria-hidden
-              className={cn(
-                'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20',
-                'px-1.5 py-0.5 rounded-full',
-                'bg-km0-coral-400 text-white',
-                'border border-white shadow-[0_2px_6px_-2px_hsl(var(--km0-blue-900)/0.35)]',
-                'font-ui font-bold uppercase tracking-wide',
-                'text-[8px] leading-tight text-center max-w-[60px] line-clamp-2 break-words hyphens-auto'
-              )}
-            >
-              {t(badgeKey, lang)}
-            </span>
-          )}
-        </span>
-
-        {/* Pill del label */}
-        <span
-          className={cn(
-            'relative -mt-2.5 z-10',
-            'px-1.5 py-0.5',
-            'rounded-full bg-white border border-km0-blue-300/60',
-            'shadow-[0_2px_6px_-2px_hsl(var(--km0-blue-900)/0.25)]',
-            'font-ui font-bold leading-tight text-km0-blue-800',
-            'text-[9px]',
-            'text-center whitespace-nowrap max-w-full'
-          )}
-        >
-          {label}
-        </span>
-      </div>
-    </button>
-  )
-}
-
 export default HomeModules

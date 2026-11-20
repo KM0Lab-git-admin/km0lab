@@ -18,9 +18,33 @@
 
 import { t as tBase, type Lang, type TKey as TKeyBase } from './i18n'
 
+/** Reexportado para los tipos que el porte trae de Lovable. */
+export type { Lang }
+
 type Dict = Record<Lang, string>
 
+const EMPTY: Dict = { ca: '', es: '', en: '' }
+
 const DP = {
+  // ── Avisos de maqueta ──────────────────────────────────────────────
+  // Lovable enseña en sus pantallas que los datos son de ejemplo. En
+  // producción todo sale de la API, así que estos avisos quedan vacíos.
+  'account.demo': EMPTY,
+  'account.sheet.demo': EMPTY,
+  'catalog.sample': EMPTY,
+  'business.success.mock_note': EMPTY,
+  // ── Textos que producción dice distinto que la maqueta ─────────────
+  'postal.subtitle': {
+    ca: 'Per a la demo, utilitza el codi 00000',
+    es: 'Para la demo, utiliza el código 00000',
+    en: 'For the demo, use postal code 00000',
+  } as Dict,
+  'postal.placeholder': { ca: '00000', es: '00000', en: '00000' } as Dict,
+  'postal.error_connection': {
+    ca: 'No hem pogut comprovar el codi postal. Torna-ho a provar.',
+    es: 'No hemos podido comprobar el código postal. Vuelve a intentarlo.',
+    en: 'We could not check the postal code. Please try again.',
+  } as Dict,
   'home.demo.badge': {
     ca: 'Mode demo',
     es: 'Modo demo',

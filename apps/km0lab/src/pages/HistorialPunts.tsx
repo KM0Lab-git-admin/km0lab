@@ -1,10 +1,15 @@
-import { useAuth, useInviteSummary, usePointsHistory } from '@km0lab/app'
-import { t, type Lang, PointsTransaction, PointsTxType } from '@km0lab/app'
+import {
+  useDragScroll,
+  useAccount,
+  usePreviewState,
+  useAuth,
+  t,
+  type Lang,
+  useInviteSummary,
+} from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
-  Building2,
-  ChevronLeft,
   UserPlus,
   Star,
   QrCode,
@@ -17,14 +22,16 @@ import {
   Gift as GiftIcon,
   ChevronRight,
   Share2,
-  Loader2,
   type LucideIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 
-import BottomTabs from '@/components/BottomTabs'
-import DeviceShell from '@/components/DeviceShell'
+import BottomTabs from '@/components/AccountBottomTabs'
+import FilterChip from '@/components/FilterChip'
+import ScreenHeader from '@/components/ScreenHeader'
+import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -67,17 +74,27 @@ const TYPE_META: Record<
     ring: 'bg-km0-teal-100',
     text: 'text-km0-teal-700',
   },
-  redeem: { Icon: Tag, ring: 'bg-km0-coral-100', text: 'text-km0-coral-500' },
-  invite_person: {
-    Icon: UserPlus,
-    ring: 'bg-km0-yellow-100',
-    text: 'text-km0-blue-800',
-  },
-  invite_business: {
-    Icon: Building2,
+  invitation: {
+    Icon: Share2,
     ring: 'bg-km0-teal-100',
     text: 'text-km0-teal-700',
   },
+  invite_person: {
+    Icon: Share2,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
+  },
+  invite_business: {
+    Icon: Share2,
+    ring: 'bg-km0-teal-100',
+    text: 'text-km0-teal-700',
+  },
+  demo_credit: {
+    Icon: Coins,
+    ring: 'bg-km0-yellow-100',
+    text: 'text-km0-blue-800',
+  },
+  redeem: { Icon: Tag, ring: 'bg-km0-coral-100', text: 'text-km0-coral-500' },
 }
 
 /* ─── Agrupación por rango ───────────────────────────────── */
@@ -115,7 +132,7 @@ const formatDate = (iso: string, lang: Lang): string => {
     .replace(/\.$/, '')
 }
 
-const fmtInt = (n: number) => Math.abs(n).toLocaleString('es-ES')
+const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
 /* ─── Fila de movimiento ─────────────────────────────────── */
 const TxRow = ({
@@ -127,7 +144,7 @@ const TxRow = ({
   lang: Lang
   index: number
 }) => {
-  const meta = TYPE_META[tx.type] ?? TYPE_META.scan
+  const meta = TYPE_META[tx.type]
   const positive = tx.points >= 0
   return (
     <motion.li
@@ -159,43 +176,19 @@ const TxRow = ({
         )}
       >
         {positive ? '+' : '−'}
-        {fmtInt(tx.points)}
+        {fmtInt(Math.abs(tx.points))}
       </span>
     </motion.li>
   )
 }
 
-/* ─── Chip filtro ────────────────────────────────────────── */
-const FilterChip = ({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={cn(
-      'px-3 py-1.5 rounded-full text-xs font-ui font-bold transition-colors',
-      active
-        ? 'bg-km0-blue-800 text-white'
-        : 'bg-white text-km0-blue-800 border border-km0-blue-100'
-    )}
-  >
-    {label}
-  </button>
-)
-
 /* ─── Pantalla ───────────────────────────────────────────── */
 const HistorialPunts = () => {
   const navigate = useNavigate()
+  const account = useAccount()
+  const { summary: invitationSummary } = useInviteSummary()
   const { lang } = useLang()
   const { user } = useAuth()
-  const { summary: invitationSummary } = useInviteSummary()
-  const { history, loading, error } = usePointsHistory()
   const [filter, setFilter] = useState<Filter>('all')
 
   const isAuthed =
@@ -203,13 +196,22 @@ const HistorialPunts = () => {
     (typeof window !== 'undefined' &&
       sessionStorage.getItem('km0_preview_authed') === '1')
 
-  const { balance, earnedTotal: earned, spentTotal: spent } = history
+  const sorted = useMemo(
+    () =>
+      [...account.transactions].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      ),
+    [account.transactions]
+  )
+
+  const { balance, earned, spent } = account
+  const scrollRef = useDragScroll('vertical')
 
   const filtered = useMemo(() => {
-    if (filter === 'earned') return history.items.filter((tx) => tx.points >= 0)
-    if (filter === 'spent') return history.items.filter((tx) => tx.points < 0)
-    return history.items
-  }, [history.items, filter])
+    if (filter === 'earned') return sorted.filter((tx) => tx.points >= 0)
+    if (filter === 'spent') return sorted.filter((tx) => tx.points < 0)
+    return sorted
+  }, [sorted, filter])
 
   const groups = useMemo(() => {
     const map = new Map<Group, PointsTransaction[]>()
@@ -221,159 +223,145 @@ const HistorialPunts = () => {
     }
     return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({
       group: g,
-      items: map.get(g)!,
+      items: map.get(g) ?? [],
     }))
   }, [filtered])
 
+  const preview = usePreviewState(
+    account.loading,
+    !!account.error,
+    groups.length === 0
+  )
+
   return (
-    <DeviceShell>
+    <>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           {/* Header fijo */}
-          <header className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3 bg-km0-beige-50">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              aria-label={t('common.back', lang)}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-km0-blue-100 active:scale-95 transition-transform"
-            >
-              <ChevronLeft size={20} className="text-km0-blue-800" />
-            </button>
-            <h1 className="flex-1 text-center font-brand font-black text-base text-km0-blue-900 pr-10">
-              {t('points.history.title', lang)}
-            </h1>
-          </header>
-
-          {/* Resumen de saldo */}
-          <section className="shrink-0 px-4 pb-3">
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-km0-blue-800 to-km0-blue-900 px-4 py-4 shadow-[0_12px_28px_-12px_hsl(var(--km0-blue-900)/0.45)]"
-            >
-              <Coins
-                className="absolute -bottom-3 -right-3 w-24 h-24 text-white/5 rotate-12 pointer-events-none"
-                strokeWidth={1}
-              />
-              <p className="relative z-10 font-body text-xs text-white/70 uppercase tracking-wide">
-                {t('points.history.balance', lang)}
-              </p>
-              <div className="relative z-10 mt-0.5 flex items-baseline gap-1.5">
-                <span className="font-brand font-black text-white text-3xl tabular-nums">
-                  {fmtInt(balance)}
-                </span>
-                <span className="font-body text-white/70 text-sm">
-                  {t('common.points', lang)}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => navigate('/redeemed-rewards')}
-                className="relative z-10 mt-3 flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 active:scale-[0.98] transition-transform w-fit"
-              >
-                <GiftIcon size={14} className="text-km0-yellow-100" />
-                <span className="font-ui font-bold text-xs text-white">
-                  {t('redemptions.see_list', lang)}
-                </span>
-              </button>
-
-              <div className="relative z-10 mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-white/10 px-3 py-2">
-                  <p className="font-body text-[10px] text-white/60 uppercase tracking-wide">
-                    {t('points.history.earned', lang)}
-                  </p>
-                  <p className="font-brand font-black text-km0-teal-300 text-lg tabular-nums">
-                    +{fmtInt(earned)}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-white/10 px-3 py-2">
-                  <p className="font-body text-[10px] text-white/60 uppercase tracking-wide">
-                    {t('points.history.spent', lang)}
-                  </p>
-                  <p className="font-brand font-black text-km0-coral-300 text-lg tabular-nums">
-                    −{fmtInt(spent)}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </section>
-
-          <section className="shrink-0 px-4 pb-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                navigate('/my-invitations?from=points', {
-                  state: { invitationOrigin: 'points' },
-                })
-              }
-              className="h-auto w-full justify-start gap-3 whitespace-normal rounded-2xl border-km0-blue-100 bg-card px-3 py-3 text-left"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-km0-yellow-100 text-km0-blue-900">
-                <Share2 aria-hidden size={18} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-ui text-sm font-bold text-km0-blue-900">
-                  {t('invites.points.title', lang)}
-                </span>
-                <span className="block font-body text-xs leading-snug text-km0-blue-800/65">
-                  {invitationSummary.pointsEarned > 0
-                    ? t('invites.points.earned', lang).replace(
-                        '{points}',
-                        fmtInt(invitationSummary.pointsEarned)
-                      )
-                    : t('invites.points.empty', lang)}
-                </span>
-              </span>
-              <span className="flex shrink-0 items-center gap-1 font-ui text-[11px] font-bold text-km0-blue-700">
-                {t('invites.points.action', lang)}
-                <ChevronRight aria-hidden size={15} />
-              </span>
-            </Button>
-          </section>
-
-          {/* Filtros */}
-          <div className="chip-row shrink-0 px-4 pb-2">
-            <FilterChip
-              active={filter === 'all'}
-              onClick={() => setFilter('all')}
-              label={t('points.history.filter_all', lang)}
-            />
-            <FilterChip
-              active={filter === 'earned'}
-              onClick={() => setFilter('earned')}
-              label={t('points.history.filter_earned', lang)}
-            />
-            <FilterChip
-              active={filter === 'spent'}
-              onClick={() => setFilter('spent')}
-              label={t('points.history.filter_spent', lang)}
-            />
-          </div>
-
+          <ScreenHeader title={t('points.history.title', lang)} />
           {/* Lista */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6">
-            {loading ? (
-              <div className="flex h-full items-center justify-center">
-                <Loader2
-                  className="animate-spin text-km0-blue-700"
-                  aria-label={t('common.loading', lang)}
+          <div
+            ref={scrollRef}
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pb-6"
+          >
+            {/* Resumen de saldo */}
+            <section className="shrink-0 px-4 pb-3">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-km0-blue-800 to-km0-blue-900 px-4 py-4 shadow-[var(--shadow-bubble)]"
+              >
+                <Coins
+                  className="absolute -bottom-3 -right-3 w-24 h-24 text-primary-foreground/5 rotate-12 pointer-events-none"
+                  strokeWidth={1}
                 />
-              </div>
-            ) : error ? (
-              <div className="flex h-full items-center justify-center px-6 text-center">
-                <p className="font-body text-sm text-km0-coral-600">
-                  {t('points.history.load_error', lang)}
+                <p className="relative z-10 font-body text-xs text-primary-foreground/70 uppercase tracking-wide">
+                  {t('points.history.balance', lang)}
                 </p>
-              </div>
-            ) : groups.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-center px-6">
-                <p className="font-body text-sm text-km0-blue-800/60">
-                  {t('points.history.empty', lang)}
-                </p>
-              </div>
+                <div className="relative z-10 mt-0.5 flex items-baseline gap-1.5">
+                  <span className="font-brand font-black text-primary-foreground text-3xl tabular-nums">
+                    {fmtInt(balance)}
+                  </span>
+                  <span className="font-body text-primary-foreground/70 text-sm">
+                    {t('common.points', lang)}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/redeemed-rewards')}
+                  className="relative z-10 mt-3 flex items-center gap-2 rounded-full bg-card/15 px-3 py-2 active:scale-[0.98] transition-transform w-fit"
+                >
+                  <GiftIcon size={14} className="text-km0-yellow-100" />
+                  <span className="font-ui font-bold text-xs text-primary-foreground">
+                    {t('redemptions.see_list', lang)}
+                  </span>
+                </button>
+
+                <div className="relative z-10 mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-card/10 px-3 py-2">
+                    <p className="font-body text-[10px] text-primary-foreground/60 uppercase tracking-wide">
+                      {t('points.history.earned', lang)}
+                    </p>
+                    <p className="font-brand font-black text-km0-teal-300 text-lg tabular-nums">
+                      +{fmtInt(earned)}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-card/10 px-3 py-2">
+                    <p className="font-body text-[10px] text-primary-foreground/60 uppercase tracking-wide">
+                      {t('points.history.spent', lang)}
+                    </p>
+                    <p className="font-brand font-black text-km0-coral-300 text-lg tabular-nums">
+                      −{fmtInt(spent)}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </section>
+
+            <section className="shrink-0 px-4 pb-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  navigate('/my-invitations?from=points', {
+                    state: { invitationOrigin: 'points' },
+                  })
+                }
+                className="h-auto w-full justify-start gap-3 whitespace-normal rounded-2xl border-km0-blue-100 bg-card px-3 py-3 text-left"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-km0-yellow-100 text-km0-blue-900">
+                  <Share2 aria-hidden size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-ui text-sm font-bold text-km0-blue-900">
+                    {t('invites.points.title', lang)}
+                  </span>
+                  <span className="block font-body text-xs leading-snug text-km0-blue-800/65">
+                    {invitationSummary.pointsEarned > 0
+                      ? t('invites.points.earned', lang).replace(
+                          '{points}',
+                          fmtInt(invitationSummary.pointsEarned)
+                        )
+                      : t('invites.points.empty', lang)}
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-1 font-ui text-[11px] font-bold text-km0-blue-700">
+                  {t('invites.points.action', lang)}
+                  <ChevronRight aria-hidden size={15} />
+                </span>
+              </Button>
+            </section>
+
+            {/* Filtros */}
+            <div className="shrink-0 px-4 pb-2 flex items-center gap-2">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                label={t('points.history.filter_all', lang)}
+              />
+              <FilterChip
+                active={filter === 'earned'}
+                onClick={() => setFilter('earned')}
+                label={t('points.history.filter_earned', lang)}
+              />
+              <FilterChip
+                active={filter === 'spent'}
+                onClick={() => setFilter('spent')}
+                label={t('points.history.filter_spent', lang)}
+              />
+            </div>
+
+            <p className="mb-3 font-body text-[11px] text-muted-foreground">
+              {t('account.demo', lang)}
+            </p>
+            {preview.state !== 'ready' ? (
+              <ScreenStatus
+                state={preview.state}
+                emptyKey="points.history.empty"
+                onRetry={() => preview.retry(account.reload)}
+              />
             ) : (
               <div className="flex flex-col gap-4 pt-2">
                 {groups.map(({ group, items }, gi) => (
@@ -381,7 +369,7 @@ const HistorialPunts = () => {
                     <h2 className="font-ui font-bold text-[11px] uppercase tracking-wide text-km0-blue-800/60 mb-1">
                       {t(GROUP_KEY[group], lang)}
                     </h2>
-                    <ul className="bg-white rounded-2xl border border-km0-blue-100 divide-y divide-km0-beige-200 px-3">
+                    <ul className="bg-card rounded-2xl border border-km0-blue-100 divide-y divide-km0-beige-200 px-3">
                       {items.map((tx, i) => (
                         <TxRow
                           key={tx.id}
@@ -409,7 +397,7 @@ const HistorialPunts = () => {
           />
         </div>
       </div>
-    </DeviceShell>
+    </>
   )
 }
 

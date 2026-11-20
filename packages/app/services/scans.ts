@@ -1,14 +1,24 @@
-/**
- * Scans — validación real del QR de un comercio (POST /scans).
- *
- * El backend exige Bearer de residente. El QR físico codifica
- * `https://app.km0lab.com/scan?c={token}`; aquí enviamos el token.
- */
+import { notifyAccountChanged } from './accountEvents'
 import { ApiError, apiFetch, scanOutSchema, type ScanOut } from './km0labClient'
 
-import type { ScanResult } from './mock/scanner'
+import type { ScanErrorKind, ScanResult } from '../types/scan'
 
-/** POST /scans con el token del QR. */
+/**
+ * Resultado de un escaneo tal como lo usa producción. Es el `ScanResult`
+ * de pantalla más `availableAt`: la fecha en que el comercio vuelve a dar
+ * puntos, que el servidor devuelve cuando el QR ya se escaneó.
+ */
+export type ScanOutcome =
+  | Extract<ScanResult, { ok: true }>
+  | {
+      ok: false
+      kind: ScanErrorKind
+      comercNom?: string
+      /** ISO (YYYY-MM-DD). */
+      availableAt?: string
+    }
+
+/** Escaneo QR de visita. POST /scans (Bearer, rol resident). */
 export const scanQr = async (qrCode: string): Promise<ScanOut> => {
   return apiFetch('/scans', {
     method: 'POST',
@@ -18,8 +28,7 @@ export const scanQr = async (qrCode: string): Promise<ScanOut> => {
   })
 }
 
-/** ScanOut (201) → ScanResult ok. */
-export const mapScanOk = (out: ScanOut): ScanResult => ({
+export const mapScanOk = (out: ScanOut): ScanOutcome => ({
   ok: true,
   comercId: out.shop_id,
   comercNom: out.shop_name ?? '',
@@ -35,10 +44,9 @@ type CooldownDetail = {
   cooldown_days?: number
 }
 
-/** Error de la llamada → ScanResult ko. */
-export const mapScanError = (e: unknown): ScanResult => {
+/** Convierte un error de la API en el resultado que pinta el escáner. */
+export const mapScanError = (e: unknown): ScanOutcome => {
   if (e instanceof ApiError) {
-    // 409 qr_cooldown → ya visitado (cooldown).
     if (e.status === 409) {
       const d = (e.detail ?? {}) as CooldownDetail
       if (d.code === 'qr_cooldown' || d.available_at) {
@@ -51,12 +59,24 @@ export const mapScanError = (e: unknown): ScanResult => {
       }
       return { ok: false, kind: 'sense_connexio' }
     }
-    // 404 Invalid QR → código no válido.
     if (e.status === 404) {
       return { ok: false, kind: 'codi_no_valid' }
     }
-    // 400/401/403 y otros → sin conexión / no procesable.
     return { ok: false, kind: 'sense_connexio' }
   }
   return { ok: false, kind: 'sense_connexio' }
+}
+
+/**
+ * Valida un QR contra el servidor y avisa de que la cuenta ha cambiado
+ * (saldo e historial) cuando el escaneo abona puntos.
+ */
+export const scanShopQr = async (token: string): Promise<ScanOutcome> => {
+  try {
+    const out = await scanQr(token)
+    notifyAccountChanged()
+    return mapScanOk(out)
+  } catch (e) {
+    return mapScanError(e)
+  }
 }

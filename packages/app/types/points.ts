@@ -8,9 +8,11 @@ export type PointsTxType =
   | 'event_signup'
   | 'survey'
   | 'suggestion'
-  | 'redeem'
+  | 'invitation'
   | 'invite_person'
   | 'invite_business'
+  | 'demo_credit'
+  | 'redeem'
 
 export type PointActionId =
   | 'birthday'
@@ -19,10 +21,10 @@ export type PointActionId =
   | 'scan'
   | 'web_visit'
   | 'newsletter'
-  | 'event_signup'
-  | 'survey'
   | 'invite_person'
   | 'invite_business'
+  | 'event_signup'
+  | 'survey'
 
 export type PointActionIcon =
   | 'cake'
@@ -31,25 +33,20 @@ export type PointActionIcon =
   | 'qr'
   | 'globe'
   | 'mail'
+  | 'share'
   | 'calendar-check'
   | 'clipboard-list'
-  | 'share'
 
 export interface PointAction {
-  /** UUID de API o id estable del mock Lovable. */
   id: string
-  /** Tipo de catálogo API (`signup`, `invite_person`, …). */
   apiType: string
-  /** Texto ya traducido por la API (name). Opcional en mocks. */
   title?: string
-  /** Texto ya traducido por la API (description). Opcional en mocks. */
   description?: string
+  earnedPoints?: number
   titleKey: TKey
   descriptionKey: TKey
   typeKey: TKey
   points: number
-  /** Suma real cobrada en el ledger para este tipo, si hay. */
-  earnedPoints?: number
   completed: boolean
   icon: PointActionIcon
 }

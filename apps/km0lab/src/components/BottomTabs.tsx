@@ -1,5 +1,13 @@
 import { t } from '@km0lab/app'
-import { Home as HomeIcon, User, Coins, Gift, Sparkles } from 'lucide-react'
+import { Button } from '@km0lab/ui'
+import {
+  Home as HomeIcon,
+  User,
+  Coins,
+  Gift,
+  Sparkles,
+  Lock,
+} from 'lucide-react'
 
 import type { ReactNode } from 'react'
 
@@ -9,10 +17,10 @@ import { cn } from '@/lib/utils'
 export type HomeTab = 'home' | 'actions' | 'puntos' | 'rewards' | 'perfil'
 
 export interface BottomTabsProps {
-  activeTab: HomeTab
+  activeTab: HomeTab | null
   /** Si hay sesión, los tabs no-home responden con su handler real; si no, redirigen a login. */
   isAuthed: boolean
-  onLogin: () => void
+  onLogin: (tab?: HomeTab) => void
   onHome: () => void
   onProfile: () => void
   onPoints: () => void
@@ -35,7 +43,7 @@ const BottomTabs = ({
   const handleClick = (tab: HomeTab, action: () => void) => {
     // Actions e Inicio están disponibles para todos; el resto requiere sesión.
     if (!isAuthed && tab !== 'home' && tab !== 'actions') {
-      onLogin()
+      onLogin(tab)
       return
     }
     action()
@@ -49,8 +57,8 @@ const BottomTabs = ({
 
   return (
     <nav
-      className="shrink-0 bg-white border-t border-km0-beige-200 px-1 pt-2 pb-3 grid grid-cols-5"
-      aria-label="Navegación principal"
+      className="relative z-20 shrink-0 rounded-t-[22px] bg-card px-1 pt-2 pb-3 grid grid-cols-5 shadow-[var(--shadow-bubble)]"
+      aria-label={t('navigation.main', lang)}
     >
       <TabItem
         icon={<HomeIcon size={20} strokeWidth={2.2} />}
@@ -100,23 +108,36 @@ interface TabItemProps {
 }
 
 const TabItem = ({ icon, label, active, available, onClick }: TabItemProps) => (
-  <button
+  <Button
+    variant="bubbleSurface"
     type="button"
     onClick={onClick}
-    aria-pressed={active}
-    aria-disabled={!available}
+    aria-current={active ? 'page' : undefined}
     className={cn(
-      'flex flex-col items-center gap-1 py-1 active:scale-95 transition-transform',
+      'h-auto min-h-14 min-w-0 flex-col justify-start gap-1 whitespace-normal rounded-xl px-0 py-1',
       active
         ? 'text-km0-blue-700'
         : available
           ? 'text-km0-blue-800/50'
-          : 'text-km0-blue-800/25'
+          : 'text-km0-blue-800/60'
     )}
   >
-    <span className="w-6 h-6 flex items-center justify-center">{icon}</span>
-    <span className="font-ui font-bold text-[9px] leading-tight">{label}</span>
-  </button>
+    <span
+      className={cn(
+        'relative flex h-7 w-11 items-center justify-center rounded-full',
+        active && 'bg-km0-yellow-500'
+      )}
+    >
+      {icon}
+      {!available && (
+        <Lock
+          aria-hidden
+          className="absolute -right-0.5 -top-1 !h-3 !w-3 rounded-full bg-km0-beige-100 text-km0-blue-800"
+        />
+      )}
+    </span>
+    <span className="font-ui font-bold text-[11px] leading-tight">{label}</span>
+  </Button>
 )
 
 export default BottomTabs

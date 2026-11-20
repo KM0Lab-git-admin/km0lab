@@ -1,9 +1,4 @@
-import {
-  useShareLink,
-  t,
-  openShareChannel,
-  trackInviteEvent,
-} from '@km0lab/app'
+import { useShareLink, t, openShareChannel } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { Copy, Mail, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
 
@@ -16,7 +11,6 @@ interface ShareChannelListProps {
   message: string
   /** Asunto para el canal de correo. */
   subject: string
-  inviteCode?: string | null
 }
 
 interface Channel {
@@ -35,7 +29,6 @@ const ShareChannelList = ({
   link,
   message,
   subject,
-  inviteCode,
 }: ShareChannelListProps) => {
   const { lang } = useLang()
   const { manualCopy, linkRef, copyLink, share } = useShareLink({
@@ -43,16 +36,6 @@ const ShareChannelList = ({
     text: message,
     title: t('share.title', lang),
   })
-
-  const track = (
-    channel: 'whatsapp' | 'email' | 'facebook' | 'copy' | 'other'
-  ) => {
-    void trackInviteEvent({
-      type: 'share_initiated',
-      code: inviteCode,
-      channel,
-    })
-  }
 
   const hasNativeShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function'
@@ -62,43 +45,22 @@ const ShareChannelList = ({
       id: 'whatsapp',
       label: t('share.channel.whatsapp', lang),
       icon: MessageCircle,
-      onSelect: () => {
-        track('whatsapp')
-        void openShareChannel({
-          channel: 'whatsapp',
-          message,
-          subject,
-          link,
-        })
-      },
+      onSelect: () =>
+        void openShareChannel({ channel: 'whatsapp', message, subject, link }),
     },
     {
       id: 'email',
       label: t('share.channel.email', lang),
       icon: Mail,
-      onSelect: () => {
-        track('email')
-        void openShareChannel({
-          channel: 'email',
-          message,
-          subject,
-          link,
-        })
-      },
+      onSelect: () =>
+        void openShareChannel({ channel: 'email', message, subject, link }),
     },
     {
       id: 'facebook',
       label: t('share.channel.facebook', lang),
       icon: ThumbsUp,
-      onSelect: () => {
-        track('facebook')
-        void openShareChannel({
-          channel: 'facebook',
-          message,
-          subject,
-          link,
-        })
-      },
+      onSelect: () =>
+        void openShareChannel({ channel: 'facebook', message, subject, link }),
     },
     ...(hasNativeShare
       ? [
@@ -106,10 +68,7 @@ const ShareChannelList = ({
             id: 'more',
             label: t('share.channel.more', lang),
             icon: Share2,
-            onSelect: () => {
-              track('other')
-              void share()
-            },
+            onSelect: () => void share(),
           },
         ]
       : []),
@@ -122,9 +81,9 @@ const ShareChannelList = ({
           <li key={channel.id}>
             <Button
               type="button"
-              variant="outline"
+              variant="bubbleTertiary"
               onClick={channel.onSelect}
-              className="h-12 w-full justify-start gap-3 rounded-xl border-km0-blue-100 font-ui text-sm font-bold text-km0-blue-800"
+              className="h-12 w-full justify-start gap-3 rounded-full bg-card font-ui text-sm font-bold text-km0-blue-800"
             >
               <channel.icon aria-hidden size={18} />
               {channel.label}
@@ -135,12 +94,9 @@ const ShareChannelList = ({
 
       <Button
         type="button"
-        variant="ghost"
-        onClick={() => {
-          track('copy')
-          void copyLink()
-        }}
-        className="mt-3 h-11 w-full justify-start gap-3 rounded-xl font-ui text-sm font-bold text-km0-blue-700"
+        variant="bubbleLink"
+        onClick={() => void copyLink()}
+        className="mt-3 h-11 w-full justify-start gap-3 rounded-full font-ui text-sm font-bold text-km0-blue-700"
       >
         <Copy aria-hidden size={18} />
         {t('share.copy', lang)}

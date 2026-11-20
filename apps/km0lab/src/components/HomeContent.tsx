@@ -1,23 +1,25 @@
-import { t } from '@km0lab/app'
+import { t, useDragScroll } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { ArrowRight } from 'lucide-react'
 
-import BottomTabs, { type HomeTab } from './BottomTabs'
-import EarnPointsCard from './EarnPointsCard'
-import EventHeroCarousel from './EventHeroCarousel'
-import HomeHero from './HomeHero'
-import HomeModules, { type HomeModule } from './HomeModules'
-import InviteHomeCard from './InviteHomeCard'
-import JoinCard from './JoinCard'
-import MerchantPromosPreview from './MerchantPromosPreview'
-import PointsCard from './PointsCard'
-import RewardsPreview from './RewardsPreview'
-
+import type { HomeTab } from '@/components/BottomTabs'
 import type { Promo, ApiReward, InvitationsSummary } from '@km0lab/app'
 
+import BottomTabs from '@/components/AccountBottomTabs'
+import EarnPointsCard from '@/components/EarnPointsCard'
+import EventHeroCarousel from '@/components/EventHeroCarousel'
+import HomeHero from '@/components/HomeHero'
+import HomeModules, { type HomeModule } from '@/components/HomeModules'
+import InviteHomeCard from '@/components/InviteHomeCard'
+import JoinCard from '@/components/JoinCard'
+import MerchantPromosPreview from '@/components/MerchantPromosPreview'
+import PointsCard from '@/components/PointsCard'
+import RewardsPreview from '@/components/RewardsPreview'
 import { useLang } from '@/contexts/LangContext'
 
 export interface HomeContentProps {
   cityName: string
+  townArtSrc?: string
   hasAlerts: boolean
   onToggleAlerts: () => void
   /** Saludo ya localizado (e.g. "Bon dia, Aina 👋" o "Hola! 👋"). */
@@ -25,17 +27,23 @@ export interface HomeContentProps {
   /** Subtítulo ya localizado según estado (guest vs registered). */
   subtitle: string
   points: number
+  accountLoading?: boolean
   nextLevel: number
   nextReward?: string
   level?: number
   modules: HomeModule[]
   promos: Promo[]
+  eventsLoading?: boolean
+  eventsError?: boolean
   /** Premios públicos (API UAT); Home resuelve fallback mock si falla. */
   rewards: ApiReward[]
+  rewardsLoading?: boolean
+  rewardsError?: boolean
+  reloadRewards?: () => void
 
   activeTab: HomeTab
   isAuthed: boolean
-  onLogin: () => void
+  onLogin: (tab?: HomeTab) => void
   onHowItWorks: () => void
   onHome: () => void
   onProfile: () => void
@@ -58,15 +66,22 @@ export interface HomeContentProps {
 
 const HomeContent = ({
   cityName,
+  townArtSrc,
   hasAlerts,
   onToggleAlerts,
   points,
+  accountLoading,
   nextLevel,
   nextReward,
   level,
   modules,
   promos,
+  eventsLoading,
+  eventsError,
   rewards,
+  rewardsLoading,
+  rewardsError,
+  reloadRewards,
 
   activeTab,
   isAuthed,
@@ -90,23 +105,38 @@ const HomeContent = ({
   onOpenPointsHistory,
 }: HomeContentProps) => {
   const { lang } = useLang()
+  const scrollRef = useDragScroll('vertical')
 
   return (
     <>
       <HomeHero
         cityName={cityName}
+        townArtSrc={townArtSrc}
         hasAlerts={hasAlerts}
         onToggleAlerts={onToggleAlerts}
         showGreeting={false}
-        showHowItWorks={showLogin}
-        onHowItWorks={onHowItWorks}
       />
 
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
-        <div className="relative z-10 flex flex-col gap-5 px-2 pt-4 pb-6">
-          <section className="flex flex-col gap-3 px-2">
-            {showLogin && <JoinCard onCreateAccount={onLogin} />}
-            {showPoints && (
+      <div
+        ref={scrollRef}
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col cursor-grab data-[dragging=true]:cursor-grabbing data-[dragging=true]:select-none"
+      >
+        <div className="relative z-10 flex flex-col gap-5 px-4 pt-4 pb-7">
+          <section className="flex flex-col gap-3">
+            {showLogin && (
+              <JoinCard
+                onCreateAccount={onLogin}
+                onLogin={onLogin}
+                onHowItWorks={onHowItWorks}
+              />
+            )}
+            {showPoints && accountLoading && (
+              <div
+                aria-busy
+                className="h-20 animate-pulse rounded-3xl bg-muted"
+              />
+            )}
+            {showPoints && !accountLoading && (
               <PointsCard
                 points={points}
                 nextLevel={nextLevel}
@@ -117,12 +147,77 @@ const HomeContent = ({
             )}
           </section>
 
-          <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 space-y-3 px-[10px] py-[10px]">
+          <section className="rounded-3xl bg-card p-4 shadow-[var(--shadow-bubble)] space-y-3">
             <SectionHeader title={t('home.section.quick', lang)} />
             <HomeModules modules={modules} />
           </section>
 
-          <div className="px-2">
+          <section className="space-y-3">
+            <SectionHeader
+              title={t('home.section.events', lang)}
+              actionLabel={t('home.action.see_all_m', lang)}
+              onAction={onSeeAllEvents}
+            />
+            {eventsLoading ? (
+              <div
+                aria-busy
+                className="h-40 animate-pulse rounded-3xl bg-muted"
+              />
+            ) : eventsError ? (
+              <p role="alert" className="font-body text-xs text-destructive">
+                {t('agenda.error', lang)}
+              </p>
+            ) : promos.length === 0 ? (
+              <p className="font-body text-xs text-muted-foreground">
+                {t('agenda.empty.title', lang)}
+              </p>
+            ) : (
+              <EventHeroCarousel promos={promos} onOpen={onOpenEvent} />
+            )}
+          </section>
+
+          <EarnPointsCard
+            onSeeAll={onActions}
+            locked={false}
+            onLogin={onLogin}
+            isAuthed={isAuthed}
+          />
+
+          <section className="space-y-3">
+            <SectionHeader
+              title={t('home.section.rewards', lang)}
+              actionLabel={t('home.action.see_all_m', lang)}
+              onAction={onSeeAllRewards}
+            />
+            {rewardsLoading ? (
+              <div
+                aria-busy
+                className="h-40 animate-pulse rounded-3xl bg-muted"
+              />
+            ) : rewardsError ? (
+              <div role="alert">
+                <p className="font-body text-xs text-destructive">
+                  {t('catalog.error', lang)}
+                </p>
+                <Button variant="bubbleLink" onClick={reloadRewards}>
+                  {t('merchants.error.retry', lang)}
+                </Button>
+              </div>
+            ) : rewards.length === 0 ? (
+              <p className="font-body text-xs text-muted-foreground">
+                {t('rewards.empty', lang)}
+              </p>
+            ) : (
+              <RewardsPreview items={rewards} onSeeAll={onSeeAllRewards} />
+            )}
+          </section>
+
+          <MerchantPromosPreview
+            onSeeAll={onSeeAllPromos}
+            locked={false}
+            onLogin={onLogin}
+          />
+          <div>
             <InviteHomeCard
               isAuthed={isAuthed}
               onInvite={onInvite}
@@ -132,42 +227,6 @@ const HomeContent = ({
               invitationSummary={invitationSummary}
             />
           </div>
-
-          <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 px-6 py-6 space-y-3">
-            <SectionHeader
-              title={t('home.section.events', lang)}
-              actionLabel={t('home.action.see_all_m', lang)}
-              onAction={onSeeAllEvents}
-            />
-            <EventHeroCarousel promos={promos} onOpen={onOpenEvent} />
-          </section>
-
-          {!isAuthed && (
-            <p className="text-center font-ui font-bold text-sm text-km0-coral-400 px-4">
-              {t('home.members.teaser', lang)}
-            </p>
-          )}
-
-          <EarnPointsCard
-            onSeeAll={onActions}
-            locked={false}
-            onLogin={onLogin}
-          />
-
-          <section className="rounded-3xl border border-km0-beige-200 bg-gradient-to-b from-card/90 to-secondary/40 shadow-[0_20px_50px_-32px_hsl(var(--foreground)/0.38)] ring-1 ring-white/60 px-6 py-6 space-y-3">
-            <SectionHeader
-              title={t('home.section.rewards', lang)}
-              actionLabel={t('home.action.see_all_m', lang)}
-              onAction={onSeeAllRewards}
-            />
-            <RewardsPreview items={rewards} onSeeAll={onSeeAllRewards} />
-          </section>
-
-          <MerchantPromosPreview
-            onSeeAll={onSeeAllPromos}
-            locked={false}
-            onLogin={onLogin}
-          />
         </div>
       </div>
 
@@ -197,18 +256,17 @@ const SectionHeader = ({
   onAction,
 }: SectionHeaderProps) => (
   <div className="flex items-center justify-between gap-2">
-    <h2 className="font-brand font-black text-km0-blue-800 text-base">
-      {title}
-    </h2>
+    <h2 className="font-brand font-black text-km0-blue-800 text-lg">{title}</h2>
     {actionLabel && (
-      <button
+      <Button
+        variant="bubbleLink"
         type="button"
         onClick={onAction}
-        className="font-ui font-bold text-km0-coral-400 active:scale-95 transition-transform underline underline-offset-4 text-xs gap-0 flex items-center justify-start whitespace-nowrap shrink-0"
+        className="h-auto min-h-11 shrink-0 gap-1 px-0 text-xs text-km0-coral-700"
       >
         {actionLabel}
         <ArrowRight size={13} strokeWidth={2.4} />
-      </button>
+      </Button>
     )}
   </div>
 )

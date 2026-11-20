@@ -1,28 +1,38 @@
 /**
- * Catálogo CP → población.
+ * Código postal → municipio.
  *
- * Fase actual: mock en TS (`src/data/mockPostalCodes.ts`).
- * Cuando se monte la BD real, sustituir el cuerpo de `lookupTown()` por
- * la query correspondiente — la firma async se mantiene a propósito.
+ * Lo resuelve km0lab-api (`GET /towns/public?postal_code=`): un municipio
+ * existe para la app cuando está dado de alta en el servidor, no en una
+ * lista del front. La única excepción es el código de demostración, que
+ * es un modo de la app y no un municipio real.
  */
-import { MOCK_POSTAL_CODES } from '../data/mockPostalCodes'
+import { ApiError } from '../services/km0labClient'
+import { getPublicTown } from '../services/towns'
 
 import { DEMO_TOWN_NAME, isDemoPostalCode } from './demoTown'
 
 const cache = new Map<string, string | null>()
 
+/**
+ * Devuelve el nombre del municipio o `null` si el código postal no
+ * pertenece a ningún municipio dado de alta. Lanza si el servidor no
+ * responde, para que la pantalla distinga «no existe» de «no hay conexión».
+ */
 export async function lookupTown(postalCode: string): Promise<string | null> {
   const cp = postalCode.trim()
   if (!/^\d{5}$/.test(cp)) return null
+  if (isDemoPostalCode(cp)) return DEMO_TOWN_NAME
   if (cache.has(cp)) return cache.get(cp) ?? null
-
-  // Simula latencia de red mínima para mantener los estados de loading.
-  await new Promise((r) => setTimeout(r, 120))
-  // 00000 es producción (Demo KM0). El mock de Lovable no lo trae y el
-  // sync lo borra; no depende de ese diccionario.
-  const town = isDemoPostalCode(cp)
-    ? DEMO_TOWN_NAME
-    : (MOCK_POSTAL_CODES[cp] ?? null)
-  cache.set(cp, town)
-  return town
+  try {
+    const town = await getPublicTown(cp)
+    const name = town.name.trim() || null
+    cache.set(cp, name)
+    return name
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 404 || e.status === 422)) {
+      cache.set(cp, null)
+      return null
+    }
+    throw e
+  }
 }

@@ -7,6 +7,7 @@ import {
   type AgendaEvent,
 } from '../services/eventsApi'
 import { useAppStore } from '../stores/useAppStore'
+import { contentPoblacion } from '../utils/demoTown'
 
 import type { Promo } from '../types/promo'
 
@@ -78,6 +79,10 @@ export function useFeaturedPromos(limit = 4): {
   error: string | null
 } {
   const lang = useAppStore((s) => s.lang)
+  const postalCode = useAppStore((s) => s.postalCode)
+  const town = useAppStore((s) => s.town)
+  // Eventos del municipio elegido (el de demostración lee los de Malgrat).
+  const poblacion = contentPoblacion(postalCode, town)
   const [promos, setPromos] = useState<Promo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -88,11 +93,12 @@ export function useFeaturedPromos(limit = 4): {
     setError(null)
     Promise.all([
       listEvents({
+        poblacion,
         pageSize: limit,
         page: 1,
         lang: lang === 'ca' ? 'ca' : 'es',
       }),
-      getCategories().catch(() => []),
+      getCategories(poblacion).catch(() => []),
     ])
       .then(([res, catalog]) => {
         if (cancelled) return
@@ -110,7 +116,7 @@ export function useFeaturedPromos(limit = 4): {
     return () => {
       cancelled = true
     }
-  }, [limit, lang])
+  }, [limit, lang, poblacion])
 
   return { promos, loading, error }
 }

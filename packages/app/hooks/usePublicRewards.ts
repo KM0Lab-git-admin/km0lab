@@ -1,32 +1,26 @@
+import { useMemo } from 'react'
+
+import { useHomeRewards } from './useHomeRewards'
+
+import type { ApiReward } from '../services/rewardsApi'
+
 /**
- * usePublicRewards — premios públicos activos desde la API real
- * (api.uat.km0lab.com vía proxy `rewards-api`), filtrados por el CP del
- * usuario cuando existe. React Query: cache 5 min por CP+idioma.
+ * usePublicRewards — premios activos del municipio elegido.
+ *
+ * Costura con Lovable (allí pasa por su intermediario). Aquí salen de
+ * `GET /rewards/public` por código postal, con el cliente común y el
+ * adaptador de premios. Sin código postal → vacío.
  */
-import { useQuery } from '@tanstack/react-query'
-
-import { listPublicRewards, type ApiReward } from '../services/rewardsApi'
-import { useAppStore } from '../stores/useAppStore'
-
-const DEFAULT_POSTAL_CODE = '08380'
-
 export function usePublicRewards(): {
   rewards: ApiReward[]
   loading: boolean
   error: boolean
+  reload: () => void
 } {
-  const postalCode = useAppStore((s) => s.postalCode) ?? DEFAULT_POSTAL_CODE
-  const lang = useAppStore((s) => s.lang)
-
-  const query = useQuery({
-    queryKey: ['public-rewards', postalCode, lang],
-    queryFn: () => listPublicRewards({ postalCode, lang }),
-    staleTime: 5 * 60 * 1000,
-  })
-
-  return {
-    rewards: query.data ?? [],
-    loading: query.isLoading,
-    error: query.isError,
-  }
+  const { rewards, loading, error, reload } = useHomeRewards()
+  const adapted = useMemo<ApiReward[]>(
+    () => rewards.map((r) => ({ ...r, imageUrl: r.imageUrl ?? null })),
+    [rewards]
+  )
+  return { rewards: adapted, loading, error: error !== null, reload }
 }

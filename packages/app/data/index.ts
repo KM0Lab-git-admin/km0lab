@@ -8,6 +8,5 @@
  * `useXxx.ts` para hooks).
  */
 
-export * from './mockPostalCodes'
 export * from './notifications'
 export * from './inviteConfig'

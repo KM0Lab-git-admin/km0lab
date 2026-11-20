@@ -1,0 +1,369 @@
+{
+  "source": "sin git",
+  "files": {
+    "apps/km0lab/src/components/AccountAccessFlow.tsx": {
+      "generated": "9c4da625831037b7bc3b0f86b4a6c0d3b8232c15cf22479663c0b85d10516bd0",
+      "final": "61676936ac3043be901ab97feae4ad93303e4cbec67dc7bce399e1d15c259d14"
+    },
+    "apps/km0lab/src/components/AccountAccessSheet.tsx": {
+      "generated": "2855cfcbefc4eadf51ad6fccd3d271bcbfee729e88393b6f2524ec63a4146a28",
+      "final": "399a4101229ac62cfe971f0c15037f1be53261a697d26578f1a97952137591b1"
+    },
+    "apps/km0lab/src/components/AccountBottomTabs.tsx": {
+      "generated": "ecdf9666e05ef7806609e933793b14ad1df3f6873dca5489b095abf9201947c3",
+      "final": "75c1792e43208b81b24e5ae46e7f5de1d836459d97830feb6ece0161b65f46c2"
+    },
+    "apps/km0lab/src/components/BottomTabs.tsx": {
+      "generated": "5bbc276111c8ceba43e68e86dde23df57d39b760238ff1191709020d1fba7bf1",
+      "final": "a1e5b9d78077f8c0cd1a7067b1ff396d65cdf42ff920e2756dbcd08276eba715"
+    },
+    "apps/km0lab/src/components/BrandedFrame.tsx": {
+      "generated": "79ca731820166636a06f1e32d6b89e1d436a012f65338492ed28edaadf66c5ad",
+      "final": "667b24c1848ae539abb77cfca68452ad1970701b088f87aa87214d11ef3bd3eb"
+    },
+    "apps/km0lab/src/components/BubbleSheet.tsx": {
+      "generated": "37d89ba4a51ca292560b126bd74d0bb10887b8ba311e5653869acd1f231b0aea",
+      "final": "b081d3f13b98a2b1ec574bcff2d2d1d462652b5cee22dd822729a9b6af2de10a"
+    },
+    "apps/km0lab/src/components/CategoryFilterMenu.tsx": {
+      "generated": "2faca00e043102eaf39d5bfb052f64cfd2e99193db02c281adaf1e728b2af70b",
+      "final": "010d5c8c3db547bf9af1b80d8be2426f7579710146bdf56504879113c149c212"
+    },
+    "apps/km0lab/src/components/EarnPointsCard.tsx": {
+      "generated": "3b3ef5e71054f3336e440ec481cfbef4590bb21483390ff5cad5bba8715cc929",
+      "final": "e2d52842c5303fc4cbcb267c8104c1f4883b8197893cf25b451dedab80d79177"
+    },
+    "apps/km0lab/src/components/EventHeroCarousel.tsx": {
+      "generated": "a19c2b220183b9b536a271ef011cd56d604b15a5652677c880bdabbd757464d1",
+      "final": "5f503299f78c02f70ef6c79c6a99daf900b18537ad4199cb578fb05f66e3b500"
+    },
+    "apps/km0lab/src/components/FilterChip.tsx": {
+      "generated": "023edb26a12caffc931d6b6d77eeaaea8f7fb674fa504039563bb7c699232243",
+      "final": "878e3a1bba9f6fb0fab4a65251b67f17183c5e03100faf064a39f680141e8d11"
+    },
+    "apps/km0lab/src/components/HomeContent.tsx": {
+      "generated": "db8d4a4754e60a8adf69ef000dfddddf845c46eb4a95fa6009f06d7c4b7589fa",
+      "final": "f8201f230a2ad47ad8fd8f6d2a77809c0aebd33f931cccd3273f2499146e202d"
+    },
+    "apps/km0lab/src/components/HomeHero.tsx": {
+      "generated": "681faa0c75b5689395e90f23ee96d1fbf89bc68176e1ddd5f53ebee2dea8a819",
+      "final": "f849349c543ebcf1e4dc7d126e1609a3117823f72d6cd1486c36cb60d95b90d2"
+    },
+    "apps/km0lab/src/components/HomeModules.tsx": {
+      "generated": "49e03737bcacc1c188c1e10181097bfa08b227c8d1917e14012291a34a113cdd",
+      "final": "01db1540c62d2cdb0fc2ca9802007fc1f36d280a607431cd580e0a69fcc1212a"
+    },
+    "apps/km0lab/src/components/InviteHomeCard.tsx": {
+      "generated": "21a3813ee1f64954c99ee1155932c276f04ca172567a12fc5973aa2ebdfef0a8",
+      "final": "d38d873589291fa92db9208c9f73efc7c99b3a4b529e46f88bcf68c9dadd371a"
+    },
+    "apps/km0lab/src/components/JoinCard.tsx": {
+      "generated": "9b618553e45a7d7606d8d6f65e6b96f1629f9e2c8ddd131d055602a732a3d253",
+      "final": "60db9d6d4aaad313344d740ca1be667be9d067f154c95903e1c4adcf066fcf70"
+    },
+    "apps/km0lab/src/components/Km0Logo.tsx": {
+      "generated": "e308e5a0e5cdd43498ce30153adfe2a16fb921031032d55ce049003be1b74c10",
+      "final": "e308e5a0e5cdd43498ce30153adfe2a16fb921031032d55ce049003be1b74c10"
+    },
+    "apps/km0lab/src/components/LanguageCard.tsx": {
+      "generated": "676012e1f8c8f39da39dff656486de18b8f6a93c3506086141ab1812aade5445",
+      "final": "a43c53a29dddd127213f219e3b647d7084b8b904d7c6229f617b0b0e78db1ef2"
+    },
+    "apps/km0lab/src/components/MerchantPromosPreview.tsx": {
+      "generated": "ba4ee784b6516e95a5fc5b92c6a248c0aca6d5ad30dffd2a49f827759036df29",
+      "final": "65db53ef987498c526946a3e92e0c0503efd829d5d19c86f1002d007ed354eda"
+    },
+    "apps/km0lab/src/components/NotificationBell.tsx": {
+      "generated": "77c752cf1446f60b39b70a6a58191269a435e0224041767531244a6ed040a086",
+      "final": "17e093adbe0e852d95477d2bd0e3980b6ba8e132810ef0c8d6def5ef2f148a10"
+    },
+    "apps/km0lab/src/components/NotificationsOverlay.tsx": {
+      "generated": "4c8da1f1d031764ef3c028f276c27dd62f05d12588428aae6508a45105fbc575",
+      "final": "a94ac8c408c302e0f60754e38e628ec24edbfbe1c24c5fe98cd9d3399f4d9e67"
+    },
+    "apps/km0lab/src/components/PointsCard.tsx": {
+      "generated": "efe4907b8993437c6cacf24a667f1b34a6bb7c347a28b2a2fd7f7bb3dd38fa27",
+      "final": "696a563463f90ff136fd37b5ac53cb9425359da86188b31246e02c4e578d223d"
+    },
+    "apps/km0lab/src/components/PointsCoin.tsx": {
+      "generated": "511f439335b68a2c502bbc721c5178c1dcaefec8331c6223a9dd4675312fe529",
+      "final": "511f439335b68a2c502bbc721c5178c1dcaefec8331c6223a9dd4675312fe529"
+    },
+    "apps/km0lab/src/components/PointsRewardOverlay.tsx": {
+      "generated": "5f6e5b78b96d2e2410f6e7d34bd9acf8c24e2d3b89f1cdd5a3521d962cbefb38",
+      "final": "181d5f1c108d1f6178375c579d987319589278dc49f77214a891ce0792640e46"
+    },
+    "apps/km0lab/src/components/RedeemBalanceOverlay.tsx": {
+      "generated": "aea2c09a3a90c3436ae6f7a8da664d3a9407b3ffb778395cac62e94cd2fe8548",
+      "final": "08fd7d2e98746325dec1bb0e12b3e5d8674fa780190f41a631dbecf7c3cba3d6"
+    },
+    "apps/km0lab/src/components/RedeemMerchandiseOverlay.tsx": {
+      "generated": "40bfa7b3c47ff4fad89b9240ab4be349c29e9fa6876960244e5c5ed22e6e2f90",
+      "final": "094acbbc5cd3ccb3f1a1afd5da1f7f3446cfd507b027edf0c9cdc087afb3183a"
+    },
+    "apps/km0lab/src/components/RewardArtwork.tsx": {
+      "generated": "81ab8975c928feac82acd4e927ebda10b22f31904ce5287ea421c254c5d6d89e",
+      "final": "0a765e48ba49c08ff6bed259a813d44c267d2636b46efd0be4b0a0944fd9e1ba"
+    },
+    "apps/km0lab/src/components/RewardCardFrame.tsx": {
+      "generated": "03f4a05a43253602c905d1505af1f96d659f29cd6f2a033e4cfe2e6450890e13",
+      "final": "e7bf71f2b2cdd753cc245d9fdd5c7890e356266a6359fe48907897b21d3369d6"
+    },
+    "apps/km0lab/src/components/RewardsPreview.tsx": {
+      "generated": "c158841cde177460eea4e9c5abb538d344a78bba487984884855dedcce42fbc2",
+      "final": "b6dc76173eb0e9653437f3c105d3bb71fcde9d0d71248f4e77cf889999ab0224"
+    },
+    "apps/km0lab/src/components/ScreenHeader.tsx": {
+      "generated": "38296077f6a543e7ec64093744777c4683103dfc2e32466cf3c0e8471f6807b0",
+      "final": "2a444a71a6267663492c27a4461c3693ab9fbc5805eb6f06b291252d489d000d"
+    },
+    "apps/km0lab/src/components/ScreenStatus.tsx": {
+      "generated": "a72c99146d59fb3a192b45421fa2720c4575f279a4b7db318b152464850ace07",
+      "final": "aa648a167b61f8ddaa4f9318d200c552e306ba340ba722043eca01d331114135"
+    },
+    "apps/km0lab/src/components/ScreenTitle.tsx": {
+      "generated": "a91fd9061cabb751da3dac9d17fee35150e4f093766a8fe02016f6e1d14b8c5b",
+      "final": "08e6749f409d824339aca821789c8ef65819c8361c87abc5f571e35a7ec00bc9"
+    },
+    "apps/km0lab/src/components/ShareChannelList.tsx": {
+      "generated": "eeece8cdbd68baed13da5bcac82cf30d116698f9bf8e1b7bd4225161cecb53dd",
+      "final": "4cae421a370874e6089f6b9e7081720484b1798f375d747e890957c22bf574dc"
+    },
+    "apps/km0lab/src/components/ShareChannelsSheet.tsx": {
+      "generated": "0e4db07fce98fa11d49f67f88d90bd73e0675a2627dd26823494285c469d006d",
+      "final": "e2d33e803ca2a4881351d847609853c747d68bb94e1e9b40f5e4acdc6359d7e3"
+    },
+    "apps/km0lab/src/components/StackCarousel.tsx": {
+      "generated": "3e795db028239f493ac0a739580b75d43df85883689ae1cd34855ec6d8325df1",
+      "final": "650ba03746682db4a45c001c1e830581339d783791f993864a3f88738d62d1b4"
+    },
+    "apps/km0lab/src/components/TopLoadingBar.tsx": {
+      "generated": "568b6f050b1ccbaa27737916ed200adc61c42170690731c6b9f253258662da06",
+      "final": "33e4fd706eb07d90b8a79865da6643149456001bf58df37fe72e62f8fa6d89d0"
+    },
+    "apps/km0lab/src/components/UserGreeting.tsx": {
+      "generated": "33a2576093001a901d77641caf21813c90e338b23e0e7e810697711c898e7b3f",
+      "final": "9ffb64f748f427115833bdff976d71240733417b5127d1a11267bcc9bb9ce155"
+    },
+    "apps/km0lab/src/components/WhenTabs.tsx": {
+      "generated": "c5ca18b2020796575cc51332d3d19f64eba77e39670293c8d72494c45eb71e15",
+      "final": "859caaabd754e390a0bae1e53e004a975d7f38f81e9dd211e981ff838adf8369"
+    },
+    "apps/km0lab/src/data/homeModules.ts": {
+      "generated": "a3236772f58973dbd84b45e849103cf8f35bb20ca7a096a5859fe0278b025cff",
+      "final": "a3236772f58973dbd84b45e849103cf8f35bb20ca7a096a5859fe0278b025cff"
+    },
+    "apps/km0lab/src/data/howItWorksSteps.ts": {
+      "generated": "8a25ccf235cc7a48bbadbf78bf428fb36d78ba59e9875ba64f1abeec852badd3",
+      "final": "ddf3a93c6a0997a1e0027dcf43942abfdb2811f9e299f19b45af74d93cb60688"
+    },
+    "apps/km0lab/src/data/inviteConfig.ts": {
+      "generated": "55e6fca2a6ac33f788f4cb6433bf19df4a8614ba66877fa714f63021b821325a",
+      "final": "55e6fca2a6ac33f788f4cb6433bf19df4a8614ba66877fa714f63021b821325a"
+    },
+    "apps/km0lab/src/data/onboardingSlides.ts": {
+      "generated": "5054d627d0f48f59825baebcb0096e4eeeda76b68d9e891bf6485ae14c927d4d",
+      "final": "13f2214e9bb52e284020a512f6115d84b8fc154abab9b82c0f1cc23276b46e9e"
+    },
+    "apps/km0lab/src/data/townArt.ts": {
+      "generated": "b14e2a37e7df0418e5850bf8d7b8c42c1a100fe3ce44f9359281154d79880a20",
+      "final": "b14e2a37e7df0418e5850bf8d7b8c42c1a100fe3ce44f9359281154d79880a20"
+    },
+    "apps/km0lab/src/pages/Agenda.tsx": {
+      "generated": "f8623f30b723b00af15403920ddbd8c12cb45eb3c94e17f97b88eb7f1006c340",
+      "final": "4c0909a1ce87e8df7078552f2b5335f4a02863fdfc4a4390696c5fc6858daba6"
+    },
+    "apps/km0lab/src/pages/BusinessSignup.tsx": {
+      "generated": "9d816b1a8baed2a3b373ab35a19aebc3cdd6fe3b0aee15e53f86a7e3d90befd5",
+      "final": "52b05e70ebb1c80e450e803efb25737d130d4ed84123dc256d3e9d9c0533dfb9"
+    },
+    "apps/km0lab/src/pages/ComercDetall.tsx": {
+      "generated": "19e1e81a2a377db09f4da02e8107cc6337160d848437bb5fe425075e33f88ee8",
+      "final": "2ee2ab2b4431bc0cf669c30608eacb113e9ac9473306b78fa3213076d889cf6d"
+    },
+    "apps/km0lab/src/pages/Comercos.tsx": {
+      "generated": "01c5cec0f514fae7a252a0996f51c7393aae92ee3f19ca6dc069ae7da8fd2674",
+      "final": "61d9bd24bd4d133cc7f014a470f707173b773080b251d8cc53b50c02bd5ea9a2"
+    },
+    "apps/km0lab/src/pages/EmailOtpTemplate.tsx": {
+      "generated": "788e8067db02da9b2a6c5d6c24f85c3cecfa4fac0c15a1a1b7c21cb9b0c23e73",
+      "final": "14f4328338a120c6f6708939bcc7b2be6f62acf222eff9e085e53534a32cb568"
+    },
+    "apps/km0lab/src/pages/Evento.tsx": {
+      "generated": "e8aacf0f7804205d6ed7e96537b576369ce6afdf86a4ee0ba5ed535c2b86dc01",
+      "final": "9bb67a41e46880a7d67713e9fdb22864f76edb8cd5e2c38f274f9d63078d77ac"
+    },
+    "apps/km0lab/src/pages/HistorialPunts.tsx": {
+      "generated": "f5393a75f293efa92755b98230a2805456f27682149d930daa058049dde895fd",
+      "final": "10503275d8073b480fe5c20dadf7edaff718337c746c91054662bbc190d1547f"
+    },
+    "apps/km0lab/src/pages/Home.tsx": {
+      "generated": "7fcb5adbf2dd5547be733f0020a55f787f78e2134d8a1125a7499d5111a39843",
+      "final": "598bff3dcb30f726d096f01dc402c73c1da93c9e9cb12b1a7250274515556492"
+    },
+    "apps/km0lab/src/pages/HowItWorks.tsx": {
+      "generated": "07143a2662803a8575c535b14f85a0776ab8329d5b2781e8e286a6db7ae89c8c",
+      "final": "d9073d6c8db764246cf6e33a574322a2a13402f078d9e6fe5f2e00f6406a95e8"
+    },
+    "apps/km0lab/src/pages/Index.tsx": {
+      "generated": "7535bea32130ae7b498a612b4e24f2ff2a6286937c5409a8a2b9f9b8f6183813",
+      "final": "7535bea32130ae7b498a612b4e24f2ff2a6286937c5409a8a2b9f9b8f6183813"
+    },
+    "apps/km0lab/src/pages/Invite.tsx": {
+      "generated": "b1864416eccc1c9b4f0720882632cc8a3dd9f6eaec3ff016d90202cf39d3606a",
+      "final": "fc0621179f0fdfd6f4af815d0c8a7b09a0965d53c7aa6f2af6e4fe8b19ba33ea"
+    },
+    "apps/km0lab/src/pages/Language.tsx": {
+      "generated": "0a401131a7cc283a2e59f858f401956e6b31a344b9b0183e38e0694f3c4ac4ea",
+      "final": "67b9807c124b719e937eb4c1857145b335b89db36dc0c3d399fbd69a9c79ce6a"
+    },
+    "apps/km0lab/src/pages/MyInvitations.tsx": {
+      "generated": "7a1add279dc1436a4ff744438ab5fd778a8cd6242cb28a192952111d6f744232",
+      "final": "c6f02a8bfa3e305853c5bfb936db5f818ca9e27c7c9e07d6c1805e54ecce52eb"
+    },
+    "apps/km0lab/src/pages/NotFound.tsx": {
+      "generated": "310bcef38acce31422b3751f6de0bfc581966ae2a4d5eefadbf4731d29edfb58",
+      "final": "4f52db137ddbbedf23d8cb5c8b9b56ae9b9d3294b7c0fa9253e2e89279d30949"
+    },
+    "apps/km0lab/src/pages/Noticias.tsx": {
+      "generated": "e684c717c97e5c5b9133c942989485e2108ac9b5c79c9e2d64e72ed7c92ef247",
+      "final": "49107e6632843db3c5b88e46a4b817dd1784859cfcae40e7851bb09e07ee3d04"
+    },
+    "apps/km0lab/src/pages/Onboarding.tsx": {
+      "generated": "2ae33fcffce24570a57fd256c96b7689d304f0f23ad06768952c397b88304637",
+      "final": "3d6592c727fc552eca5d32b61b69324cf0cd7020e817ae458a18be3d98bcab4b"
+    },
+    "apps/km0lab/src/pages/Points.tsx": {
+      "generated": "4ef714158a8d2ce4d857949c426dc72a19d96d7138d515fbca6165c49785c9a3",
+      "final": "4ef714158a8d2ce4d857949c426dc72a19d96d7138d515fbca6165c49785c9a3"
+    },
+    "apps/km0lab/src/pages/PointsActions.tsx": {
+      "generated": "1208c863eda7737bcba7d8a56b67d26ac89b3ba773ace3f2446602469a594e48",
+      "final": "edee1683d35aefe5a17fe75abe2d3244e0c31a0eaacd5acbfcd855e4603561c5"
+    },
+    "apps/km0lab/src/pages/Premis.tsx": {
+      "generated": "e3c5338a3384a647e5f95a793e102236d6dea611c4e7bc2a902450f5b72e832f",
+      "final": "bf82d3eca37adb35d5e96489deffdc1cb09d9de85e41a4ae2e419056f23bf238"
+    },
+    "apps/km0lab/src/pages/PremisCanjats.tsx": {
+      "generated": "401f4ac21ed4071cc05cb801029abb69e6743e9a9eeffd1cd07c143fb3564de4",
+      "final": "5d1e474a5a2450cca7bcd83af384ddb6205efe677a6f7617b4b56beaaa2e566e"
+    },
+    "apps/km0lab/src/pages/Profile.tsx": {
+      "generated": "1ed62d9b057a1713686d421823963c6c814b1f44ccbdfb9989082df67b16ee4b",
+      "final": "bb8dc4a130a5960a1d8fe21a95c0f79e7c4bb187746c529f4ddaf8b3c420f651"
+    },
+    "apps/km0lab/src/pages/ScannerSuccess.tsx": {
+      "generated": "29c1108753968b9cb82db2dab7991800edff1e8ec13d1fb819ca57cf45211112",
+      "final": "d3ff1f07f9630c129840f2221da68ec67c2589299964660daaee705542429a05"
+    },
+    "packages/app/hooks/use-breakpoint.tsx": {
+      "generated": "e51ae6aa217d6cf7b7d90818d0ac9e83bbb6325a4ef178867a083cbd807c8763",
+      "final": "e51ae6aa217d6cf7b7d90818d0ac9e83bbb6325a4ef178867a083cbd807c8763"
+    },
+    "packages/app/hooks/use-drag-scroll.ts": {
+      "generated": "b8317175dc44ec31cf5d582c675dbd0cbcbd83351388b48a9fc585ebd012125f",
+      "final": "b8317175dc44ec31cf5d582c675dbd0cbcbd83351388b48a9fc585ebd012125f"
+    },
+    "packages/app/hooks/use-mobile.tsx": {
+      "generated": "3bfe5132a9d5c01405a995a47f2e827c7c7480d11ea8a33419e695bf4dab2be7",
+      "final": "3bfe5132a9d5c01405a995a47f2e827c7c7480d11ea8a33419e695bf4dab2be7"
+    },
+    "packages/app/hooks/use-notifications-panel.ts": {
+      "generated": "8d1f01d7b7d7cfec93634195462872a2467f0f19fd611a2d76ec62abceca2496",
+      "final": "1ab4aeeea98d7e0ab1214a064a1d44cb10cd20175ffb8ca8eda91031b42a8b2e"
+    },
+    "packages/app/types/accountAccess.ts": {
+      "generated": "c6a6d4522bedade0c838b6af21bc26d6b33dbcc93c0bfda1a5fd33e44822bcdc",
+      "final": "c6a6d4522bedade0c838b6af21bc26d6b33dbcc93c0bfda1a5fd33e44822bcdc"
+    },
+    "packages/app/types/business.ts": {
+      "generated": "3a092eead9f4739378cd8aea9656384063101711035e47cd53ab212f53de3e60",
+      "final": "3a092eead9f4739378cd8aea9656384063101711035e47cd53ab212f53de3e60"
+    },
+    "packages/app/types/comercAdherit.ts": {
+      "generated": "0e42955a023ffac889ac92f290a558a7070cf3baae535c8c17a465bb9ae51f97",
+      "final": "0e42955a023ffac889ac92f290a558a7070cf3baae535c8c17a465bb9ae51f97"
+    },
+    "packages/app/types/invitation.ts": {
+      "generated": "eaa450ead97b3c24e1ec43c3ef684825bf6331f53a9dffb80a2103441c9cdc29",
+      "final": "eaa450ead97b3c24e1ec43c3ef684825bf6331f53a9dffb80a2103441c9cdc29"
+    },
+    "packages/app/types/points.ts": {
+      "generated": "dd0e1298c1de50e8c9cdd46fb63a0c86b62b72ff15043039122eba69a7786c19",
+      "final": "dd0e1298c1de50e8c9cdd46fb63a0c86b62b72ff15043039122eba69a7786c19"
+    },
+    "packages/app/types/promo.ts": {
+      "generated": "145a83aa0890ef22654a548db0e63e6f857666eab29eb9f8aea216a50df27f0a",
+      "final": "145a83aa0890ef22654a548db0e63e6f857666eab29eb9f8aea216a50df27f0a"
+    },
+    "packages/app/types/redemption.ts": {
+      "generated": "9c2f26aa6bee833ae1993a53b5e9ec00cf77f0d55667115f70db0f5641b5a4c0",
+      "final": "9c2f26aa6bee833ae1993a53b5e9ec00cf77f0d55667115f70db0f5641b5a4c0"
+    },
+    "packages/app/types/reward.ts": {
+      "generated": "c94c14c7d1a4d5f4f4277b9f20d025a14317c6d676c7816454487815cd06aaa7",
+      "final": "c94c14c7d1a4d5f4f4277b9f20d025a14317c6d676c7816454487815cd06aaa7"
+    },
+    "packages/app/utils/i18n.ts": {
+      "generated": "d0f612f900321fda0368dc8b3a3b7f0a55ff0a69e5cf812abc4c0e50c901abaa",
+      "final": "d0f612f900321fda0368dc8b3a3b7f0a55ff0a69e5cf812abc4c0e50c901abaa"
+    },
+    "packages/components/ui/button.tsx": {
+      "generated": "bda47a32f53e457df8a86876c178b12b74b1d6b57b234ceb7e5c8514fbdf946a",
+      "final": "8f179a486a9b92e5dd74920805287d7c1ccb1bdda855ca090b9cb8459a184000"
+    },
+    "packages/components/ui/checkbox.tsx": {
+      "generated": "5cb48e44168dd7ab89779362d41c3011b209bb1b8ab38019d2030a91fa825ebe",
+      "final": "dd22d8738364d5a49956f2ac35a25ddc881efdc1618d454d7bbded36a04afa6c"
+    },
+    "packages/components/ui/dialog.tsx": {
+      "generated": "f0cdceff702afc42a8aa438f6f10105d06db8a69b3ebeb61402458b669b5298e",
+      "final": "d00a0aa1b1a3aea9612a694e0f53cebe7cd96aca0686bf3e3203670f561cdfcc"
+    },
+    "packages/components/ui/drawer.tsx": {
+      "generated": "3a17a7af72a55b99a87421d4342ce7901b32e4b95c56c8e821738e9ea7023608",
+      "final": "3a17a7af72a55b99a87421d4342ce7901b32e4b95c56c8e821738e9ea7023608"
+    },
+    "packages/components/ui/form.tsx": {
+      "generated": "555ba467c0db05727114e6512af61b59c2a140bcaee7a2f6d5283eae126debee",
+      "final": "435f8cd98a743aed9d41ea09126f6ba73277ee77a6f18d68663872bb3fa15f34"
+    },
+    "packages/components/ui/input.tsx": {
+      "generated": "92ef45b24432e23ffef83528cd2715b04e831d8ede6a6bf0448fac7bf0616592",
+      "final": "92ef45b24432e23ffef83528cd2715b04e831d8ede6a6bf0448fac7bf0616592"
+    },
+    "packages/components/ui/label.tsx": {
+      "generated": "6d3e96e8e91b03bf17fe3b6d7d9a2f426814cd1b2f144c1a3fb9c4e524f8cd1c",
+      "final": "63ad1f18c87fb11c8c9fe210d9cb4dc98f12f59d4d0c41e0d022942c97bdadeb"
+    },
+    "packages/components/ui/select.tsx": {
+      "generated": "33a712eea3aea2cae993113ac49ac7ff2616a2d27639116ede20ce80ff263339",
+      "final": "6bd466cede26e5d06cba53db94330aa361b79519ad21a2bede68e2be3b5693b7"
+    },
+    "packages/components/ui/skeleton.tsx": {
+      "generated": "45c57c7820cce48a31ad8a8521c9eac26bddb942b28a0d35cfa31a93b3387eeb",
+      "final": "45c57c7820cce48a31ad8a8521c9eac26bddb942b28a0d35cfa31a93b3387eeb"
+    },
+    "packages/components/ui/sonner.tsx": {
+      "generated": "94f7d886a753af558c8426dc02c19034c674db613215c42d2c79f83d66bf5442",
+      "final": "94f7d886a753af558c8426dc02c19034c674db613215c42d2c79f83d66bf5442"
+    },
+    "packages/components/ui/toast.tsx": {
+      "generated": "a077ddab8ec5e49161785ac95ffd3aab4612a4880b5fb1c203730a3713f6fad5",
+      "final": "f7d576a4dc1e31df211c17b6abbb9cefc418d9e345a33377eff6bff9e0993dba"
+    },
+    "packages/components/ui/toaster.tsx": {
+      "generated": "02301508e25dd0324ccb1c7f639b53f14a5a59a58121d32d24cc2d19c3ab91de",
+      "final": "39c3e9ad2976104bd46a9825c3eddcb2e559da637c0c352feaae19dc346575c3"
+    },
+    "packages/components/ui/tooltip.tsx": {
+      "generated": "5379974140ad0a3af3c488a6a00e759ee1e8f5196ae8da8c7273b4cf56f108f6",
+      "final": "b8e431164d69ce96bb73a066f512e1940988c4bab8b7289ce5a5cd53a064a848"
+    },
+    "packages/components/ui/use-toast.ts": {
+      "generated": "726404969ede03252c38b95a0a9cf87cae62f00cdaa425b3cb75fdf9c322d703",
+      "final": "726404969ede03252c38b95a0a9cf87cae62f00cdaa425b3cb75fdf9c322d703"
+    }
+  }
+}

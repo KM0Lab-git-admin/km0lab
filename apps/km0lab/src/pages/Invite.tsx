@@ -1,9 +1,10 @@
 import {
+  useLocationContext,
+  useDragScroll,
   useAuth,
-  useAppStore,
-  t,
-  getMyInviteLink,
+  useInviteLink,
   useInviteRewards,
+  t,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import {
@@ -14,18 +15,14 @@ import {
   RefreshCw,
   UserRound,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import BottomTabs from '@/components/BottomTabs'
-import DeviceShell from '@/components/DeviceShell'
+import type { InvitationKind } from '@km0lab/app'
+
+import BottomTabs from '@/components/AccountBottomTabs'
 import ShareChannelList from '@/components/ShareChannelList'
 import { useLang } from '@/contexts/LangContext'
-import {
-  buildInviteLink,
-  buildPublicShareLink,
-  type InviteKind,
-} from '@/data/inviteConfig'
 import { cn } from '@/lib/utils'
 
 /** Identificador de la demo: `/home-registered` fuerza el estado registrado
@@ -34,14 +31,20 @@ const PREVIEW_USER_ID = 'preview-user'
 
 const Invite = () => {
   const navigate = useNavigate()
+  const inviteRewards = useInviteRewards()
+  const scrollRef = useDragScroll('vertical')
   const [searchParams] = useSearchParams()
   const { user, loading } = useAuth()
   const { lang } = useLang()
-  const town = useAppStore((state) => state.town)
-  const [kind, setKind] = useState<InviteKind>('person')
-  const rewards = useInviteRewards()
-  const [code, setCode] = useState<string | null>(null)
-  const [linkFailed, setLinkFailed] = useState(false)
+  const { town } = useLocationContext()
+  const [kind, setKind] = useState<InvitationKind>('person')
+  const {
+    link: inviteLink,
+    loading: linkLoading,
+    error: linkError,
+    reload,
+  } = useInviteLink(kind)
+  const link = inviteLink ?? ''
   const forcedState = searchParams.get('state')
 
   const previewAuthed = useMemo(
@@ -59,39 +62,6 @@ const Invite = () => {
 
   const townLabel = town ?? t('share.town_fallback', lang)
 
-  useEffect(() => {
-    if (!user?.id) {
-      setCode(null)
-      setLinkFailed(false)
-      return
-    }
-    let active = true
-    setLinkFailed(false)
-    getMyInviteLink(kind)
-      .then((row) => {
-        if (active) setCode(row.public_code)
-      })
-      .catch(() => {
-        if (active) setLinkFailed(true)
-      })
-    return () => {
-      active = false
-    }
-  }, [user?.id, kind])
-
-  /** Enlace personal con atribución (sesión) o enlace público (sin sesión). */
-  const link = useMemo(() => {
-    if (typeof window === 'undefined') return ''
-    if (!userId) return buildPublicShareLink(town, lang)
-    if (!code) return ''
-    return buildInviteLink({
-      kind,
-      reference: code,
-      town,
-      lang,
-    })
-  }, [userId, kind, town, lang, code])
-
   const message = isAuthed
     ? t(
         kind === 'person'
@@ -102,7 +72,10 @@ const Invite = () => {
     : t('share.message', lang)
         .replace('{town}', townLabel)
         .replace('{link}', link)
-  const subject = t('share.email_subject', lang).replace('{town}', townLabel)
+  const subject = t(
+    isAuthed ? 'invite.title' : 'share.email_subject',
+    lang
+  ).replace('{town}', townLabel)
 
   const renderLoading = () => (
     <div className="flex min-h-full items-center justify-center">
@@ -134,7 +107,7 @@ const Invite = () => {
         variant="outline"
         onClick={() =>
           titleKey === 'invite.error.title'
-            ? navigate('/invite', { replace: true })
+            ? (reload(), navigate('/invite', { replace: true }))
             : navigate(loginPath)
         }
         className="mt-4 border-km0-blue-100 font-ui font-bold text-km0-blue-800"
@@ -187,7 +160,7 @@ const Invite = () => {
                 {t(`invite.select.${option}`, lang)}
               </span>
               <span className="shrink-0 rounded-full bg-km0-teal-100 px-2 py-1 font-ui text-xs font-black text-km0-teal-700">
-                +{rewards[option]} {t('common.points', lang)}
+                +{inviteRewards[option]} {t('common.points', lang)}
               </span>
             </Button>
           )
@@ -197,7 +170,7 @@ const Invite = () => {
       <p className="rounded-xl bg-km0-beige-100 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
         {t(`invite.explain.${kind}`, lang).replace(
           '{points}',
-          String(rewards[kind])
+          String(inviteRewards[kind])
         )}
       </p>
 
@@ -206,16 +179,12 @@ const Invite = () => {
           {t('invite.channels.title', lang)}
         </h2>
         <div className="mt-2">
-          <ShareChannelList
-            link={link}
-            message={message}
-            subject={subject}
-            inviteCode={code}
-          />
+          <ShareChannelList link={link} message={message} subject={subject} />
         </div>
       </section>
 
-      <button
+      <Button
+        variant="bubbleSurface"
         type="button"
         onClick={() =>
           navigate('/my-invitations?from=actions', {
@@ -225,7 +194,7 @@ const Invite = () => {
         className="self-start font-ui text-xs font-bold text-km0-blue-700 underline underline-offset-2"
       >
         {t('invites.link', lang)}
-      </button>
+      </Button>
     </div>
   )
 
@@ -235,53 +204,47 @@ const Invite = () => {
         {t('share.panel.notice', lang)}
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <button
+        <Button
+          variant="bubbleSurface"
           type="button"
           onClick={() => navigate(loginPath)}
           className="font-ui text-xs font-bold text-km0-blue-700 underline underline-offset-2"
         >
           {t('share.create_account', lang)}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="bubbleSurface"
           type="button"
           onClick={() => navigate(loginPath)}
           className="font-ui text-xs font-bold text-km0-blue-800/70 underline underline-offset-2"
         >
           {t('share.login', lang)}
-        </button>
+        </Button>
       </div>
       <section>
         <h2 className="font-ui text-sm font-bold text-km0-blue-900">
           {t('share.panel.how', lang)}
         </h2>
         <div className="mt-2">
-          <ShareChannelList
-            link={link}
-            message={message}
-            subject={subject}
-            inviteCode={code}
-          />
+          <ShareChannelList link={link} message={message} subject={subject} />
         </div>
       </section>
     </div>
   )
 
   const renderMain = () => {
-    if (
-      loading ||
-      forcedState === 'loading' ||
-      (isAuthed && !link && !linkFailed)
-    )
+    if (loading || linkLoading || forcedState === 'loading')
       return renderLoading()
-    if (forcedState === 'error' || linkFailed)
+    if (linkError || forcedState === 'error')
       return renderError('invite.error.title')
     if (forcedState === 'expired')
       return renderError('invite.session.expired.title')
+    if (isAuthed && !link) return renderError('invite.error.title')
     return isAuthed ? renderAuthed() : renderGuest()
   }
 
   return (
-    <DeviceShell>
+    <>
       <div className="flex h-full w-full justify-center overflow-hidden bg-km0-beige-50">
         <div className="relative flex h-full w-full max-w-[430px] flex-col overflow-hidden bg-km0-beige-50">
           <header className="shrink-0 border-b border-km0-blue-100 bg-card px-3 pb-3 pt-4">
@@ -312,7 +275,10 @@ const Invite = () => {
             </div>
           </header>
 
-          <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4">
+          <main
+            ref={scrollRef}
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4"
+          >
             {renderMain()}
           </main>
 
@@ -328,7 +294,7 @@ const Invite = () => {
           />
         </div>
       </div>
-    </DeviceShell>
+    </>
   )
 }
 

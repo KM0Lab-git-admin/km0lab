@@ -1,12 +1,12 @@
-import { useAuth } from '@km0lab/app'
 import {
+  useDragScroll,
+  useAuth,
   t,
   type Lang,
   type TKey,
-  listMyConversions,
-  useInviteSummary,
-  type InvitationRecord,
-  type InvitationStatus,
+  useInvitations,
+  InvitationRecord,
+  InvitationStatus,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import {
@@ -22,11 +22,12 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-import BottomTabs, { type HomeTab } from '@/components/BottomTabs'
-import DeviceShell from '@/components/DeviceShell'
+import type { HomeTab } from '@/components/BottomTabs'
+
+import BottomTabs from '@/components/AccountBottomTabs'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -70,12 +71,13 @@ interface SummaryTileProps {
 
 const MyInvitations = () => {
   const navigate = useNavigate()
+  const scrollRef = useDragScroll('vertical')
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { lang } = useLang()
   const { loading: authLoading } = useAuth()
 
-  const forcedState = searchParams.get('state')
+  const { records, summary, loading, error, reload } = useInvitations()
   const requestedOrigin = searchParams.get('from')
   const origin: InvitationOrigin =
     requestedOrigin === 'home' ||
@@ -93,33 +95,11 @@ const MyInvitations = () => {
     points: 'puntos',
     actions: 'actions',
   }
-
-  const [records, setRecords] = useState<InvitationRecord[] | null>(null)
-  const [failed, setFailed] = useState(forcedState === 'error')
   const [filter, setFilter] = useState<Filter>('all')
   const [openId, setOpenId] = useState<string | null>(null)
-  const [reloadToken, setReloadToken] = useState(0)
-  const { summary } = useInviteSummary()
-
-  useEffect(() => {
-    if (forcedState === 'error' || forcedState === 'loading') return
-    let active = true
-    setRecords(null)
-    setFailed(false)
-    listMyConversions()
-      .then((data) => {
-        if (active) setRecords(forcedState === 'empty' ? [] : data)
-      })
-      .catch(() => {
-        if (active) setFailed(true)
-      })
-    return () => {
-      active = false
-    }
-  }, [forcedState, reloadToken])
 
   const filtered = useMemo(() => {
-    const list = records ?? []
+    const list = records
     const scoped =
       filter === 'all' ? list : list.filter((r) => r.kind === filter)
     return [...scoped].sort((a, b) => {
@@ -184,7 +164,8 @@ const MyInvitations = () => {
         key={record.id}
         className="overflow-hidden rounded-2xl border border-km0-blue-100 bg-card"
       >
-        <button
+        <Button
+          variant="bubbleSurface"
           type="button"
           onClick={() => setOpenId(open ? null : record.id)}
           aria-expanded={open}
@@ -234,7 +215,7 @@ const MyInvitations = () => {
               )}
             />
           </span>
-        </button>
+        </Button>
 
         {open ? (
           <div className="border-t border-km0-blue-100 bg-km0-beige-50/60 px-3 py-3">
@@ -298,10 +279,7 @@ const MyInvitations = () => {
       <Button
         type="button"
         variant="outline"
-        onClick={() => {
-          setFailed(false)
-          setReloadToken((token) => token + 1)
-        }}
+        onClick={reload}
         className="mt-4 border-km0-blue-100 font-ui font-bold text-km0-blue-800"
       >
         <RefreshCw aria-hidden />
@@ -344,9 +322,8 @@ const MyInvitations = () => {
   )
 
   const renderContent = () => {
-    if (failed) return renderError()
-    if (authLoading || forcedState === 'loading' || records === null)
-      return renderLoading()
+    if (error) return renderError()
+    if (authLoading || loading) return renderLoading()
     if (records.length === 0) return renderEmpty()
 
     return (
@@ -377,7 +354,8 @@ const MyInvitations = () => {
           {FILTERS.map(({ key, labelKey }) => {
             const active = filter === key
             return (
-              <button
+              <Button
+                variant="bubbleSurface"
                 key={key}
                 type="button"
                 role="tab"
@@ -391,7 +369,7 @@ const MyInvitations = () => {
                 )}
               >
                 {t(labelKey, lang)}
-              </button>
+              </Button>
             )
           })}
         </div>
@@ -410,7 +388,7 @@ const MyInvitations = () => {
   }
 
   return (
-    <DeviceShell>
+    <>
       <div className="flex h-full w-full justify-center overflow-hidden bg-km0-beige-50">
         <div className="relative flex h-full w-full max-w-[430px] flex-col overflow-hidden bg-km0-beige-50">
           <header className="shrink-0 border-b border-km0-blue-100 bg-card px-3 pb-3 pt-4">
@@ -443,7 +421,10 @@ const MyInvitations = () => {
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4">
+          <main
+            ref={scrollRef}
+            className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"
+          >
             {renderContent()}
           </main>
 
@@ -459,7 +440,7 @@ const MyInvitations = () => {
           />
         </div>
       </div>
-    </DeviceShell>
+    </>
   )
 }
 

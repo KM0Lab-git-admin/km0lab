@@ -1,3 +1,4 @@
+import type { Lang } from '../utils/i18nProd'
 /**
  * Reward — premio del catálogo canjeable por puntos.
  *
@@ -14,7 +15,10 @@ export type RewardStatus = 'active' | 'sold_out' | 'inactive'
 export type RewardKind = 'voucher' | 'ticket' | 'product' | 'discount'
 
 export interface Reward {
+  translations?: Partial<Record<Lang, { title: string; description: string }>>
   id: string
+  imageUrl?: string | null
+  hasImage?: boolean
   title: string
   description: string
   category: RewardCategory
@@ -27,6 +31,4 @@ export interface Reward {
   stock: number | null
   /** Texto del alcance ("Tots els comerços adherits", "1 comerç"). */
   scope: string
-  hasImage?: boolean
-  imageUrl?: string | null
 }

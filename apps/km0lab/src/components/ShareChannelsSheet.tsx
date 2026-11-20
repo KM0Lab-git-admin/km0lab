@@ -1,16 +1,19 @@
 import { useIsMobile, useAppStore, t } from '@km0lab/app'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from '@km0lab/ui'
+import { X } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -53,24 +56,26 @@ const ShareChannelsSheet = ({
 
   const body = (
     <div className="px-4 pb-6">
-      <p className="rounded-xl bg-km0-beige-100 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
+      <p className="rounded-[20px] bg-km0-blue-50 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
         {t('share.panel.notice', lang)}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <button
+        <Button
+          variant="bubbleLink"
           type="button"
           onClick={goToAuth}
-          className="font-ui text-xs font-bold text-km0-blue-700 underline underline-offset-2"
+          className="px-0 text-sm underline underline-offset-2"
         >
           {t('share.create_account', lang)}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="bubbleLink"
           type="button"
           onClick={goToAuth}
-          className="font-ui text-xs font-bold text-km0-blue-800/70 underline underline-offset-2"
+          className="px-0 text-sm underline underline-offset-2"
         >
           {t('share.login', lang)}
-        </button>
+        </Button>
       </div>
 
       <h3 className="mt-5 font-ui text-sm font-bold text-km0-blue-900">
@@ -85,8 +90,18 @@ const ShareChannelsSheet = ({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[92vh] overflow-y-auto bg-card">
-          <DrawerHeader className="text-left">
+        <DrawerContent className="mx-auto max-h-[92dvh] max-w-[430px] overflow-y-auto rounded-t-[28px] border-0 bg-km0-beige-50">
+          <DrawerClose asChild>
+            <Button
+              variant="bubbleTertiary"
+              size="icon"
+              className="absolute right-3 top-3 h-11 w-11 rounded-full"
+              aria-label={t('common.close', lang)}
+            >
+              <X aria-hidden />
+            </Button>
+          </DrawerClose>
+          <DrawerHeader className="pr-16 text-left">
             <DrawerTitle className="font-brand text-lg font-black text-km0-blue-900">
               {t('share.title', lang)}
             </DrawerTitle>
@@ -102,8 +117,8 @@ const ShareChannelsSheet = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto bg-card p-0 sm:max-w-[420px]">
-        <DialogHeader className="px-4 pb-2 pt-5 text-left">
+      <DialogContent className="max-h-[90dvh] w-[calc(100%-24px)] max-w-[420px] gap-0 overflow-y-auto rounded-3xl border-0 bg-km0-beige-50 p-0 [&>button]:h-11 [&>button]:w-11 [&>button]:rounded-full [&>button]:bg-card">
+        <DialogHeader className="px-4 pb-2 pr-16 pt-5 text-left">
           <DialogTitle className="font-brand text-lg font-black text-km0-blue-900">
             {t('share.title', lang)}
           </DialogTitle>

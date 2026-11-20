@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { listMyPointsHistory } from '../services/points'
 import { useAppStore } from '../stores/useAppStore'
@@ -14,6 +14,7 @@ export function usePointsHistory(): {
   history: PointsHistorySummary
   loading: boolean
   error: string | null
+  reload: () => void
 } {
   const token = useAppStore((s) => s.token)
   const setUserPoints = useAppStore((s) => s.setUserPoints)
@@ -25,6 +26,8 @@ export function usePointsHistory(): {
   })
   const [loading, setLoading] = useState(Boolean(token))
   const [error, setError] = useState<string | null>(null)
+  const [tick, setTick] = useState(0)
+  const reload = useCallback(() => setTick((n) => n + 1), [])
 
   useEffect(() => {
     if (!token) {
@@ -62,7 +65,7 @@ export function usePointsHistory(): {
     return () => {
       cancelled = true
     }
-  }, [token, setUserPoints])
+  }, [token, setUserPoints, tick])
 
-  return { history, loading, error }
+  return { history, loading, error, reload }
 }

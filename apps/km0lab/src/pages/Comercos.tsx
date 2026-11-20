@@ -1,28 +1,34 @@
-import { useAuth, useNotifications } from '@km0lab/app'
-import type { ComercAdherit, CategoriaAdherit } from '@km0lab/app'
-import { t, type Lang } from '@km0lab/app'
+import {
+  useNotificationsPanel,
+  useLocationContext,
+  useDragScroll,
+  usePointsConfig,
+  useAuth,
+  t,
+  type Lang,
+  useShops,
+} from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   QrCode,
   MapPin,
-  ChevronDown,
   ScanLine,
   X,
   RefreshCw,
-  Store,
   BadgeCheck,
 } from 'lucide-react'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 
-import BottomTabs from '@/components/BottomTabs'
-import DeviceShell from '@/components/DeviceShell'
+import BottomTabs from '@/components/AccountBottomTabs'
+import CategoryFilterMenu, {
+  type CategoryFilterOption,
+} from '@/components/CategoryFilterMenu'
 import HomeHero from '@/components/HomeHero'
+import NotificationsOverlay from '@/components/NotificationsOverlay'
 import { useLang } from '@/contexts/LangContext'
-import {
-  COMERCIOS_ADHERITS,
-  CATEGORIES_ADHERITS,
-} from '@/data/comerciosAdheridos'
 import { cn } from '@/lib/utils'
 
 /* ─────────────────────────────────────────────────────────────
@@ -32,8 +38,8 @@ import { cn } from '@/lib/utils'
  * Estats forçables per query param: ?state=loading|empty|error
  * ───────────────────────────────────────────────────────────── */
 
-const formatDistance = (m: number | null): string =>
-  m == null ? '' : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
+const formatDistance = (m: number): string =>
+  m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
 
 const interpolate = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''))
@@ -49,12 +55,13 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
     layout
     initial={{ opacity: 0, y: 6 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-white border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform"
+    className="bg-card border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform"
   >
-    <button
+    <Button
+      variant="bubbleSurface"
       type="button"
       onClick={onOpen}
-      className="w-full text-left flex items-stretch gap-3 p-3"
+      className="h-auto w-full whitespace-normal text-left flex items-stretch justify-start gap-3 p-3"
     >
       {/* Miniatura */}
       <div className="relative shrink-0">
@@ -82,7 +89,7 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
         </div>
         {/* Segell adherit */}
         <span
-          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-white flex items-center justify-center text-white"
+          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-km0-teal-500 border-2 border-card flex items-center justify-center text-primary-foreground"
           aria-label={t('merchants.card.member', lang)}
         >
           <BadgeCheck size={14} strokeWidth={2.6} />
@@ -104,9 +111,11 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
               <span className="truncate">{c.adreca}</span>
             </p>
           </div>
-          <span className="shrink-0 font-ui text-[10px] text-km0-blue-700/60 pt-0.5">
-            {formatDistance(c.distanciaM)}
-          </span>
+          {c.distanciaM !== null && (
+            <span className="shrink-0 font-ui text-[10px] text-km0-blue-700/60 pt-0.5">
+              {formatDistance(c.distanciaM)}
+            </span>
+          )}
         </div>
 
         {c.teQR && (
@@ -118,13 +127,13 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
           </div>
         )}
       </div>
-    </button>
+    </Button>
   </motion.article>
 )
 
 /* ─── Skeleton ──────────────────────────────────────────────── */
 const CardSkeleton = () => (
-  <div className="bg-white border border-km0-blue-100 rounded-2xl p-3 flex gap-3 animate-pulse">
+  <div className="bg-card border border-km0-blue-100 rounded-2xl p-3 flex gap-3 animate-pulse">
     <div className="w-20 h-20 rounded-xl bg-km0-blue-100/60 shrink-0" />
     <div className="flex-1 space-y-2 py-1">
       <div className="h-3 w-1/3 bg-km0-blue-100/60 rounded" />
@@ -135,123 +144,15 @@ const CardSkeleton = () => (
   </div>
 )
 
-/* ─── Filtre sheet (absolute: queda dentro de DeviceShell) ─── */
-interface FilterProps {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  categories: CategoriaAdherit[]
-  selected: string
-  onSelect: (slug: string) => void
-  lang: Lang
-}
-const CategorySheet = ({
-  open,
-  onOpenChange,
-  categories,
-  selected,
-  onSelect,
-  lang,
-}: FilterProps) => (
-  <AnimatePresence>
-    {open ? (
-      <div className="absolute inset-0 z-50 flex items-end justify-center">
-        <motion.button
-          type="button"
-          aria-label={t('common.close', lang)}
-          onClick={() => onOpenChange(false)}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          className="absolute inset-0 bg-km0-blue-900/40"
-        />
-        <motion.div
-          role="dialog"
-          aria-modal="true"
-          aria-label={t('merchants.filter_by_category', lang)}
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-          className="relative w-full max-h-[75%] rounded-t-3xl bg-white shadow-2xl flex flex-col overflow-hidden"
-        >
-          <header className="shrink-0 flex items-center justify-between gap-2 p-4 border-b border-km0-blue-100">
-            <h2 className="font-brand text-base text-km0-blue-900">
-              {t('merchants.filter_by_category', lang)}
-            </h2>
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              aria-label={t('common.close', lang)}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-km0-blue-800 hover:bg-km0-beige-100 active:scale-95 transition"
-            >
-              <X size={18} strokeWidth={2.2} />
-            </button>
-          </header>
-          <ul className="flex-1 min-h-0 overflow-y-auto py-1">
-            {categories.map((cat) => {
-              const isSelected = cat.slug === selected
-              const label = cat.nom[lang === 'en' ? 'es' : lang]
-              return (
-                <li key={cat.slug}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSelect(cat.slug)
-                      onOpenChange(false)
-                    }}
-                    aria-pressed={isSelected}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
-                      isSelected
-                        ? 'bg-km0-blue-50 text-km0-blue-900'
-                        : 'hover:bg-km0-beige-50 text-km0-blue-800'
-                    )}
-                  >
-                    <span className="w-6 text-lg" aria-hidden>
-                      {cat.emoji ?? '🏷️'}
-                    </span>
-                    <span
-                      className={cn(
-                        'flex-1 font-ui text-sm',
-                        isSelected && 'font-bold'
-                      )}
-                    >
-                      {label}
-                    </span>
-                    <span className="text-[11px] font-ui text-km0-blue-700/60 tabular-nums">
-                      {cat.count}
-                    </span>
-                    <span
-                      className={cn(
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center',
-                        isSelected
-                          ? 'border-km0-teal-500 bg-km0-teal-500'
-                          : 'border-km0-blue-200'
-                      )}
-                      aria-hidden
-                    >
-                      {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                      )}
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </motion.div>
-      </div>
-    ) : null}
-  </AnimatePresence>
-)
-
 /* ─── Pàgina ────────────────────────────────────────────────── */
 const Comercos = () => {
+  const pointsConfig = usePointsConfig()
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user } = useAuth()
-  const { hasUnread, markAllSeen } = useNotifications()
+  const notifications = useNotificationsPanel()
+  const { town } = useLocationContext()
+  const scrollRef = useDragScroll('vertical')
   const isAuthed = !!user
   const goToHome = () => navigate('/home')
   const goToLogin = () => navigate('/login')
@@ -260,62 +161,55 @@ const Comercos = () => {
   const goToProfile = () => navigate('/profile')
   const goToActions = () => navigate('/points-actions')
 
-  const forced = new URLSearchParams(window.location.search).get('state')
-
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { shops, categories, loading, error, reload } = useShops()
   const [selected, setSelected] = useState('totes')
-  const [filterOpen, setFilterOpen] = useState(false)
-  const [notifOpen, setNotifOpen] = useState(false)
-
-  useEffect(() => {
-    if (forced === 'loading') {
-      setLoading(true)
-      return
-    }
-    if (forced === 'error') {
-      setLoading(false)
-      setError('FORCED_ERROR')
-      return
-    }
-    const timer = setTimeout(() => setLoading(false), 400)
-    return () => clearTimeout(timer)
-  }, [forced])
 
   const items = useMemo<ComercAdherit[]>(() => {
-    if (forced === 'empty') return []
-    if (selected === 'totes') return COMERCIOS_ADHERITS
-    return COMERCIOS_ADHERITS.filter((c) => c.categoriaSlug === selected)
-  }, [selected, forced])
+    if (selected === 'totes') return shops
+    return shops.filter((c) => c.categoriaSlug === selected)
+  }, [selected, shops])
 
-  const totalPrograma =
-    CATEGORIES_ADHERITS.find((c) => c.slug === 'totes')?.count ??
-    COMERCIOS_ADHERITS.length
+  const totalPrograma = shops.length
 
-  const selectedCat = CATEGORIES_ADHERITS.find((c) => c.slug === selected)
+  const selectedCat = categories.find((c) => c.slug === selected)
   const selectedLabel =
     selectedCat?.nom[lang === 'en' ? 'es' : lang] ??
     t('merchants.filter_all', lang)
 
-  const openScanner = () => navigate('/scanner')
-
-  const retry = () => {
-    setError(null)
-    setLoading(true)
-    setTimeout(() => setLoading(false), 400)
+  const toOption = (c: CategoriaAdherit): CategoryFilterOption => ({
+    key: c.slug,
+    label: c.nom[lang === 'en' ? 'es' : lang],
+    icon: <span className="text-base">{c.emoji ?? '🏷️'}</span>,
+    count:
+      c.slug === 'totes'
+        ? shops.length
+        : shops.filter((shop) => shop.categoriaSlug === c.slug).length,
+  })
+  const allCategory: CategoriaAdherit = categories.find(
+    (c) => c.slug === 'totes'
+  ) ?? {
+    slug: 'totes',
+    nom: {
+      ca: t('merchants.filter_all', 'ca'),
+      es: t('merchants.filter_all', 'es'),
+    },
+    count: shops.length,
+    emoji: '🗂️',
   }
 
+  const openScanner = () => navigate('/scanner')
+
   return (
-    <DeviceShell>
+    <>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
-        <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
+        <div
+          ref={notifications.setContainer}
+          className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
+        >
           <HomeHero
-            cityName="Malgrat de Mar"
-            hasAlerts={hasUnread}
-            onToggleAlerts={() => {
-              setNotifOpen((v) => !v)
-              markAllSeen()
-            }}
+            cityName={town}
+            hasAlerts={notifications.hasUnread}
+            onToggleAlerts={notifications.show}
             onBack={() => navigate('/home')}
             showGreeting={false}
           />
@@ -332,40 +226,42 @@ const Comercos = () => {
                   count: totalPrograma,
                 })}
               </p>
-              <p className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-km0-coral-500 text-white text-[11px] font-ui font-bold">
+              <p className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-km0-coral-500 text-primary-foreground text-[11px] font-ui font-bold">
                 <QrCode size={12} strokeWidth={2.4} />
-                {interpolate(t('merchants.points_notice', lang), { n: 20 })}
+                {interpolate(t('merchants.points_notice', lang), {
+                  n: pointsConfig.scan,
+                })}
               </p>
             </header>
 
             {/* Filtre + comptador */}
-            <div className="shrink-0 flex items-center gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => setFilterOpen(true)}
-                className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-km0-blue-100 shadow-sm active:scale-[0.99] transition-transform"
-                aria-haspopup="dialog"
-                aria-expanded={filterOpen}
-              >
-                <span className="text-km0-blue-700" aria-hidden>
-                  <Store size={16} strokeWidth={2.2} />
-                </span>
-                <span className="flex-1 min-w-0 truncate text-left font-ui text-sm text-km0-blue-900 font-bold">
-                  {selectedLabel}
-                </span>
-                <ChevronDown size={16} className="text-km0-blue-700 shrink-0" />
-              </button>
-              <span className="shrink-0 font-ui text-[11px] font-bold text-km0-blue-700 whitespace-nowrap">
-                {interpolate(t('merchants.results_count', lang), {
-                  count: items.length,
-                })}
+            <div className="relative z-20 shrink-0 flex items-center justify-between gap-2 mb-3">
+              <span className="min-w-0 truncate font-ui text-sm font-bold text-km0-blue-900">
+                {selectedLabel}
               </span>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="font-ui text-[11px] font-bold text-km0-blue-700 whitespace-nowrap">
+                  {interpolate(t('merchants.results_count', lang), {
+                    count: items.length,
+                  })}
+                </span>
+                <CategoryFilterMenu
+                  title={t('merchants.filter_by_category', lang)}
+                  allOption={toOption(allCategory)}
+                  options={categories
+                    .filter((c) => c.slug !== 'totes')
+                    .map(toOption)}
+                  selected={selected === 'totes' ? [] : [selected]}
+                  onToggle={setSelected}
+                  onClear={() => setSelected('totes')}
+                />
+              </div>
             </div>
 
             {/* Llista */}
             <div
               className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-24"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              ref={scrollRef}
             >
               <AnimatePresence mode="wait">
                 {loading ? (
@@ -386,19 +282,20 @@ const Comercos = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="mt-8 mx-auto max-w-xs text-center bg-white border border-km0-coral-100 rounded-2xl p-5"
+                    className="mt-8 mx-auto max-w-xs text-center bg-card border border-km0-coral-100 rounded-2xl p-5"
                   >
                     <p className="font-brand text-sm text-km0-blue-900 mb-3">
                       {t('merchants.error.title', lang)}
                     </p>
-                    <button
+                    <Button
+                      variant="bubbleSurface"
                       type="button"
-                      onClick={retry}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
+                      onClick={reload}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-primary-foreground font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <RefreshCw size={12} />
                       {t('merchants.error.retry', lang)}
-                    </button>
+                    </Button>
                   </motion.div>
                 ) : items.length === 0 ? (
                   <motion.div
@@ -406,7 +303,7 @@ const Comercos = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="mt-8 mx-auto max-w-xs text-center bg-white border border-km0-blue-100 rounded-2xl p-5"
+                    className="mt-8 mx-auto max-w-xs text-center bg-card border border-km0-blue-100 rounded-2xl p-5"
                   >
                     <p className="text-3xl mb-2" aria-hidden>
                       🏪
@@ -414,14 +311,15 @@ const Comercos = () => {
                     <p className="font-brand text-sm text-km0-blue-900 mb-3">
                       {t('merchants.empty.title', lang)}
                     </p>
-                    <button
+                    <Button
+                      variant="bubbleSurface"
                       type="button"
                       onClick={() => setSelected('totes')}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-blue-700 text-white font-ui text-xs font-bold active:scale-95 transition-transform"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-blue-700 text-primary-foreground font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <X size={12} />
                       {t('merchants.empty.clear', lang)}
-                    </button>
+                    </Button>
                   </motion.div>
                 ) : (
                   <motion.ul
@@ -446,25 +344,27 @@ const Comercos = () => {
             </div>
 
             {/* FAB escàner (centrat sobre la tab bar) */}
-            <button
+            <Button
+              variant="bubbleSurface"
               type="button"
               onClick={openScanner}
               aria-label={t('merchants.fab.scan', lang)}
-              className="absolute left-1/2 -translate-x-1/2 bottom-3 w-14 h-14 rounded-full bg-km0-teal-500 text-white shadow-lg shadow-km0-teal-500/40 flex items-center justify-center active:scale-95 transition-transform z-20 border-4 border-km0-beige-50"
+              className="absolute left-1/2 -translate-x-1/2 bottom-3 w-14 h-14 rounded-full bg-km0-teal-500 text-primary-foreground shadow-lg shadow-km0-teal-500/40 flex items-center justify-center active:scale-95 transition-transform z-20 border-4 border-km0-beige-50"
             >
               <ScanLine size={24} strokeWidth={2.4} />
-            </button>
+            </Button>
           </section>
 
-          <CategorySheet
-            open={filterOpen}
-            onOpenChange={setFilterOpen}
-            categories={CATEGORIES_ADHERITS}
-            selected={selected}
-            onSelect={setSelected}
+          <NotificationsOverlay
+            open={notifications.open}
+            items={notifications.items}
+            loading={notifications.loading}
+            error={notifications.error}
             lang={lang}
+            onClose={notifications.close}
+            onReload={notifications.reload}
+            container={notifications.container}
           />
-
           <BottomTabs
             activeTab="home"
             isAuthed={isAuthed}
@@ -477,7 +377,7 @@ const Comercos = () => {
           />
         </div>
       </div>
-    </DeviceShell>
+    </>
   )
 }
 

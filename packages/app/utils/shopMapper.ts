@@ -121,7 +121,6 @@ export function toComercDetall(
     obertAra: isOpenNow(hours),
     horariAvui: todayHoursLabel(hours, lang),
     tancaA: closesAtToday(hours),
-    openingHours: hours,
     adreca: shop.address?.trim() || '—',
     codiPostal: shop.postal_code?.trim() || '',
     poblacio: shop.town_name?.trim() || '',

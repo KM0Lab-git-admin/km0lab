@@ -1,53 +1,63 @@
 import { t } from '@km0lab/app'
-import { motion } from 'framer-motion'
-import { Gift } from 'lucide-react'
+import { Button } from '@km0lab/ui'
+import { CirclePlay, Gift } from 'lucide-react'
 
 import { useLang } from '@/contexts/LangContext'
 
-/**
- * JoinCard — tarjeta de registro para el estado guest de la Home
- * ("Missió del barri", spec docs/spec-home-c.md). Sustituye a
- * PointsCard cuando no hay sesión. Presentacional puro.
- */
 export interface JoinCardProps {
   onCreateAccount: () => void
+  onHowItWorks?: () => void
+  onLogin?: () => void
 }
-
-const JoinCard = ({ onCreateAccount }: JoinCardProps) => {
+const JoinCard = ({
+  onCreateAccount,
+  onHowItWorks,
+  onLogin,
+}: JoinCardProps) => {
   const { lang } = useLang()
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="w-full max-w-[600px] rounded-2xl bg-white border border-km0-blue-700/10 shadow-[0_8px_24px_-12px_hsl(var(--km0-blue-900)/0.18)] px-4 py-3 flex flex-col gap-2"
-    >
-      <div className="flex items-start gap-3">
-        <span className="shrink-0 w-10 h-10 rounded-full bg-km0-yellow-100 flex items-center justify-center">
-          <Gift className="w-5 h-5 text-km0-yellow-600" strokeWidth={2.2} />
+    <section className="flex w-full flex-col gap-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-bubble)]">
+      <div className="flex items-center gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-km0-yellow-100 text-km0-yellow-800">
+          <Gift aria-hidden size={22} />
         </span>
-        <div className="flex-1 min-w-0 flex flex-col leading-tight">
-          <h3 className="font-brand font-black text-km0-blue-800 text-base">
-            {t('home.join.title', lang)}
-          </h3>
-          <p className="font-body text-km0-blue-700/80 text-xs mt-1">
-            {t('home.join.body', lang)}
-          </p>
-        </div>
+        <h2 className="font-brand text-lg font-black leading-tight text-km0-blue-800">
+          {t('home.join.title', lang)}
+        </h2>
       </div>
-      <button
-        type="button"
+      <p className="font-ui text-sm leading-relaxed text-km0-blue-700/80">
+        {t('home.join.body', lang)}
+      </p>
+      <Button
+        variant="bubblePrimary"
         onClick={onCreateAccount}
-        className="w-full rounded-xl bg-km0-yellow-400 hover:bg-km0-yellow-500 active:scale-[0.99] transition-all font-ui font-bold text-km0-blue-900 text-sm py-2.5"
+        className="w-full"
       >
         {t('home.join.cta', lang)}
-      </button>
-      <p className="font-body text-km0-blue-700/60 text-[11px] text-center">
+      </Button>
+      <p className="text-center font-ui text-xs text-km0-blue-700/80">
         {t('home.join.mini', lang)}
       </p>
-    </motion.div>
+      <div className="flex flex-wrap items-center justify-between gap-1">
+        {onHowItWorks && (
+          <Button
+            variant="bubbleLink"
+            onClick={onHowItWorks}
+            className="px-1 text-sm"
+          >
+            <CirclePlay aria-hidden />
+            {t('home.join.how_it_works', lang)}
+          </Button>
+        )}
+        <Button
+          variant="bubbleLink"
+          onClick={onLogin ?? onCreateAccount}
+          className="px-1 text-sm underline underline-offset-4"
+        >
+          {t('share.login', lang)}
+        </Button>
+      </div>
+    </section>
   )
 }
-
 export default JoinCard

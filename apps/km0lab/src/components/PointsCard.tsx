@@ -1,7 +1,8 @@
 import { t } from '@km0lab/app'
 import { motion } from 'framer-motion'
-import { Star, Gift } from 'lucide-react'
+import { Gift } from 'lucide-react'
 
+import PointsCoin from '@/components/PointsCoin'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -63,31 +64,22 @@ const PointsCard = ({
           }
         : {})}
       className={cn(
-        'relative w-full max-w-[600px] overflow-hidden rounded-2xl bg-gradient-to-br from-km0-blue-800 to-km0-blue-900 px-4 py-3.5 shadow-[0_12px_28px_-12px_hsl(var(--km0-blue-900)/0.45)]',
+        'relative w-full overflow-hidden rounded-3xl bg-card p-4 shadow-[var(--shadow-bubble)]',
         clickable &&
-          'cursor-pointer active:scale-[0.99] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-km0-yellow-400'
+          'cursor-pointer hover:brightness-95 active:scale-[0.96] transition-[filter,transform] duration-150 motion-reduce:transition-none motion-reduce:transform-none focus:outline-none focus-visible:ring-2 focus-visible:ring-km0-yellow-400'
       )}
     >
-      {/* Estrella decorativa de fondo */}
-      <Star
-        className="absolute -bottom-3 -right-3 w-24 h-24 text-white/5 rotate-12 pointer-events-none"
-        strokeWidth={1}
-        fill="currentColor"
-      />
-
       {/* Fila superior: puntos + nivel */}
       <div className="relative z-10 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-brand font-black text-white text-2xl">
-            {safePoints.toLocaleString('es-ES')}
-          </span>
-          <span className="font-body text-white/70 text-sm">
+          <PointsCoin points={safePoints} />
+          <span className="font-body text-km0-blue-700/80 text-sm">
             {t('common.points', lang)}
           </span>
         </div>
 
         <div className="flex items-center gap-1.5 rounded-full bg-km0-yellow-400/20 px-2.5 py-1">
-          <span className="font-ui font-bold text-km0-yellow-100 text-xs uppercase tracking-wide">
+          <span className="font-ui font-bold text-km0-blue-700 text-xs uppercase tracking-wide">
             {level
               ? t('home.points.level', lang).replace('{n}', String(level))
               : t('home.points.level', lang).replace('{n}', '1')}
@@ -102,17 +94,17 @@ const PointsCard = ({
           aria-valuemin={0}
           aria-valuemax={safeNext}
           aria-valuenow={safePoints}
-          className="relative h-2.5 flex-1 rounded-full bg-white/20 overflow-hidden"
+          className="relative h-2.5 flex-1 rounded-full bg-km0-blue-100 overflow-hidden"
         >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
-            className="h-full rounded-full bg-gradient-to-r from-km0-yellow-400 to-km0-teal-400"
+            className="h-full rounded-full bg-km0-yellow-500"
           />
         </div>
         <span
-          className="shrink-0 font-ui font-bold text-km0-yellow-100 text-xs tabular-nums"
+          className="shrink-0 font-ui font-bold text-km0-blue-700 text-xs tabular-nums"
           aria-label={`${pct}%`}
         >
           {pct}%
@@ -122,10 +114,10 @@ const PointsCard = ({
       {/* Fila inferior: regalo + recompensa */}
       {nextReward && (
         <div className="relative z-10 mt-3 flex items-start gap-2.5">
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
-            <Gift className="w-3.5 h-3.5 text-km0-yellow-100" />
+          <span className="shrink-0 w-7 h-7 rounded-full bg-km0-yellow-100 flex items-center justify-center">
+            <Gift className="w-3.5 h-3.5 text-km0-blue-700" />
           </span>
-          <p className="font-body text-xs text-white/90 leading-snug">
+          <p className="font-body text-xs text-km0-blue-700/80 leading-snug">
             {t('home.points.toReward', lang)
               .replace('{n}', pointsToNext.toLocaleString('es-ES'))
               .replace('{reward}', nextReward)}

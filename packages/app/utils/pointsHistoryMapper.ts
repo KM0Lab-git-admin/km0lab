@@ -29,6 +29,9 @@ const TYPE_TO_CONCEPT: Record<PointsTxType, TKey> = {
   redeem: 'points.history.type.redeem',
   invite_person: 'points.history.type.invite_person',
   invite_business: 'points.history.type.invite_business',
+  // Tipos que solo usa la maqueta de Lovable; la API no los emite.
+  invitation: 'points.history.type.invitation',
+  demo_credit: 'points.history.type.demo_credit',
 }
 
 /** Mapea un item del ledger API a PointsTransaction de UI. */

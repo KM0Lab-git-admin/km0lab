@@ -139,11 +139,10 @@ function StackCarousel<T extends StackCarouselItem>({
   const buttonLabel = isLast ? finishLabel : skipLabel
 
   return (
-    <div className="relative w-full h-full min-h-0 overflow-hidden bg-background">
+    <div className="touch-none relative w-full h-full min-h-0 overflow-hidden bg-background">
       <motion.div
         ref={carouselRef}
         className="absolute inset-0 overflow-visible select-none cursor-grab active:cursor-grabbing"
-        style={{ touchAction: 'none' }}
         onPointerDown={pointerHandlers.onPointerDown}
         onPointerMove={pointerHandlers.onPointerMove}
         onPointerUp={pointerHandlers.onPointerUp}

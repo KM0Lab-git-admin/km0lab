@@ -2,31 +2,28 @@
  * scannerMachine — Flux del escàner QR global.
  *
  * Estats:
- *   reading    → la càmera "busca" el QR (visor animat, sense càmera real)
- *   validating → codi detectat, validant contra el service mock
+ *   reading    → la càmera busca el QR (visor + càmera real / pujar imatge)
+ *   validating → codi detectat, validant contra POST /scans
  *   error      → resultat KO (unió discriminada per `ScanErrorKind`)
  *   success    → resultat OK; la vista dispara la navegació a Confirmació
  *
  * Esdeveniments:
  *   DETECT { code }  → salta a validating
  *   RESET            → torna a reading
- *
- * La lectura real de càmera i la validació contra el backend viuen a
- * PRODUCCIÓ; aquí només s'invoca `scannerMockService.scan`.
  */
 import { assign, fromPromise, setup } from 'xstate'
 
-import {
-  scannerMockService,
-  type ScanErrorKind,
-  type ScanResult,
-} from '../services/mock/scanner'
+import { scanShopQr, type ScanOutcome } from '../services/scans'
+import { extractToken } from '../utils/qr'
+
+import type { ScanErrorKind } from '../types/scan'
 
 interface ScannerContext {
   code: string | null
-  result: ScanResult | null
+  result: ScanOutcome | null
   errorKind: ScanErrorKind | null
   errorComercNom: string | null
+  errorAvailableAt: string | null
 }
 
 type ScannerEvent = { type: 'DETECT'; code: string } | { type: 'RESET' }
@@ -37,9 +34,11 @@ export const scannerMachine = setup({
     events: {} as ScannerEvent,
   },
   actors: {
-    validate: fromPromise<ScanResult, { code: string }>(({ input }) =>
-      scannerMockService.scan(input.code)
-    ),
+    validate: fromPromise<ScanOutcome, { code: string }>(async ({ input }) => {
+      const token = extractToken(input.code)
+      if (!token) return { ok: false, kind: 'codi_no_valid' as ScanErrorKind }
+      return scanShopQr(token)
+    }),
   },
   actions: {
     setCode: assign({
@@ -47,22 +46,25 @@ export const scannerMachine = setup({
       result: null,
       errorKind: null,
       errorComercNom: null,
+      errorAvailableAt: null,
     }),
     setSuccess: assign(({ event }) => {
-      const output = (event as unknown as { output: ScanResult }).output
+      const output = (event as unknown as { output: ScanOutcome }).output
       return {
         result: output,
         errorKind: null,
         errorComercNom: null,
+        errorAvailableAt: null,
       }
     }),
     setError: assign(({ event }) => {
-      const output = (event as unknown as { output: ScanResult }).output
+      const output = (event as unknown as { output: ScanOutcome }).output
       if (output.ok === false) {
         return {
           result: output,
           errorKind: output.kind,
           errorComercNom: output.comercNom ?? null,
+          errorAvailableAt: output.availableAt ?? null,
         }
       }
       return {}
@@ -72,11 +74,12 @@ export const scannerMachine = setup({
       result: null,
       errorKind: null,
       errorComercNom: null,
+      errorAvailableAt: null,
     }),
   },
   guards: {
     isOk: ({ event }) => {
-      const output = (event as unknown as { output: ScanResult }).output
+      const output = (event as unknown as { output: ScanOutcome }).output
       return output.ok === true
     },
   },
@@ -88,6 +91,7 @@ export const scannerMachine = setup({
     result: null,
     errorKind: null,
     errorComercNom: null,
+    errorAvailableAt: null,
   },
   states: {
     reading: {

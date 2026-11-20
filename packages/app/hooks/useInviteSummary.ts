@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { getMyInviteSummary } from '../services/invites'
 import { useAppStore } from '../stores/useAppStore'
+
 import type { InvitationsSummary } from '../types/invitation'
 
 const EMPTY: InvitationsSummary = {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { listPublicActions } from '../services/points'
 import { INVITE_REWARDS } from '../data/inviteConfig'
+import { listPublicActions } from '../services/points'
 import { useAppStore } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
 

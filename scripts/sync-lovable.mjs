@@ -257,6 +257,40 @@ function resolveInLovable(srcDir, fromFile, spec) {
 
 /* ── Reescritura de imports por zona de destino ───────────────────── */
 
+/**
+ * Tras reescribir `@/…` a `@km0lab/app` o `@km0lab/ui`, un fichero queda
+ * con varios imports del mismo paquete. Se fusionan aquí (uno de valores y
+ * uno de tipos por paquete) para no depender del autofix de ESLint, que
+ * rompe los imports de varias líneas.
+ */
+function mergeDuplicateImports(content) {
+  const re =
+    /^import\s+(type\s+)?\{([^}]*)\}\s+from\s+(['"])([^'"]+)\3;?[ \t]*\r?\n/gm
+  const groups = new Map()
+  for (const m of content.matchAll(re)) {
+    const key = `${m[1] ? 'type' : 'value'}|${m[4]}`
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(m)
+  }
+  let next = content
+  for (const [key, matches] of groups) {
+    if (matches.length < 2) continue
+    const [kind, source] = key.split('|')
+    const names = []
+    for (const m of matches) {
+      for (const part of m[2].split(',')) {
+        const name = part.trim()
+        if (name && !names.includes(name)) names.push(name)
+      }
+    }
+    const merged = `import ${kind === 'type' ? 'type ' : ''}{ ${names.join(', ')} } from '${source}'\n`
+    matches.forEach((m, i) => {
+      next = next.replace(m[0], i === 0 ? merged : '')
+    })
+  }
+  return next
+}
+
 function rewriteSpecifier(spec, zone, report) {
   if (!spec.startsWith('@/')) return spec
 
@@ -607,10 +641,10 @@ async function main() {
     ? JSON.parse(await readFile(statePath, 'utf8'))
     : null
   if (state) {
-    for (const [to, hash] of Object.entries(state.files ?? {})) {
+    for (const [to, entry] of Object.entries(state.files ?? {})) {
       const abs = resolve(REPO_ROOT, to)
       if (!existsSync(abs)) continue
-      if (sha(readFileSync(abs, 'utf8')) !== hash) {
+      if (sha(readFileSync(abs, 'utf8')) !== entry.final) {
         summary.editedInProduction.push(to)
       }
     }
@@ -639,13 +673,17 @@ async function main() {
   }
 
   const writtenDests = new Set()
+  // Hash del contenido tal como lo genera el porte (antes de lint:fix).
+  const generated = new Map()
   for (const [from, dest] of [...travel].sort(([a], [b]) =>
     a.localeCompare(b)
   )) {
     const report = { errors: [] }
     let content = read(from)
     if (CODE_EXT.test(from)) {
-      content = rewriteImports(content, dest.zone, report)
+      content = mergeDuplicateImports(
+        rewriteImports(content, dest.zone, report)
+      )
       checkDependencies(content, dest.zone, report)
       checkBreakpoints(content, report)
       if (LOVABLE_SETUP_STORAGE.test(content)) {
@@ -669,7 +707,15 @@ async function main() {
     const abs = resolve(REPO_ROOT, dest.to)
     writtenDests.add(dest.to)
     const previous = existsSync(abs) ? readFileSync(abs, 'utf8') : null
-    if (previous !== null && sha(previous) === sha(content)) {
+    generated.set(dest.to, sha(content))
+    const sameAsLastPort =
+      previous !== null &&
+      state?.files?.[dest.to]?.generated === sha(content) &&
+      state.files[dest.to].final === sha(previous)
+    if (
+      previous !== null &&
+      (sameAsLastPort || sha(previous) === sha(content))
+    ) {
       summary.unchanged += 1
     } else {
       summary.written.push(
@@ -786,11 +832,34 @@ async function main() {
       )
     }
   }
+  // lint:fix reordena imports sin respetar el formato: se vuelve a pasar
+  // prettier sobre lo escrito para que `format:check` quede limpio.
+  if (!args.dryRun && args.fix && prettier && summary.errors.length === 0) {
+    for (const to of writtenDests) {
+      const abs = resolve(REPO_ROOT, to)
+      if (!existsSync(abs)) continue
+      const current = readFileSync(abs, 'utf8')
+      try {
+        const formatted = await prettier.format(current, {
+          ...prettierConfig,
+          filepath: abs,
+        })
+        if (formatted !== current) await writeFile(abs, formatted)
+      } catch {
+        /* binarios o ficheros que prettier no entiende */
+      }
+    }
+  }
   if (!args.dryRun && summary.errors.length === 0) {
     const files = {}
     for (const to of [...writtenDests].sort()) {
       const abs = resolve(REPO_ROOT, to)
-      if (existsSync(abs)) files[to] = sha(readFileSync(abs, 'utf8'))
+      if (existsSync(abs)) {
+        files[to] = {
+          generated: generated.get(to),
+          final: sha(readFileSync(abs, 'utf8')),
+        }
+      }
     }
     await writeFile(
       statePath,

@@ -1,4 +1,11 @@
-import { getProfile, updateProfile, useAuth, t } from '@km0lab/app'
+import {
+  usePointsConfig,
+  getProfile,
+  updateProfile,
+  useAuth,
+  t,
+} from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -28,6 +35,7 @@ type ProfileForm = {
 }
 
 const Profile = () => {
+  const pointsConfig = usePointsConfig()
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user, signOut } = useAuth()
@@ -210,27 +218,32 @@ const Profile = () => {
                 className={inputCls}
               />
               <span className="font-body text-[11px] text-km0-blue-800/60 px-1 mt-0.5">
-                {t('profile.birth_date_hint', lang)}
+                {t('profile.birth_date_hint', lang).replace(
+                  '{n}',
+                  String(pointsConfig.birthday)
+                )}
               </span>
             </Field>
 
-            <button
+            <Button
+              variant="bubbleSurface"
               type="submit"
               disabled={saving}
               className="h-12 mt-2 rounded-xl bg-km0-yellow-500 hover:bg-km0-yellow-600 active:scale-[0.98] transition-all font-ui text-base text-km0-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : null}
               {saving ? t('profile.saving', lang) : t('profile.save', lang)}
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="bubbleSurface"
               type="button"
               onClick={handleLogout}
               className="h-11 mt-1 rounded-xl border-2 border-km0-blue-700/20 hover:bg-km0-beige-100 active:scale-[0.98] transition-all font-ui text-sm text-km0-blue-700 flex items-center justify-center gap-2"
             >
               <LogOut size={16} />
               {t('profile.logout', lang)}
-            </button>
+            </Button>
           </form>
         )}
       </motion.div>

@@ -1,4 +1,5 @@
-import { t } from '@km0lab/app'
+import { useAccount, t } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { Check } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -22,6 +23,7 @@ interface SuccessState {
 const ScannerSuccess = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
+  const account = useAccount()
   const { state } = useLocation()
   const data = (state ?? {}) as SuccessState
 
@@ -39,16 +41,23 @@ const ScannerSuccess = () => {
             {data.comercNom} · +{data.puntsGuanyats} {t('common.points', lang)}
           </p>
         )}
-        <p className="font-ui text-sm text-km0-blue-900/60 max-w-[280px]">
-          {t('scanner.confirmation.placeholder', lang)}
+        <p className="font-ui text-sm text-km0-blue-900/60">
+          {t('rewards.balance_label', lang).replace(
+            '{n}',
+            account.balance.toLocaleString()
+          )}
         </p>
-        <button
+        <p className="font-body text-xs text-muted-foreground">
+          {t('account.demo', lang)}
+        </p>
+        <Button
+          variant="bubblePrimary"
           type="button"
           onClick={() => navigate('/home')}
-          className="mt-4 rounded-xl bg-km0-blue-900 text-white font-ui font-bold text-sm px-6 py-3 hover:bg-km0-blue-800 transition-colors"
+          className="mt-4 rounded-xl bg-km0-blue-900 text-primary-foreground font-ui font-bold text-sm px-6 py-3 hover:bg-km0-blue-800 transition-colors"
         >
           {t('scanner.confirmation.back', lang)}
-        </button>
+        </Button>
       </div>
     </BrandedFrame>
   )

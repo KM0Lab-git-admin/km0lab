@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 
 import CaptureInviteFromUrl from '@/components/CaptureInviteFromUrl'
+import DeviceShell from '@/components/DeviceShell'
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import TopLoadingBar from '@/components/TopLoadingBar'
@@ -103,23 +104,9 @@ export default function App() {
                   path="/home"
                   element={
                     <RequireSetup need="location">
-                      <Home />
-                    </RequireSetup>
-                  }
-                />
-                <Route
-                  path="/home-registered"
-                  element={
-                    <RequireSetup need="location">
-                      <Home forceAuthState="authed" />
-                    </RequireSetup>
-                  }
-                />
-                <Route
-                  path="/home-unregistered"
-                  element={
-                    <RequireSetup need="location">
-                      <Home forceAuthState="guest" />
+                      <DeviceShell>
+                        <Home />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -137,7 +124,9 @@ export default function App() {
                   path="/events"
                   element={
                     <RequireSetup need="location">
-                      <Agenda />
+                      <DeviceShell>
+                        <Agenda />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -145,7 +134,9 @@ export default function App() {
                   path="/news"
                   element={
                     <RequireSetup need="location">
-                      <Noticias />
+                      <DeviceShell>
+                        <Noticias />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -169,7 +160,9 @@ export default function App() {
                   path="/points-actions"
                   element={
                     <RequireSetup need="location">
-                      <PointsActions />
+                      <DeviceShell>
+                        <PointsActions />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -178,7 +171,9 @@ export default function App() {
                   element={
                     <RequireSetup need="location">
                       <RequireAuth>
-                        <HistorialPunts />
+                        <DeviceShell>
+                          <HistorialPunts />
+                        </DeviceShell>
                       </RequireAuth>
                     </RequireSetup>
                   }
@@ -187,7 +182,9 @@ export default function App() {
                   path="/rewards"
                   element={
                     <RequireSetup need="location">
-                      <Premis />
+                      <DeviceShell>
+                        <Premis />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -196,7 +193,9 @@ export default function App() {
                   element={
                     <RequireSetup need="location">
                       <RequireAuth>
-                        <PremisCanjats />
+                        <DeviceShell>
+                          <PremisCanjats />
+                        </DeviceShell>
                       </RequireAuth>
                     </RequireSetup>
                   }
@@ -205,7 +204,9 @@ export default function App() {
                   path="/merchants"
                   element={
                     <RequireSetup need="location">
-                      <Comercos />
+                      <DeviceShell>
+                        <Comercos />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -213,7 +214,9 @@ export default function App() {
                   path="/merchants/:id"
                   element={
                     <RequireSetup need="location">
-                      <ComercDetall />
+                      <DeviceShell>
+                        <ComercDetall />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -252,7 +255,9 @@ export default function App() {
                   path="/invite"
                   element={
                     <RequireSetup need="location">
-                      <Invite />
+                      <DeviceShell>
+                        <Invite />
+                      </DeviceShell>
                     </RequireSetup>
                   }
                 />
@@ -261,7 +266,9 @@ export default function App() {
                   element={
                     <RequireSetup need="location">
                       <RequireAuth>
-                        <MyInvitations />
+                        <DeviceShell>
+                          <MyInvitations />
+                        </DeviceShell>
                       </RequireAuth>
                     </RequireSetup>
                   }

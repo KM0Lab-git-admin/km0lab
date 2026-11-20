@@ -35,7 +35,7 @@ const WhenTabs = ({ value, onChange, className = '' }: WhenTabsProps) => {
       role="tablist"
       aria-label={t('agenda.when.aria', lang)}
       className={cn(
-        'grid grid-cols-3 gap-1.5 bg-km0-beige-50 border border-km0-blue-700/20 rounded-2xl p-1.5',
+        'flex gap-1 bg-km0-beige-50 border border-km0-blue-700/20 rounded-2xl p-1',
         className
       )}
     >
@@ -49,7 +49,7 @@ const WhenTabs = ({ value, onChange, className = '' }: WhenTabsProps) => {
             aria-selected={active}
             onClick={() => onChange(key)}
             className={cn(
-              'min-h-9 rounded-full font-ui text-[11px] font-bold transition-all active:scale-95 px-2 py-1.5 whitespace-nowrap',
+              'min-h-9 flex-auto rounded-full font-ui text-[11px] font-bold transition-all active:scale-95 px-2 py-1.5 whitespace-nowrap',
               active
                 ? 'bg-km0-blue-600 text-km0-yellow-400 shadow-sm'
                 : 'text-km0-blue-700 hover:bg-km0-beige-100'

@@ -18,6 +18,16 @@ const buttonVariants = cva(
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        bubblePrimary:
+          'min-h-[52px] rounded-full bg-km0-yellow-500 text-km0-blue-900 font-ui font-extrabold text-base shadow-[var(--shadow-bubble-yellow)] transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none',
+        bubbleSecondary:
+          'min-h-[52px] rounded-full bg-km0-blue-700 text-primary-foreground font-ui font-extrabold text-base shadow-[var(--shadow-bubble-blue)] transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none',
+        bubbleTertiary:
+          'min-h-11 rounded-full bg-km0-blue-50 text-km0-blue-700 font-ui font-bold transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none',
+        bubbleLink:
+          'min-h-11 text-km0-blue-700 font-ui font-bold transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none',
+        bubbleSurface:
+          'transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none',
       },
       size: {
         default: 'h-10 px-4 py-2',

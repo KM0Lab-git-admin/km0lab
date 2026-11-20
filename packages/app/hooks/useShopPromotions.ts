@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { listPublicPromotions } from '../services/promotions'
 import { listPublicShops } from '../services/shops'
@@ -6,24 +6,27 @@ import { useAppStore } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
 import { toShopPromotion } from '../utils/shopPromotionMapper'
 
-import type { ShopPromotion } from '../types/shopPromotion'
+import type { ShopPromotion } from '../types/comercAdherit'
 
 /**
- * useShopPromotions — catálogo de promociones de comercios.
+ * useShopPromotions — promociones activas de los comercios del municipio.
  *
- * GET /promotions/public + GET /shops/public (join por shop_id).
- * Con CP demo (00000) pasa demo=true en ambas llamadas.
+ * Costura con Lovable. `GET /promotions/public` + `GET /shops/public`
+ * (nombre y logo del comercio). Sin código postal → vacío.
  */
 export function useShopPromotions(): {
   promotions: ShopPromotion[]
   loading: boolean
   error: string | null
+  reload: () => void
 } {
   const postalCode = useAppStore((s) => s.postalCode)
   const lang = useAppStore((s) => s.lang)
   const [promotions, setPromotions] = useState<ShopPromotion[]>([])
   const [loading, setLoading] = useState(Boolean(postalCode))
   const [error, setError] = useState<string | null>(null)
+  const [tick, setTick] = useState(0)
+  const reload = useCallback(() => setTick((n) => n + 1), [])
 
   useEffect(() => {
     if (!postalCode) {
@@ -32,13 +35,10 @@ export function useShopPromotions(): {
       setError(null)
       return
     }
-
     let cancelled = false
     setLoading(true)
     setError(null)
-
     const opts = { lang, demo: isDemoPostalCode(postalCode) }
-
     Promise.all([
       listPublicPromotions(postalCode, opts),
       listPublicShops(postalCode, opts),
@@ -59,11 +59,10 @@ export function useShopPromotions(): {
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
-
     return () => {
       cancelled = true
     }
-  }, [postalCode, lang])
+  }, [postalCode, lang, tick])
 
-  return { promotions, loading, error }
+  return { promotions, loading, error, reload }
 }

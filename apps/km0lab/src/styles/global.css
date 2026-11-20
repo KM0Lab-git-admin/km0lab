@@ -50,6 +50,10 @@
 
 @layer base {
   :root {
+    /* Sombras del acabado Burbuja (espejo de Lovable src/index.css). */
+    --shadow-bubble: 0 10px 30px -18px hsl(var(--km0-blue-800) / 0.35);
+    --shadow-bubble-yellow: 0 8px 18px -10px hsl(var(--km0-yellow-600) / 0.8);
+    --shadow-bubble-blue: 0 8px 18px -10px hsl(var(--km0-blue-700) / 0.8);
     --km0-blue-50: 214 69% 97%;
     --km0-blue-100: 228 60% 91%;
     --km0-blue-200: 222 64% 82%;
@@ -188,6 +192,15 @@
   .safe-area-inset {
     max-width: 100%;
     overflow-x: hidden;
+  }
+
+  /* La app no enseña barras de desplazamiento (espejo de Lovable). */
+  #root * {
+    scrollbar-width: none;
+  }
+
+  #root *::-webkit-scrollbar {
+    display: none;
   }
 }
 

@@ -1,43 +1,25 @@
 import {
+  useAccount,
+  useLocationContext,
+  usePointsConfig,
   useAuth,
   useProfile,
   useNotifications,
   t,
-  useAppStore,
   useFeaturedPromos,
   usePublicRewards,
   useInviteSummary,
-  useUserPoints,
-  persistPendingInvite,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import type { ApiReward } from '@km0lab/app'
-
-import DeviceShell from '@/components/DeviceShell'
 import HomeContent from '@/components/HomeContent'
 import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
 import { useLang } from '@/contexts/LangContext'
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
-import { PROMOS } from '@/data/promos'
-import { REWARDS } from '@/data/rewards'
-
-/** Fallback mock mientras la API carga o si falla: catálogo local activo. */
-const MOCK_REWARDS: ApiReward[] = REWARDS.filter(
-  (r) => r.status === 'active'
-).map((r) => ({
-  id: r.id,
-  title: r.title,
-  description: r.description,
-  kind: r.kind,
-  costPoints: r.costPoints,
-  valueLabel: r.valueLabel,
-  stock: r.stock,
-  imageUrl: null,
-}))
+import { getTownArt } from '@/data/townArt'
 
 type HomeProps = {
   /** Forzar estado para previews (`/home-registered`, `/home-no-registrado`). */
@@ -45,6 +27,7 @@ type HomeProps = {
 }
 
 const Home = ({ forceAuthState }: HomeProps = {}) => {
+  const pointsConfig = usePointsConfig()
   const {
     items: notifications,
     hasUnread,
@@ -54,12 +37,11 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     markAllSeen,
   } = useNotifications()
   const { user, loading: authLoading } = useAuth()
-  const { points: accountPoints } = useUserPoints()
   const { profile } = useProfile()
+  const account = useAccount()
+  const { summary: invitationSummary } = useInviteSummary()
+  const { town: cityName, postalCode } = useLocationContext()
   const { lang } = useLang()
-  const storedTown = useAppStore((s) => s.town)
-  const { summary: invitationSummary, error: inviteSummaryError } =
-    useInviteSummary()
   const navigate = useNavigate()
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
@@ -85,26 +67,27 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const [notifOpen, setNotifOpen] = useState(
     searchParams.get('notifs') === 'open'
   )
-
-  useEffect(() => {
-    const leftover = searchParams.get('ref')
-    const kind =
-      searchParams.get('invite') === 'business' ? 'business' : 'person'
-    if (!leftover) return
-    persistPendingInvite({ code: leftover, kind })
-    navigate(`/i/${leftover}`, { replace: true })
-  }, [searchParams, navigate])
   const [rewardOpen, setRewardOpen] = useState(
     searchParams.get('welcome') === '1'
   )
   const [moduleSeeds, setModuleSeeds] =
     useState<HomeModuleSeed[]>(INITIAL_MODULES)
+  const [sheetContainer, setSheetContainer] = useState<HTMLDivElement | null>(
+    null
+  )
 
-  const { promos: apiPromos } = useFeaturedPromos(4)
-  const promos = apiPromos.length > 0 ? apiPromos : PROMOS
+  const {
+    promos,
+    loading: eventsLoading,
+    error: eventsError,
+  } = useFeaturedPromos(4)
 
-  const { rewards: apiRewards } = usePublicRewards()
-  const rewards = apiRewards.length > 0 ? apiRewards : MOCK_REWARDS
+  const {
+    rewards,
+    loading: rewardsLoading,
+    error: rewardsError,
+    reload: reloadRewards,
+  } = usePublicRewards()
 
   const toggleModule = (id: HomeModuleId) => {
     setModuleSeeds((prev) =>
@@ -168,26 +151,31 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     ? t('home.subtitle.guest', lang)
     : t('home.subtitle.registered', lang)
 
-  const cityName = profile?.town || storedTown || 'Malgrat de Mar'
-
-  const points = !isAuthed ? 0 : user ? accountPoints : 100
-  const level = Math.max(1, Math.floor(points / 500) + 1)
-  const nextLevel = 1000
-  const nextReward = isAuthed ? 'Val de 5€ al Forn Rovira' : undefined
+  const points = isAuthed ? account.balance : 0
+  const level = Math.floor(points / 1000) + 1
+  const nextLevel = level * 1000
+  const nextReward = rewards.find((reward) => reward.costPoints > points)?.title
 
   const sharedProps = {
     cityName,
+    townArtSrc: getTownArt(postalCode),
     hasAlerts: hasUnread,
     onToggleAlerts: openNotifications,
     greeting,
     subtitle,
     points,
+    accountLoading: account.loading,
     nextLevel,
     nextReward,
     level,
     modules: modulesWithHandlers,
     promos,
+    eventsLoading,
+    eventsError: !!eventsError,
     rewards,
+    rewardsLoading,
+    rewardsError,
+    reloadRewards,
     activeTab: 'home' as const,
     isAuthed,
     onLogin: goToLogin,
@@ -202,13 +190,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
       navigate('/my-invitations?from=home', {
         state: { invitationOrigin: 'home' },
       }),
-    invitationSummary:
-      isAuthed &&
-      !inviteSummaryError &&
-      (invitationSummary.personsRegistered > 0 ||
-        invitationSummary.businessesRegistered > 0)
-        ? invitationSummary
-        : null,
+    invitationSummary: isAuthed ? invitationSummary : null,
     showLogin,
     showPoints,
     onSeeAllEvents: () => navigate('/events'),
@@ -219,9 +201,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   }
 
   return (
-    <DeviceShell>
+    <>
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
-        <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
+        <div
+          ref={setSheetContainer}
+          className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
+        >
           <HomeContent {...sharedProps} />
           <NotificationsOverlay
             open={notifOpen}
@@ -231,11 +216,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
             lang={lang}
             onClose={() => setNotifOpen(false)}
             onReload={reloadNotifs}
+            container={sheetContainer}
           />
           {rewardOpen && isAuthed && (
             <PointsRewardOverlay
-              points={100}
-              message={t('points.overlay.signup', lang)}
+              points={pointsConfig.signup}
+              message={t('home.welcome.reason', lang)}
               contained
               onClose={() => {
                 setRewardOpen(false)
@@ -249,7 +235,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           )}
         </div>
       </div>
-    </DeviceShell>
+    </>
   )
 }
 

@@ -1,4 +1,5 @@
 import { t } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
 
@@ -29,7 +30,15 @@ export interface PointsRewardOverlayProps {
   contained?: boolean
 }
 
-const CONFETTI_COLORS = ['#174094', '#F5C542', '#FF664D', '#FFFFFF']
+const getConfettiColors = () =>
+  ['--km0-blue-700', '--km0-yellow-500', '--km0-coral-400'].map((token) => {
+    const element = document.createElement('span')
+    element.style.color = `hsl(var(${token}))`
+    document.body.append(element)
+    const color = getComputedStyle(element).color
+    element.remove()
+    return color
+  })
 
 const PointsRewardOverlay = ({
   points,
@@ -38,14 +47,19 @@ const PointsRewardOverlay = ({
   contained = false,
 }: PointsRewardOverlayProps) => {
   const { lang } = useLang()
-  const heading = message ?? t('points.overlay.welcome', lang)
+  const label = message ?? t('otp.welcome', lang)
   const [displayPoints, setDisplayPoints] = useState(0)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   // Confeti multi-burst + contador animado 0 → points (easeOutCubic, 1.2s).
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayPoints(points)
+      return
+    }
     // En modo contained usamos un canvas propio dentro del overlay para que
     // las partículas no escapen del contenedor del sandbox.
+    const colors = getConfettiColors()
     let fire: (ratio: number, opts: confetti.Options) => void
     let instance: confetti.CreateTypes | null = null
 
@@ -55,10 +69,10 @@ const PointsRewardOverlay = ({
         useWorker: false,
       })
       fire = (ratio, opts) =>
-        instance!({
+        instance?.({
           origin: { y: 0.55 },
           particleCount: Math.floor(220 * ratio),
-          colors: CONFETTI_COLORS,
+          colors,
           ...opts,
         })
     } else {
@@ -66,7 +80,7 @@ const PointsRewardOverlay = ({
         confetti({
           origin: { y: 0.55 },
           particleCount: Math.floor(220 * ratio),
-          colors: CONFETTI_COLORS,
+          colors,
           ...opts,
         })
     }
@@ -109,7 +123,7 @@ const PointsRewardOverlay = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={heading}
+      aria-label={label}
       onClick={onClose}
       className={`${positionClass} z-50 flex items-center justify-center overflow-hidden animate-fade-in-overlay bg-km0-blue-700/55 backdrop-blur-sm`}
     >
@@ -127,22 +141,10 @@ const PointsRewardOverlay = ({
       >
         <div className="relative mb-4 h-36 w-36">
           {/* Sparkles decorativos */}
-          <span
-            className="absolute top-2 left-2 h-3 w-3 rounded-full bg-km0-coral-400 animate-sparkle"
-            style={{ animationDelay: '0s' }}
-          />
-          <span
-            className="absolute top-4 right-4 h-2 w-2 rounded-full bg-km0-yellow-500 animate-sparkle"
-            style={{ animationDelay: '0.3s' }}
-          />
-          <span
-            className="absolute bottom-6 left-6 h-2.5 w-2.5 rounded-full bg-km0-blue-700 animate-sparkle"
-            style={{ animationDelay: '0.6s' }}
-          />
-          <span
-            className="absolute bottom-2 right-8 h-3 w-3 rounded-full bg-km0-coral-400 animate-sparkle"
-            style={{ animationDelay: '0.9s' }}
-          />
+          <span className="absolute top-2 left-2 h-3 w-3 rounded-full bg-km0-coral-400 animate-sparkle" />
+          <span className="absolute top-4 right-4 h-2 w-2 rounded-full bg-km0-yellow-500 animate-sparkle" />
+          <span className="absolute bottom-6 left-6 h-2.5 w-2.5 rounded-full bg-km0-blue-700 animate-sparkle" />
+          <span className="absolute bottom-2 right-8 h-3 w-3 rounded-full bg-km0-coral-400 animate-sparkle" />
 
           {/* Estrella central */}
           <div className="absolute inset-0 flex items-center justify-center animate-wiggle">
@@ -155,12 +157,12 @@ const PointsRewardOverlay = ({
           </div>
 
           {/* Badge flotante +points */}
-          <div className="absolute -top-2 -right-2 rounded-full px-3 py-1 font-ui text-base text-white bg-km0-coral-400 shadow-[0_8px_20px_-4px_hsl(var(--km0-coral-400)/0.6)] animate-float-up">
+          <div className="absolute -top-2 -right-2 rounded-full px-3 py-1 font-ui text-base text-primary-foreground bg-km0-coral-400 shadow-[var(--shadow-bubble)] animate-float-up">
             +{points}
           </div>
         </div>
 
-        <p className="mb-1 font-body text-sm text-km0-blue-700/70">{heading}</p>
+        <p className="mb-1 font-body text-sm text-km0-blue-700/70">{label}</p>
 
         <div className="flex items-baseline gap-2">
           <span className="font-brand text-5xl tabular-nums text-km0-blue-700">
@@ -170,16 +172,17 @@ const PointsRewardOverlay = ({
         </div>
 
         <p className="mt-2 font-ui text-sm text-km0-blue-700">
-          {t('points.overlay.earned', lang)}
+          {t('home.welcome.points', lang)}
         </p>
 
-        <button
+        <Button
+          variant="bubblePrimary"
           type="button"
           onClick={onClose}
-          className="mt-6 rounded-full px-7 py-2.5 font-ui text-sm text-white bg-km0-blue-700 hover:bg-km0-blue-600 active:scale-95 transition-all"
+          className="mt-6 rounded-full px-7 py-2.5 font-ui text-sm text-primary-foreground bg-km0-blue-700 hover:bg-km0-blue-600 active:scale-95 transition-all"
         >
-          {t('points.overlay.cta', lang)}
-        </button>
+          {t('redeem.cta_done', lang)}
+        </Button>
       </div>
     </div>
   )

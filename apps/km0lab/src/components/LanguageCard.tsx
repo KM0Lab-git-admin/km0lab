@@ -1,8 +1,14 @@
+import { Button } from '@km0lab/ui'
+import { ChevronRight } from 'lucide-react'
+
+import type { Lang } from '@km0lab/app'
+
 import { cn } from '@/lib/utils'
 
 interface LanguageCardProps {
   flag: string
   flagIsImage?: boolean
+  lang: Lang
   name: string
   description: string
   selected?: boolean
@@ -14,6 +20,7 @@ interface LanguageCardProps {
 const LanguageCard = ({
   flag,
   flagIsImage = false,
+  lang,
   name,
   description,
   selected = false,
@@ -22,43 +29,43 @@ const LanguageCard = ({
   style,
 }: LanguageCardProps) => {
   return (
-    <button
+    <Button
+      type="button"
+      variant="ghost"
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
+      aria-pressed={selected}
       style={style}
       className={cn(
-        'w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-left group border-[2px] border-solid',
-        'transition-all duration-300 ease-out animate-fade-in-up',
+        'h-auto min-h-[60px] w-full flex items-center justify-start gap-3 px-4 py-2 rounded-2xl text-left whitespace-normal border border-solid',
+        'transition-all duration-[120ms] ease-out animate-fade-in-up motion-reduce:animate-none motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-primary',
         disabled
-          ? 'bg-neutral-100 border-neutral-300 cursor-not-allowed'
+          ? 'bg-muted border-border cursor-not-allowed'
           : cn(
-              'bg-card cursor-pointer',
-              'hover:scale-[1.09] hover:-translate-y-3 hover:shadow-[0_24px_56px_-8px_hsl(var(--km0-blue-700)/0.4)] hover:border-km0-yellow-500 hover:bg-km0-yellow-50',
+              'cursor-pointer active:scale-[0.98] shadow-sm',
               selected
-                ? 'border-km0-yellow-500 bg-km0-yellow-50 scale-[1.04] -translate-y-1.5 shadow-[0_16px_40px_-8px_hsl(var(--km0-blue-700)/0.25)]'
-                : 'border-km0-blue-700 shadow-[0_8px_24px_-12px_hsl(var(--km0-blue-700)/0.35)]'
+                ? 'border-km0-yellow-500 bg-km0-yellow-50 hover:bg-km0-yellow-50'
+                : 'border-km0-blue-700/20 bg-card hover:bg-card'
             )
       )}
     >
       {/* Flag */}
       <span
         className={cn(
-          'flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full overflow-hidden transition-all duration-300',
+          'flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full overflow-hidden',
           disabled
-            ? 'bg-neutral-200 grayscale'
-            : cn(
-                'bg-km0-beige-50 group-hover:bg-km0-yellow-100 group-hover:scale-110',
-                selected ? 'bg-km0-yellow-100 scale-110' : ''
-              )
+            ? 'bg-muted grayscale'
+            : selected
+              ? 'bg-km0-yellow-100'
+              : 'bg-km0-beige-50'
         )}
-        role="img"
-        aria-label={name}
+        aria-hidden="true"
       >
         {flagIsImage ? (
           <img
             src={flag}
-            alt={`${name} flag`}
-            className="w-9 h-9 object-cover rounded-full"
+            alt=""
+            className="w-7 h-7 object-cover rounded-full"
           />
         ) : (
           <span className="text-3xl">{flag}</span>
@@ -66,42 +73,27 @@ const LanguageCard = ({
       </span>
 
       {/* Text */}
-      <div className="flex-1 min-w-0">
+      <div lang={lang} className="flex-1 min-w-0">
         <p
           className={cn(
-            'font-ui font-semibold text-lg leading-tight',
-            disabled ? 'text-neutral-500' : 'text-primary'
+            'font-ui font-semibold text-base leading-tight',
+            disabled ? 'text-muted-foreground' : 'text-primary'
           )}
         >
           {name}
         </p>
-        <p
-          className={cn(
-            'font-body text-sm mt-0.5',
-            disabled ? 'text-neutral-500' : 'text-muted-foreground'
-          )}
-        >
+        <p className="font-body text-xs mt-0.5 text-muted-foreground">
           {description}
         </p>
       </div>
 
       {/* Arrow */}
-      <span
-        className={cn(
-          'text-xl flex-shrink-0 transition-all duration-300',
-          disabled
-            ? 'text-neutral-500'
-            : cn(
-                'group-hover:text-km0-yellow-500 group-hover:translate-x-2 group-hover:scale-125',
-                selected
-                  ? 'text-km0-yellow-500 translate-x-1'
-                  : 'text-km0-blue-300'
-              )
-        )}
-      >
-        →
-      </span>
-    </button>
+      <ChevronRight
+        size={22}
+        aria-hidden="true"
+        className="!size-[22px] text-primary"
+      />
+    </Button>
   )
 }
 

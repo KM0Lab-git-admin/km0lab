@@ -1,5 +1,3 @@
-import type { OpeningHoursOut } from '../services/km0labClient'
-
 /**
  * Comerç adherit al programa de punts.
  * MOCK: sense API real; totes les dades vénen de `data/comerciosAdheridos.ts`.
@@ -10,7 +8,7 @@ export interface ComercAdherit {
   categoriaSlug: string
   categoriaNom: { ca: string; es: string }
   adreca: string
-  /** Distància en metres. `null` si l'API no la calcula. */
+  /** Distància en metres (mock). */
   distanciaM: number | null
   /** Punts que ofereix per compra (mock). */
   punts: number
@@ -40,6 +38,14 @@ export interface PromocioInfo {
   condicio?: { ca: string; es: string }
 }
 
+export interface ShopPromotion extends PromocioInfo {
+  shopId: string
+  shopName: string
+  shopEmoji?: string
+  shopImage?: string
+  shopBg?: string
+}
+
 /** Detall complet d'un comerç adherit (mock, no API). */
 export interface ComercDetall {
   id: string
@@ -56,7 +62,6 @@ export interface ComercDetall {
   codiPostal: string
   poblacio: string
   distanciaM: number | null
-  openingHours?: OpeningHoursOut | null
   telefon?: string
   web?: string
   coordenades?: { lat: number; lng: number }

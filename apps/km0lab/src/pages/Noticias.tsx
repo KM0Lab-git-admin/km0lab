@@ -1,12 +1,14 @@
-import { useNotifications } from '@km0lab/app'
 import {
-  contentPoblacion,
-  listNews,
+  useNotificationsPanel,
+  useLocationContext,
+  useDragScroll,
+  listMunicipalNews,
   t,
-  useAppStore,
   type Lang,
   type Noticia,
 } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
+import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -15,11 +17,11 @@ import {
   Newspaper,
   RefreshCw,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import DeviceShell from '@/components/DeviceShell'
 import HomeHero from '@/components/HomeHero'
+import NotificationsOverlay from '@/components/NotificationsOverlay'
 import ScreenTitle from '@/components/ScreenTitle'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
@@ -78,12 +80,13 @@ const NoticiaCard = ({
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm hover:border-km0-blue-300 transition-colors"
+      className="bg-card border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm hover:border-km0-blue-300 transition-colors"
     >
-      <button
+      <Button
+        variant="bubbleSurface"
         type="button"
         onClick={onOpen}
-        className="w-full text-left active:scale-[0.99] transition-transform"
+        className="block h-auto w-full whitespace-normal rounded-none p-0 text-left active:scale-[0.99] transition-transform"
       >
         {noticia.imagenUrl ? (
           <div className="aspect-[16/9] w-full bg-km0-blue-50 overflow-hidden">
@@ -127,13 +130,13 @@ const NoticiaCard = ({
             ))}
           </div>
         </div>
-      </button>
+      </Button>
     </motion.article>
   )
 }
 
 const SkeletonCard = () => (
-  <div className="bg-white border border-km0-blue-100 rounded-2xl overflow-hidden animate-pulse">
+  <div className="bg-card border border-km0-blue-100 rounded-2xl overflow-hidden animate-pulse">
     <div className="aspect-[16/9] w-full bg-km0-blue-100/60" />
     <div className="p-3">
       <div className="h-4 w-3/4 bg-km0-blue-100/70 rounded mb-2" />
@@ -163,19 +166,17 @@ const NoticiaDetail = ({
       exit={{ opacity: 0, x: -12 }}
       className="flex flex-col gap-3 w-full h-full min-h-0"
     >
-      <button
+      <Button
+        variant="bubbleSurface"
         type="button"
         onClick={onBack}
         className="inline-flex items-center gap-1 font-ui text-xs text-km0-blue-700 active:scale-95 transition-transform shrink-0"
       >
         <ArrowLeft size={14} />
         {t('common.back', lang)}
-      </button>
+      </Button>
 
-      <section
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+      <section className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4">
         {noticia.imagenUrl && (
           <div className="aspect-[16/9] w-full bg-km0-blue-50 overflow-hidden rounded-2xl mb-3">
             <img
@@ -240,58 +241,29 @@ const Noticias = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { lang } = useLang()
-  const { hasUnread, markAllRead } = useNotifications()
-  const storeTown = useAppStore((s) => s.town)
-  const storePostalCode = useAppStore((s) => s.postalCode)
-  const town = contentPoblacion(storePostalCode, storeTown) || 'Malgrat de Mar'
+  const notifications = useNotificationsPanel()
+  const { town } = useLocationContext()
+  const scrollRef = useDragScroll('vertical')
 
   const forced = parseForcedState(searchParams.get('state'))
   const openId = searchParams.get('id')
 
-  const [noticias, setNoticias] = useState<Noticia[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const load = useCallback(() => {
-    setLoading(true)
-    setError(null)
-
-    if (forced === 'loading') {
-      // Deja el skeleton indefinidamente para inspección visual.
-      return
-    }
-    if (forced === 'error') {
-      setLoading(false)
-      setError('FORCED_ERROR')
-      return
-    }
-    if (forced === 'empty') {
-      setLoading(false)
-      setNoticias([])
-      return
-    }
-
-    let cancelled = false
-    listNews({ city: town, limit: 20, offset: 0 })
-      .then((res) => {
-        if (!cancelled) setNoticias(res.noticias)
-      })
-      .catch((err) => {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : 'fetch_error')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [forced, town])
-
-  useEffect(() => {
-    const cleanup = load()
-    return cleanup
-  }, [load])
+  const query = useQuery({
+    queryKey: ['municipal-news', town],
+    queryFn: () => listMunicipalNews({ city: town }),
+    enabled: forced === null,
+    staleTime: 300000,
+  })
+  const noticias = forced === 'empty' ? [] : (query.data ?? [])
+  const loading = forced === 'loading' || (forced === null && query.isLoading)
+  const error = forced === 'error' ? 'FORCED_ERROR' : query.error
+  const load = () => {
+    if (forced) {
+      const next = new URLSearchParams(searchParams)
+      next.delete('state')
+      setSearchParams(next)
+    } else void query.refetch()
+  }
 
   const opened = useMemo(
     () => (openId ? (noticias.find((n) => n.id === openId) ?? null) : null),
@@ -310,7 +282,7 @@ const Noticias = () => {
     setSearchParams(next, { replace: false })
   }
 
-  const showSkeletons = loading || forced === 'loading'
+  const showSkeletons = loading
   const showError = !showSkeletons && !!error
   const showEmpty = !showSkeletons && !error && noticias.length === 0
 
@@ -319,8 +291,8 @@ const Noticias = () => {
       <div className="-mx-4 -mt-2 shrink-0">
         <HomeHero
           cityName={town}
-          hasAlerts={hasUnread}
-          onToggleAlerts={markAllRead}
+          hasAlerts={notifications.hasUnread}
+          onToggleAlerts={notifications.show}
           onBack={() => navigate('/home')}
           backAriaLabel={t('common.back', lang)}
           showGreeting={false}
@@ -346,7 +318,7 @@ const Noticias = () => {
               'flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4',
               'grid grid-cols-1 gap-3 auto-rows-max'
             )}
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            ref={scrollRef}
           >
             {showSkeletons && (
               <>
@@ -364,19 +336,20 @@ const Noticias = () => {
                 <p className="text-[11px] font-ui text-km0-coral-700/80 mb-3">
                   {t('news.error.subtitle', lang)}
                 </p>
-                <button
+                <Button
+                  variant="bubbleSurface"
                   type="button"
                   onClick={load}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-km0-coral-500 text-white font-ui font-bold text-xs active:scale-95 transition-transform"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-km0-coral-500 text-primary-foreground font-ui font-bold text-xs active:scale-95 transition-transform"
                 >
                   <RefreshCw size={12} />
                   {t('news.error.retry', lang)}
-                </button>
+                </Button>
               </div>
             )}
 
             {showEmpty && (
-              <div className="col-span-full bg-white border border-km0-blue-100 rounded-2xl p-5 text-center">
+              <div className="col-span-full bg-card border border-km0-blue-100 rounded-2xl p-5 text-center">
                 <Newspaper
                   size={28}
                   className="mx-auto text-km0-blue-700/50 mb-2"
@@ -414,12 +387,24 @@ const Noticias = () => {
   )
 
   return (
-    <DeviceShell>
-      <div className="flex-1 min-h-0 w-full flex flex-col px-4 pt-5 pb-0 overflow-y-auto overflow-x-hidden">
-        {content}
+    <>
+      <div
+        ref={notifications.setContainer}
+        className="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
+      >
+        <div className="min-h-0 flex-1 px-4 pt-5">{content}</div>
+        <NotificationsOverlay
+          open={notifications.open}
+          items={notifications.items}
+          loading={notifications.loading}
+          error={notifications.error}
+          lang={lang}
+          onClose={notifications.close}
+          onReload={notifications.reload}
+          container={notifications.container}
+        />
       </div>
-    </DeviceShell>
+    </>
   )
 }
-
 export default Noticias

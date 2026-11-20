@@ -18,7 +18,7 @@ const PostalCode = () => {
   const [touched, setTouched] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [validationResult, setValidationResult] = useState<
-    'idle' | 'found' | 'not_found'
+    'idle' | 'found' | 'not_found' | 'error'
   >('idle')
   const [resolvedTown, setResolvedTown] = useState<string | null>(null)
 
@@ -27,6 +27,7 @@ const PostalCode = () => {
   const cityName = validationResult === 'found' ? resolvedTown : null
   const showError = touched && !isNumeric
   const showNotFound = validationResult === 'not_found'
+  const showConnectionError = validationResult === 'error'
   const isHintValue = !touched && value === DEMO_POSTAL_CODE
 
   useEffect(() => {
@@ -39,12 +40,19 @@ const PostalCode = () => {
     let cancelled = false
     setIsValidating(true)
     setValidationResult('idle')
-    lookupTown(value).then((town) => {
-      if (cancelled) return
-      setIsValidating(false)
-      setResolvedTown(town)
-      setValidationResult(town ? 'found' : 'not_found')
-    })
+    lookupTown(value)
+      .then((town) => {
+        if (cancelled) return
+        setIsValidating(false)
+        setResolvedTown(town)
+        setValidationResult(town ? 'found' : 'not_found')
+      })
+      .catch(() => {
+        if (cancelled) return
+        setIsValidating(false)
+        setResolvedTown(null)
+        setValidationResult('error')
+      })
     return () => {
       cancelled = true
     }
@@ -175,6 +183,18 @@ const PostalCode = () => {
               >
                 <AlertTriangle size={14} />
                 <span>{t('postal.error_notfound', lang)}</span>
+              </motion.div>
+            )}
+            {showConnectionError && (
+              <motion.div
+                role="alert"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="flex items-center gap-1.5 text-destructive font-ui text-sm px-1"
+              >
+                <AlertTriangle size={14} />
+                <span>{t('postal.error_connection', lang)}</span>
               </motion.div>
             )}
           </AnimatePresence>
