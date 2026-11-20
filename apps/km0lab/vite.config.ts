@@ -40,8 +40,33 @@ function lovableAssetPointer(): Plugin {
   }
 }
 
+/**
+ * Publica `version.json` junto a la app: de qué commit se construyó. Las
+ * comprobaciones de después de un despliegue lo leen para saber que están
+ * probando lo que se acaba de subir y no la versión anterior.
+ */
+function buildVersion(): Plugin {
+  return {
+    name: 'km0lab-build-version',
+    apply: 'build',
+    generateBundle() {
+      const commit =
+        process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? null
+      this.emitFile({
+        type: 'asset',
+        fileName: 'version.json',
+        source: JSON.stringify(
+          { commit, builtAt: new Date().toISOString() },
+          null,
+          2
+        ),
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [lovableAssetPointer(), react()],
+  plugins: [lovableAssetPointer(), react(), buildVersion()],
   envDir: path.resolve(__dirname, 'env'),
   resolve: {
     alias: {
