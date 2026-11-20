@@ -40,6 +40,13 @@ const DP = {
     en: 'For the demo, use postal code 00000',
   } as Dict,
   'postal.placeholder': { ca: '00000', es: '00000', en: '00000' } as Dict,
+  // La maqueta fija «100 puntos»; cada municipio configura los suyos y la
+  // cifra real ya sale en grande en el mismo aviso.
+  'home.welcome.points': {
+    ca: 'Has guanyat els teus punts de benvinguda',
+    es: 'Has ganado tus puntos de bienvenida',
+    en: 'You earned your welcome points',
+  } as Dict,
   'postal.error_connection': {
     ca: 'No hem pogut comprovar el codi postal. Torna-ho a provar.',
     es: 'No hemos podido comprobar el código postal. Vuelve a intentarlo.',

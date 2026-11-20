@@ -1,5 +1,7 @@
 import {
+  clearPendingReward,
   isFixedOtpEmail,
+  readPendingReward,
   requestOtp,
   verifyOtp,
   t,
@@ -75,10 +77,16 @@ const CheckEmail = () => {
       return
     }
     toast.success(t('otp.welcome', lang))
+    // El aviso de puntos de bienvenida solo sale si el servidor acaba de
+    // abonarlos (un alta). Entrar con una cuenta que ya existía no lo abre.
+    const rewarded = readPendingReward() !== null
+    clearPendingReward()
     const safeReturnTo =
       state.returnTo?.startsWith('/') && !state.returnTo.startsWith('//')
         ? state.returnTo
-        : '/home?welcome=1'
+        : rewarded
+          ? '/home?welcome=1'
+          : '/home'
     navigate(safeReturnTo, { replace: true })
   }
 
