@@ -6,11 +6,19 @@
  * diccionario de ejemplo). En producción todo sale de km0lab-api
  * (`GET /towns/public?postal_code=`).
  *
- * La API todavía no agrupa poblaciones: cada código postal es un municipio
- * suelto. Por eso el territorio que se devuelve hoy tiene **una sola
- * población** y la interfaz de agrupación queda portada pero dormida
- * (`isGrouped` falso). El día que la API devuelva el ámbito, se rellena
- * aquí `towns` y no hay que tocar las pantallas.
+ * En la API un **municipio** es el cliente (un administrador, unas reglas
+ * y unos premios compartidos) y dentro tiene una o varias **poblaciones**,
+ * que es lo que el vecino llama «mi pueblo». La respuesta describe la
+ * población del código postal pedido y trae en `localities` todas las del
+ * municipio.
+ *
+ * - Municipio de un solo pueblo: el territorio tiene una población y la
+ *   interfaz de agrupación no aparece (`isGrouped` falso).
+ * - Municipio que agrupa: la del vecino primero y las demás por orden
+ *   alfabético. El nombre del municipio no se enseña en ninguna pantalla.
+ *
+ * Una API anterior a las poblaciones no manda `localities`: se trata como
+ * un pueblo solo.
  */
 import { env } from '../utils/env'
 
@@ -122,16 +130,27 @@ async function fetchTerritory(cp: string): Promise<Territory | null> {
         ? town.postal_codes
         : [cp]
     const home: Town = {
-      id: town.id,
+      id: town.locality_id ?? town.id,
       name: town.name.trim(),
       postalCodes,
       artUrl: toTownArtUrl(town.art_url),
     }
+    const neighbours: Town[] = (town.localities ?? [])
+      .filter((locality) => locality.id !== home.id)
+      .map((locality) => ({
+        id: locality.id,
+        name: locality.name.trim(),
+        postalCodes: locality.postal_codes,
+        artUrl: toTownArtUrl(locality.art_url),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ca'))
+    const scopeId = town.municipality_id ?? town.id
     const territory: Territory = {
-      scopeId: `town-${town.id}`,
-      scopeName: home.name,
+      scopeId: `town-${scopeId}`,
+      // Solo para el código: la app no enseña el nombre del municipio.
+      scopeName: town.municipality_name?.trim() || home.name,
       homeTownId: home.id,
-      towns: [home],
+      towns: [home, ...neighbours],
     }
     remember(cp, territory)
     return territory

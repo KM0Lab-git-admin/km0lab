@@ -58,3 +58,24 @@ describe('código postal → municipio', () => {
     }
   )
 })
+
+describe('código postal de un municipio que agrupa pueblos', () => {
+  it('confirma el pueblo del vecino, no el nombre del municipio', async () => {
+    mockApi({
+      'GET /towns/public': {
+        json: {
+          id: 'm-baix',
+          name: 'Breda',
+          locality_id: 'l-breda',
+          municipality_id: 'm-baix',
+          municipality_name: 'Baix Montseny',
+          localities: [
+            { id: 'l-breda', name: 'Breda', postal_codes: ['17400'] },
+            { id: 'l-hostalric', name: 'Hostalric', postal_codes: ['17450'] },
+          ],
+        },
+      },
+    })
+    expect(await lookupTown('17400')).toBe('Breda')
+  })
+})

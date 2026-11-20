@@ -58,10 +58,60 @@ describe('territorio de un código postal', () => {
     })
   })
 
-  it('hoy el ámbito es siempre de una sola población: nada de vecinas inventadas', async () => {
+  it('un municipio de un solo pueblo no tiene vecinas: nada inventado', async () => {
     mockApi({ 'GET /towns/public': { json: breda } })
     const territory = await getTerritory('17400')
     expect(territory?.towns).toHaveLength(1)
+  })
+
+  it('un municipio que agrupa: mi pueblo primero y las vecinas que da el servidor', async () => {
+    mockApi({
+      'GET /towns/public': {
+        json: {
+          id: 'm-baix',
+          name: 'Hostalric',
+          postal_codes: ['17450'],
+          art_url: '/api/v1/towns/localities/l-hostalric/art?v=1',
+          locality_id: 'l-hostalric',
+          municipality_id: 'm-baix',
+          municipality_name: 'Baix Montseny',
+          localities: [
+            {
+              id: 'l-riells',
+              name: 'Riells i Viabrea',
+              postal_codes: ['17404'],
+              art_url: null,
+            },
+            {
+              id: 'l-hostalric',
+              name: 'Hostalric',
+              postal_codes: ['17450'],
+              art_url: '/api/v1/towns/localities/l-hostalric/art?v=1',
+            },
+            {
+              id: 'l-breda',
+              name: 'Breda',
+              postal_codes: ['17400'],
+              art_url: '/api/v1/towns/localities/l-breda/art?v=2',
+            },
+          ],
+        },
+      },
+    })
+
+    const territory = await getTerritory('17450')
+
+    expect(territory?.scopeId).toBe('town-m-baix')
+    expect(territory?.homeTownId).toBe('l-hostalric')
+    expect(territory?.towns.map((town) => town.name)).toEqual([
+      'Hostalric',
+      'Breda',
+      'Riells i Viabrea',
+    ])
+    expect(territory?.towns[1]?.artUrl).toBe(
+      'http://api.test/api/v1/towns/localities/l-breda/art?v=2'
+    )
+    expect(territory?.towns[2]?.artUrl).toBeNull()
   })
 
   it('un pueblo sin ilustración la deja en null, para que salga la genérica', async () => {

@@ -24,7 +24,8 @@ export async function lookupTown(postalCode: string): Promise<string | null> {
   if (cache.has(cp)) return cache.get(cp) ?? null
   // La misma pregunta que hace `useTerritory`: se comparte la respuesta.
   const territory = await getTerritory(cp)
-  const name = territory?.scopeName.trim() || null
+  const home = territory?.towns.find((town) => town.id === territory.homeTownId)
+  const name = home?.name.trim() || null
   cache.set(cp, name)
   return name
 }

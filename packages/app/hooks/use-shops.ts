@@ -92,15 +92,16 @@ export function useShops(): {
   // El servidor abona por escaneo lo que fija el municipio, no el valor
   // de cada comercio: se enseña lo que de verdad se gana.
   const { scan } = usePointsConfig()
-  // Hoy el ámbito es una sola población: todos los comercios son suyos.
+  // Cada comercio dice de qué población es; si el servidor no lo dice (API
+  // anterior a las poblaciones), es de la del vecino.
   const { homeTown } = useTerritory()
   const shops = useMemo(
     () =>
       rows.map((row) => ({
         ...toComercAdherit(row),
         punts: scan,
-        townId: homeTown?.id,
-        townName: homeTown?.name,
+        townId: row.locality_id ?? homeTown?.id,
+        townName: row.town_name?.trim() || homeTown?.name,
       })),
     [rows, scan, homeTown?.id, homeTown?.name]
   )

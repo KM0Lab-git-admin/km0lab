@@ -171,7 +171,9 @@ export const dayHoursSchema = z.object({
 export const shopOutSchema = z.object({
   id: z.string(),
   town_id: z.string().optional(),
+  /** Población del comercio (no el municipio que lo gestiona). */
   town_name: z.string().nullable().optional(),
+  locality_id: z.string().nullable().optional(),
   name: z.string(),
   emoji: z.string().nullable().optional(),
   logo_url: z.string().nullable().optional(),
@@ -226,6 +228,25 @@ export const townPublicOutSchema = z.object({
   postal_codes: z.array(z.string()).optional(),
   /** Ilustración del pueblo: ruta relativa a la API, o null si no tiene. */
   art_url: z.string().nullable().optional(),
+  /**
+   * Municipio y poblaciones. La ficha describe la población del código
+   * postal pedido; `localities` son todas las del municipio (una si es un
+   * pueblo solo, varias si agrupa). El nombre del municipio no se enseña.
+   */
+  locality_id: z.string().nullable().optional(),
+  municipality_id: z.string().nullable().optional(),
+  municipality_name: z.string().nullable().optional(),
+  localities: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        slug: z.string().optional(),
+        postal_codes: z.array(z.string()).default([]),
+        art_url: z.string().nullable().optional(),
+      })
+    )
+    .optional(),
 })
 export type TownPublicOut = z.infer<typeof townPublicOutSchema>
 
