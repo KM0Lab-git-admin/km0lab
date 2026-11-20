@@ -27,7 +27,10 @@ env:
 jobs:
   app-publicada:
     name: App publicada contra la API de hoy
-    runs-on: ubuntu-latest
+    # Versión fija: `playwright install --with-deps` solo conoce las
+    # distribuciones que existían cuando salió esa versión de Playwright.
+    # Con ubuntu-latest el paso fallaba al cambiar GitHub de imagen.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
