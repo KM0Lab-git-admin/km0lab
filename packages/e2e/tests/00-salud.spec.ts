@@ -11,12 +11,21 @@ test.describe('Salud @lectura', () => {
   test('la API de negocio responde', async () => {
     const health = await apiHealth()
     expect(health.status).toBe('healthy')
-    // Las versiones de la API anteriores a noviembre de 2026 no lo dicen.
-    if (health.environment) {
-      if (target === 'uat') expect(health.environment).toBe('staging')
-      if (target === 'production') {
-        expect(health.environment).toBe('production')
-      }
+    // Lo que no puede pasar: probar «UAT» contra una API de producción, o
+    // «producción» contra una que no lo es.
+    if (target === 'production') {
+      expect(health.environment).toBe('production')
+    } else {
+      expect(health.environment).not.toBe('production')
+    }
+    // UAT debería declararse `staging`. Si dice `development` funciona
+    // igual, pero con los límites y el arranque de una máquina local: se
+    // avisa en el informe sin dar la prueba por fallida.
+    if (target === 'uat' && health.environment !== 'staging') {
+      test.info().annotations.push({
+        type: 'aviso',
+        description: `La API de UAT se declara «${health.environment}», no «staging».`,
+      })
     }
 
     // Tras un despliegue: comprueba que lo desplegado es lo que se subió.
