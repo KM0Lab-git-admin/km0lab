@@ -1,18 +1,65 @@
 # Pruebas de KM0 LAB
 
-Qué se prueba, cuándo y contra qué. La pregunta que contesta:
-**«¿puedo subir esto, y cómo sé que ha ido bien?»**
+Qué se prueba, cuándo y contra qué.
 
-## El contexto que lo condiciona
+## La idea: dos tramos
 
-- El piloto se hace en **UAT**, con vecinos reales.
-- Hay **una sola base de datos** por entorno. No existe una «de pruebas».
-- Después de UAT hay un **paso a producción**, que decide una persona.
+El trabajo diario se hace casi siempre directamente en `develop`, y
+`develop` publica en UAT. Las pruebas no deben frenar eso.
 
-Por eso las pruebas que escriben lo hacen en un **territorio de pruebas**
-dentro de la misma base de datos, que se puede borrar entero.
+| Tramo      | Dónde corre          | Qué corre                                      | Cuánto tarda | Si falla         |
+| ---------- | -------------------- | ---------------------------------------------- | ------------ | ---------------- |
+| **Rápido** | Tu máquina, al subir | Formato, estilo, tipos y pruebas sin navegador | Segundos     | No se sube       |
+| **Lento**  | GitHub, ya en UAT    | Recorridos de vecino con navegador, contra UAT | 3-5 minutos  | Avisa por correo |
 
-## Tres territorios
+**En local nunca es obligatorio abrir el navegador ni arrancar servidores.**
+Los recorridos completos se pueden lanzar a mano (`pnpm e2e`) cuando el
+cambio es grande; no forman parte de publicar.
+
+La consecuencia, asumida: un fallo que solo ve el navegador se detecta
+unos minutos **después** de publicarse en UAT. UAT es el entorno de
+pruebas; la barrera de verdad es el paso a producción.
+
+## Tramo rápido (en tu máquina)
+
+Corre solo, por los ganchos de git (`lefthook.yml`):
+
+| Momento              | Qué                                      |
+| -------------------- | ---------------------------------------- |
+| Al guardar un commit | Formato y estilo de los ficheros tocados |
+| Al subir             | Tipos de todo el proyecto y `pnpm test`  |
+
+`pnpm test` son las pruebas de `packages/app/tests`: la lógica que habla
+con el servidor (escaneo, canje, perfil, código postal, sesión, textos),
+con un servidor de mentira. Comprueban a la vez qué manda la app y si
+entiende lo que recibe. Menos de un segundo.
+
+En `km0lab-api` el equivalente es `pytest` (unos 15 segundos), que se lanza
+solo al subir `develop` o `main`.
+
+## Tramo lento (en GitHub)
+
+`.github/workflows/e2e.yml`, los recorridos de `packages/e2e`:
+
+| Cuándo                 | Qué hace                                                          |
+| ---------------------- | ----------------------------------------------------------------- |
+| Al subir `develop`     | Espera a que UAT sirva el commit nuevo y recorre la app publicada |
+| Cada cuatro horas      | Lo mismo, por si cambia un servidor o un dato y no la app         |
+| Solicitud hacia `main` | Recorre lo que va a entrar en producción, contra la API de UAT    |
+| A mano                 | Contra UAT o contra producción                                    |
+
+Un robot abre la app en un navegador con tamaño de móvil y hace lo que
+haría un vecino: registrarse, escanear, canjear, invitar. Compara lo que
+dice la pantalla con lo que hay en el servidor, así que es también la
+prueba del contrato entre la app y la API con datos reales.
+
+En `km0lab-api`, `.github/workflows/tests.yml` repite `pytest` y añade las
+migraciones desde cero y los flujos de puntos sobre MySQL.
+
+## Dónde escriben las pruebas
+
+Hay una sola base de datos por entorno. Las pruebas que escriben lo hacen
+en un **territorio de pruebas** dentro de ella, que se puede borrar entero.
 
 | Territorio   | Código postal            | Las pruebas…                           |
 | ------------ | ------------------------ | -------------------------------------- |
@@ -20,90 +67,41 @@ dentro de la misma base de datos, que se puede borrar entero.
 | Demostración | 00000 «Demo KM0»         | entran y miran; no canjean ni escanean |
 | **Pruebas**  | 99999 «[QA] QA KM0»      | escriben todo lo que haga falta        |
 
-Un dato de prueba se reconoce porque cuelga del municipio 9999x o de una
-cuenta `qa+…@km0lab.com`, es `is_fake` y su nombre empieza por `[QA]`. Se
-siembra y se borra con guiones de `km0lab-api`
-(`docs/QA-TERRITORY.md` de aquel repositorio). **En producción no existe**:
-ni el municipio, ni las cuentas, ni el código fijo.
+Un dato de prueba cuelga del municipio 9999x o de una cuenta
+`qa+…@km0lab.com`, está marcado como falso y su nombre empieza por `[QA]`.
+Usa las mismas tablas que los datos reales: lo que cambia es la marca. Se
+siembra y se borra con guiones de `km0lab-api` (su
+`docs/QA-TERRITORY.md`). **En producción no existe**: ni el municipio, ni
+las cuentas, ni el código fijo.
 
-## Qué hay
+## Paso a producción
 
-| Red                          | Dónde                          | Qué atrapa                                           |
-| ---------------------------- | ------------------------------ | ---------------------------------------------------- |
-| Tipos, estilo y formato      | `pnpm validate`                | Código incoherente                                   |
-| Ensayo del porte             | `pnpm sync:check`              | Que traer lo último de Lovable rompa producción      |
-| **Recorridos de vecino**     | `pnpm e2e` (`packages/e2e`)    | Que un vecino no pueda hacer lo que la app promete   |
-| Pruebas de la API            | `pytest` en `km0lab-api`       | Reglas de negocio                                    |
-| Flujos de la API sobre MySQL | `scripts/check_flows_mysql.py` | Claves foráneas, peticiones simultáneas, migraciones |
-
-Los recorridos comparan lo que dice la pantalla con lo que hay en el
-servidor, así que son también la prueba del **contrato** entre la app y la
-API con datos reales: si el backoffice da de alta algo que la app no sabe
-leer, el recorrido de visitante lo dice.
-
-## Cuándo corre cada cosa
-
-### En tu máquina, antes de subir
-
-| Si tocas…           | Ejecuta                                                          |
-| ------------------- | ---------------------------------------------------------------- |
-| La app              | `pnpm validate` y `pnpm e2e` (con app, API y eventos arrancados) |
-| Un porte de Lovable | `pnpm sync:check`, `pnpm sync:lovable`, y lo anterior            |
-| `km0lab-api`        | `pytest`, `python -m scripts.check_flows_mysql` y `pnpm e2e`     |
-| La base de datos    | Además: ensayo de migración (abajo)                              |
-
-### Al proponer un cambio (pull request)
-
-| Repositorio  | Qué corre solo                                                          |
-| ------------ | ----------------------------------------------------------------------- |
-| `km0lab`     | `validate` + **recorridos con la rama compilada, contra la API de UAT** |
-| `km0lab-api` | `pytest` + migraciones desde cero sobre MySQL 8 + flujos                |
-
-El cambio de la app se prueba contra UAT **antes** de publicarse: la rama
-se sirve dentro de la máquina de GitHub y habla con la API de UAT. Si
-falla, no se fusiona y los vecinos no ven nada.
-
-### Al entrar en `develop` (se despliega UAT)
-
-`Recorridos` espera a que UAT sirva el commit nuevo (`/version.json`) y
-recorre la app desplegada. Si falla, GitHub avisa por correo con captura,
-vídeo y traza del paso.
-
-### Cada cuatro horas
-
-Los mismos recorridos contra UAT. Para enterarse de un fallo aunque nadie
-haya desplegado la app: un despliegue de la API o de eventos, un dato
-nuevo del backoffice.
-
-### Paso a producción
-
-1. UAT en verde: el último `Recorridos` de `develop` ha pasado.
+1. UAT en verde: el último «Recorridos» de `develop` ha pasado.
 2. La lista manual de móvil (abajo).
-3. Una persona fusiona `develop` en `main`.
-4. `Recorridos` a mano contra `production`: solo las pruebas de lectura
-   (`@lectura`). En producción no se escribe nunca.
+3. Solicitud de `develop` hacia `main`. Ahí sí corren los recorridos
+   **antes** de fusionar, y la decide una persona.
+4. Ya en producción: «Recorridos» a mano contra `production`. Solo las
+   pruebas de lectura; en producción no se escribe nunca.
 
 ## Cambios en la base de datos
 
-La API aplica sola las migraciones al arrancar. Con vecinos dentro:
+Es el único caso en que conviene probar antes en local, porque no tiene
+marcha atrás fácil. La API aplica sola las migraciones al arrancar.
 
-- **Solo añadir.** Durante el piloto una migración añade tablas o
-  columnas; no borra ni renombra en el mismo paso.
-- **Ensayarla sobre una copia.** Antes de subir: traer los datos de UAT a
-  local (`pull_from_railway.py`, que solo lee), aplicar la migración y
-  ejecutar `check_flows_mysql` y `pnpm e2e`.
-- **Copia de seguridad antes** de desplegar una migración.
+- **Solo añadir.** Una migración añade tablas o columnas; no borra ni
+  renombra en el mismo paso.
+- **Ensayarla sobre una copia.** Traer los datos de UAT a local
+  (`pull_from_railway.py`, que solo lee), aplicar la migración y lanzar
+  `python -m scripts.check_flows_mysql` y `pnpm e2e`.
+- **Copia de seguridad antes** de publicarla.
 
-## Si algo falla después de desplegar
+## Si algo falla después de publicar
 
-| Qué falló             | Cómo se vuelve atrás                              |
-| --------------------- | ------------------------------------------------- |
-| La app                | Vercel: volver al despliegue anterior             |
-| La API, sin migración | Railway: volver a desplegar la versión anterior   |
-| La API, con migración | No hay marcha atrás fácil: de ahí las tres normas |
-
-Durante el piloto un fallo en UAT no es una catástrofe, pero lo ven
-vecinos: se arregla o se deshace el mismo día.
+| Qué falló             | Cómo se vuelve atrás                            |
+| --------------------- | ----------------------------------------------- |
+| La app                | Vercel: volver al despliegue anterior           |
+| La API, sin migración | Railway: volver a desplegar la versión anterior |
+| La API, con migración | No hay marcha atrás fácil: de ahí lo de arriba  |
 
 ## Lista manual (lo que un robot no puede)
 
@@ -115,11 +113,25 @@ Antes de pasar a producción y cuando cambie algo de esto:
       formularios, compartir por WhatsApp.
 - [ ] **Android instalado**: abrir un enlace de invitación y uno de escaneo.
 
-## Configuración que necesita
+## Comandos
+
+```bash
+pnpm test            # pruebas rápidas (las que corren solas al subir)
+pnpm e2e             # recorridos con navegador, contra tu entorno local
+pnpm e2e:lectura     # solo los que no escriben
+E2E_TARGET=uat pnpm e2e    # recorridos contra UAT, desde tu máquina
+```
+
+Los recorridos en local necesitan la app, `km0lab-api` y `events-query`
+arrancados y el territorio sembrado (`python -m scripts.seed_qa`). Detalle
+en [`packages/e2e/README.md`](../packages/e2e/README.md).
+
+## Configuración
 
 | Dónde                        | Qué                                           |
 | ---------------------------- | --------------------------------------------- |
 | Railway, servicio API de UAT | Variable `QA_TOKEN` (valor largo y aleatorio) |
 | GitHub, repositorio `km0lab` | Secreto `E2E_QA_TOKEN` con el mismo valor     |
 
-Sin ellos los recorridos de GitHub corren en modo solo lectura.
+Es la clave del robot. Sin ella los recorridos de GitHub corren en modo
+solo lectura.

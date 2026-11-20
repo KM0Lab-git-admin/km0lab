@@ -4,6 +4,10 @@ Un robot abre la app en un navegador con tamaño de móvil y hace lo que
 haría un vecino: elegir idioma, registrarse, escanear, canjear, invitar.
 Las mismas pruebas corren en local, en UAT y en producción.
 
+Son el **tramo lento**: no forman parte de publicar. En el día a día
+corren solas en GitHub cuando el cambio ya está en UAT. En local se
+lanzan a mano, cuando el cambio es grande.
+
 La visión completa (qué se prueba en cada momento y por qué) está en
 [`docs/TESTING.md`](../../docs/TESTING.md).
 
@@ -12,7 +16,7 @@ La visión completa (qué se prueba en cada momento y por qué) está en
 ```bash
 pnpm e2e                 # todos, contra tu app y tu API locales
 pnpm e2e:lectura         # solo los que no escriben
-pnpm --filter @km0lab/e2e test:ui    # con la interfaz de Playwright
+pnpm --filter @km0lab/e2e e2e:ui     # con la interfaz de Playwright
 pnpm --filter @km0lab/e2e report     # abre el último informe
 ```
 

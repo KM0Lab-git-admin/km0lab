@@ -1,14 +1,15 @@
 name: Recorridos
 
-# Los recorridos de vecino (packages/e2e), en cuatro momentos:
+# Los recorridos de vecino (packages/e2e). Son el tramo lento: no corren
+# en la máquina de quien desarrolla, sino aquí, cuando el cambio ya está
+# publicado. En local solo corre el tramo rápido (lefthook pre-push).
 #
-#  1. Antes de fusionar (pull_request): se compila la rama y se sirve dentro
-#     de esta misma máquina, hablando con la API de UAT. Los vecinos no ven
-#     nada: si falla, no se fusiona.
-#  2. Tras subir a develop (push): espera a que UAT sirva el commit nuevo y
-#     recorre la app desplegada.
-#  3. Cada cuatro horas (schedule): lo mismo, por si lo que cambia es un
+#  1. Tras subir a develop (push): espera a que UAT sirva el commit nuevo y
+#     recorre la app desplegada. Si falla, avisa por correo.
+#  2. Cada cuatro horas (schedule): lo mismo, por si lo que cambia es un
 #     servidor o un dato y no la app.
+#  3. Paso a producción (pull_request a main): se compila lo que va a
+#     entrar y se recorre contra la API de UAT. Es la barrera de producción.
 #  4. A mano (workflow_dispatch): contra UAT o contra producción.
 #
 # Las pruebas que escriben lo hacen solo en el territorio de pruebas
@@ -17,7 +18,7 @@ name: Recorridos
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main]
   push:
     branches: [develop]
   schedule:
@@ -90,7 +91,7 @@ jobs:
             echo "Sin E2E_QA_TOKEN: solo pruebas de lectura." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      # ── 1. Antes de fusionar: la rama, servida aquí, contra la API de UAT
+      # ── Paso a producción: lo que va a entrar, servido aquí, contra la API de UAT
       - name: Compilar la rama
         if: github.event_name == 'pull_request'
         run: pnpm --filter km0lab build
@@ -105,7 +106,7 @@ jobs:
           done
           echo "La app compilada no arrancó" && exit 1
 
-      # ── 2. Tras subir a develop: esperar a que UAT sirva este commit
+      # ── Tras subir a develop: esperar a que UAT sirva este commit
       - name: Esperar al despliegue de UAT
         if: github.event_name == 'push'
         run: |
