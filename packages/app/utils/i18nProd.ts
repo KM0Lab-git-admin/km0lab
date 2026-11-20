@@ -33,6 +33,7 @@ const DP = {
   'account.sheet.demo': EMPTY,
   'catalog.sample': EMPTY,
   'business.success.mock_note': EMPTY,
+  'business.email.access_hint': EMPTY,
   // ── Textos que producción dice distinto que la maqueta ─────────────
   'postal.subtitle': {
     ca: 'Per a la demo, utilitza el codi 00000',

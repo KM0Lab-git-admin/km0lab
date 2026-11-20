@@ -13,7 +13,13 @@ pre-commit:
       glob: '*.{ts,tsx,js,jsx,mjs,cjs}'
       run: pnpm eslint {staged_files}
 
+# Tramo rápido: lo que corre en tu máquina antes de que algo salga de ella.
+# Sin navegador y sin servidores: segundos. Los recorridos completos
+# (packages/e2e) corren después, ya en UAT. Ver docs/TESTING.md.
 pre-push:
+  parallel: true
   commands:
     type-check:
       run: pnpm turbo run type:check
+    test:
+      run: pnpm turbo run test

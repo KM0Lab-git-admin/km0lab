@@ -47,6 +47,9 @@ jobs:
       - name: Validate
         run: pnpm validate
 
+      - name: Pruebas rápidas
+        run: pnpm test
+
       - name: Build web (only when PR targets main)
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: pnpm --filter km0lab build:web
