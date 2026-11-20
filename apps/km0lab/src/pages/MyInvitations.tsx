@@ -1,3 +1,4 @@
+import type { InvitationRecord, InvitationStatus } from '@km0lab/app'
 import {
   useDragScroll,
   useAuth,
@@ -5,8 +6,6 @@ import {
   type Lang,
   type TKey,
   useInvitations,
-  InvitationRecord,
-  InvitationStatus,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import {

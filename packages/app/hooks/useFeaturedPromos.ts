@@ -77,6 +77,7 @@ export function useFeaturedPromos(limit = 4): {
   promos: Promo[]
   loading: boolean
   error: string | null
+  reload: () => void
 } {
   const lang = useAppStore((s) => s.lang)
   const postalCode = useAppStore((s) => s.postalCode)
@@ -86,6 +87,7 @@ export function useFeaturedPromos(limit = 4): {
   const [promos, setPromos] = useState<Promo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -116,7 +118,7 @@ export function useFeaturedPromos(limit = 4): {
     return () => {
       cancelled = true
     }
-  }, [limit, lang, poblacion])
+  }, [limit, lang, poblacion, attempt])
 
-  return { promos, loading, error }
+  return { promos, loading, error, reload: () => setAttempt((n) => n + 1) }
 }

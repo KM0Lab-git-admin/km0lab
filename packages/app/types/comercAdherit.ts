@@ -20,6 +20,9 @@ export interface ComercAdherit {
   imatge?: string
   /** Classe Tailwind de fons de la miniatura (bg-km0-*). */
   bg?: string
+  /** Town the shop belongs to inside the scope. */
+  townId?: string
+  townName?: string
 }
 
 export interface CategoriaAdherit {

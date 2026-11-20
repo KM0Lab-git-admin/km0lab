@@ -1,3 +1,4 @@
+import type { PointAction, PointActionIcon } from '@km0lab/app'
 import {
   usePointsActions,
   usePreviewState,
@@ -6,8 +7,6 @@ import {
   t,
   type Lang,
   useInviteRewards,
-  PointAction,
-  PointActionIcon,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'

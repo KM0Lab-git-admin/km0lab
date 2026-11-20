@@ -10,7 +10,11 @@ export function usePreviewState(
   loading: boolean,
   error: boolean,
   empty: boolean
-): { state: ScreenState; retry: (reload: () => void) => void } {
+): {
+  state: ScreenState
+  retry: (reload: () => void) => void
+  isSample: boolean
+} {
   const state: ScreenState = loading
     ? 'loading'
     : error
@@ -18,5 +22,21 @@ export function usePreviewState(
       : empty
         ? 'empty'
         : 'ready'
-  return { state, retry: (reload) => reload() }
+  return { state, retry: (reload) => reload(), isSample: false }
+}
+
+/**
+ * En Lovable `?state=sample` enseña contenido de muestra. En producción no
+ * existe: la fuente es siempre la real, y los enlaces no arrastran nada.
+ */
+export type ContentSource = 'live' | 'sample'
+
+export const getContentSource = (_state: string | null): ContentSource => 'live'
+
+export function useContentSource(): ContentSource {
+  return 'live'
+}
+
+export function getContentPath(path: string, _source?: ContentSource): string {
+  return path
 }

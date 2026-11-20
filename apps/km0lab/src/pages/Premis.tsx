@@ -1,3 +1,4 @@
+import type { ShopPromotion, Reward, RewardCategory } from '@km0lab/app'
 import {
   useAccount,
   redeemReward,
@@ -8,9 +9,6 @@ import {
   t,
   type TKey,
   useShopPromotions,
-  ShopPromotion,
-  Reward,
-  RewardCategory,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'

@@ -8,6 +8,7 @@ import { t } from '../utils/i18n'
 import { buildShopCategories, toComercAdherit } from '../utils/shopMapper'
 
 import { usePointsConfig } from './use-points-config'
+import { useTerritory } from './use-territory'
 import { useShopCategories } from './useShopCategories'
 
 import type { ShopOut, ShopResidentOut } from '../services/km0labClient'
@@ -91,9 +92,17 @@ export function useShops(): {
   // El servidor abona por escaneo lo que fija el municipio, no el valor
   // de cada comercio: se enseña lo que de verdad se gana.
   const { scan } = usePointsConfig()
+  // Hoy el ámbito es una sola población: todos los comercios son suyos.
+  const { homeTown } = useTerritory()
   const shops = useMemo(
-    () => rows.map((row) => ({ ...toComercAdherit(row), punts: scan })),
-    [rows, scan]
+    () =>
+      rows.map((row) => ({
+        ...toComercAdherit(row),
+        punts: scan,
+        townId: homeTown?.id,
+        townName: homeTown?.name,
+      })),
+    [rows, scan, homeTown?.id, homeTown?.name]
   )
   const categories = useMemo(
     () =>

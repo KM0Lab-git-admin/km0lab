@@ -13,7 +13,7 @@ export * from './i18n'
 // re-export explicito tiene precedencia sobre el `export *` de arriba.
 // OJO: no borres la linea `export * from './i18n'` — sync-lovable.mjs la
 // volveria a anadir automaticamente (ensureBarrelExport).
-export { t, type TKey } from './i18nProd'
+export { t, tf, type TKey } from './i18nProd'
 export type { TKeyProd } from './i18nProd'
 export * from './postalCodes'
 export * from './appVersion'
@@ -29,3 +29,4 @@ export * from './qr'
 export * from './shareUrl'
 export * from './openShareChannel'
 export * from './pendingInvite'
+export * from './scopeListings'

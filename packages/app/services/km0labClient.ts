@@ -222,6 +222,10 @@ export const townPublicOutSchema = z.object({
   default_visit_points: z.number().default(10),
   default_lang: z.string().default('ca'),
   expiry_months: z.number().nullable().optional(),
+  slug: z.string().optional(),
+  postal_codes: z.array(z.string()).optional(),
+  /** Ilustración del pueblo: ruta relativa a la API, o null si no tiene. */
+  art_url: z.string().nullable().optional(),
 })
 export type TownPublicOut = z.infer<typeof townPublicOutSchema>
 

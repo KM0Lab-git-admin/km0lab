@@ -2,14 +2,18 @@ import {
   useNotificationsPanel,
   useLocationContext,
   useDragScroll,
-  listMunicipalEvents,
+  useScopeEvents,
+  useScopeCategories,
+  useTerritory,
+  usePreviewState,
+  filterScopeTown,
+  countEventCategories,
   t,
+  tf,
   type Lang,
-  getCategories,
   type AgendaEvent as Evento,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
-import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar as CalendarIcon,
@@ -34,18 +38,18 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { Town } from '@km0lab/app'
 
 import CategoryFilterMenu, {
   type CategoryFilterOption,
 } from '@/components/CategoryFilterMenu'
 import HomeHero from '@/components/HomeHero'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenStatus from '@/components/ScreenStatus'
 import ScreenTitle from '@/components/ScreenTitle'
+import { TownTag } from '@/components/TownTag'
 import WhenTabs, { type WhenKey } from '@/components/WhenTabs'
 import { useLang } from '@/contexts/LangContext'
-
-/** Municipio por defecto si el usuario no tiene población guardada. */
-const DEFAULT_TOWN = 'Malgrat de Mar'
 
 /* ──────────────────────────────────────────────────────────────
  * Agenda — diseño "Bold" (mockup aprobado).
@@ -123,21 +127,6 @@ const rangeFor = (when: WhenKey): { desde: string; hasta?: string } => {
   return { desde: toISODate(today), hasta: toISODate(addDays(today, days)) }
 }
 
-const MONTHS_SHORT = [
-  'ENE',
-  'FEB',
-  'MAR',
-  'ABR',
-  'MAY',
-  'JUN',
-  'JUL',
-  'AGO',
-  'SEP',
-  'OCT',
-  'NOV',
-  'DIC',
-]
-
 const LOCALE_FOR: Record<Lang, string> = {
   ca: 'ca-ES',
   es: 'es-ES',
@@ -167,8 +156,12 @@ const formatTime = (t?: string) => (t ? t.slice(0, 5) : '')
 const EventListCard = ({
   evento,
   onOpen,
+  town,
+  isHome = false,
 }: {
   evento: Evento
+  town?: Town
+  isHome?: boolean
   onOpen: (id: string) => void
 }) => {
   const { lang } = useLang()
@@ -217,6 +210,11 @@ const EventListCard = ({
         </div>
       )}
       <div className="p-3">
+        {town && (
+          <div className="mb-1 flex">
+            <TownTag townName={town.name} isHome={isHome} lang={lang} />
+          </div>
+        )}
         <h4 className="font-brand text-sm leading-tight text-km0-blue-900 mb-1">
           {evento.titulo}
         </h4>
@@ -266,14 +264,6 @@ const EventListCard = ({
   )
 }
 
-const SkeletonCard = () => (
-  <div className="bg-card border border-km0-blue-100 rounded-2xl p-3 animate-pulse">
-    <div className="h-4 w-2/3 bg-km0-blue-100/70 rounded mb-2" />
-    <div className="h-3 w-1/2 bg-km0-blue-100/50 rounded mb-1.5" />
-    <div className="h-3 w-1/3 bg-km0-blue-100/50 rounded" />
-  </div>
-)
-
 /* ─── Página ─────────────────────────────────────────────────── */
 const Agenda = () => {
   const navigate = useNavigate()
@@ -282,45 +272,44 @@ const Agenda = () => {
   const { lang } = useLang()
   /** Selección múltiple y acumulativa; [] equivale a «Tots». */
   const [selected, setSelected] = useState<string[]>([])
-  const [price, setPrice] = useState<Price>('todos')
+  const [price] = useState<Price>('todos')
   const [when, setWhen] = useState<WhenKey>('mes')
 
   // Población elegida por el usuario (CP → población), con fallback.
   const { town } = useLocationContext()
 
-  // Categorías reales de la API: solo las que tienen eventos activos en
-  // esta población (el endpoint ya filtra por Estado='ACTIVO').
-  const { data: apiCategories = [] } = useQuery({
-    queryKey: ['categories', town],
-    queryFn: () => getCategories(town),
-    staleTime: 5 * 60 * 1000,
-  })
-
+  const { territory, homeTown, isGrouped } = useTerritory()
+  const [selectedTown, setSelectedTown] = useState<string | null>(null)
+  useEffect(() => {
+    setSelectedTown(null)
+  }, [territory?.scopeId, territory?.homeTownId])
+  const { categories: apiCategories } = useScopeCategories()
   const { desde: rangeDesde, hasta: rangeHasta } = rangeFor(when)
-  const query = useQuery({
-    queryKey: [
-      'municipal-events',
-      town,
-      rangeDesde,
-      rangeHasta ?? 'open',
-      lang,
-    ],
-    queryFn: () =>
-      listMunicipalEvents({
-        poblacion: town,
-        fechaDesde: rangeDesde,
-        fechaHasta: rangeHasta,
-        lang: lang === 'ca' ? 'ca' : 'es',
-      }),
-    staleTime: 300000,
+  const scope = useScopeEvents({
+    fechaDesde: rangeDesde,
+    fechaHasta: rangeHasta,
+    lang: lang === 'ca' ? 'ca' : 'es',
   })
-  const eventos = query.data ?? []
-  const loading = query.isLoading
-  const error = query.error
+  const entries = useMemo(
+    () => filterScopeTown([...scope.home, ...scope.nearby], selectedTown),
+    [scope.home, scope.nearby, selectedTown]
+  )
+  const eventos = useMemo(() => entries.map((entry) => entry.item), [entries])
+  const loading = scope.loading
+  const error = scope.error
   const availableSlugs = useMemo(
     () => new Set(eventos.flatMap((event) => event.tags)),
-    [query.data]
+    [eventos]
   )
+  const townsByEvent = new Map(
+    entries.map((entry) => [entry.item.id_unico_evento, entry.town])
+  )
+  const failures =
+    territory?.towns.filter(
+      (origin) =>
+        scope.failedTownIds.includes(origin.id) &&
+        (selectedTown === null || selectedTown === origin.id)
+    ) ?? []
 
   /** Alterna una categoría en la selección múltiple. */
   const toggleCategory = (slug: string) =>
@@ -332,17 +321,18 @@ const Agenda = () => {
   // listado que ve el usuario), así el número del menú coincide con lo que
   // aparece al elegir esa categoría. Un evento cuenta una sola vez por
   // categoría aunque repita el tag.
-  const categoryCounts = useMemo(() => {
-    const map = new Map<string, number>()
-    eventos.forEach((e) => {
-      new Set(e.tags).forEach((slug) => map.set(slug, (map.get(slug) ?? 0) + 1))
-    })
-    return map
-  }, [eventos])
+  const categoryCounts = useMemo(() => countEventCategories(entries), [entries])
 
   // Categorías devueltas por la API + "Tots" al final.
   const chips = useMemo(() => {
-    const items = apiCategories
+    const knownSlugs = new Set(apiCategories.map((category) => category.slug))
+    const categories = [
+      ...apiCategories,
+      ...[...availableSlugs]
+        .filter((slug) => !knownSlugs.has(slug))
+        .map((slug) => ({ slug, nombre_cat: slug, nombre_es: slug })),
+    ]
+    const items = categories
       .filter((c) => !availableSlugs || availableSlugs.has(c.slug))
       .map((c) => ({
         key: c.slug,
@@ -417,9 +407,11 @@ const Agenda = () => {
     return Array.from(map.values())
   }, [filtered])
 
-  const today = new Date()
-  const dayNum = today.getDate()
-  const monthLabel = MONTHS_SHORT[today.getMonth()]
+  const { state, retry, isSample } = usePreviewState(
+    loading,
+    error !== null,
+    grouped.length === 0
+  )
 
   /* ─── Render ─────────────────────────────────────── */
   const content = (
@@ -443,6 +435,7 @@ const Agenda = () => {
         {/* ── Rango temporal + menú de categorías en la misma fila ─── */}
         <div className="flex shrink-0 items-center gap-2">
           <WhenTabs
+            compact={isGrouped}
             value={when}
             onChange={setWhen}
             className="min-w-0 flex-1"
@@ -456,11 +449,33 @@ const Agenda = () => {
             onToggle={toggleCategory}
             onClear={() => setSelected([])}
           />
+          {isGrouped && (
+            <CategoryFilterMenu
+              title={t('territory.townFilter', lang)}
+              icon={<MapPin aria-hidden className="!h-4 !w-4" />}
+              allOption={{
+                key: 'all',
+                label: t('territory.allTowns', lang),
+                icon: <MapPin size={16} />,
+              }}
+              options={
+                territory?.towns.map((origin) => ({
+                  key: origin.id,
+                  label: origin.name,
+                  icon: <MapPin size={16} />,
+                  isHome: origin.id === homeTown?.id,
+                })) ?? []
+              }
+              selected={selectedTown ? [selectedTown] : []}
+              onToggle={setSelectedTown}
+              onClear={() => setSelectedTown(null)}
+            />
+          )}
         </div>
 
         {/* ── Contador ─── */}
         <div className="text-[11px] font-ui text-km0-blue-700/80 px-0.5 shrink-0">
-          {loading ? (
+          {state === 'loading' ? (
             <span className="inline-flex items-center gap-1">
               <Loader2 size={11} className="animate-spin" />
               {t('agenda.searching', lang)}
@@ -488,45 +503,33 @@ const Agenda = () => {
           className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain space-y-3 -mx-4 px-4 pb-4"
           ref={scrollRef}
         >
-          {loading && eventos.length === 0 && (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
+          {isSample && (
+            <p
+              role="status"
+              className="font-ui text-xs font-bold text-km0-coral-700"
+            >
+              {t('territory.sampleContent', lang)}
+            </p>
           )}
-
-          {!loading && error && (
-            <div className="bg-km0-coral-50 border border-km0-coral-200 rounded-2xl p-4 text-xs font-ui text-km0-coral-700">
-              {t('agenda.error', lang)}
-              <Button
-                variant="bubbleTertiary"
-                onClick={() => {
-                  void query.refetch()
-                }}
+          <ScreenStatus
+            state={state}
+            emptyKey="agenda.empty.title"
+            onRetry={() => retry(scope.reload)}
+          />
+          {state !== 'loading' &&
+            state !== 'error' &&
+            failures.map((origin) => (
+              <p
+                key={origin.id}
+                role="status"
+                className="font-body text-xs text-muted-foreground"
               >
-                {t('merchants.error.retry', lang)}
-              </Button>
-            </div>
-          )}
-
-          {!loading && !error && grouped.length === 0 && (
-            <div className="bg-card border border-km0-blue-100 rounded-2xl p-5 text-center">
-              <CalendarIcon
-                size={28}
-                className="mx-auto text-km0-blue-700/50 mb-2"
-              />
-              <p className="font-brand text-sm text-km0-blue-900 mb-1">
-                {t('agenda.empty.title', lang)}
+                {tf('territory.townUnavailable', lang, { town: origin.name })}
               </p>
-              <p className="text-[11px] font-ui text-km0-blue-700/70">
-                {t('agenda.empty.hint', lang)}
-              </p>
-            </div>
-          )}
+            ))}
 
           <AnimatePresence initial={false}>
-            {grouped.map((g) => (
+            {(state === 'ready' ? grouped : []).map((g) => (
               <motion.div
                 key={g.date.toISOString()}
                 layout
@@ -542,6 +545,14 @@ const Agenda = () => {
                   <EventListCard
                     key={e.id_unico_evento}
                     evento={e}
+                    town={
+                      isGrouped
+                        ? townsByEvent.get(e.id_unico_evento)
+                        : undefined
+                    }
+                    isHome={
+                      townsByEvent.get(e.id_unico_evento)?.id === homeTown?.id
+                    }
                     onOpen={(id) =>
                       navigate(`/event?id=${encodeURIComponent(id)}`)
                     }

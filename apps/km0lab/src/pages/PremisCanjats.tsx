@@ -1,3 +1,4 @@
+import type { Redemption, RedemptionStatus } from '@km0lab/app'
 import {
   isPendingRedemption,
   useAccount,
@@ -6,8 +7,6 @@ import {
   useAuth,
   t,
   type Lang,
-  Redemption,
-  RedemptionStatus,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'

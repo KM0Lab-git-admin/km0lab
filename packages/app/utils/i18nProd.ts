@@ -465,3 +465,13 @@ export const t = (key: TKey, lang: Lang): string => {
   if (entry) return entry[lang] ?? entry.es ?? String(key)
   return tBase(key as TKeyBase, lang)
 }
+
+/** `t` con variables: «Notícies de {town}» → «Notícies de Breda». */
+export const tf = (
+  key: TKey,
+  lang: Lang,
+  vars: Record<string, string | number>
+): string =>
+  t(key, lang).replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in vars ? String(vars[name]) : match
+  )

@@ -1,25 +1,37 @@
-import { t, useDragScroll } from '@km0lab/app'
+import { t, tf, useDragScroll } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
-import { ArrowRight } from 'lucide-react'
 
 import type { HomeTab } from '@/components/BottomTabs'
-import type { Promo, ApiReward, InvitationsSummary } from '@km0lab/app'
+import type {
+  ScreenState,
+  Promo,
+  Noticia,
+  ScopedItem,
+  ApiReward,
+  InvitationsSummary,
+} from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import EarnPointsCard from '@/components/EarnPointsCard'
 import EventHeroCarousel from '@/components/EventHeroCarousel'
 import HomeHero from '@/components/HomeHero'
 import HomeModules, { type HomeModule } from '@/components/HomeModules'
-import InviteHomeCard from '@/components/InviteHomeCard'
-import JoinCard from '@/components/JoinCard'
-import MerchantPromosPreview from '@/components/MerchantPromosPreview'
 import PointsCard from '@/components/PointsCard'
+import ScreenStatus from '@/components/ScreenStatus'
+import JoinCard from '@/components/JoinCard'
 import RewardsPreview from '@/components/RewardsPreview'
+import MerchantPromosPreview from '@/components/MerchantPromosPreview'
+import InviteHomeCard from '@/components/InviteHomeCard'
+import SectionHeader from '@/components/SectionHeader'
 import { useLang } from '@/contexts/LangContext'
+import NoticiaCard from '@/components/NoticiaCard'
 
 export interface HomeContentProps {
+  contentState?: ScreenState
+  isSample?: boolean
+  onRetryContent?: () => void
   cityName: string
-  townArtSrc?: string
+  townArtSrc?: string | null
   hasAlerts: boolean
   onToggleAlerts: () => void
   /** Saludo ya localizado (e.g. "Bon dia, Aina 👋" o "Hola! 👋"). */
@@ -62,9 +74,28 @@ export interface HomeContentProps {
   onSeeAllPromos?: () => void
   onOpenEvent?: (id: string) => void
   onOpenPointsHistory?: () => void
+  /** Present only when the scope groups several towns. */
+  scope?: HomeScopeProps
+}
+
+export interface HomeScopeProps {
+  homeTownName: string
+  nearbyTownNames: string[]
+  onChangeTown: () => void
+  homeNews: ScopedItem<Noticia>[]
+  nearbyNews: ScopedItem<Noticia>[]
+  failedTownNames: { home: boolean; nearby: string[] }
+  newsLoading: boolean
+  newsError: string | null
+  reloadNews: () => void
+  onSeeAllNews: () => void
+  onOpenNews: (id: string) => void
 }
 
 const HomeContent = ({
+  contentState = 'ready',
+  isSample = false,
+  onRetryContent = () => {},
   cityName,
   townArtSrc,
   hasAlerts,
@@ -103,6 +134,7 @@ const HomeContent = ({
   onSeeAllPromos,
   onOpenEvent,
   onOpenPointsHistory,
+  scope,
 }: HomeContentProps) => {
   const { lang } = useLang()
   const scrollRef = useDragScroll('vertical')
@@ -115,6 +147,7 @@ const HomeContent = ({
         hasAlerts={hasAlerts}
         onToggleAlerts={onToggleAlerts}
         showGreeting={false}
+        onChangeTown={scope?.onChangeTown}
       />
 
       <div
@@ -122,111 +155,140 @@ const HomeContent = ({
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col cursor-grab data-[dragging=true]:cursor-grabbing data-[dragging=true]:select-none"
       >
         <div className="relative z-10 flex flex-col gap-5 px-4 pt-4 pb-7">
-          <section className="flex flex-col gap-3">
-            {showLogin && (
-              <JoinCard
-                onCreateAccount={onLogin}
-                onLogin={onLogin}
-                onHowItWorks={onHowItWorks}
-              />
-            )}
-            {showPoints && accountLoading && (
-              <div
-                aria-busy
-                className="h-20 animate-pulse rounded-3xl bg-muted"
-              />
-            )}
-            {showPoints && !accountLoading && (
-              <PointsCard
-                points={points}
-                nextLevel={nextLevel}
-                nextReward={nextReward}
-                level={level}
-                onClick={onOpenPointsHistory}
-              />
-            )}
-          </section>
-
-          <section className="rounded-3xl bg-card p-4 shadow-[var(--shadow-bubble)] space-y-3">
-            <SectionHeader title={t('home.section.quick', lang)} />
-            <HomeModules modules={modules} />
-          </section>
-
-          <section className="space-y-3">
-            <SectionHeader
-              title={t('home.section.events', lang)}
-              actionLabel={t('home.action.see_all_m', lang)}
-              onAction={onSeeAllEvents}
-            />
-            {eventsLoading ? (
-              <div
-                aria-busy
-                className="h-40 animate-pulse rounded-3xl bg-muted"
-              />
-            ) : eventsError ? (
-              <p role="alert" className="font-body text-xs text-destructive">
-                {t('agenda.error', lang)}
-              </p>
-            ) : promos.length === 0 ? (
-              <p className="font-body text-xs text-muted-foreground">
-                {t('agenda.empty.title', lang)}
-              </p>
-            ) : (
-              <EventHeroCarousel promos={promos} onOpen={onOpenEvent} />
-            )}
-          </section>
-
-          <EarnPointsCard
-            onSeeAll={onActions}
-            locked={false}
-            onLogin={onLogin}
-            isAuthed={isAuthed}
+          {isSample && (
+            <p
+              role="status"
+              className="font-ui text-xs font-bold text-km0-coral-700"
+            >
+              {t('territory.sampleContent', lang)}
+            </p>
+          )}
+          <ScreenStatus
+            state={contentState}
+            emptyKey="news.empty.title"
+            onRetry={onRetryContent}
           />
-
-          <section className="space-y-3">
-            <SectionHeader
-              title={t('home.section.rewards', lang)}
-              actionLabel={t('home.action.see_all_m', lang)}
-              onAction={onSeeAllRewards}
-            />
-            {rewardsLoading ? (
-              <div
-                aria-busy
-                className="h-40 animate-pulse rounded-3xl bg-muted"
-              />
-            ) : rewardsError ? (
-              <div role="alert">
-                <p className="font-body text-xs text-destructive">
-                  {t('catalog.error', lang)}
+          {contentState === 'ready' && (
+            <>
+              {scope && (
+                <p className="-mb-2 font-body text-xs text-muted-foreground">
+                  {t('territory.groupedIntro', lang)}
                 </p>
-                <Button variant="bubbleLink" onClick={reloadRewards}>
-                  {t('merchants.error.retry', lang)}
-                </Button>
-              </div>
-            ) : rewards.length === 0 ? (
-              <p className="font-body text-xs text-muted-foreground">
-                {t('rewards.empty', lang)}
-              </p>
-            ) : (
-              <RewardsPreview items={rewards} onSeeAll={onSeeAllRewards} />
-            )}
-          </section>
+              )}
+              <section className="flex flex-col gap-3">
+                {showLogin && (
+                  <JoinCard
+                    onCreateAccount={onLogin}
+                    onLogin={onLogin}
+                    onHowItWorks={onHowItWorks}
+                  />
+                )}
+                {showPoints && accountLoading && (
+                  <div
+                    aria-busy
+                    className="h-20 animate-pulse rounded-3xl bg-muted"
+                  />
+                )}
+                {showPoints && !accountLoading && (
+                  <PointsCard
+                    points={points}
+                    nextLevel={nextLevel}
+                    nextReward={nextReward}
+                    level={level}
+                    onClick={onOpenPointsHistory}
+                  />
+                )}
+              </section>
 
-          <MerchantPromosPreview
-            onSeeAll={onSeeAllPromos}
-            locked={false}
-            onLogin={onLogin}
-          />
-          <div>
-            <InviteHomeCard
-              isAuthed={isAuthed}
-              onInvite={onInvite}
-              onLogin={onLogin}
-              onCreateAccount={onLogin}
-              onViewInvitations={onViewInvitations}
-              invitationSummary={invitationSummary}
-            />
-          </div>
+              <section className="rounded-3xl bg-card p-4 shadow-[var(--shadow-bubble)] space-y-3">
+                <SectionHeader title={t('home.section.quick', lang)} />
+                <HomeModules modules={modules} />
+              </section>
+
+              <section className="space-y-3">
+                <SectionHeader
+                  title={t('home.section.events', lang)}
+                  actionLabel={t('home.action.see_all_m', lang)}
+                  onAction={onSeeAllEvents}
+                />
+                {eventsLoading ? (
+                  <div
+                    aria-busy
+                    className="h-40 animate-pulse rounded-3xl bg-muted"
+                  />
+                ) : eventsError ? (
+                  <div role="alert">
+                    <p className="font-body text-xs text-destructive">
+                      {t('agenda.error', lang)}
+                    </p>
+                    <Button variant="bubbleLink" onClick={onRetryContent}>
+                      {t('merchants.error.retry', lang)}
+                    </Button>
+                  </div>
+                ) : promos.length === 0 ? (
+                  <p className="font-body text-xs text-muted-foreground">
+                    {t('agenda.empty.title', lang)}
+                  </p>
+                ) : (
+                  <EventHeroCarousel promos={promos} onOpen={onOpenEvent} />
+                )}
+              </section>
+
+              {scope && <HomeScopeNews scope={scope} />}
+
+              <EarnPointsCard
+                onSeeAll={onActions}
+                locked={false}
+                onLogin={onLogin}
+                isAuthed={isAuthed}
+              />
+
+              <section className="space-y-3">
+                <SectionHeader
+                  title={t('home.section.rewards', lang)}
+                  actionLabel={t('home.action.see_all_m', lang)}
+                  onAction={onSeeAllRewards}
+                />
+                {rewardsLoading ? (
+                  <div
+                    aria-busy
+                    className="h-40 animate-pulse rounded-3xl bg-muted"
+                  />
+                ) : rewardsError ? (
+                  <div role="alert">
+                    <p className="font-body text-xs text-destructive">
+                      {t('catalog.error', lang)}
+                    </p>
+                    <Button variant="bubbleLink" onClick={reloadRewards}>
+                      {t('merchants.error.retry', lang)}
+                    </Button>
+                  </div>
+                ) : rewards.length === 0 ? (
+                  <p className="font-body text-xs text-muted-foreground">
+                    {t('rewards.empty', lang)}
+                  </p>
+                ) : (
+                  <RewardsPreview items={rewards} onSeeAll={onSeeAllRewards} />
+                )}
+              </section>
+
+              <MerchantPromosPreview
+                onSeeAll={onSeeAllPromos}
+                locked={false}
+                onLogin={onLogin}
+              />
+              <div>
+                <InviteHomeCard
+                  isAuthed={isAuthed}
+                  onInvite={onInvite}
+                  onLogin={onLogin}
+                  onCreateAccount={onLogin}
+                  onViewInvitations={onViewInvitations}
+                  invitationSummary={invitationSummary}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -244,31 +306,80 @@ const HomeContent = ({
   )
 }
 
-interface SectionHeaderProps {
-  title: string
-  actionLabel?: string
-  onAction?: () => void
-}
+const HOME_NEWS_LIMIT = 2
+const NEARBY_NEWS_LIMIT = 3
 
-const SectionHeader = ({
-  title,
-  actionLabel,
-  onAction,
-}: SectionHeaderProps) => (
-  <div className="flex items-center justify-between gap-2">
-    <h2 className="font-brand font-black text-km0-blue-800 text-lg">{title}</h2>
-    {actionLabel && (
-      <Button
-        variant="bubbleLink"
-        type="button"
-        onClick={onAction}
-        className="h-auto min-h-11 shrink-0 gap-1 px-0 text-xs text-km0-coral-700"
-      >
-        {actionLabel}
-        <ArrowRight size={13} strokeWidth={2.4} />
-      </Button>
-    )}
-  </div>
-)
+const HomeScopeNews = ({ scope }: { scope: HomeScopeProps }) => {
+  const { lang } = useLang()
+  if (scope.newsLoading)
+    return <div aria-busy className="h-40 animate-pulse rounded-3xl bg-muted" />
+  if (scope.newsError)
+    return (
+      <section role="alert" className="space-y-1">
+        <SectionHeader
+          title={tf('territory.newsFrom', lang, { town: scope.homeTownName })}
+        />
+        <p className="font-body text-xs text-destructive">
+          {t('news.error.title', lang)}
+        </p>
+        <Button variant="bubbleLink" onClick={scope.reloadNews}>
+          {t('merchants.error.retry', lang)}
+        </Button>
+      </section>
+    )
+  const unavailable = (name: string) => (
+    <p key={name} className="font-body text-xs text-muted-foreground">
+      {tf('territory.townUnavailable', lang, { town: name })}
+    </p>
+  )
+  const showHome = scope.homeNews.length > 0 || scope.failedTownNames.home
+  const showNearby =
+    scope.nearbyNews.length > 0 || scope.failedTownNames.nearby.length > 0
+  if (!showHome && !showNearby) return null
+  return (
+    <>
+      {showHome && (
+        <section className="space-y-3">
+          <SectionHeader
+            title={tf('territory.newsFrom', lang, { town: scope.homeTownName })}
+            actionLabel={t('home.action.see_all_f', lang)}
+            onAction={scope.onSeeAllNews}
+          />
+          {scope.failedTownNames.home && unavailable(scope.homeTownName)}
+          {scope.homeNews.slice(0, HOME_NEWS_LIMIT).map(({ item }) => (
+            <NoticiaCard
+              key={item.id}
+              variant="compact"
+              noticia={item}
+              lang={lang}
+              onOpen={() => scope.onOpenNews(item.id)}
+            />
+          ))}
+        </section>
+      )}
+      {showNearby && (
+        <section className="space-y-3">
+          <SectionHeader
+            title={t('territory.nearYou', lang)}
+            subtitle={scope.nearbyTownNames.join(' · ')}
+          />
+          {scope.failedTownNames.nearby.map(unavailable)}
+          {scope.nearbyNews
+            .slice(0, NEARBY_NEWS_LIMIT)
+            .map(({ item, town }) => (
+              <NoticiaCard
+                key={item.id}
+                variant="compact"
+                noticia={item}
+                lang={lang}
+                town={{ name: town.name, isHome: false }}
+                onOpen={() => scope.onOpenNews(item.id)}
+              />
+            ))}
+        </section>
+      )}
+    </>
+  )
+}
 
 export default HomeContent

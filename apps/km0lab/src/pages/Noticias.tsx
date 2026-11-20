@@ -2,159 +2,46 @@ import {
   useNotificationsPanel,
   useLocationContext,
   useDragScroll,
-  listMunicipalNews,
+  useTerritory,
+  useScopeNews,
+  usePreviewState,
+  filterScopeTown,
+  visibleHomeNews,
   t,
+  tf,
   type Lang,
   type Noticia,
 } from '@km0lab/app'
+import type { Town, ScopedItem } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
-import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  ArrowLeft,
-  ExternalLink,
-  Loader2,
-  Newspaper,
-  RefreshCw,
-} from 'lucide-react'
-import { useMemo } from 'react'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
+
+import FilterChip from '@/components/FilterChip'
+import HomeHero from '@/components/HomeHero'
+import NoticiaCard, { formatNewsDate } from '@/components/NoticiaCard'
+import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenStatus from '@/components/ScreenStatus'
+import ScreenTitle from '@/components/ScreenTitle'
+import SectionHeader from '@/components/SectionHeader'
+import { TownTag } from '@/components/TownTag'
+
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import HomeHero from '@/components/HomeHero'
-import NotificationsOverlay from '@/components/NotificationsOverlay'
-import ScreenTitle from '@/components/ScreenTitle'
 import { useLang } from '@/contexts/LangContext'
-import { cn } from '@/lib/utils'
-
-/* ─────────────────────────────────────────────────────────────
- * Noticias — Listado + detalle de noticias municipales.
- *
- * Datos: mientras `/api/v1/news` esté caído, cargamos la fixture
- * `@/data/fixtures/news.json`, la pasamos por `newsListResponseSchema`
- * y adaptamos con `adaptNoticia`.
- *
- * Estados forzables por query param:
- *   · ?state=loading  → skeletons
- *   · ?state=empty    → lista vacía
- *   · ?state=error    → error card + reintentar
- *   · (default)       → happy
- *   · ?id=<id>        → detalle
- * ───────────────────────────────────────────────────────────── */
-
-type ForcedState = 'loading' | 'empty' | 'error' | null
-
-const parseForcedState = (v: string | null): ForcedState => {
-  if (v === 'loading' || v === 'empty' || v === 'error') return v
-  return null
-}
-
-const formatDate = (iso: string | null, lang: Lang): string => {
-  if (!iso) return ''
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  const locale = lang === 'ca' ? 'ca-ES' : lang === 'en' ? 'en-GB' : 'es-ES'
-  return d
-    .toLocaleDateString(locale, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-    .replace(/^\w/, (c) => c.toUpperCase())
-}
-
-/* ─── Tarjeta lista ─────────────────────────────────────────── */
-const NoticiaCard = ({
-  noticia,
-  lang,
-  onOpen,
-}: {
-  noticia: Noticia
-  lang: Lang
-  onOpen: () => void
-}) => {
-  const titulo = noticia.titulo[lang]
-  const resumen = noticia.resumen[lang]
-  const tags = noticia.tags[lang] ?? []
-  return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card border border-km0-blue-100 rounded-2xl overflow-hidden shadow-sm hover:border-km0-blue-300 transition-colors"
-    >
-      <Button
-        variant="bubbleSurface"
-        type="button"
-        onClick={onOpen}
-        className="block h-auto w-full whitespace-normal rounded-none p-0 text-left active:scale-[0.99] transition-transform"
-      >
-        {noticia.imagenUrl ? (
-          <div className="aspect-[16/9] w-full bg-km0-blue-50 overflow-hidden">
-            <img
-              src={noticia.imagenUrl}
-              alt=""
-              loading="lazy"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-              }}
-            />
-          </div>
-        ) : (
-          <div className="aspect-[16/9] w-full bg-gradient-to-br from-km0-blue-100 to-km0-blue-50 flex items-center justify-center">
-            <Newspaper size={28} className="text-km0-blue-700/40" />
-          </div>
-        )}
-        <div className="p-3">
-          <h3 className="font-brand text-sm leading-tight text-km0-blue-900 mb-1 line-clamp-2">
-            {titulo}
-          </h3>
-          {resumen && (
-            <p className="text-[11px] font-ui text-km0-blue-700/80 line-clamp-2 mb-1.5">
-              {resumen}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-1">
-            {noticia.fechaPublicacion && (
-              <span className="text-[10px] font-ui text-km0-blue-700/60">
-                {formatDate(noticia.fechaPublicacion, lang)}
-              </span>
-            )}
-            {tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="px-1.5 py-0.5 rounded-full text-[10px] font-ui bg-km0-blue-50 text-km0-blue-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </Button>
-    </motion.article>
-  )
-}
-
-const SkeletonCard = () => (
-  <div className="bg-card border border-km0-blue-100 rounded-2xl overflow-hidden animate-pulse">
-    <div className="aspect-[16/9] w-full bg-km0-blue-100/60" />
-    <div className="p-3">
-      <div className="h-4 w-3/4 bg-km0-blue-100/70 rounded mb-2" />
-      <div className="h-3 w-full bg-km0-blue-100/50 rounded mb-1.5" />
-      <div className="h-3 w-1/3 bg-km0-blue-100/50 rounded" />
-    </div>
-  </div>
-)
 
 /* ─── Detalle ───────────────────────────────────────────────── */
 const NoticiaDetail = ({
   noticia,
   lang,
   onBack,
+  origin,
 }: {
   noticia: Noticia
   lang: Lang
   onBack: () => void
+  origin?: Town
 }) => {
   const titulo = noticia.titulo[lang]
   const cuerpo = noticia.cuerpo[lang]
@@ -184,7 +71,7 @@ const NoticiaDetail = ({
               alt=""
               className="w-full h-full object-cover"
               onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                e.currentTarget.hidden = true
               }}
             />
           </div>
@@ -192,8 +79,9 @@ const NoticiaDetail = ({
 
         {noticia.fechaPublicacion && (
           <p className="text-[11px] font-ui text-km0-blue-700/70 mb-1">
-            {formatDate(noticia.fechaPublicacion, lang)}
-            {noticia.ciudad && ` · ${noticia.ciudad}`}
+            {formatNewsDate(noticia.fechaPublicacion, lang)}
+            {(origin?.name ?? noticia.ciudad) &&
+              ` · ${origin?.name ?? noticia.ciudad}`}
           </p>
         )}
 
@@ -244,30 +132,62 @@ const Noticias = () => {
   const notifications = useNotificationsPanel()
   const { town } = useLocationContext()
   const scrollRef = useDragScroll('vertical')
+  const filtersRef = useDragScroll('horizontal')
 
-  const forced = parseForcedState(searchParams.get('state'))
+  const { territory, homeTown, isGrouped } = useTerritory()
+  const scope = useScopeNews()
+  const [selectedTown, setSelectedTown] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(false)
+  useEffect(() => {
+    setSelectedTown(null)
+    setExpanded(false)
+  }, [territory?.scopeId, territory?.homeTownId])
   const openId = searchParams.get('id')
 
-  const query = useQuery({
-    queryKey: ['municipal-news', town],
-    queryFn: () => listMunicipalNews({ city: town }),
-    enabled: forced === null,
-    staleTime: 300000,
-  })
-  const noticias = forced === 'empty' ? [] : (query.data ?? [])
-  const loading = forced === 'loading' || (forced === null && query.isLoading)
-  const error = forced === 'error' ? 'FORCED_ERROR' : query.error
-  const load = () => {
-    if (forced) {
-      const next = new URLSearchParams(searchParams)
-      next.delete('state')
-      setSearchParams(next)
-    } else void query.refetch()
-  }
-
-  const opened = useMemo(
-    () => (openId ? (noticias.find((n) => n.id === openId) ?? null) : null),
-    [openId, noticias]
+  const allNews = useMemo(
+    () => [...scope.home, ...scope.nearby],
+    [scope.home, scope.nearby]
+  )
+  const visible = filterScopeTown(allNews, selectedTown)
+  const { state, retry, isSample } = usePreviewState(
+    scope.loading,
+    scope.error !== null,
+    visible.length === 0
+  )
+  const load = () => retry(scope.reload)
+  const opened = openId
+    ? (allNews.find((entry) => entry.item.id === openId) ?? null)
+    : null
+  const failures =
+    territory?.towns.filter(
+      (entry) =>
+        scope.failedTownIds.includes(entry.id) &&
+        (selectedTown === null || entry.id === selectedTown)
+    ) ?? []
+  const renderCard = (
+    { item, town: origin }: ScopedItem<Noticia>,
+    showTown = true
+  ) => (
+    <NoticiaCard
+      key={item.id}
+      noticia={item}
+      lang={lang}
+      town={
+        isGrouped && showTown
+          ? { name: origin.name, isHome: origin.id === homeTown?.id }
+          : undefined
+      }
+      onOpen={() => openNoticia(item.id)}
+    />
+  )
+  const renderFailure = (origin: Town) => (
+    <p
+      key={origin.id}
+      role="status"
+      className="font-body text-xs text-muted-foreground"
+    >
+      {tf('territory.townUnavailable', lang, { town: origin.name })}
+    </p>
   )
 
   const openNoticia = (id: string) => {
@@ -282,10 +202,6 @@ const Noticias = () => {
     setSearchParams(next, { replace: false })
   }
 
-  const showSkeletons = loading
-  const showError = !showSkeletons && !!error
-  const showEmpty = !showSkeletons && !error && noticias.length === 0
-
   const content = (
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
       <div className="-mx-4 -mt-2 shrink-0">
@@ -296,91 +212,138 @@ const Noticias = () => {
           onBack={() => navigate('/home')}
           backAriaLabel={t('common.back', lang)}
           showGreeting={false}
-          greetingSlot={<ScreenTitle title={t('news.title', lang)} />}
+          greetingSlot={
+            <div className="w-full min-w-0">
+              <ScreenTitle title={t('news.title', lang)} />
+              {isGrouped && (
+                <p className="mt-1 font-body text-xs text-km0-blue-800">
+                  {tf('territory.townAndNeighbours', lang, {
+                    town: homeTown?.name ?? town,
+                  })}
+                </p>
+              )}
+            </div>
+          }
         />
       </div>
 
       <AnimatePresence mode="wait" initial={false}>
-        {opened ? (
+        {opened && state === 'ready' ? (
           <NoticiaDetail
-            key={`detail-${opened.id}`}
-            noticia={opened}
+            key={`detail-${opened.item.id}`}
+            noticia={opened.item}
+            origin={isGrouped ? opened.town : undefined}
             lang={lang}
             onBack={closeDetail}
           />
         ) : (
-          <motion.section
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className={cn(
-              'flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4',
-              'grid grid-cols-1 gap-3 auto-rows-max'
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
+            {isGrouped && (
+              <div
+                ref={filtersRef}
+                className="flex shrink-0 gap-2 overflow-x-auto touch-pan-x"
+              >
+                <div className="shrink-0">
+                  <FilterChip
+                    label={t('territory.allFeminine', lang)}
+                    active={selectedTown === null}
+                    onClick={() => setSelectedTown(null)}
+                  />
+                </div>
+                {territory?.towns.map((origin) => (
+                  <div key={origin.id} className="shrink-0">
+                    <FilterChip
+                      label={origin.name}
+                      active={selectedTown === origin.id}
+                      onClick={() => setSelectedTown(origin.id)}
+                    />
+                  </div>
+                ))}
+              </div>
             )}
-            ref={scrollRef}
-          >
-            {showSkeletons && (
-              <>
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-              </>
-            )}
-
-            {showError && (
-              <div className="col-span-full bg-km0-coral-50 border border-km0-coral-200 rounded-2xl p-4 text-center">
-                <p className="font-brand text-sm text-km0-coral-700 mb-2">
-                  {t('news.error.title', lang)}
-                </p>
-                <p className="text-[11px] font-ui text-km0-coral-700/80 mb-3">
-                  {t('news.error.subtitle', lang)}
-                </p>
-                <Button
-                  variant="bubbleSurface"
-                  type="button"
-                  onClick={load}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-km0-coral-500 text-primary-foreground font-ui font-bold text-xs active:scale-95 transition-transform"
+            <motion.section
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4 space-y-3"
+              ref={scrollRef}
+            >
+              {isSample && (
+                <p
+                  role="status"
+                  className="font-ui text-xs font-bold text-km0-coral-700"
                 >
-                  <RefreshCw size={12} />
-                  {t('news.error.retry', lang)}
-                </Button>
-              </div>
-            )}
-
-            {showEmpty && (
-              <div className="col-span-full bg-card border border-km0-blue-100 rounded-2xl p-5 text-center">
-                <Newspaper
-                  size={28}
-                  className="mx-auto text-km0-blue-700/50 mb-2"
-                />
-                <p className="font-brand text-sm text-km0-blue-900 mb-1">
-                  {t('news.empty.title', lang)}
+                  {t('territory.sampleContent', lang)}
                 </p>
-                <p className="text-[11px] font-ui text-km0-blue-700/70">
-                  {t('news.empty.subtitle', lang)}
-                </p>
-              </div>
-            )}
-
-            {!showSkeletons &&
-              !error &&
-              noticias.map((n) => (
-                <NoticiaCard
-                  key={n.id}
-                  noticia={n}
-                  lang={lang}
-                  onOpen={() => openNoticia(n.id)}
-                />
-              ))}
-
-            {showSkeletons && (
-              <div className="col-span-full flex items-center justify-center pt-2 text-[11px] font-ui text-km0-blue-700/60">
-                <Loader2 size={12} className="animate-spin mr-1" />
-                {t('common.loading', lang)}
-              </div>
-            )}
-          </motion.section>
+              )}
+              <ScreenStatus
+                state={state}
+                emptyKey="news.empty.title"
+                onRetry={load}
+              />
+              {state !== 'loading' &&
+                state !== 'error' &&
+                (!isGrouped || selectedTown !== null) && (
+                  <>
+                    {failures.map(renderFailure)}
+                    {state === 'ready' &&
+                      visible.map((entry) => renderCard(entry))}
+                  </>
+                )}
+              {state === 'empty' &&
+                isGrouped &&
+                selectedTown === null &&
+                failures.map(renderFailure)}
+              {state === 'ready' && isGrouped && selectedTown === null && (
+                <>
+                  {(scope.home.length > 0 ||
+                    failures.some((origin) => origin.id === homeTown?.id)) && (
+                    <section className="space-y-3">
+                      <SectionHeader
+                        title={tf('territory.newsFrom', lang, {
+                          town: homeTown?.name ?? town,
+                        })}
+                        aside={
+                          <TownTag
+                            townName={homeTown?.name ?? town}
+                            isHome
+                            lang={lang}
+                          />
+                        }
+                      />
+                      {failures
+                        .filter((origin) => origin.id === homeTown?.id)
+                        .map(renderFailure)}
+                      {visibleHomeNews(scope.home, expanded).map((entry) =>
+                        renderCard(entry, false)
+                      )}
+                      {!expanded && scope.home.length > 5 && (
+                        <Button
+                          variant="bubbleLink"
+                          onClick={() => setExpanded(true)}
+                        >
+                          {tf('territory.moreNewsFrom', lang, {
+                            town: homeTown?.name ?? town,
+                          })}
+                        </Button>
+                      )}
+                    </section>
+                  )}
+                  {(scope.nearby.length > 0 ||
+                    failures.some((origin) => origin.id !== homeTown?.id)) && (
+                    <section className="space-y-3">
+                      <SectionHeader title={t('territory.nearYou', lang)} />
+                      {failures
+                        .filter((origin) => origin.id !== homeTown?.id)
+                        .map(renderFailure)}
+                      {scope.nearby.map((entry) => renderCard(entry))}
+                    </section>
+                  )}
+                </>
+              )}
+            </motion.section>
+          </div>
         )}
       </AnimatePresence>
     </div>

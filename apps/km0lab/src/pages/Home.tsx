@@ -6,20 +6,27 @@ import {
   useProfile,
   useNotifications,
   t,
+  usePreviewState,
+  getContentPath,
   useFeaturedPromos,
   usePublicRewards,
   useInviteSummary,
+  useSetHomeTown,
+  useTerritory,
+  useScopeNews,
 } from '@km0lab/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import type { HomeScopeProps } from '@/components/HomeContent'
 
 import HomeContent from '@/components/HomeContent'
 import { type HomeModule, type HomeModuleId } from '@/components/HomeModules'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
 import PointsRewardOverlay from '@/components/PointsRewardOverlay'
+import TownPickerSheet from '@/components/TownPickerSheet'
 import { useLang } from '@/contexts/LangContext'
 import { INITIAL_MODULES, type HomeModuleSeed } from '@/data/homeModules'
-import { getTownArt } from '@/data/townArt'
 
 type HomeProps = {
   /** Forzar estado para previews (`/home-registered`, `/home-no-registrado`). */
@@ -40,9 +47,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const { profile } = useProfile()
   const account = useAccount()
   const { summary: invitationSummary } = useInviteSummary()
-  const { town: cityName, postalCode } = useLocationContext()
+  const { town: cityName } = useLocationContext()
   const { lang } = useLang()
   const navigate = useNavigate()
+  const preview = usePreviewState(false, false, false)
+  const contentPath = (path: string) =>
+    getContentPath(path, preview.isSample ? 'sample' : 'live')
 
   // Estado real según sesión: sin user → mostrar CTA de login y ocultar
   // puntos / acceso a perfil. Con user → al revés.
@@ -80,7 +90,35 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     promos,
     loading: eventsLoading,
     error: eventsError,
+    reload: reloadEvents,
   } = useFeaturedPromos(4)
+
+  const territory = useTerritory()
+  const scopeNews = useScopeNews()
+  const setHomeTown = useSetHomeTown()
+  const [townPickerOpen, setTownPickerOpen] = useState(false)
+  const scope: HomeScopeProps | undefined =
+    territory.isGrouped && territory.homeTown
+      ? {
+          homeTownName: territory.homeTown.name,
+          nearbyTownNames: territory.nearbyTowns.map((town) => town.name),
+          onChangeTown: () => setTownPickerOpen(true),
+          homeNews: scopeNews.home,
+          nearbyNews: scopeNews.nearby,
+          failedTownNames: {
+            home: scopeNews.failedTownIds.includes(territory.homeTown.id),
+            nearby: territory.nearbyTowns
+              .filter((town) => scopeNews.failedTownIds.includes(town.id))
+              .map((town) => town.name),
+          },
+          newsLoading: scopeNews.loading,
+          newsError: scopeNews.error,
+          reloadNews: scopeNews.reload,
+          onSeeAllNews: () => navigate(contentPath('/news')),
+          onOpenNews: (id: string) =>
+            navigate(contentPath(`/news?id=${encodeURIComponent(id)}`)),
+        }
+      : undefined
 
   const {
     rewards,
@@ -108,15 +146,15 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           onClick: () => {
             if (!active) return
             if (m.id === 'agenda') {
-              navigate('/events')
+              navigate(contentPath('/events'))
               return
             }
             if (m.id === 'noticias') {
-              navigate('/news')
+              navigate(contentPath('/news'))
               return
             }
             if (m.id === 'comerc') {
-              navigate('/merchants')
+              navigate(contentPath('/merchants'))
               return
             }
             if (m.id === 'premis') {
@@ -127,7 +165,7 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           },
         }
       }),
-    [moduleSeeds, lang, navigate]
+    [moduleSeeds, lang, navigate, preview.isSample]
   )
 
   const openNotifications = () => {
@@ -156,9 +194,18 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
   const nextLevel = level * 1000
   const nextReward = rewards.find((reward) => reward.costPoints > points)?.title
 
+  const reloadContent = () =>
+    preview.retry(() => {
+      reloadEvents()
+      scopeNews.reload()
+      reloadRewards()
+    })
   const sharedProps = {
+    contentState: preview.state,
+    isSample: preview.isSample,
+    onRetryContent: reloadContent,
     cityName,
-    townArtSrc: getTownArt(postalCode),
+    townArtSrc: territory.loading ? null : territory.homeTown?.artUrl,
     hasAlerts: hasUnread,
     onToggleAlerts: openNotifications,
     greeting,
@@ -193,11 +240,12 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
     invitationSummary: isAuthed ? invitationSummary : null,
     showLogin,
     showPoints,
-    onSeeAllEvents: () => navigate('/events'),
+    onSeeAllEvents: () => navigate(contentPath('/events')),
     onSeeAllRewards: () => navigate('/rewards'),
     onSeeAllPromos: () => navigate('/rewards?tab=promos'),
     onOpenEvent: (id: string) => navigate(`/event?id=${id}`),
     onOpenPointsHistory: () => navigate('/points-history'),
+    scope,
   }
 
   return (
@@ -208,6 +256,17 @@ const Home = ({ forceAuthState }: HomeProps = {}) => {
           className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
         >
           <HomeContent {...sharedProps} />
+          {territory.territory && territory.isGrouped && (
+            <TownPickerSheet
+              open={townPickerOpen}
+              onClose={() => setTownPickerOpen(false)}
+              towns={territory.territory.towns}
+              homeTownId={territory.territory.homeTownId}
+              onSave={setHomeTown}
+              lang={lang}
+              container={sheetContainer}
+            />
+          )}
           <NotificationsOverlay
             open={notifOpen}
             items={notifications}

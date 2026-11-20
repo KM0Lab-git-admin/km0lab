@@ -9,6 +9,7 @@ import cine from '@/assets/burbuja/cover-cine.webp.asset.json'
 import culture from '@/assets/burbuja/cover-cultura.webp.asset.json'
 import market from '@/assets/burbuja/cover-mercado.webp.asset.json'
 import nature from '@/assets/burbuja/cover-naturaleza.webp.asset.json'
+import { TownTag } from '@/components/TownTag'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -78,6 +79,13 @@ const EventHeroCarousel = ({ promos, onOpen }: EventHeroCarouselProps) => {
                 <MapPin aria-hidden />
                 {promo.location}
               </span>
+              {promo.town && !promo.town.isHome && (
+                <TownTag
+                  townName={promo.town.name}
+                  lang={lang}
+                  className="self-start"
+                />
+              )}
             </span>
           </Button>
         ))}

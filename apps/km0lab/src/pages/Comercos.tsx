@@ -1,16 +1,23 @@
+import type { Town, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
   useDragScroll,
   usePointsConfig,
+  useTerritory,
+  usePreviewState,
+  filterShops,
   useAuth,
   t,
+  tf,
   type Lang,
   useShops,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
+
 import {
+  Search,
   QrCode,
   MapPin,
   ScanLine,
@@ -18,9 +25,8 @@ import {
   RefreshCw,
   BadgeCheck,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import CategoryFilterMenu, {
@@ -28,6 +34,8 @@ import CategoryFilterMenu, {
 } from '@/components/CategoryFilterMenu'
 import HomeHero from '@/components/HomeHero'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import SectionHeader from '@/components/SectionHeader'
+import { TownTag } from '@/components/TownTag'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -49,8 +57,10 @@ interface CardProps {
   c: ComercAdherit
   lang: Lang
   onOpen: () => void
+  town?: Town
+  isHome?: boolean
 }
-const ComercCard = ({ c, lang, onOpen }: CardProps) => (
+const ComercCard = ({ c, lang, onOpen, town, isHome = false }: CardProps) => (
   <motion.article
     layout
     initial={{ opacity: 0, y: 6 }}
@@ -78,7 +88,7 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
               loading="lazy"
               className="w-full h-full object-contain p-2"
               onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                e.currentTarget.hidden = true
               }}
             />
           ) : (
@@ -98,6 +108,11 @@ const ComercCard = ({ c, lang, onOpen }: CardProps) => (
 
       {/* Cos */}
       <div className="flex-1 min-w-0 flex flex-col">
+        {town && (
+          <div className="mb-1 flex">
+            <TownTag townName={town.name} isHome={isHome} lang={lang} />
+          </div>
+        )}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="font-ui text-[10px] font-bold uppercase tracking-wide text-km0-teal-600 mb-0.5 truncate">
@@ -162,12 +177,48 @@ const Comercos = () => {
   const goToActions = () => navigate('/points-actions')
 
   const { shops, categories, loading, error, reload } = useShops()
+  const { territory, homeTown, isGrouped } = useTerritory()
   const [selected, setSelected] = useState('totes')
+  const [selectedTown, setSelectedTown] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  useEffect(() => {
+    setSelectedTown(null)
+    setSearch('')
+  }, [territory?.scopeId, territory?.homeTownId])
 
   const items = useMemo<ComercAdherit[]>(() => {
-    if (selected === 'totes') return shops
-    return shops.filter((c) => c.categoriaSlug === selected)
-  }, [selected, shops])
+    return filterShops(shops, {
+      category: selected,
+      townId: selectedTown,
+      search,
+    })
+  }, [selected, shops, selectedTown, search])
+  const { state, isSample, retry } = usePreviewState(
+    loading,
+    error !== null,
+    items.length === 0
+  )
+  const homeItems = items.filter((shop) => shop.townId === homeTown?.id)
+  const nearbyItems = items.filter((shop) => shop.townId !== homeTown?.id)
+  const renderList = (list: ComercAdherit[], showTown: boolean) => (
+    <ul className="space-y-2">
+      {list.map((c) => (
+        <li key={c.id}>
+          <ComercCard
+            c={c}
+            lang={lang}
+            town={
+              showTown
+                ? territory?.towns.find((origin) => origin.id === c.townId)
+                : undefined
+            }
+            isHome={c.townId === homeTown?.id}
+            onOpen={() => navigate(`/merchants/${c.id}`)}
+          />
+        </li>
+      ))}
+    </ul>
+  )
 
   const totalPrograma = shops.length
 
@@ -222,9 +273,13 @@ const Comercos = () => {
                 {t('merchants.title', lang)}
               </h2>
               <p className="font-ui text-xs text-km0-blue-700/70 mt-0.5">
-                {interpolate(t('merchants.subtitle', lang), {
-                  count: totalPrograma,
-                })}
+                {isGrouped
+                  ? tf('territory.townAndNeighbours', lang, {
+                      town: homeTown?.name ?? town,
+                    })
+                  : interpolate(t('merchants.subtitle', lang), {
+                      count: totalPrograma,
+                    })}
               </p>
               <p className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-km0-coral-500 text-primary-foreground text-[11px] font-ui font-bold">
                 <QrCode size={12} strokeWidth={2.4} />
@@ -234,6 +289,31 @@ const Comercos = () => {
               </p>
             </header>
 
+            {isSample && (
+              <p
+                role="status"
+                className="mb-2 shrink-0 font-ui text-xs font-bold text-km0-coral-700"
+              >
+                {t('territory.sampleContent', lang)}
+              </p>
+            )}
+            {isGrouped && (
+              <label className="mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-km0-blue-100 bg-card px-3">
+                <Search
+                  size={16}
+                  aria-hidden
+                  className="shrink-0 text-km0-blue-700"
+                />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  aria-label={t('merchants.search', lang)}
+                  placeholder={t('merchants.search', lang)}
+                  className="h-10 min-w-0 flex-1 bg-transparent font-ui text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                />
+              </label>
+            )}
             {/* Filtre + comptador */}
             <div className="relative z-20 shrink-0 flex items-center justify-between gap-2 mb-3">
               <span className="min-w-0 truncate font-ui text-sm font-bold text-km0-blue-900">
@@ -255,6 +335,28 @@ const Comercos = () => {
                   onToggle={setSelected}
                   onClear={() => setSelected('totes')}
                 />
+                {isGrouped && (
+                  <CategoryFilterMenu
+                    title={t('territory.townFilter', lang)}
+                    icon={<MapPin aria-hidden className="!h-4 !w-4" />}
+                    allOption={{
+                      key: 'all',
+                      label: t('territory.allTowns', lang),
+                      icon: <MapPin size={16} />,
+                    }}
+                    options={
+                      territory?.towns.map((origin) => ({
+                        key: origin.id,
+                        label: origin.name,
+                        icon: <MapPin size={16} />,
+                        isHome: origin.id === homeTown?.id,
+                      })) ?? []
+                    }
+                    selected={selectedTown ? [selectedTown] : []}
+                    onToggle={setSelectedTown}
+                    onClear={() => setSelectedTown(null)}
+                  />
+                )}
               </div>
             </div>
 
@@ -264,9 +366,10 @@ const Comercos = () => {
               ref={scrollRef}
             >
               <AnimatePresence mode="wait">
-                {loading ? (
+                {state === 'loading' ? (
                   <motion.div
                     key="loading"
+                    aria-busy="true"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -276,9 +379,10 @@ const Comercos = () => {
                       <CardSkeleton key={i} />
                     ))}
                   </motion.div>
-                ) : error ? (
+                ) : state === 'error' ? (
                   <motion.div
                     key="error"
+                    role="alert"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -290,16 +394,17 @@ const Comercos = () => {
                     <Button
                       variant="bubbleSurface"
                       type="button"
-                      onClick={reload}
+                      onClick={() => retry(reload)}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-coral-500 text-primary-foreground font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <RefreshCw size={12} />
                       {t('merchants.error.retry', lang)}
                     </Button>
                   </motion.div>
-                ) : items.length === 0 ? (
+                ) : state === 'empty' ? (
                   <motion.div
                     key="empty"
+                    role="status"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -314,7 +419,12 @@ const Comercos = () => {
                     <Button
                       variant="bubbleSurface"
                       type="button"
-                      onClick={() => setSelected('totes')}
+                      onClick={() => {
+                        setSelected('totes')
+                        setSelectedTown(null)
+                        setSearch('')
+                        retry(reload)
+                      }}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-km0-blue-700 text-primary-foreground font-ui text-xs font-bold active:scale-95 transition-transform"
                     >
                       <X size={12} />
@@ -322,23 +432,45 @@ const Comercos = () => {
                     </Button>
                   </motion.div>
                 ) : (
-                  <motion.ul
+                  <motion.div
                     key="list"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="space-y-2"
                   >
-                    {items.map((c) => (
-                      <li key={c.id}>
-                        <ComercCard
-                          c={c}
-                          lang={lang}
-                          onOpen={() => navigate(`/merchants/${c.id}`)}
-                        />
-                      </li>
-                    ))}
-                  </motion.ul>
+                    {isGrouped && selectedTown === null ? (
+                      <>
+                        {homeItems.length > 0 && (
+                          <section className="space-y-3">
+                            <SectionHeader
+                              title={tf('territory.discover', lang, {
+                                town: homeTown?.name ?? town,
+                              })}
+                              aside={
+                                <TownTag
+                                  townName={homeTown?.name ?? town}
+                                  isHome
+                                  lang={lang}
+                                />
+                              }
+                            />
+                            {renderList(homeItems, false)}
+                          </section>
+                        )}
+                        {nearbyItems.length > 0 && (
+                          <section className="space-y-3">
+                            <SectionHeader
+                              title={t('territory.alsoNearYou', lang)}
+                            />
+                            {renderList(nearbyItems, true)}
+                          </section>
+                        )}
+                      </>
+                    ) : (
+                      renderList(items, isGrouped)
+                    )}
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>

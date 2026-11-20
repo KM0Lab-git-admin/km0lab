@@ -7,6 +7,13 @@ import {
 } from './eventsApi'
 import { listNews, type ListNewsParams, type Noticia } from './newsApi'
 
+import type {
+  ScopedItem,
+  ScopeListing,
+  Territory,
+  Town,
+} from '../types/territory'
+
 /**
  * municipalListings — agenda y noticias completas de un municipio.
  *
@@ -54,4 +61,84 @@ export async function listMunicipalNews(
     if (items.size === before) throw new Error('Incomplete news pagination')
     offset += result.noticias.length
   }
+}
+
+async function listScope<T>(
+  territory: Territory,
+  fetchTown: (town: Town) => Promise<T[]>,
+  idOf: (item: T) => string,
+  compare: (a: T, b: T) => number
+): Promise<ScopeListing<T>> {
+  const results = await Promise.allSettled(territory.towns.map(fetchTown))
+  if (results.every((result) => result.status === 'rejected')) {
+    throw new Error('Scope listing failed')
+  }
+  const seen = new Set<string>()
+  const home: ScopedItem<T>[] = []
+  const nearby: ScopedItem<T>[] = []
+  const failedTownIds: string[] = []
+  const indexes = territory.towns.map((_, i) => i)
+  const homeIndex = territory.towns.findIndex(
+    (town) => town.id === territory.homeTownId
+  )
+  const order =
+    homeIndex < 0
+      ? indexes
+      : [homeIndex, ...indexes.filter((i) => i !== homeIndex)]
+  for (const index of order) {
+    const town = territory.towns[index]
+    const result = results[index]
+    if (!town || !result) continue
+    if (result.status === 'rejected') {
+      failedTownIds.push(town.id)
+      continue
+    }
+    for (const item of result.value) {
+      const id = idOf(item)
+      if (seen.has(id)) continue
+      seen.add(id)
+      const target = town.id === territory.homeTownId ? home : nearby
+      target.push({ item, town })
+    }
+  }
+  const byItem = (a: ScopedItem<T>, b: ScopedItem<T>) => compare(a.item, b.item)
+  return { home: home.sort(byItem), nearby: nearby.sort(byItem), failedTownIds }
+}
+
+const newestFirst = (a: Noticia, b: Noticia) =>
+  (b.fechaPublicacion ?? '').localeCompare(a.fechaPublicacion ?? '')
+
+const soonestFirst = (a: AgendaEvent, b: AgendaEvent) =>
+  `${a.fecha_inicio ?? '9999'}${a.hora_inicio ?? ''}`.localeCompare(
+    `${b.fecha_inicio ?? '9999'}${b.hora_inicio ?? ''}`
+  )
+
+/**
+ * Noticias del ámbito: una petición por población, en paralelo; si una
+ * falla no esconde las demás. Costura con Lovable, sin su fuente de
+ * muestra: en producción solo hay contenido real.
+ */
+export function listScopeNews(
+  territory: Territory,
+  params: Omit<ListNewsParams, 'city'> = {}
+): Promise<ScopeListing<Noticia>> {
+  return listScope(
+    territory,
+    (town) => listMunicipalNews({ ...params, city: town.name }),
+    (item) => item.id,
+    newestFirst
+  )
+}
+
+/** Agenda del ámbito. Mismo criterio que `listScopeNews`. */
+export function listScopeEvents(
+  territory: Territory,
+  params: Omit<ListEventsParams, 'poblacion'> = {}
+): Promise<ScopeListing<AgendaEvent>> {
+  return listScope(
+    territory,
+    (town) => listMunicipalEvents({ ...params, poblacion: town.name }),
+    (item) => item.id_unico_evento,
+    soonestFirst
+  )
 }

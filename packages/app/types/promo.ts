@@ -27,4 +27,6 @@ export interface Promo {
   gradient: string
   /** Galería de imágenes del evento (1..n). Se muestra como carrusel interno. */
   images: string[]
+  /** Town of origin inside a grouped scope; absent for single-town scopes. */
+  town?: { name: string; isHome: boolean }
 }

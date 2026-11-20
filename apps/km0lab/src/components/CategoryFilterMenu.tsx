@@ -2,6 +2,8 @@ import { Button } from '@km0lab/ui'
 import { Check, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 
+import { TownTag } from '@/components/TownTag'
+import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
 export interface CategoryFilterOption {
@@ -9,6 +11,8 @@ export interface CategoryFilterOption {
   label: string
   icon: ReactNode
   count?: number
+  /** Marks the option that is the user's own town so it reads distinct. */
+  isHome?: boolean
 }
 
 interface CategoryFilterMenuProps {
@@ -21,6 +25,7 @@ interface CategoryFilterMenuProps {
   onToggle: (key: string) => void
   onClear: () => void
   className?: string
+  icon?: ReactNode
 }
 
 /**
@@ -36,7 +41,9 @@ const CategoryFilterMenu = ({
   onToggle,
   onClear,
   className,
+  icon,
 }: CategoryFilterMenuProps) => {
+  const { lang } = useLang()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const panelId = useId()
@@ -89,14 +96,24 @@ const CategoryFilterMenu = ({
         )}
       >
         <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center text-km0-blue-600"
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center',
+            o.isHome ? 'text-km0-yellow-600' : 'text-km0-blue-600'
+          )}
           aria-hidden
         >
           {o.icon}
         </span>
-        <span className={cn('min-w-0 flex-1 truncate', active && 'font-bold')}>
+        <span
+          className={cn(
+            'min-w-0 flex-1 truncate',
+            (active || o.isHome) && 'font-bold',
+            o.isHome && !active && 'text-km0-yellow-800'
+          )}
+        >
           {o.label}
         </span>
+        {o.isHome && <TownTag townName={o.label} isHome lang={lang} />}
         {o.count != null && (
           <span className="shrink-0 text-[11px] tabular-nums text-km0-blue-700/60">
             {o.count}
@@ -133,7 +150,7 @@ const CategoryFilterMenu = ({
             'border-km0-yellow-400 bg-km0-yellow-400 text-km0-blue-900 hover:bg-km0-yellow-500'
         )}
       >
-        <SlidersHorizontal aria-hidden className="!h-4 !w-4" />
+        {icon ?? <SlidersHorizontal aria-hidden className="!h-4 !w-4" />}
         <ChevronDown
           aria-hidden
           className={cn('!h-4 !w-4 transition-transform', open && 'rotate-180')}
