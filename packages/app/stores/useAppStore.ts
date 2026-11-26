@@ -228,10 +228,18 @@ export const useAppStore = create<AppState>()(
           current.pendingInvite ??
           (p.pendingInvite as typeof current.pendingInvite) ??
           null
+        // Igual que la invitación: si el enlace de un comercio guardó su
+        // código antes de terminar de leer lo guardado (en la app nativa la
+        // lectura tarda), lo guardado no lo pisa.
+        const pendingScan =
+          current.pendingScan ??
+          (p.pendingScan as typeof current.pendingScan) ??
+          null
         return {
           ...current,
           ...p,
           pendingInvite: pending,
+          pendingScan,
         }
       },
       migrate: (persisted, version) => {

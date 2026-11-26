@@ -103,4 +103,34 @@ describe('el almacén guarda el escaneo pendiente', () => {
     store.clearLocalSetup()
     expect(useAppStore.getState().pendingScan).toBeNull()
   })
+
+  // En la app nativa lo guardado se lee con retraso: puede llegar cuando el
+  // enlace del comercio ya ha dejado su código en memoria.
+  describe('al terminar de leer lo guardado en el dispositivo', () => {
+    const merge = useAppStore.persist.getOptions().merge
+    if (!merge) throw new Error('el almacén no define merge')
+
+    it('lo guardado no pisa el código que acaba de llegar por el enlace', () => {
+      useAppStore.getState().setPendingScan(pending)
+      const merged = merge(
+        { lang: 'es', langChosen: true, pendingScan: null },
+        useAppStore.getState()
+      )
+      expect(merged.pendingScan).toEqual(pending)
+      // El resto de lo guardado sí se recupera.
+      expect(merged.lang).toBe('es')
+      expect(merged.langChosen).toBe(true)
+    })
+
+    it('sin código nuevo, se recupera el que estaba guardado', () => {
+      const saved = { code: 'guardado', at: NOW }
+      const merged = merge({ pendingScan: saved }, useAppStore.getState())
+      expect(merged.pendingScan).toEqual(saved)
+    })
+
+    it('sin ninguno, queda vacío (también con datos de una versión anterior)', () => {
+      expect(merge({}, useAppStore.getState()).pendingScan).toBeNull()
+      expect(merge(undefined, useAppStore.getState()).pendingScan).toBeNull()
+    })
+  })
 })
