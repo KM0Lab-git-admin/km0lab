@@ -187,7 +187,10 @@ export const shopOutSchema = z.object({
   website: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   visit_points: z.number().optional(),
+  // El código de escaneo ya no llega en las lecturas de vecinos (va a
+  // null); `has_qr` dice si el comercio tiene QR.
   qr_code: z.string().nullable().optional(),
+  has_qr: z.boolean().optional(),
   opening_hours: z
     .object({
       monday: dayHoursSchema.default({}),

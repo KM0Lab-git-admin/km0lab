@@ -71,7 +71,8 @@ export function toComercAdherit(
     adreca: shop.address?.trim() || '—',
     distanciaM: null,
     punts: shop.visit_points ?? 0,
-    teQR: Boolean(shop.qr_code?.trim()),
+    // `has_qr` si el servidor lo manda; si no (servidor anterior), el código.
+    teQR: shop.has_qr ?? Boolean(shop.qr_code?.trim()),
     emoji: shop.emoji?.trim() || shopCategoryEmoji(slug),
     imatge:
       shop.has_logo && shop.logo_url
