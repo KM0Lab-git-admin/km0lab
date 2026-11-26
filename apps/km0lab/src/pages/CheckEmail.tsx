@@ -2,6 +2,7 @@ import {
   clearPendingReward,
   isFixedOtpEmail,
   isPendingScanFresh,
+  otpErrorKey,
   readPendingReward,
   requestOtp,
   scannerPathFor,
@@ -72,7 +73,9 @@ const CheckEmail = () => {
     setVerifying(true)
     const { error } = await verifyOtp(email, code)
     if (error) {
-      toast.error(t('otp.toast_wrong', lang))
+      toast.error(t(otpErrorKey(error.kind), lang))
+      // Con el código caducado o agotado, lo siguiente es pedir otro: ya.
+      if (error.kind === 'expired' || error.kind === 'too_many') setCooldown(0)
       setDigits(Array(CODE_LENGTH).fill(''))
       inputsRef.current[0]?.focus()
       setVerifying(false)
@@ -144,7 +147,14 @@ const CheckEmail = () => {
     })
     setResending(false)
     if (error) {
-      toast.error(t('otp.toast_resend_fail', lang))
+      toast.error(
+        t(
+          error.kind === 'unknown'
+            ? 'otp.toast_resend_fail'
+            : otpErrorKey(error.kind),
+          lang
+        )
+      )
       return
     }
     toast.success(t('otp.toast_resent', lang))

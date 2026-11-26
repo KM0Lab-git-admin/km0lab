@@ -17,6 +17,8 @@ import {
 } from '../stores/useAppStore'
 import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
+import type { TKey } from '../utils/i18nProd'
+
 import {
   apiFetch,
   ApiError,
@@ -28,7 +30,49 @@ import {
 export type MockUser = AppUser
 export type MockSession = AppSession
 
-type Result = { error: { message: string } | null }
+/** Por qué no se pudo pedir o validar el código. */
+export type OtpErrorKind =
+  | 'wrong'
+  | 'expired'
+  | 'too_many'
+  | 'offline'
+  | 'send_failed'
+  | 'unknown'
+
+type Result = { error: { message: string; kind: OtpErrorKind } | null }
+
+/**
+ * Traduce el fallo a su motivo. El servidor lo dice en `detail.code`
+ * (`otp_invalid`, `otp_expired`, `otp_too_many_attempts`,
+ * `otp_send_failed`); el límite de peticiones llega como 429 y la falta de
+ * red como un `TypeError` de `fetch`.
+ */
+export const otpErrorKind = (e: unknown): OtpErrorKind => {
+  if (e instanceof TypeError) return 'offline'
+  if (!(e instanceof ApiError)) return 'unknown'
+  if (e.status === 429) return 'too_many'
+  const code =
+    e.detail && typeof e.detail === 'object'
+      ? (e.detail as { code?: unknown }).code
+      : undefined
+  if (code === 'otp_expired') return 'expired'
+  if (code === 'otp_too_many_attempts') return 'too_many'
+  if (code === 'otp_send_failed') return 'send_failed'
+  if (e.status === 400) return 'wrong'
+  return 'unknown'
+}
+
+const OTP_ERROR_KEYS: Record<OtpErrorKind, TKey> = {
+  wrong: 'otp.toast_wrong',
+  expired: 'otp.toast_expired',
+  too_many: 'otp.toast_too_many',
+  offline: 'otp.toast_offline',
+  send_failed: 'otp.toast_send_failed',
+  unknown: 'otp.toast_error',
+}
+
+/** Clave del texto que explica ese motivo al vecino. */
+export const otpErrorKey = (kind: OtpErrorKind): TKey => OTP_ERROR_KEYS[kind]
 
 const PENDING_REWARD_KEY = 'km0_pending_reward'
 
@@ -86,7 +130,9 @@ export const requestOtp = async (
   }
 ): Promise<Result> => {
   const trimmed = email.trim()
-  if (!trimmed) return { error: { message: 'Email requerido' } }
+  if (!trimmed) {
+    return { error: { message: 'Email requerido', kind: 'unknown' } }
+  }
   try {
     const inviteCode =
       metadata?.invite_code?.trim() || currentInviteCode() || undefined
@@ -102,7 +148,12 @@ export const requestOtp = async (
     useAppStore.getState().setPendingOtp({ email: trimmed, ...metadata })
     return { error: null }
   } catch (e) {
-    return { error: { message: toMessage(e, 'No se pudo enviar el código') } }
+    return {
+      error: {
+        message: toMessage(e, 'No se pudo enviar el código'),
+        kind: otpErrorKind(e),
+      },
+    }
   }
 }
 
@@ -181,7 +232,12 @@ export const verifyOtp = async (
     clearPendingInvite()
     return { error: null }
   } catch (e) {
-    return { error: { message: toMessage(e, 'Código no válido') } }
+    return {
+      error: {
+        message: toMessage(e, 'Código no válido'),
+        kind: otpErrorKind(e),
+      },
+    }
   }
 }
 

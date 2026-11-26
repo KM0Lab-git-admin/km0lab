@@ -127,6 +127,44 @@ const DP = {
     es: 'Código reenviado',
     en: 'Code resent',
   } as Dict,
+  // Cada motivo de fallo al entrar tiene su mensaje (services/auth.ts).
+  'otp.toast_expired': {
+    ca: "Aquest codi ha caducat. Demana'n un de nou.",
+    es: 'Este código ha caducado. Pide uno nuevo.',
+    en: 'This code has expired. Request a new one.',
+  } as Dict,
+  'otp.toast_too_many': {
+    ca: 'Massa intents. Espera uns minuts i demana un codi nou.',
+    es: 'Demasiados intentos. Espera unos minutos y pide un código nuevo.',
+    en: 'Too many attempts. Wait a few minutes and request a new code.',
+  } as Dict,
+  'otp.toast_offline': {
+    ca: 'Sense connexió. Comprova la xarxa i torna-ho a provar.',
+    es: 'Sin conexión. Comprueba la red e inténtalo de nuevo.',
+    en: 'No connection. Check your network and try again.',
+  } as Dict,
+  'otp.toast_send_failed': {
+    ca: "No hem pogut enviar el correu. Torna-ho a provar d'aquí a uns minuts.",
+    es: 'No hemos podido enviar el correo. Inténtalo de nuevo en unos minutos.',
+    en: "We couldn't send the email. Please try again in a few minutes.",
+  } as Dict,
+  'otp.toast_error': {
+    ca: "Alguna cosa ha fallat. Torna-ho a provar d'aquí a una estona.",
+    es: 'Algo ha fallado. Inténtalo de nuevo dentro de un rato.',
+    en: 'Something went wrong. Please try again in a while.',
+  } as Dict,
+  'login.scan_pending': {
+    ca: 'Entra i sumarem els punts de la teva visita',
+    es: 'Entra y sumaremos los puntos de tu visita',
+    en: "Sign in and we'll add the points for your visit",
+  } as Dict,
+  // La regla real no es «una sola vez»: cada comercio vuelve a dar puntos
+  // pasado el tiempo de espera del municipio (30 días por defecto).
+  'scanner.error.ja_visitat.subtitle': {
+    ca: 'Ja has sumat els punts de {nom}. Hi podràs tornar a sumar a partir del {data}. Mentrestant, mira les seves promocions!',
+    es: 'Ya has sumado los puntos de {nom}. Podrás volver a sumar aquí a partir del {data}. Mientras tanto, ¡mira sus promociones!',
+    en: "You've already earned {nom}'s points. You can earn here again from {data}. Meanwhile, check its promotions!",
+  } as Dict,
   'otp.footer_hint': {
     ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
     es: '¿No lo encuentras? Mira en spam o promociones.',

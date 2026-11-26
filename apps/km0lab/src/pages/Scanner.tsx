@@ -551,7 +551,8 @@ const ErrorOverlay = ({
   const subtitle = isJaVisitat
     ? format(t(subtitleKey, lang), {
         nom: comercNom ?? '',
-        data: availableAt ?? '—',
+        // La API manda 2026-12-26: se enseña 26/12/2026.
+        data: availableAt ? availableAt.split('-').reverse().join('/') : '—',
       })
     : t(subtitleKey, lang)
 

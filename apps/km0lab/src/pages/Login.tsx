@@ -1,4 +1,11 @@
-import { requestOtp, t, useAppStore, currentInviteCode } from '@km0lab/app'
+import {
+  currentInviteCode,
+  isPendingScanFresh,
+  otpErrorKey,
+  requestOtp,
+  t,
+  useAppStore,
+} from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -24,6 +31,8 @@ const Login = () => {
   const postalCode = useAppStore((s) => s.postalCode) ?? undefined
   const town = useAppStore((s) => s.town) ?? undefined
   const pendingInvite = useAppStore((s) => s.pendingInvite)
+  const pendingScan = useAppStore((s) => s.pendingScan)
+  const scanPending = isPendingScanFresh(pendingScan, Date.now())
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -44,7 +53,13 @@ const Login = () => {
     })
 
     if (error) {
-      toast.error(error.message)
+      // El motivo, en el idioma del vecino; el texto crudo del servidor
+      // solo cuando no se reconoce.
+      toast.error(
+        error.kind === 'unknown'
+          ? error.message
+          : t(otpErrorKey(error.kind), lang)
+      )
       setSubmitting(false)
       return
     }
@@ -84,6 +99,11 @@ const Login = () => {
         {(searchParams.get('ref') || pendingInvite || currentInviteCode()) && (
           <p className="mx-auto rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-bold text-km0-teal-700">
             {t('invite.applied', lang)}
+          </p>
+        )}
+        {scanPending && (
+          <p className="mx-auto rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-bold text-km0-teal-700">
+            {t('login.scan_pending', lang)}
           </p>
         )}
         <div className="flex flex-col gap-3 min-w-0">
