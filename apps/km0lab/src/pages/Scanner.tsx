@@ -290,6 +290,8 @@ const Scanner = () => {
     const c = searchParams.get('c')
     if (c) {
       deeplinkHandled.current = true
+      // Ya está en manos del escáner: deja de estar pendiente.
+      useAppStore.getState().setPendingScan(null)
       send({ type: 'DETECT', code: c })
     }
   }, [searchParams, send])

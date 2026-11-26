@@ -8,6 +8,7 @@
     "apps/km0lab/src/components/DeviceShell.tsx",
     "apps/km0lab/src/components/RequireAuth.tsx",
     "apps/km0lab/src/components/RequireSetup.tsx",
+    "apps/km0lab/src/components/ResumePendingScan.tsx",
     "apps/km0lab/src/components/UpdateRequired.tsx",
     "apps/km0lab/src/contexts/LangContext.tsx",
     "apps/km0lab/src/pages/CheckEmail.tsx",
@@ -42,6 +43,7 @@
     "packages/app/utils/env.ts",
     "packages/app/utils/i18nProd.ts",
     "packages/app/utils/openShareChannel.ts",
+    "packages/app/utils/pendingScan.ts",
     "packages/app/utils/postalCodes.ts",
     "packages/app/utils/shareUrl.ts"
   ]

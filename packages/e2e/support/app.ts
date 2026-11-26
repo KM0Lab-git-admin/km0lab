@@ -134,6 +134,21 @@ export class App {
     await expect(this.page.getByText(email)).toBeVisible()
   }
 
+  /**
+   * Ya en la pantalla de entrar porque la app lo ha traído aquí (por
+   * ejemplo, tras abrir el enlace de un comercio): correo y código.
+   */
+  async loginFromLoginScreen(email: string) {
+    await this.page.waitForURL(/\/login/)
+    await expect(this.heading('login.title')).toBeVisible()
+    await this.page
+      .getByPlaceholder(this.tr('login.email_placeholder'))
+      .fill(email)
+    await this.button('login.submit').click()
+    await this.page.waitForURL(/\/check-email/)
+    await this.typeCode(fixedCode)
+  }
+
   async typeCode(code: string) {
     const boxes = this.page.getByRole('textbox')
     await boxes.first().click()

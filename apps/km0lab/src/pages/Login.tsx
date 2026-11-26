@@ -1,7 +1,7 @@
 import { requestOtp, t, useAppStore, currentInviteCode } from '@km0lab/app'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import type { FormEvent } from 'react'
@@ -18,6 +18,7 @@ import { useLang } from '@/contexts/LangContext'
  */
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const { lang } = useLang()
   const postalCode = useAppStore((s) => s.postalCode) ?? undefined
@@ -49,8 +50,16 @@ const Login = () => {
     }
 
     toast.success(t('login.toast_sent', lang))
+    // `?returnTo=` o el destino que guardó RequireAuth al mandar aquí.
+    const from = (
+      location.state as { from?: { pathname?: string; search?: string } } | null
+    )?.from
+    const fromPath = from?.pathname
+      ? `${from.pathname}${from.search ?? ''}`
+      : null
     const returnTo =
       searchParams.get('returnTo') ??
+      fromPath ??
       (pendingInvite?.kind === 'business' ? '/business-signup' : null)
     navigate('/check-email', {
       state: {

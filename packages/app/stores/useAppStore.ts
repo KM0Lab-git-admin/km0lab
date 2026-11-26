@@ -18,6 +18,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { persistentStorage } from '../services/storage'
 import { LANGS, type Lang } from '../utils/i18n'
 
+import type { PendingScan } from '../utils/pendingScan'
+
 export interface AppUser {
   id: string
   email: string
@@ -67,6 +69,8 @@ interface AppState {
 
   pendingOtp: { email: string; postal_code?: string; town?: string } | null
   pendingInvite: PendingInvite | null
+  /** Código de QR abierto por enlace antes de tener sesión. */
+  pendingScan: PendingScan | null
 
   notificationsLastSeenAt: string | null
 
@@ -79,6 +83,7 @@ interface AppState {
   setToken: (t: string | null) => void
   setPendingOtp: (p: AppState['pendingOtp']) => void
   setPendingInvite: (p: PendingInvite | null) => void
+  setPendingScan: (p: PendingScan | null) => void
   /** Actualiza el saldo de puntos del usuario en sesión. */
   setUserPoints: (points: number) => void
 
@@ -126,6 +131,7 @@ export const useAppStore = create<AppState>()(
       town: null,
       pendingOtp: null,
       pendingInvite: null,
+      pendingScan: null,
       notificationsLastSeenAt: null,
 
       setLang: (l) => {
@@ -154,6 +160,7 @@ export const useAppStore = create<AppState>()(
       setToken: (t) => set({ token: t }),
       setPendingOtp: (p) => set({ pendingOtp: p }),
       setPendingInvite: (p) => set({ pendingInvite: p }),
+      setPendingScan: (p) => set({ pendingScan: p }),
       setUserPoints: (points) =>
         set((state) => {
           if (!state.session) return state
@@ -188,6 +195,7 @@ export const useAppStore = create<AppState>()(
           token: null,
           pendingOtp: null,
           pendingInvite: null,
+          pendingScan: null,
           profiles: {},
           lang: 'ca',
           langChosen: false,
@@ -210,6 +218,8 @@ export const useAppStore = create<AppState>()(
         postalCode: s.postalCode,
         town: s.town,
         pendingInvite: s.pendingInvite,
+        // Sobrevive a salir a por el correo del código y volver.
+        pendingScan: s.pendingScan,
         notificationsLastSeenAt: s.notificationsLastSeenAt,
       }),
       merge: (persisted, current) => {

@@ -8,6 +8,7 @@ import CaptureInviteFromUrl from '@/components/CaptureInviteFromUrl'
 import DeviceShell from '@/components/DeviceShell'
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
+import ResumePendingScan from '@/components/ResumePendingScan'
 import TopLoadingBar from '@/components/TopLoadingBar'
 import UpdateRequired from '@/components/UpdateRequired'
 import { LangProvider } from '@/contexts/LangContext'
@@ -56,6 +57,7 @@ export default function App() {
           <UpdateRequired />
           <Router>
             <CaptureInviteFromUrl />
+            <ResumePendingScan />
             <TopLoadingBar />
             <Suspense fallback={null}>
               <Routes>
@@ -242,16 +244,8 @@ export default function App() {
                     </RequireSetup>
                   }
                 />
-                <Route
-                  path="/scan"
-                  element={
-                    <RequireSetup need="location">
-                      <RequireAuth>
-                        <ScanDeepLink />
-                      </RequireAuth>
-                    </RequireSetup>
-                  }
-                />
+                {/* Sin guardas: guarda el código antes de que nada redirija. */}
+                <Route path="/scan" element={<ScanDeepLink />} />
                 <Route path="/i/:code" element={<InviteLanding />} />
                 <Route
                   path="/invite"

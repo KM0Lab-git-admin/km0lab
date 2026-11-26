@@ -58,4 +58,58 @@ test.describe('Escaneo @qa', () => {
       await app.expectHistoryBalance(before + town.default_visit_points)
     })
   })
+
+  // La pegatina del comercio es la puerta de entrada: quien la escanea con
+  // la cámara del móvil no tiene por qué haber abierto nunca la app.
+  test('quien nunca ha usado la app suma la visita al registrarse', async ({
+    app,
+    newEmail,
+  }) => {
+    const email = newEmail('enlace-nuevo')
+    const town = await townByPostalCode(qaPostalCode)
+
+    await test.step('abre el enlace: idioma y código postal antes que nada', async () => {
+      await app.scan(SHOP.qr)
+      await app.chooseLanguage()
+      await app.skipOnboarding()
+      await app.typePostalCode(qaPostalCode)
+      await app.button('common.continue').click()
+    })
+
+    await test.step('la app lo lleva a entrar y, al entrar, suma la visita', async () => {
+      await app.loginFromLoginScreen(email)
+      await expect(app.heading('scanner.confirmation.title')).toBeVisible()
+      await expect(app.page.getByText(SHOP.name)).toBeVisible()
+      await expect(
+        app.page.getByText(`+${town.default_visit_points}`)
+      ).toBeVisible()
+    })
+
+    await test.step('el saldo es la bienvenida más la visita, una sola vez', async () => {
+      const session = await qaLogin(email)
+      const balance = (await me(session.access_token)).points
+      expect(balance).toBeGreaterThan(town.default_visit_points)
+      await app.expectHistoryBalance(balance)
+      // Volver a la portada no repite el escaneo.
+      await app.open('/home')
+      await app.expectHomeBalance(balance)
+      expect((await me(session.access_token)).points).toBe(balance)
+    })
+  })
+
+  test('con la app ya abierta pero sin sesión, entra y suma la visita', async ({
+    app,
+    newEmail,
+  }) => {
+    const email = newEmail('enlace-sin-sesion')
+    const town = await townByPostalCode(qaPostalCode)
+    await app.start(qaPostalCode, qaTownName)
+
+    await app.scan(SHOP.qr)
+    await app.loginFromLoginScreen(email)
+    await expect(app.heading('scanner.confirmation.title')).toBeVisible()
+    await expect(
+      app.page.getByText(`+${town.default_visit_points}`)
+    ).toBeVisible()
+  })
 })

@@ -1,8 +1,10 @@
 import {
   clearPendingReward,
   isFixedOtpEmail,
+  isPendingScanFresh,
   readPendingReward,
   requestOtp,
+  scannerPathFor,
   verifyOtp,
   t,
   useAppStore,
@@ -81,12 +83,19 @@ const CheckEmail = () => {
     // abonarlos (un alta). Entrar con una cuenta que ya existía no lo abre.
     const rewarded = readPendingReward() !== null
     clearPendingReward()
+    // Si entró porque abrió el enlace de un comercio, lo primero es sumar
+    // esa visita: el escáner valida el código guardado.
+    const pendingScan = useAppStore.getState().pendingScan
+    const scanPath = isPendingScanFresh(pendingScan, Date.now())
+      ? scannerPathFor(pendingScan.code)
+      : null
     const safeReturnTo =
-      state.returnTo?.startsWith('/') && !state.returnTo.startsWith('//')
+      scanPath ??
+      (state.returnTo?.startsWith('/') && !state.returnTo.startsWith('//')
         ? state.returnTo
         : rewarded
           ? '/home?welcome=1'
-          : '/home'
+          : '/home')
     navigate(safeReturnTo, { replace: true })
   }
 
