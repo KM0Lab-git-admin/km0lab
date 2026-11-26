@@ -2,11 +2,14 @@
  * Entrar con código: cada fallo tiene su motivo y su mensaje. Antes todo
  * era «código incorrecto», también el código caducado o la falta de red.
  */
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { otpErrorKey, otpErrorKind } from '../services/auth'
+import { otpErrorKey, otpErrorKind, requestOtp } from '../services/auth'
 import { ApiError } from '../services/km0labClient'
+import { useAppStore } from '../stores/useAppStore'
 import { t } from '../utils/i18nProd'
+
+import { mockApi } from './helpers'
 
 import type { OtpErrorKind } from '../services/auth'
 
@@ -54,6 +57,42 @@ describe('motivo del fallo al entrar', () => {
       expect(texts.every((text) => text.length > 10)).toBe(true)
       expect(new Set(texts).size).toBe(kinds.length)
     }
+  })
+})
+
+describe('pedir el código', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('lo pide en el idioma de la app, para que el correo llegue en ese idioma', async () => {
+    useAppStore.setState({ lang: 'ca' })
+    const { first } = mockApi({
+      'POST /auth/request-otp': { json: { message: 'ok' } },
+    })
+
+    const { error } = await requestOtp(' veina@example.com ')
+
+    expect(error).toBeNull()
+    expect(first().body).toMatchObject({
+      email: 'veina@example.com',
+      lang: 'ca',
+    })
+  })
+
+  it('si el correo no se pudo enviar, lo dice', async () => {
+    mockApi({
+      'POST /auth/request-otp': {
+        status: 503,
+        json: { detail: { code: 'otp_send_failed', message: 'x' } },
+      },
+    })
+    const { error } = await requestOtp('veina@example.com')
+    expect(error?.kind).toBe('send_failed')
+  })
+
+  it('sin red, lo dice', async () => {
+    mockApi({ 'POST /auth/request-otp': new TypeError('Failed to fetch') })
+    const { error } = await requestOtp('veina@example.com')
+    expect(error?.kind).toBe('offline')
   })
 })
 

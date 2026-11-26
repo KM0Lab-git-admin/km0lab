@@ -140,6 +140,9 @@ export const requestOtp = async (
       method: 'POST',
       body: {
         email: trimmed,
+        // El correo del código llega en el idioma de la app; sin esto, a
+        // quien se da de alta le llegaba siempre en castellano.
+        lang: useAppStore.getState().lang,
         postal_code: metadata?.postal_code,
         invite_code: inviteCode,
       },
