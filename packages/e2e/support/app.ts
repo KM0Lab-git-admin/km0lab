@@ -146,6 +146,9 @@ export class App {
       .fill(email)
     await this.button('login.submit').click()
     await this.page.waitForURL(/\/check-email/)
+    // La pantalla del código tiene que estar puesta antes de teclear.
+    await expect(this.heading('otp.title')).toBeVisible()
+    await expect(this.page.getByText(email)).toBeVisible()
     await this.typeCode(fixedCode)
   }
 
