@@ -96,6 +96,12 @@ const PostalCode = () => {
     navigate('/home')
   }
 
+  // En el móvil el botón puede quedar bajo el teclado: la tecla de
+  // confirmar del teclado hace lo mismo que «Continuar».
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSubmit()
+  }
+
   return (
     <BrandedFrame
       onBack={() => navigate(-1)}
@@ -103,8 +109,14 @@ const PostalCode = () => {
     >
       {/* Maqueta ÚNICA portrait, centrada verticalmente en el marco. */}
       <div className="w-full max-w-[390px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 min-h-full justify-center py-4">
+        {/* La ilustración del pueblo es apaisada: con ella la tarjeta se
+            acorta, para no dejar un bloque amarillo vacío y para que el
+            botón quepa con el teclado del móvil abierto. */}
         <motion.div
-          className="relative aspect-square w-full max-w-[320px] mx-auto shrink-0 rounded-3xl overflow-hidden shadow-lg"
+          className={cn(
+            'relative w-full max-w-[320px] mx-auto shrink-0 rounded-3xl overflow-hidden shadow-lg transition-[aspect-ratio] duration-300 motion-reduce:transition-none',
+            isArtReady ? 'aspect-[2/1]' : 'aspect-square'
+          )}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.45, delay: 0.15 }}
@@ -212,6 +224,8 @@ const PostalCode = () => {
               value={value}
               onChange={handleChange}
               onFocus={handleFocus}
+              onKeyDown={handleKeyDown}
+              enterKeyHint="go"
               className={cn(
                 'flex-1 bg-transparent font-ui text-lg placeholder:text-muted-foreground/50 outline-none',
                 isHintValue ? 'text-muted-foreground/50' : 'text-foreground'
