@@ -165,6 +165,11 @@ const DP = {
     es: 'Ya has sumado los puntos de {nom}. Podrás volver a sumar aquí a partir del {data}. Mientras tanto, ¡mira sus promociones!',
     en: "You've already earned {nom}'s points. You can earn here again from {data}. Meanwhile, check its promotions!",
   } as Dict,
+  'scanner.error.ja_visitat.subtitle_once': {
+    ca: 'Ja has sumat els punts de {nom}. Cada comerç dona punts un sol cop. Mentrestant, mira les seves promocions!',
+    es: 'Ya has sumado los puntos de {nom}. Cada comercio da puntos una sola vez. Mientras tanto, ¡mira sus promociones!',
+    en: "You've already earned {nom}'s points. Each shop gives points only once. Meanwhile, check its promotions!",
+  } as Dict,
   'otp.footer_hint': {
     ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
     es: '¿No lo encuentras? Mira en spam o promociones.',

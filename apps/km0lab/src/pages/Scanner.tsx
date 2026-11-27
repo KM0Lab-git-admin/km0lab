@@ -5,6 +5,7 @@ import {
 } from '@capacitor/barcode-scanner'
 import { Capacitor } from '@capacitor/core'
 import {
+  isOncePerShop,
   scannerMachine,
   t,
   useAppStore,
@@ -547,7 +548,12 @@ const ErrorOverlay = ({
   const isJaVisitat = kind === 'ja_visitat'
 
   const titleKey = `scanner.error.${kind}.title` as TKey
-  const subtitleKey = `scanner.error.${kind}.subtitle` as TKey
+  // Con una espera de muchos meses (en el piloto cada comercio da puntos
+  // una vez) no se enseña una fecha a un año vista: se dice «una sola vez».
+  const subtitleKey: TKey =
+    isJaVisitat && isOncePerShop(availableAt)
+      ? 'scanner.error.ja_visitat.subtitle_once'
+      : (`scanner.error.${kind}.subtitle` as TKey)
   const subtitle = isJaVisitat
     ? format(t(subtitleKey, lang), {
         nom: comercNom ?? '',

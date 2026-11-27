@@ -44,6 +44,22 @@ type CooldownDetail = {
   cooldown_days?: number
 }
 
+const ONCE_ONLY_MS = 180 * 24 * 60 * 60 * 1000
+
+/**
+ * ¿Ese comercio da puntos una sola vez? Así es cuando la espera para volver
+ * a sumar es de muchos meses (en el piloto, un año): una fecha tan lejana no
+ * le sirve a nadie, y la pantalla dice «una sola vez» en vez de enseñarla.
+ */
+export const isOncePerShop = (
+  availableAt: string | null | undefined,
+  now: number = Date.now()
+): boolean => {
+  if (!availableAt) return false
+  const at = Date.parse(availableAt)
+  return Number.isFinite(at) && at - now > ONCE_ONLY_MS
+}
+
 /** Convierte un error de la API en el resultado que pinta el escáner. */
 export const mapScanError = (e: unknown): ScanOutcome => {
   if (e instanceof ApiError) {

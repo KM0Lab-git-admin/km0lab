@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { onAccountChanged } from '../services/accountEvents'
-import { scanShopQr } from '../services/scans'
+import { isOncePerShop, scanShopQr } from '../services/scans'
 
 import { mockApi } from './helpers'
 
@@ -112,5 +112,23 @@ describe('escaneo de un QR', () => {
     mockApi({ 'POST /scans': { status: 201, json: { id: 's1' } } })
     const result = await scanShopQr('token-raro')
     expect(result.ok).toBe(false)
+  })
+})
+
+describe('un comercio que da puntos una sola vez', () => {
+  const today = Date.parse('2026-11-27T12:00:00Z')
+
+  it('una espera de un año se cuenta como «una sola vez»', () => {
+    expect(isOncePerShop('2027-11-27', today)).toBe(true)
+  })
+
+  it('la espera normal de 30 días sigue enseñando su fecha', () => {
+    expect(isOncePerShop('2026-12-27', today)).toBe(false)
+  })
+
+  it('sin fecha, o con una que no se entiende, no se inventa nada', () => {
+    expect(isOncePerShop(undefined, today)).toBe(false)
+    expect(isOncePerShop(null, today)).toBe(false)
+    expect(isOncePerShop('pronto', today)).toBe(false)
   })
 })
