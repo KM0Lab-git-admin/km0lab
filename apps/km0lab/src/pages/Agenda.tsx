@@ -12,6 +12,7 @@ import {
   tf,
   type Lang,
   type AgendaEvent as Evento,
+  Town,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -38,7 +39,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { Town } from '@km0lab/app'
 
 import CategoryFilterMenu, {
   type CategoryFilterOption,

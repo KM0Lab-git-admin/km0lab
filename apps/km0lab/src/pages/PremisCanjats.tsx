@@ -1,4 +1,3 @@
-import type { Redemption, RedemptionStatus } from '@km0lab/app'
 import {
   isPendingRedemption,
   useAccount,
@@ -23,6 +22,7 @@ import {
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import type { Redemption, RedemptionStatus } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'

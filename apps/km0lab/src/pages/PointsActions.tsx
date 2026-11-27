@@ -1,4 +1,3 @@
-import type { PointAction, PointActionIcon } from '@km0lab/app'
 import {
   usePointsActions,
   usePreviewState,
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { PointAction, PointActionIcon } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'

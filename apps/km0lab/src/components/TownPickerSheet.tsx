@@ -1,4 +1,5 @@
-import { t, type Lang, Town } from '@km0lab/app'
+import type { Town } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { Check } from 'lucide-react'
 import { useEffect, useState } from 'react'

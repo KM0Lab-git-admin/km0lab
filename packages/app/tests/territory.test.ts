@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getContentPath, getContentSource } from '../hooks/use-preview-state'
 import { listScopeNews } from '../services/municipalListings'
 import {
   getTerritory,
   resetTerritoryMemo,
   resolveTerritory,
 } from '../services/territory'
-import { getContentPath, getContentSource } from '../hooks/use-preview-state'
 
 import { mockApi } from './helpers'
 

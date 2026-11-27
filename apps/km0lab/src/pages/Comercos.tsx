@@ -1,4 +1,3 @@
-import type { Town, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
@@ -15,7 +14,6 @@ import {
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
-
 import {
   Search,
   QrCode,
@@ -27,6 +25,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { Town, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import CategoryFilterMenu, {

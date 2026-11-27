@@ -17,8 +17,6 @@ import {
 } from '../stores/useAppStore'
 import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
-import type { TKey } from '../utils/i18nProd'
-
 import {
   apiFetch,
   ApiError,
@@ -26,6 +24,8 @@ import {
   messageSchema,
   userSchema,
 } from './km0labClient'
+
+import type { TKey } from '../utils/i18nProd'
 
 export type MockUser = AppUser
 export type MockSession = AppSession
