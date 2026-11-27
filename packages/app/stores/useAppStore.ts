@@ -80,6 +80,8 @@ interface AppState {
    * abre al teclear 00000, o null fuera de la demostración.
    */
   showcaseChoice: TownChoice | null
+  /** Dentro de una agrupación, la población que se toma como «mi pueblo». */
+  showcaseHomeTownId: string | null
   /** Hay demostración en curso: el marco enseña la marca «Demostració». */
   isShowcase: boolean
 
@@ -101,7 +103,7 @@ interface AppState {
 
   markNotificationsSeen: () => void
   /** Entra en la demostración con esa elección, o sale de ella con null. */
-  setShowcase: (choice: TownChoice | null) => void
+  setShowcase: (choice: TownChoice | null, homeTownId?: string | null) => void
 
   /** Cierra sesión autenticada (mantiene lang/CP locales). */
   signOut: () => void
@@ -145,6 +147,7 @@ export const useAppStore = create<AppState>()(
       pendingScan: null,
       notificationsLastSeenAt: null,
       showcaseChoice: null,
+      showcaseHomeTownId: null,
       isShowcase: false,
 
       setLang: (l) => {
@@ -199,8 +202,12 @@ export const useAppStore = create<AppState>()(
       markNotificationsSeen: () =>
         set({ notificationsLastSeenAt: new Date().toISOString() }),
 
-      setShowcase: (choice) =>
-        set({ showcaseChoice: choice, isShowcase: choice !== null }),
+      setShowcase: (choice, homeTownId = null) =>
+        set({
+          showcaseChoice: choice,
+          showcaseHomeTownId: choice ? homeTownId : null,
+          isShowcase: choice !== null,
+        }),
 
       signOut: () => set({ session: null, token: null, pendingOtp: null }),
 
@@ -219,6 +226,7 @@ export const useAppStore = create<AppState>()(
           town: null,
           notificationsLastSeenAt: null,
           showcaseChoice: null,
+          showcaseHomeTownId: null,
           isShowcase: false,
         })
       },
@@ -240,6 +248,7 @@ export const useAppStore = create<AppState>()(
         pendingScan: s.pendingScan,
         notificationsLastSeenAt: s.notificationsLastSeenAt,
         showcaseChoice: s.showcaseChoice,
+        showcaseHomeTownId: s.showcaseHomeTownId,
         isShowcase: s.isShowcase,
       }),
       merge: (persisted, current) => {

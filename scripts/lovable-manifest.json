@@ -47,6 +47,7 @@
     "packages/app/utils/i18nProd.ts",
     "packages/app/utils/openShareChannel.ts",
     "packages/app/utils/pendingScan.ts",
+    "packages/app/utils/showcase.ts",
     "packages/app/utils/postalCodes.ts",
     "packages/app/utils/shareUrl.ts"
   ]

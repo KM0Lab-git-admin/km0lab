@@ -71,7 +71,7 @@ const CheckEmail = () => {
   const verify = async (code: string) => {
     if (verifying) return
     setVerifying(true)
-    const { error } = await verifyOtp(email, code)
+    const { error, notice } = await verifyOtp(email, code)
     if (error) {
       toast.error(t(otpErrorKey(error.kind), lang))
       // Con el código caducado o agotado, lo siguiente es pedir otro: ya.
@@ -82,6 +82,14 @@ const CheckEmail = () => {
       return
     }
     toast.success(t('otp.welcome', lang))
+    // La cuenta no cruza entre la demostración y un pueblo real: si al
+    // entrar ha quedado en otro sitio del que se veía, se dice.
+    if (notice) {
+      toast.info(
+        t(`demo.notice.${notice.kind}`, lang).replace('{town}', notice.town),
+        { duration: 12000 }
+      )
+    }
     // El aviso de puntos de bienvenida solo sale si el servidor acaba de
     // abonarlos (un alta). Entrar con una cuenta que ya existía no lo abre.
     const rewarded = readPendingReward() !== null

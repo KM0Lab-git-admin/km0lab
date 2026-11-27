@@ -15,6 +15,7 @@ import {
   type AppSession,
   type AppUser,
 } from '../stores/useAppStore'
+import { isDemoPostalCode } from '../utils/demoTown'
 import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
 import {
@@ -40,6 +41,37 @@ export type OtpErrorKind =
   | 'unknown'
 
 type Result = { error: { message: string; kind: OtpErrorKind } | null }
+
+/**
+ * Lo que pasó con la cuenta al entrar, cuando no es lo que la persona
+ * esperaba. Una cuenta no cruza entre la demostración y un pueblo real con
+ * sus puntos (lo decide el servidor):
+ * - `account_is_real`: entró estando en la demostración con una cuenta de
+ *   un pueblo real. La cuenta se queda en su pueblo y la app la lleva allí.
+ * - `left_demo`: entró desde un pueblo real con una cuenta de demostración.
+ *   Pasa a ser vecina de ese pueblo, con el saldo a cero.
+ */
+export type SideNotice = {
+  kind: 'account_is_real' | 'left_demo'
+  town: string
+}
+type VerifyResult = Result & { notice?: SideNotice }
+
+/** Compara dónde estaba la cuenta y la app con dónde ha quedado la cuenta. */
+export const sideNoticeFor = (
+  before: { accountPostalCode: string | null; appPostalCode: string | null },
+  after: { postalCode: string | null; town: string | null }
+): SideNotice | undefined => {
+  if (!after.postalCode || isDemoPostalCode(after.postalCode)) return undefined
+  const town = after.town ?? ''
+  if (isDemoPostalCode(before.accountPostalCode)) {
+    return { kind: 'left_demo', town }
+  }
+  if (isDemoPostalCode(before.appPostalCode)) {
+    return { kind: 'account_is_real', town }
+  }
+  return undefined
+}
 
 /**
  * Traduce el fallo a su motivo. El servidor lo dice en `detail.code`
@@ -163,7 +195,7 @@ export const requestOtp = async (
 export const verifyOtp = async (
   email: string,
   code: string
-): Promise<Result> => {
+): Promise<VerifyResult> => {
   try {
     const store = useAppStore.getState()
     const inviteCode = currentInviteCode()
@@ -231,9 +263,21 @@ export const verifyOtp = async (
     if (user.postal_code || user.town) {
       store.setLocation(user.postal_code ?? postal, user.town ?? town)
     }
+    // La cuenta manda: si es de un pueblo real, la app sale de la
+    // demostración aunque se entrara desde ella.
+    const notice = sideNoticeFor(
+      {
+        accountPostalCode: auth.user.postal_code ?? null,
+        appPostalCode: postal,
+      },
+      { postalCode: user.postal_code ?? null, town: user.town ?? null }
+    )
+    if (user.postal_code && !isDemoPostalCode(user.postal_code)) {
+      store.setShowcase(null)
+    }
     store.setPendingOtp(null)
     clearPendingInvite()
-    return { error: null }
+    return { error: null, notice }
   } catch (e) {
     return {
       error: {

@@ -1,8 +1,11 @@
 import {
   DEMO_POSTAL_CODE,
   DEMO_TOWN_NAME,
+  isDemoPostalCode,
   lookupTown,
+  sideNoticeFor,
   t,
+  updateProfile,
   useAppStore,
   useTerritoryFor,
   useTownChoices,
@@ -13,6 +16,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import postalCodeMapAsset from '@/assets/postal-code-map.png.asset.json'
 import BrandedFrame from '@/components/BrandedFrame'
@@ -105,19 +109,44 @@ const PostalCode = () => {
     if (isChoiceCode) openChoices()
   }, [isChoiceCode])
 
+  // Con sesión abierta, el código postal de la cuenta (lo guarda el acceso).
+  const accountLocation = () => {
+    const { session, profiles } = useAppStore.getState()
+    const profile = session ? profiles[session.user.id] : null
+    return profile?.postal_code
+      ? { postalCode: profile.postal_code, town: profile.town ?? '' }
+      : null
+  }
+
   /**
-   * «Entrar» con una población elegida.
+   * «Entrar» con una población elegida (decidido el 27-11-2026).
    *
-   * AQUÍ SE BIFURCA, y está sin decidir: la maqueta guarda el código postal
-   * de la población elegida, y con la API de verdad eso metería a quien
-   * prueba la demostración en el municipio real (cuenta, puntos y escaneos
-   * reales). Hasta que se decida, se entra en Demo KM0 como siempre —cuenta
-   * y datos de mentira— y solo se recuerda la elección, que todavía no
-   * cambia lo que se ve.
+   * La maqueta guarda el código postal de la población; aquí no: la cuenta
+   * de quien prueba la demostración vive en Demo KM0 (cuenta, puntos,
+   * comercios y premios de mentira, aparte de cualquier pueblo real) y la
+   * elección solo cambia lo que se ve del pueblo: nombre, ilustración,
+   * agenda y noticias (`packages/app/utils/showcase.ts`).
+   *
+   * Una cuenta de un pueblo real no entra en la demostración: el servidor
+   * no la deja cruzar, y aquí se dice antes de enseñarle una demo vacía.
    */
   const handleChoose = () => {
     if (!selectedChoice) return
-    setShowcase(selectedChoice)
+    const account = accountLocation()
+    if (account && !isDemoPostalCode(account.postalCode)) {
+      toast.info(
+        t('demo.notice.real_account_blocked', lang).replace(
+          '{town}',
+          account.town
+        ),
+        { duration: 12000 }
+      )
+      return
+    }
+    const home = selectedChoice.towns.find(
+      (town) => town.postalCodes.length > 0
+    )
+    setShowcase(selectedChoice, home?.id ?? null)
     setLocation(DEMO_POSTAL_CODE, DEMO_TOWN_NAME)
     setChoiceOpen(false)
     navigate('/home')
@@ -135,8 +164,27 @@ const PostalCode = () => {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isComplete || !cityName) return
+    // Con sesión abierta el pueblo es de la cuenta: se cambia en el
+    // servidor, que es quien decide (salir de la demostración deja el
+    // saldo a cero) y la app sigue lo que conteste.
+    const account = accountLocation()
+    const session = useAppStore.getState().session
+    if (session && account && account.postalCode !== value) {
+      await updateProfile(session.user.id, { postal_code: value })
+      const now = accountLocation()
+      const notice = sideNoticeFor(
+        { accountPostalCode: account.postalCode, appPostalCode: value },
+        { postalCode: now?.postalCode ?? null, town: now?.town ?? cityName }
+      )
+      if (notice?.kind === 'left_demo') {
+        toast.info(
+          t('demo.notice.left_demo', lang).replace('{town}', notice.town),
+          { duration: 12000 }
+        )
+      }
+    }
     // Zustand es la máquina de setup de producción. RequireSetup lee
     // postalCode del store, no las claves sueltas de Lovable.
     setShowcase(null)

@@ -34,6 +34,49 @@ test.describe('Demostración @demo', () => {
     await expect(app.text('demo.badge').first()).toBeVisible()
   })
 
+  test('el pueblo elegido cambia lo que se ve; los comercios son los de la demo', async ({
+    app,
+  }) => {
+    // Lo que la app pide mientras tanto: de qué pueblo es el contenido y
+    // de qué municipio son los comercios.
+    const asked: string[] = []
+    app.page.on('request', (request) => {
+      asked.push(decodeURIComponent(request.url()))
+    })
+
+    await app.open('/')
+    await app.chooseLanguage()
+    await app.skipOnboarding()
+    await app.typePostalCode(demoPostalCode)
+    // Una agrupación enseña debajo las poblaciones que la forman.
+    const group = app
+      .showcaseList()
+      .getByRole('radio')
+      .filter({ hasText: 'Breda' })
+    await expect(group).toContainText('Hostalric')
+    await group.click()
+    await app.button('demo.enter').click()
+    await app.page.waitForURL(/\/home/)
+
+    // El nombre es el de la población elegida, no «Demo KM0».
+    await app.expectHome('Breda')
+    await expect(app.text('demo.badge').first()).toBeVisible()
+    // Agenda y noticias: las de Breda. Nada de Malgrat.
+    await expect
+      .poll(() => asked.some((url) => /(poblacion|city)=Breda/.test(url)))
+      .toBe(true)
+    expect(asked.some((url) => /(poblacion|city)=Malgrat/.test(url))).toBe(
+      false
+    )
+    // Comercios y premios: los de Demo KM0, nunca los del pueblo real.
+    await expect
+      .poll(() =>
+        asked.some((url) => url.includes(`postal_code=${demoPostalCode}`))
+      )
+      .toBe(true)
+    expect(asked.some((url) => url.includes('postal_code=17400'))).toBe(false)
+  })
+
   test('la cuenta de demostración entra y ve su cuenta', async ({ app }) => {
     await app.start(demoPostalCode)
     await app.login(demoResidentEmail, { expectWelcome: false })

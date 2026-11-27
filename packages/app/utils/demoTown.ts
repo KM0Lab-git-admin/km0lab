@@ -5,6 +5,10 @@
  * Agenda/noticias y otros datos municipales caen a Malgrat si faltan.
  */
 
+import { useAppStore } from '../stores/useAppStore'
+
+import { showcaseHomeTown } from './showcase'
+
 export const DEMO_POSTAL_CODE = '00000'
 export const DEMO_TOWN_NAME = 'Demo KM0'
 /** Cuentas con OTP fijo `123456` en local/staging (API). */
@@ -38,13 +42,19 @@ export const isDemoPostalCode = (
 
 /**
  * Población a pedir a agenda/noticias.
- * Demo KM0 hereda el contenido municipal de Malgrat.
+ * En la demostración es la población elegida en la lista; si no se eligió
+ * ninguna (una app anterior a la lista), Demo KM0 hereda el contenido de
+ * Malgrat.
  */
 export function contentPoblacion(
   postalCode: string | null | undefined,
   townName: string | null | undefined
 ): string {
-  if (isDemoPostalCode(postalCode)) return MALGRAT_CONTENT_TOWN
+  if (isDemoPostalCode(postalCode)) {
+    const { showcaseChoice, showcaseHomeTownId } = useAppStore.getState()
+    const chosen = showcaseHomeTown(showcaseChoice, showcaseHomeTownId)
+    return chosen?.name.trim() || MALGRAT_CONTENT_TOWN
+  }
   const name = (townName ?? '').trim()
   return name || MALGRAT_CONTENT_TOWN
 }

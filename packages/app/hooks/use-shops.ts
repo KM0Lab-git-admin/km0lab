@@ -95,15 +95,20 @@ export function useShops(): {
   // Cada comercio dice de qué población es; si el servidor no lo dice (API
   // anterior a las poblaciones), es de la del vecino.
   const { homeTown } = useTerritory()
+  // En la demostración los comercios son siempre los de Demo KM0, se elija
+  // la población que se elija: se enseñan como los de «mi pueblo».
+  const isShowcase = useAppStore((s) => s.isShowcase)
   const shops = useMemo(
     () =>
       rows.map((row) => ({
         ...toComercAdherit(row),
         punts: scan,
-        townId: row.locality_id ?? homeTown?.id,
-        townName: row.town_name?.trim() || homeTown?.name,
+        townId: isShowcase ? homeTown?.id : (row.locality_id ?? homeTown?.id),
+        townName: isShowcase
+          ? homeTown?.name
+          : row.town_name?.trim() || homeTown?.name,
       })),
-    [rows, scan, homeTown?.id, homeTown?.name]
+    [rows, scan, homeTown?.id, homeTown?.name, isShowcase]
   )
   const categories = useMemo(
     () =>

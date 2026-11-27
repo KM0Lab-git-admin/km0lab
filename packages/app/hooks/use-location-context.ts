@@ -1,4 +1,5 @@
 import { useAppStore } from '../stores/useAppStore'
+import { showcaseHomeTown } from '../utils/showcase'
 
 /**
  * useLocationContext — municipio elegido por el vecino.
@@ -8,9 +9,16 @@ import { useAppStore } from '../stores/useAppStore'
  * enseña; la traducción «municipio de demostración → contenido de Malgrat»
  * la hacen los servicios de contenido (`municipalListings`), no las
  * pantallas.
+ *
+ * En la demostración el código postal sigue siendo el de Demo KM0 (de él
+ * cuelgan la cuenta, los comercios y los premios), pero el nombre es el de
+ * la población elegida en la lista.
  */
 export function useLocationContext(): { postalCode: string; town: string } {
   const postalCode = useAppStore((s) => s.postalCode)
   const town = useAppStore((s) => s.town)
-  return { postalCode: postalCode ?? '', town: town ?? '' }
+  const choice = useAppStore((s) => s.showcaseChoice)
+  const homeTownId = useAppStore((s) => s.showcaseHomeTownId)
+  const shown = showcaseHomeTown(choice, homeTownId)?.name ?? town
+  return { postalCode: postalCode ?? '', town: shown ?? '' }
 }

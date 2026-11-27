@@ -170,6 +170,21 @@ const DP = {
     es: 'Ya has sumado los puntos de {nom}. Cada comercio da puntos una sola vez. Mientras tanto, ¡mira sus promociones!',
     en: "You've already earned {nom}'s points. Each shop gives points only once. Meanwhile, check its promotions!",
   } as Dict,
+  'demo.notice.account_is_real': {
+    ca: 'Aquest compte ja és de {town}: t’hi portem. Per provar la demostració, entra amb un altre correu.',
+    es: 'Esta cuenta ya es de {town}: te llevamos allí. Para probar la demostración, entra con otro correo.',
+    en: 'This account already belongs to {town}: taking you there. To try the demo, sign in with another email.',
+  } as Dict,
+  'demo.notice.left_demo': {
+    ca: 'El teu compte era de demostració. Ara ets de {town} i comences amb 0 punts: els de la demostració no compten.',
+    es: 'Tu cuenta era de demostración. Ahora eres de {town} y empiezas con 0 puntos: los de la demostración no cuentan.',
+    en: 'Your account was a demo one. You now belong to {town} and start with 0 points: demo points do not count.',
+  } as Dict,
+  'demo.notice.real_account_blocked': {
+    ca: 'Has entrat amb un compte de {town}. Per provar la demostració, tanca la sessió i entra amb un altre correu.',
+    es: 'Has entrado con una cuenta de {town}. Para probar la demostración, cierra la sesión y entra con otro correo.',
+    en: 'You are signed in with an account from {town}. To try the demo, sign out and use another email.',
+  } as Dict,
   'otp.footer_hint': {
     ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
     es: '¿No lo encuentras? Mira en spam o promociones.',
