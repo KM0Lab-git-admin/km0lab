@@ -2814,6 +2814,36 @@ const D = {
     es: 'No se ha podido cargar el contenido de {town}',
     en: 'Could not load content from {town}',
   } as Dict,
+
+  'demo.badge': { ca: 'Demostració', es: 'Demostración', en: 'Demo' } as Dict,
+  'demo.title': {
+    ca: 'Tria què vols provar',
+    es: 'Elige qué quieres probar',
+    en: 'Choose what to try',
+  } as Dict,
+  'demo.help': {
+    ca: "Escull una població o agrupació per veure l'app de demostració amb el seu contingut.",
+    es: 'Escoge una población o agrupación para ver la app de demostración con su contenido.',
+    en: 'Pick a town or group of towns to try the demo app with its content.',
+  } as Dict,
+  'demo.enter': { ca: 'Entrar', es: 'Entrar', en: 'Enter' } as Dict,
+  'demo.empty': {
+    ca: 'Ara mateix no hi ha cap població per provar.',
+    es: 'Ahora mismo no hay ninguna población para probar.',
+    en: 'There are no towns to try right now.',
+  } as Dict,
+  'demo.back': { ca: 'Tornar', es: 'Volver', en: 'Back' } as Dict,
+  'demo.error': {
+    ca: 'No hem pogut carregar les poblacions.',
+    es: 'No hemos podido cargar las poblaciones.',
+    en: "We couldn't load the towns.",
+  } as Dict,
+  'demo.loading': {
+    ca: 'Carregant poblacions…',
+    es: 'Cargando poblaciones…',
+    en: 'Loading towns…',
+  } as Dict,
+  'demo.retry': { ca: 'Reintentar', es: 'Reintentar', en: 'Retry' } as Dict,
 } as const
 
 export type TKey = keyof typeof D

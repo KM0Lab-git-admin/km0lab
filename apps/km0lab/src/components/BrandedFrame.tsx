@@ -1,4 +1,4 @@
-import { t, useDragScroll } from '@km0lab/app'
+import { t, useDragScroll, useAppStore } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { ChevronLeft } from 'lucide-react'
 
@@ -37,6 +37,8 @@ interface BrandedFrameProps {
   portraitContentClassName?: string
   /** Clases extra para el contenedor de contenido en landscape */
   landscapeContentClassName?: string
+  /** Frame element, used as the container of overlays such as sheets. */
+  frameRef?: (element: HTMLDivElement | null) => void
 }
 
 /** Marco "teléfono" siempre visible (dev y prod) hasta que exista layout landscape propio. */
@@ -53,8 +55,10 @@ const BrandedFrame = ({
   hideHeader = false,
   portraitContentClassName = '',
   landscapeContentClassName = '',
+  frameRef,
 }: BrandedFrameProps) => {
   const { lang } = useLang()
+  const isShowcase = useAppStore((s) => s.isShowcase)
   const scrollRef = useDragScroll('vertical')
   const renderBackButton = (sizeClasses: string, iconSize: number) => {
     if (!onBack) return null
@@ -76,13 +80,19 @@ const BrandedFrame = ({
           portrait, todas las pantallas se ven al mismo tamaño en
           cualquier orientación del viewport. */}
       <div
+        ref={frameRef}
         data-bp="vertical-mobile portrait"
         className={cn(
-          'flex h-[min(calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)),920px)] w-[min(100vw,420px)] flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
+          'relative flex h-[min(calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)),920px)] w-[min(100vw,420px)] flex-col bg-gradient-to-b from-km0-beige-50 to-km0-beige-100 overflow-hidden',
           frameChromeClass,
           !showDeviceChrome && 'h-dvh w-full'
         )}
       >
+        {isShowcase && (
+          <span className="pointer-events-none absolute left-1/2 top-1 z-30 -translate-x-1/2 rounded-full bg-muted/90 px-2 py-0.5 font-ui text-[10px] font-semibold leading-none text-muted-foreground">
+            {t('demo.badge', lang)}
+          </span>
+        )}
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
             {renderBackButton('left-4 w-10 h-10', 20)}

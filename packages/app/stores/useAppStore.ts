@@ -18,6 +18,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { persistentStorage } from '../services/storage'
 import { LANGS, type Lang } from '../utils/i18n'
 
+import type { TownChoice } from '../types/territory'
 import type { PendingScan } from '../utils/pendingScan'
 
 export interface AppUser {
@@ -74,6 +75,14 @@ interface AppState {
 
   notificationsLastSeenAt: string | null
 
+  /**
+   * Demostración: la población o agrupación elegida en la lista que se
+   * abre al teclear 00000, o null fuera de la demostración.
+   */
+  showcaseChoice: TownChoice | null
+  /** Hay demostración en curso: el marco enseña la marca «Demostració». */
+  isShowcase: boolean
+
   setLang: (l: Lang) => void
   /** Elige idioma y marca la elección explícita (flujo inicial). */
   chooseLang: (l: Lang) => void
@@ -91,6 +100,8 @@ interface AppState {
   getProfile: (userId: string) => AppProfile | null
 
   markNotificationsSeen: () => void
+  /** Entra en la demostración con esa elección, o sale de ella con null. */
+  setShowcase: (choice: TownChoice | null) => void
 
   /** Cierra sesión autenticada (mantiene lang/CP locales). */
   signOut: () => void
@@ -133,6 +144,8 @@ export const useAppStore = create<AppState>()(
       pendingInvite: null,
       pendingScan: null,
       notificationsLastSeenAt: null,
+      showcaseChoice: null,
+      isShowcase: false,
 
       setLang: (l) => {
         if (!(LANGS as string[]).includes(l)) return
@@ -186,6 +199,9 @@ export const useAppStore = create<AppState>()(
       markNotificationsSeen: () =>
         set({ notificationsLastSeenAt: new Date().toISOString() }),
 
+      setShowcase: (choice) =>
+        set({ showcaseChoice: choice, isShowcase: choice !== null }),
+
       signOut: () => set({ session: null, token: null, pendingOtp: null }),
 
       clearLocalSetup: () => {
@@ -202,6 +218,8 @@ export const useAppStore = create<AppState>()(
           postalCode: null,
           town: null,
           notificationsLastSeenAt: null,
+          showcaseChoice: null,
+          isShowcase: false,
         })
       },
     }),
@@ -221,6 +239,8 @@ export const useAppStore = create<AppState>()(
         // Sobrevive a salir a por el correo del código y volver.
         pendingScan: s.pendingScan,
         notificationsLastSeenAt: s.notificationsLastSeenAt,
+        showcaseChoice: s.showcaseChoice,
+        isShowcase: s.isShowcase,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Record<string, unknown>

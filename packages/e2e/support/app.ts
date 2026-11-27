@@ -9,7 +9,7 @@
  */
 import { expect, type Locator, type Page } from '@playwright/test'
 
-import { fixedCode } from './env'
+import { demoPostalCode, fixedCode } from './env'
 import {
   containing,
   exactly,
@@ -91,12 +91,35 @@ export class App {
 
   async enterPostalCode(postalCode: string, townName?: string) {
     await this.typePostalCode(postalCode)
+    // El código de demostración no es un pueblo: abre la lista.
+    if (postalCode === demoPostalCode) {
+      await this.enterShowcase()
+      return
+    }
     if (townName) {
       await expect(
         this.page.getByRole('heading', { name: containing(townName) })
       ).toBeVisible()
     }
     await this.button('common.continue').click()
+    await this.page.waitForURL(/\/home/)
+  }
+
+  /** La lista que abre el 00000, con las poblaciones que da el servidor. */
+  showcaseList(): Locator {
+    return this.page.getByRole('radiogroup', {
+      name: exactly(this.tr('demo.title')),
+    })
+  }
+
+  /** Elige una opción de la lista (la primera si no se dice cuál) y entra. */
+  async enterShowcase(choiceName?: string) {
+    const options = this.showcaseList().getByRole('radio')
+    const option = choiceName
+      ? options.filter({ hasText: choiceName })
+      : options.first()
+    await option.click()
+    await this.button('demo.enter').click()
     await this.page.waitForURL(/\/home/)
   }
 

@@ -1,18 +1,24 @@
 import {
   DEMO_POSTAL_CODE,
+  DEMO_TOWN_NAME,
   lookupTown,
   t,
   useAppStore,
   useTerritoryFor,
+  useTownChoices,
+  type TownChoice,
 } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MapPin, MapPinOff, AlertTriangle, Loader2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import postalCodeMapAsset from '@/assets/postal-code-map.png.asset.json'
 import BrandedFrame from '@/components/BrandedFrame'
+import BubbleSheet from '@/components/BubbleSheet'
 import TownArt from '@/components/TownArt'
+import TownChoiceList from '@/components/TownChoiceList'
 import { TownTag } from '@/components/TownTag'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
@@ -21,6 +27,7 @@ const PostalCode = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
   const setLocation = useAppStore((s) => s.setLocation)
+  const setShowcase = useAppStore((s) => s.setShowcase)
 
   const [value, setValue] = useState(DEMO_POSTAL_CODE)
   const [touched, setTouched] = useState(false)
@@ -30,8 +37,20 @@ const PostalCode = () => {
   >('idle')
   const [resolvedTown, setResolvedTown] = useState<string | null>(null)
 
+  // Demostración (porte de los commits 93cd73f y 926e8c7 de Lovable): el
+  // 00000 no es un pueblo, abre la lista de poblaciones y agrupaciones que
+  // da la API. El 00000 que se ve gris al entrar es solo una pista: la
+  // lista se abre cuando lo escribe la persona.
+  const [choiceOpen, setChoiceOpen] = useState(false)
+  const [selectedChoice, setSelectedChoice] = useState<TownChoice | null>(null)
+  const [frame, setFrame] = useState<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  // Se pide al abrir la pantalla: al teclear el código la lista ya está.
+  const townChoices = useTownChoices()
+
   const isNumeric = /^\d*$/.test(value)
-  const isComplete = value.length === 5 && isNumeric
+  const isChoiceCode = touched && value === DEMO_POSTAL_CODE
+  const isComplete = value.length === 5 && isNumeric && !isChoiceCode
   const cityName = validationResult === 'found' ? resolvedTown : null
   const showError = touched && !isNumeric
   const showNotFound = validationResult === 'not_found'
@@ -76,6 +95,34 @@ const PostalCode = () => {
     }
   }, [value, isComplete])
 
+  const openChoices = () => {
+    inputRef.current?.blur()
+    setSelectedChoice(null)
+    setChoiceOpen(true)
+  }
+
+  useEffect(() => {
+    if (isChoiceCode) openChoices()
+  }, [isChoiceCode])
+
+  /**
+   * «Entrar» con una población elegida.
+   *
+   * AQUÍ SE BIFURCA, y está sin decidir: la maqueta guarda el código postal
+   * de la población elegida, y con la API de verdad eso metería a quien
+   * prueba la demostración en el municipio real (cuenta, puntos y escaneos
+   * reales). Hasta que se decida, se entra en Demo KM0 como siempre —cuenta
+   * y datos de mentira— y solo se recuerda la elección, que todavía no
+   * cambia lo que se ve.
+   */
+  const handleChoose = () => {
+    if (!selectedChoice) return
+    setShowcase(selectedChoice)
+    setLocation(DEMO_POSTAL_CODE, DEMO_TOWN_NAME)
+    setChoiceOpen(false)
+    navigate('/home')
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value)
     if (!touched) setTouched(true)
@@ -92,6 +139,7 @@ const PostalCode = () => {
     if (!isComplete || !cityName) return
     // Zustand es la máquina de setup de producción. RequireSetup lee
     // postalCode del store, no las claves sueltas de Lovable.
+    setShowcase(null)
     setLocation(value, cityName)
     navigate('/home')
   }
@@ -106,6 +154,7 @@ const PostalCode = () => {
     <BrandedFrame
       onBack={() => navigate(-1)}
       backAriaLabel={t('common.back', lang)}
+      frameRef={setFrame}
     >
       {/* Maqueta ÚNICA portrait, centrada verticalmente en el marco. */}
       <div className="w-full max-w-[390px] mx-auto flex flex-col gap-6 vertical-mobile:gap-7 min-h-full justify-center py-4">
@@ -216,6 +265,10 @@ const PostalCode = () => {
               <MapPin className="text-km0-teal-500 shrink-0" size={22} />
             )}
             <input
+              ref={inputRef}
+              onClick={() => {
+                if (isChoiceCode && !choiceOpen) openChoices()
+              }}
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
@@ -273,7 +326,7 @@ const PostalCode = () => {
         >
           <button
             onClick={handleSubmit}
-            disabled={!cityName || isValidating}
+            disabled={!cityName || isValidating || choiceOpen}
             className="w-full bg-primary text-primary-foreground font-ui font-semibold text-sm px-5 py-2.5 rounded-2xl hover:bg-km0-blue-600 hover:scale-[1.03] transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
             {isValidating ? (
@@ -284,6 +337,38 @@ const PostalCode = () => {
           </button>
         </motion.div>
       </div>
+      <BubbleSheet
+        open={choiceOpen}
+        onClose={() => setChoiceOpen(false)}
+        title={t('demo.title', lang)}
+        lang={lang}
+        container={frame}
+        footer={
+          <Button
+            type="button"
+            variant="bubblePrimary"
+            disabled={!selectedChoice}
+            onClick={handleChoose}
+            className="w-full"
+          >
+            {t('demo.enter', lang)}
+          </Button>
+        }
+      >
+        <p className="mb-4 font-body text-sm text-km0-blue-700">
+          {t('demo.help', lang)}
+        </p>
+        <TownChoiceList
+          choices={townChoices.choices}
+          loading={townChoices.loading}
+          error={townChoices.error}
+          selectedId={selectedChoice?.id ?? null}
+          onSelect={setSelectedChoice}
+          onRetry={townChoices.reload}
+          onBack={() => setChoiceOpen(false)}
+          lang={lang}
+        />
+      </BubbleSheet>
     </BrandedFrame>
   )
 }

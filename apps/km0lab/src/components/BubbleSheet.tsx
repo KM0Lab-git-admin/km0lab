@@ -14,6 +14,8 @@ interface BubbleSheetProps {
   lang: Lang
   container?: HTMLElement | null
   children: ReactNode
+  /** Fixed below the scrolling body. */
+  footer?: ReactNode
 }
 
 const BubbleSheet = ({
@@ -23,6 +25,7 @@ const BubbleSheet = ({
   lang,
   container,
   children,
+  footer,
 }: BubbleSheetProps) => {
   const scrollRef = useDragScroll('vertical')
   return (
@@ -64,6 +67,7 @@ const BubbleSheet = ({
           <div ref={scrollRef} className="min-h-0 overflow-y-auto px-5 pb-6">
             {children}
           </div>
+          {footer && <div className="shrink-0 px-5 pb-5 pt-3">{footer}</div>}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
