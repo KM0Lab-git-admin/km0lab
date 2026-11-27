@@ -16,6 +16,7 @@ import {
   type AppUser,
 } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
+import { TERMS_VERSION } from '../utils/legalText'
 import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
 import {
@@ -211,6 +212,9 @@ export const requestOtp = async (
         lang: useAppStore.getState().lang,
         postal_code: metadata?.postal_code,
         invite_code: inviteCode,
+        // La pantalla no deja llegar aquí sin marcar la casilla: se manda
+        // qué versión de las condiciones se aceptó.
+        terms_version: TERMS_VERSION,
       },
       schema: messageSchema,
     })
@@ -240,6 +244,7 @@ export const verifyOtp = async (
         code,
         invite_code: inviteCode,
         postal_code: store.postalCode ?? store.pendingOtp?.postal_code,
+        terms_version: TERMS_VERSION,
       },
       schema: authSchema,
     })

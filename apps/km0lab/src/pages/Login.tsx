@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import { LegalLine } from '@/components/LegalText'
 import { useLang } from '@/contexts/LangContext'
 
 /**
@@ -35,9 +36,15 @@ const Login = () => {
   const scanPending = isPendingScanFresh(pendingScan, Date.now())
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  // Casilla de Legal: desmarcada y obligatoria. Sin ella no se pide código.
+  const [accepted, setAccepted] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!accepted) {
+      toast.error(t('legal.accept.error', lang))
+      return
+    }
     if (!email.trim()) {
       toast.error(t('login.error_email', lang))
       return
@@ -127,9 +134,24 @@ const Login = () => {
               className="h-12 px-4 rounded-xl border-2 border-km0-blue-700/20 bg-background font-body text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-km0-blue-700 transition-colors"
             />
 
+            <label className="flex items-start gap-2.5 text-left font-body text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+                className="mt-0.5 h-5 w-5 shrink-0 accent-km0-blue-700"
+              />
+              <span>
+                <LegalLine text={t('legal.accept.label', lang)} />
+              </span>
+            </label>
+            <p className="font-body text-xs italic leading-relaxed text-muted-foreground">
+              <LegalLine text={t('legal.accept.info', lang)} />
+            </p>
+
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !accepted}
               className="h-12 mt-1 rounded-xl bg-km0-yellow-500 hover:bg-km0-yellow-600 active:scale-[0.98] transition-all font-ui text-base text-km0-blue-700 disabled:opacity-50"
             >
               {submitting

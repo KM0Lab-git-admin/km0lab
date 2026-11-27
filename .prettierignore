@@ -11,3 +11,6 @@ apps/km0lab/android/app/src/main/assets/public
 apps/km0lab/android/app/src/main/assets/capacitor.config.json
 apps/km0lab/android/app/src/main/assets/capacitor.plugins.json
 apps/km0lab/ios/App/App/public
+
+# Textos legales: los escribe Legal y se publican tal cual, sin reformatear.
+apps/km0lab/src/content/legal

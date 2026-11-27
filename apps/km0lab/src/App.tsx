@@ -22,6 +22,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'))
 const HowItWorks = lazy(() => import('./pages/HowItWorks'))
 const PostalCode = lazy(() => import('./pages/PostalCode'))
 const Login = lazy(() => import('./pages/Login'))
+const Legal = lazy(() => import('./pages/Legal'))
 const CheckEmail = lazy(() => import('./pages/CheckEmail'))
 const Home = lazy(() => import('./pages/Home'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -246,6 +247,16 @@ export default function App() {
                 />
                 {/* Sin guardas: guarda el código antes de que nada redirija. */}
                 <Route path="/scan" element={<ScanDeepLink />} />
+                {/* Textos legales: públicos, sin sesión ni pueblo elegido. La
+                    ficha de la tienda de aplicaciones enlaza a /privacitat. */}
+                <Route
+                  path="/condicions"
+                  element={<Legal doc="condicions" />}
+                />
+                <Route
+                  path="/privacitat"
+                  element={<Legal doc="privacitat" />}
+                />
                 <Route path="/i/:code" element={<InviteLanding />} />
                 <Route
                   path="/invite"

@@ -210,6 +210,38 @@ const DP = {
     es: 'Has entrado con una cuenta de {town}. Para probar la demostración, cierra la sesión y entra con otro correo.',
     en: 'You are signed in with an account from {town}. To try the demo, sign out and use another email.',
   } as Dict,
+  // Textos de Legal, versión 1 (Docs/marketing/piloto/legal/consentimiento-alta.md).
+  // Los enlaces van como [texto](/ruta) y los pinta `LegalLine`.
+  'legal.accept.label': {
+    ca: 'Tinc 18 anys o més i accepto les [condicions del pilot](/condicions).',
+    es: 'Tengo 18 años o más y acepto las [condiciones del piloto](/condicions).',
+    en: 'I am 18 or older and I accept the [pilot terms](/condicions).',
+  } as Dict,
+  'legal.accept.info': {
+    ca: 'KM0 LAB tracta les teves dades per gestionar el teu compte i els teus punts. L’entitat que impulsa el pilot les veu per gestionar-lo. Pots consultar-les, corregir-les o esborrar-les quan vulguis. Més informació a la [política de privacitat](/privacitat).',
+    es: 'KM0 LAB trata tus datos para gestionar tu cuenta y tus puntos. La entidad que impulsa el piloto los ve para gestionarlo. Puedes consultarlos, corregirlos o borrarlos cuando quieras. Más información en la [política de privacidad](/privacitat).',
+    en: 'KM0 LAB processes your data to manage your account and your points. The organisation promoting the pilot can see it to manage the pilot. You can access, correct or delete it at any time. More information in the [privacy policy](/privacitat).',
+  } as Dict,
+  'legal.accept.error': {
+    ca: 'Has d’acceptar les condicions per continuar.',
+    es: 'Tienes que aceptar las condiciones para continuar.',
+    en: 'You need to accept the terms to continue.',
+  } as Dict,
+  'legal.terms.title': {
+    ca: 'Condicions del pilot',
+    es: 'Condiciones del piloto',
+    en: 'Pilot terms',
+  } as Dict,
+  'legal.privacy.title': {
+    ca: 'Política de privacitat',
+    es: 'Política de privacidad',
+    en: 'Privacy policy',
+  } as Dict,
+  'legal.error': {
+    ca: 'No hem pogut carregar el text. Torna-ho a provar.',
+    es: 'No hemos podido cargar el texto. Inténtalo de nuevo.',
+    en: 'We could not load the text. Please try again.',
+  } as Dict,
   'otp.footer_hint': {
     ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
     es: '¿No lo encuentras? Mira en spam o promociones.',

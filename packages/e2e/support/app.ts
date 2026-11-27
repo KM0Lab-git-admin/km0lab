@@ -143,6 +143,12 @@ export class App {
 
   // ── Acceso ──────────────────────────────────────────────────────────
 
+  /** La casilla de las condiciones: sin marcarla no se puede pedir el código. */
+  async acceptTerms() {
+    await expect(this.button('login.submit')).toBeDisabled()
+    await this.page.getByRole('checkbox').check()
+  }
+
   /** Desde Home sin sesión: pide el código para ese correo. */
   async requestCode(email: string) {
     await this.button('home.login_cta').first().click()
@@ -151,6 +157,7 @@ export class App {
     await this.page
       .getByPlaceholder(this.tr('login.email_placeholder'))
       .fill(email)
+    await this.acceptTerms()
     await this.button('login.submit').click()
     await this.page.waitForURL(/\/check-email/)
     await expect(this.heading('otp.title')).toBeVisible()
@@ -167,6 +174,7 @@ export class App {
     await this.page
       .getByPlaceholder(this.tr('login.email_placeholder'))
       .fill(email)
+    await this.acceptTerms()
     await this.button('login.submit').click()
     await this.page.waitForURL(/\/check-email/)
     // La pantalla del código tiene que estar puesta antes de teclear.
