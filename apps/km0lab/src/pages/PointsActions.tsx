@@ -4,89 +4,82 @@ import {
   useDragScroll,
   useAuth,
   t,
+  tf,
   type Lang,
-  useInviteRewards,
+  getFriendProgress,
+  type FriendProgress,
+  useInviteSummary,
+  PointAction,
+  PointActionIcon,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
-import { motion } from 'framer-motion'
-import {
-  Cake,
-  UserPlus,
-  Star,
-  QrCode,
-  Globe,
-  Mail,
-  CalendarCheck,
-  ClipboardList,
-  Share2,
-  CheckCircle2,
-  Circle,
-  type LucideIcon,
-} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { PointAction, PointActionIcon } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'
 import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
+
+import { motion } from 'framer-motion'
+import {
+  UserPlus,
+  QrCode,
+  Globe,
+  Share2,
+  CheckCircle2,
+  Circle,
+  ChevronRight,
+  type LucideIcon,
+} from 'lucide-react'
+
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
+
+import { Button } from '@km0lab/ui'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'pending' | 'completed'
 
 /* ─── Mapa icono ─────────────────────────────────────────── */
 const ICONS: Record<PointActionIcon, LucideIcon> = {
-  cake: Cake,
   'user-plus': UserPlus,
-  star: Star,
   qr: QrCode,
-  globe: Globe,
-  mail: Mail,
   share: Share2,
-  'calendar-check': CalendarCheck,
-  'clipboard-list': ClipboardList,
 }
+
+const INVITE_ACTION_TYPE = 'invite_friend'
 
 const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
   share: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
-  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
   'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
   qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
-  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
 }
 
 const fmtInt = (n: number) => n.toLocaleString('es-ES')
 
 /* ─── Fila de acción ─────────────────────────────────────── */
+const rowClass =
+  'flex items-center gap-3 px-3 py-3 bg-card rounded-2xl border border-km0-blue-100'
 const ActionRow = ({
   action,
   lang,
   index,
+  friendProgress,
+  onSelect,
 }: {
   action: PointAction
   lang: Lang
   index: number
+  /** Only for the invite-a-friend action. */
+  friendProgress?: FriendProgress
+  onSelect?: () => void
 }) => {
   const Icon = ICONS[action.icon]
   const meta = ICON_META[action.icon]
+  const showPoints = !friendProgress || friendProgress.rewarding
 
-  return (
-    <motion.li
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.25) }}
-      className={cn(
-        'flex items-center gap-3 px-3 py-3 bg-card rounded-2xl border border-km0-blue-100',
-        action.completed && 'opacity-80'
-      )}
-    >
+  const body = (
+    <>
       <span
         className={cn(
           'shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center',
@@ -124,19 +117,66 @@ const ActionRow = ({
               {t('points.actions.pending', lang)}
             </span>
           )}
+          {friendProgress?.rewarding && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-ui font-bold tabular-nums bg-km0-teal-100 text-km0-teal-700">
+              {tf('points.actions.invite_friend.progress', lang, {
+                count: friendProgress.count,
+                limit: friendProgress.limit,
+              })}
+            </span>
+          )}
         </div>
       </div>
 
-      <span
-        className={cn(
-          'shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums',
-          action.completed
-            ? 'bg-km0-teal-100 text-km0-teal-700'
-            : 'bg-km0-yellow-400/90 text-km0-blue-900'
-        )}
-      >
-        +{fmtInt(action.earnedPoints ?? action.points)} pts
-      </span>
+      {!showPoints && (
+        <span className="shrink-0 max-w-[6.5rem] text-right font-body text-[11px] leading-tight text-km0-blue-800/70">
+          {t('points.actions.invite_friend.no_points', lang)}
+        </span>
+      )}
+      {showPoints && (
+        <span
+          className={cn(
+            'shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums',
+            action.completed
+              ? 'bg-km0-teal-100 text-km0-teal-700'
+              : 'bg-km0-yellow-400/90 text-km0-blue-900'
+          )}
+        >
+          +{fmtInt(action.earnedPoints ?? action.points)} pts
+        </span>
+      )}
+    </>
+  )
+
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.25) }}
+    >
+      {onSelect ? (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onSelect}
+          className={cn(
+            rowClass,
+            'h-auto w-full justify-start whitespace-normal text-left font-normal',
+            action.completed && 'opacity-80'
+          )}
+        >
+          {body}
+          <ChevronRight
+            aria-hidden
+            size={16}
+            className="shrink-0 text-km0-blue-700/60"
+          />
+        </Button>
+      ) : (
+        <div className={cn(rowClass, action.completed && 'opacity-80')}>
+          {body}
+        </div>
+      )}
     </motion.li>
   )
 }
@@ -153,14 +193,22 @@ const PointsActions = () => {
     error,
     reload,
   } = usePointsActions()
-  const inviteRewards = useInviteRewards()
+  const { summary: inviteSummary } = useInviteSummary()
+  const friendProgress = useMemo(
+    () => getFriendProgress(inviteSummary),
+    [inviteSummary]
+  )
   const actions = useMemo(
     () =>
       availableActions.map((action) => ({
         ...action,
-        completed: !!user && action.completed,
+        completed:
+          !!user &&
+          (action.apiType === INVITE_ACTION_TYPE
+            ? friendProgress.reached
+            : action.completed),
       })),
-    [availableActions, user]
+    [availableActions, user, friendProgress]
   )
   const scrollRef = useDragScroll('vertical')
 
@@ -173,14 +221,18 @@ const PointsActions = () => {
     const completed = actions.filter((a) => a.completed).length
     const pending = actions.length - completed
     const points = actions
-      .filter((a) => !a.completed)
+      .filter(
+        (a) =>
+          !a.completed &&
+          (a.apiType !== INVITE_ACTION_TYPE || friendProgress.rewarding)
+      )
       .reduce((sum, a) => sum + (a.earnedPoints ?? a.points), 0)
     return {
       completedCount: completed,
       pendingCount: pending,
       totalPoints: points,
     }
-  }, [actions])
+  }, [actions, friendProgress])
 
   const filtered = useMemo(() => {
     if (filter === 'completed') return actions.filter((a) => a.completed)
@@ -272,41 +324,22 @@ const PointsActions = () => {
               />
             ) : (
               <ul className="flex flex-col gap-3 pt-2">
-                {filter !== 'completed' && (
-                  <li>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate('/invite')}
-                      className="h-auto w-full justify-start gap-3 rounded-2xl border-km0-blue-100 bg-card px-3 py-3 text-left"
-                    >
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-km0-coral-100 text-km0-coral-400">
-                        <Share2 size={20} aria-hidden />
-                      </span>
-                      <span className="min-w-0 flex-1 whitespace-normal">
-                        <span className="block font-ui text-sm font-bold text-km0-blue-900">
-                          {t('invite.title', lang)}
-                        </span>
-                        <span className="mt-0.5 block font-body text-xs font-normal leading-snug text-km0-blue-800/60">
-                          {t('invite.action.description', lang)}
-                        </span>
-                        <span className="mt-1.5 inline-flex rounded-full bg-km0-blue-100 px-2 py-0.5 font-ui text-[10px] font-bold uppercase text-km0-blue-800">
-                          {t('invite.action.type', lang)}
-                        </span>
-                      </span>
-                      <span className="shrink-0 whitespace-normal rounded-full bg-km0-yellow-400/90 px-2 py-1 text-center font-ui text-[10px] font-black text-km0-blue-900">
-                        +{inviteRewards.person}
-                        <br />+{inviteRewards.business}
-                      </span>
-                    </Button>
-                  </li>
-                )}
                 {filtered.map((action, i) => (
                   <ActionRow
                     key={action.id}
                     action={action}
                     lang={lang}
                     index={i}
+                    friendProgress={
+                      action.apiType === INVITE_ACTION_TYPE
+                        ? friendProgress
+                        : undefined
+                    }
+                    onSelect={
+                      action.apiType === INVITE_ACTION_TYPE
+                        ? () => navigate('/invite')
+                        : undefined
+                    }
                   />
                 ))}
               </ul>

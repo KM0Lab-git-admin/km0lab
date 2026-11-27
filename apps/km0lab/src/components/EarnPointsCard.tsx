@@ -2,15 +2,9 @@ import { t, useHomeActions } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
-  Cake,
   UserPlus,
-  Star,
   QrCode,
-  Globe,
-  Mail,
   Share2,
-  CalendarCheck,
-  ClipboardList,
   ArrowRight,
   Lock,
   type LucideIcon,
@@ -41,27 +35,15 @@ export interface EarnPointsCardProps {
 }
 
 const ICONS: Record<PointActionIcon, LucideIcon> = {
-  cake: Cake,
   'user-plus': UserPlus,
-  star: Star,
   qr: QrCode,
-  globe: Globe,
-  mail: Mail,
   share: Share2,
-  'calendar-check': CalendarCheck,
-  'clipboard-list': ClipboardList,
 }
 
 const ICON_META: Record<PointActionIcon, { ring: string; text: string }> = {
   share: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
-  cake: { ring: 'bg-km0-coral-100', text: 'text-km0-coral-400' },
   'user-plus': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  star: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
   qr: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  globe: { ring: 'bg-km0-blue-100', text: 'text-km0-blue-700' },
-  mail: { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
-  'calendar-check': { ring: 'bg-km0-teal-100', text: 'text-km0-teal-600' },
-  'clipboard-list': { ring: 'bg-km0-yellow-100', text: 'text-km0-blue-800' },
 }
 
 const EarnPointsCard = ({

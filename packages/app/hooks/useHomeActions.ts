@@ -3,7 +3,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { listMyPointsHistory, listPublicActions } from '../services/points'
 import { useAppStore } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
-import { toPointAction, withCompletedActions } from '../utils/pointActionMapper'
+import {
+  toPointActions,
+  withCompletedActions,
+} from '../utils/pointActionMapper'
 
 import type { PointAction } from '../types/points'
 
@@ -50,7 +53,7 @@ export function useHomeActions(): {
         lang,
         demo: isDemoPostalCode(postalCode),
       })
-      const mapped = rows.map(toPointAction)
+      const mapped = toPointActions(rows)
       if (!token) return mapped
       try {
         const history = await listMyPointsHistory()

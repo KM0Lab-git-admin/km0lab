@@ -1,3 +1,4 @@
+import type { Town } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
@@ -12,7 +13,6 @@ import {
   tf,
   type Lang,
   type AgendaEvent as Evento,
-  Town,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'

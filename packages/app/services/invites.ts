@@ -25,10 +25,21 @@ export const inviteResolveSchema = z.object({
 
 export const inviteSummarySchema = z.object({
   persons_registered: z.number(),
-  businesses_registered: z.number(),
+  businesses_registered: z.number().optional(),
   points_earned: z.number(),
   points_pending: z.number(),
+  // Tope de amigos premiados de esta persona (null = sin tope) y cuántos
+  // lleva. Una API anterior al tope no los manda.
+  friend_limit: z.number().nullable().optional(),
+  friends_rewarded: z.number().optional(),
 })
+
+/**
+ * «Sin tope»: el municipio no limita a cuántos amigos se premia. Las
+ * pantallas esperan un número (pintan «X de N»), así que se les da uno que
+ * no se alcanza. En el piloto todos los municipios tienen tope.
+ */
+export const NO_FRIEND_LIMIT = 999
 
 const inviteConversionSchema = z.object({
   id: z.string(),
@@ -63,7 +74,7 @@ const toRecord = (
   row: z.infer<typeof inviteConversionSchema>
 ): InvitationRecord => ({
   id: row.id,
-  kind: row.kind,
+  kind: 'person',
   status: toUiStatus(row.status),
   displayName: row.display_name ?? null,
   startedAt: null,
@@ -72,7 +83,7 @@ const toRecord = (
   points: row.points,
 })
 
-export const getMyInviteLink = (kind: InvitationKind) =>
+export const getMyInviteLink = (kind: InvitationKind = 'person') =>
   apiFetch(`/invites/me/link?kind=${kind}`, {
     auth: true,
     schema: inviteLinkSchema,
@@ -85,21 +96,24 @@ export const getMyInviteSummary = async (): Promise<InvitationsSummary> => {
   })
   return {
     personsRegistered: raw.persons_registered,
-    businessesRegistered: raw.businesses_registered,
     pointsEarned: raw.points_earned,
     pointsPending: raw.points_pending,
+    friendLimit: raw.friend_limit ?? NO_FRIEND_LIMIT,
   }
 }
 
 export const listMyConversions = async (
   kind?: InvitationKind
 ): Promise<InvitationRecord[]> => {
-  const qs = kind ? `?kind=${kind}` : ''
-  const raw = await apiFetch(`/invites/me/conversions${qs}`, {
-    auth: true,
-    schema: inviteConversionListSchema,
-  })
-  return raw.items.map(toRecord)
+  // Solo amigos: la invitación a negocios está apagada en el piloto.
+  const raw = await apiFetch(
+    `/invites/me/conversions?kind=${kind ?? 'person'}`,
+    {
+      auth: true,
+      schema: inviteConversionListSchema,
+    }
+  )
+  return raw.items.filter((row) => row.kind === 'person').map(toRecord)
 }
 
 export const resolveInviteCode = (code: string) =>

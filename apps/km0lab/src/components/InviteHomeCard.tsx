@@ -1,4 +1,4 @@
-import { useInviteRewards, t } from '@km0lab/app'
+import { useInviteRewards, getFriendProgress, t, tf } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { Share2 } from 'lucide-react'
 import { useState } from 'react'
@@ -29,6 +29,9 @@ const InviteHomeCard = ({
   const { lang } = useLang()
   const inviteRewards = useInviteRewards()
   const [searchParams] = useSearchParams()
+  const progress = invitationSummary
+    ? getFriendProgress(invitationSummary)
+    : null
   // Al volver del acceso conservamos el contexto: ?share=1 reabre el panel.
   const [shareOpen, setShareOpen] = useState(
     () => searchParams.get('share') === '1'
@@ -57,41 +60,26 @@ const InviteHomeCard = ({
 
       {isAuthed ? (
         <>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <span className="rounded-lg bg-km0-yellow-100 px-2 py-1.5 text-center font-ui text-xs font-bold text-km0-blue-900">
-              {t('invite.person.short', lang)} · +{inviteRewards.person}{' '}
-              {t('common.points', lang)}
-            </span>
-            <span className="rounded-lg bg-km0-teal-100 px-2 py-1.5 text-center font-ui text-xs font-bold text-km0-blue-900">
-              {t('invite.business.short', lang)} · +{inviteRewards.business}{' '}
-              {t('common.points', lang)}
-            </span>
-          </div>
-          {invitationSummary &&
-          (invitationSummary.personsRegistered > 0 ||
-            invitationSummary.businessesRegistered > 0) ? (
+          <p className="mt-3 rounded-lg bg-km0-yellow-100 px-2 py-1.5 text-center font-ui text-xs font-bold text-km0-blue-900">
+            {tf('invite.friend.badge', lang, { points: inviteRewards.person })}
+          </p>
+          {invitationSummary ? (
             <p className="mt-3 rounded-lg bg-km0-beige-100 px-3 py-2 text-center font-ui text-sm leading-snug text-km0-blue-800/75">
-              {t(
-                invitationSummary.personsRegistered === 1
-                  ? 'invites.compact.person.one'
-                  : 'invites.compact.person.other',
-                lang
-              ).replace(
-                '{count}',
-                String(invitationSummary.personsRegistered)
-              )}{' '}
-              {t('invites.compact.and', lang)}{' '}
-              {t(
-                invitationSummary.businessesRegistered === 1
-                  ? 'invites.compact.business.one'
-                  : 'invites.compact.business.other',
-                lang
-              ).replace(
-                '{count}',
-                String(invitationSummary.businessesRegistered)
-              )}{' '}
-              · {invitationSummary.pointsEarned}{' '}
-              {t('invites.compact.points', lang)}
+              {progress?.rewarding
+                ? `${tf(
+                    progress.limit === 1
+                      ? 'invites.compact.friends.one'
+                      : 'invites.compact.friends.other',
+                    lang,
+                    {
+                      count: progress.count,
+                      limit: progress.limit,
+                    }
+                  )} · `
+                : null}
+              {tf('invites.compact.points_only', lang, {
+                points: invitationSummary.pointsEarned,
+              })}
             </p>
           ) : null}
           <Button

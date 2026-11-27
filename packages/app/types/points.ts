@@ -14,28 +14,9 @@ export type PointsTxType =
   | 'demo_credit'
   | 'redeem'
 
-export type PointActionId =
-  | 'birthday'
-  | 'signup'
-  | 'first_scan'
-  | 'scan'
-  | 'web_visit'
-  | 'newsletter'
-  | 'invite_person'
-  | 'invite_business'
-  | 'event_signup'
-  | 'survey'
+export type PointActionId = 'signup' | 'scan' | 'invite_friend'
 
-export type PointActionIcon =
-  | 'cake'
-  | 'user-plus'
-  | 'star'
-  | 'qr'
-  | 'globe'
-  | 'mail'
-  | 'share'
-  | 'calendar-check'
-  | 'clipboard-list'
+export type PointActionIcon = 'user-plus' | 'qr' | 'share'
 
 export interface PointAction {
   id: string

@@ -6,6 +6,8 @@ import {
   useAuth,
   t,
   type Lang,
+  Redemption,
+  RedemptionStatus,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
@@ -22,7 +24,6 @@ import {
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import type { Redemption, RedemptionStatus } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'

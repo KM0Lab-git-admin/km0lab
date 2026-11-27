@@ -39,6 +39,7 @@ export type OtpErrorKind =
   | 'too_many'
   | 'offline'
   | 'send_failed'
+  | 'pilot_full'
   | 'unknown'
 
 type Result = { error: { message: string; kind: OtpErrorKind } | null }
@@ -125,6 +126,8 @@ export const otpErrorKind = (e: unknown): OtpErrorKind => {
   if (code === 'otp_expired') return 'expired'
   if (code === 'otp_too_many_attempts') return 'too_many'
   if (code === 'otp_send_failed') return 'send_failed'
+  // El municipio ya no admite más cuentas (aforo del piloto).
+  if (code === 'pilot_full') return 'pilot_full'
   if (e.status === 400) return 'wrong'
   return 'unknown'
 }
@@ -135,6 +138,7 @@ const OTP_ERROR_KEYS: Record<OtpErrorKind, TKey> = {
   too_many: 'otp.toast_too_many',
   offline: 'otp.toast_offline',
   send_failed: 'otp.toast_send_failed',
+  pilot_full: 'pilot.full.title',
   unknown: 'otp.toast_error',
 }
 
@@ -232,11 +236,13 @@ export const requestOtp = async (
 
 export const verifyOtp = async (
   email: string,
-  code: string
+  code: string,
+  /** El código de invitación con el que se pidió el acceso (escrito o del enlace). */
+  referralReference?: string | null
 ): Promise<VerifyResult> => {
   try {
     const store = useAppStore.getState()
-    const inviteCode = currentInviteCode()
+    const inviteCode = referralReference?.trim() || currentInviteCode()
     const auth = await apiFetch('/auth/verify-otp', {
       method: 'POST',
       body: {

@@ -8,13 +8,15 @@ import {
   t,
   type TKey,
   useShopPromotions,
+  ShopPromotion,
+  Reward,
+  RewardCategory,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import { Package, Tag } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import type { ShopPromotion, Reward, RewardCategory } from '@km0lab/app'
 
 import AccountAccessFlow from '@/components/AccountAccessFlow'
 import AccountBottomTabs from '@/components/AccountBottomTabs'

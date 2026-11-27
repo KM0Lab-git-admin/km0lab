@@ -2,18 +2,22 @@ import {
   useDragScroll,
   useAuth,
   t,
+  tf,
   type Lang,
   type TKey,
+  getFriendProgress,
   useInvitations,
+  InvitationRecord,
+  InvitationStatus,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import {
   AlertCircle,
-  Building2,
   ChevronLeft,
   ChevronRight,
   Clock,
   Coins,
+  Hourglass,
   Loader2,
   RefreshCw,
   Share2,
@@ -24,20 +28,12 @@ import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { HomeTab } from '@/components/BottomTabs'
-import type { InvitationRecord, InvitationStatus } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
-/* ─── Filtros ─────────────────────────────────────────────── */
-type Filter = 'all' | 'person' | 'business'
 type InvitationOrigin = 'home' | 'points' | 'actions'
-const FILTERS: { key: Filter; labelKey: TKey }[] = [
-  { key: 'all', labelKey: 'invites.filter.all' },
-  { key: 'person', labelKey: 'invites.filter.persons' },
-  { key: 'business', labelKey: 'invites.filter.businesses' },
-]
 
 const STATUS_STYLE: Record<InvitationStatus, string> = {
   started: 'bg-km0-beige-100 text-km0-blue-800',
@@ -64,7 +60,7 @@ const relevantDate = (record: InvitationRecord): string | null =>
 
 interface SummaryTileProps {
   labelKey: TKey
-  value: number
+  value: string
   Icon: LucideIcon
 }
 
@@ -94,19 +90,16 @@ const MyInvitations = () => {
     points: 'puntos',
     actions: 'actions',
   }
-  const [filter, setFilter] = useState<Filter>('all')
   const [openId, setOpenId] = useState<string | null>(null)
 
-  const filtered = useMemo(() => {
-    const list = records
-    const scoped =
-      filter === 'all' ? list : list.filter((r) => r.kind === filter)
-    return [...scoped].sort((a, b) => {
+  const progress = getFriendProgress(summary)
+  const sorted = useMemo(() => {
+    return [...records].sort((a, b) => {
       const da = relevantDate(a)
       const db = relevantDate(b)
       return new Date(db ?? 0).getTime() - new Date(da ?? 0).getTime()
     })
-  }, [records, filter])
+  }, [records])
 
   const goInvite = () => navigate('/invite')
   const goBack = () => {
@@ -147,16 +140,8 @@ const MyInvitations = () => {
 
   const renderRow = (record: InvitationRecord) => {
     const open = openId === record.id
-    const Icon = record.kind === 'person' ? UserRound : Building2
     const date = relevantDate(record)
-    const name =
-      record.displayName ??
-      t(
-        record.kind === 'person'
-          ? 'invites.row.person'
-          : 'invites.row.business',
-        lang
-      )
+    const name = record.displayName ?? t('invites.row.person', lang)
 
     return (
       <li
@@ -172,7 +157,7 @@ const MyInvitations = () => {
           className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors active:bg-km0-beige-50"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-km0-blue-50 text-km0-blue-700">
-            <Icon aria-hidden size={18} />
+            <UserRound aria-hidden size={18} />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate font-ui text-sm font-bold text-km0-blue-900">
@@ -309,17 +294,6 @@ const MyInvitations = () => {
     </section>
   )
 
-  const renderFilterEmpty = () => (
-    <section className="rounded-2xl border border-dashed border-km0-blue-100 bg-card px-4 py-6 text-center">
-      <h2 className="font-ui text-sm font-bold text-km0-blue-900">
-        {t('invites.filter_empty.title', lang)}
-      </h2>
-      <p className="mt-1 font-body text-xs text-km0-blue-800/70">
-        {t('invites.filter_empty.description', lang)}
-      </p>
-    </section>
-  )
-
   const renderContent = () => {
     if (error) return renderError()
     if (authLoading || loading) return renderLoading()
@@ -327,57 +301,35 @@ const MyInvitations = () => {
 
     return (
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-2">
-          {renderSummaryTile({
-            labelKey: 'invites.summary.persons',
-            value: summary.personsRegistered,
-            Icon: UserRound,
-          })}
-          {renderSummaryTile({
-            labelKey: 'invites.summary.businesses',
-            value: summary.businessesRegistered,
-            Icon: Building2,
-          })}
+        <div
+          className={cn(
+            'grid gap-2',
+            progress.rewarding ? 'grid-cols-3' : 'grid-cols-2'
+          )}
+        >
+          {progress.rewarding
+            ? renderSummaryTile({
+                labelKey: 'invites.summary.friends',
+                value: tf('invites.summary.of_limit', lang, {
+                  count: progress.count,
+                  limit: progress.limit,
+                }),
+                Icon: UserRound,
+              })
+            : null}
           {renderSummaryTile({
             labelKey: 'invites.summary.points',
-            value: summary.pointsEarned,
+            value: String(summary.pointsEarned),
             Icon: Coins,
           })}
-        </div>
-
-        <div
-          role="tablist"
-          aria-label={t('invites.title', lang)}
-          className="grid grid-cols-3 gap-1.5 rounded-2xl border border-km0-blue-700/20 bg-km0-beige-100 p-1.5"
-        >
-          {FILTERS.map(({ key, labelKey }) => {
-            const active = filter === key
-            return (
-              <Button
-                variant="bubbleSurface"
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setFilter(key)}
-                className={cn(
-                  'min-h-9 rounded-full px-2 py-1.5 font-ui text-[11px] font-bold transition-all active:scale-95',
-                  active
-                    ? 'bg-km0-blue-600 text-km0-yellow-400 shadow-sm'
-                    : 'text-km0-blue-700 hover:bg-km0-beige-50'
-                )}
-              >
-                {t(labelKey, lang)}
-              </Button>
-            )
+          {renderSummaryTile({
+            labelKey: 'invites.summary.pending',
+            value: String(summary.pointsPending),
+            Icon: Hourglass,
           })}
         </div>
 
-        {filtered.length === 0 ? (
-          renderFilterEmpty()
-        ) : (
-          <ul className="flex flex-col gap-2">{filtered.map(renderRow)}</ul>
-        )}
+        <ul className="flex flex-col gap-2">{sorted.map(renderRow)}</ul>
 
         <p className="font-body text-[11px] leading-snug text-km0-blue-800/55">
           {t('invites.disclaimer', lang)}

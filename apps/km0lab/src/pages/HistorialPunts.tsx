@@ -1,4 +1,3 @@
-import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 import {
   useDragScroll,
   useAccount,
@@ -27,6 +26,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'

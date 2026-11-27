@@ -7,20 +7,19 @@ import { isDemoPostalCode } from '../utils/demoTown'
 
 export interface PointsConfig {
   signup: number
-  birthday: number
   scan: number
 }
 
 /** Valores por defecto del servidor mientras llega la respuesta del municipio. */
-const SERVER_DEFAULTS: PointsConfig = { signup: 100, birthday: 500, scan: 10 }
+const SERVER_DEFAULTS: PointsConfig = { signup: 100, scan: 10 }
 
 /**
- * usePointsConfig — puntos que el municipio da por registrarse, por el
- * cumpleaños y por escanear el QR de un comercio.
+ * usePointsConfig — puntos que el municipio da por registrarse y por
+ * escanear el QR de un comercio.
  *
  * Costura con Lovable. Sale de km0lab-api: el escaneo de
  * `GET /towns/public` (`default_visit_points`, que es lo que abona
- * `POST /scans`) y registro y cumpleaños de `GET /actions/public`.
+ * `POST /scans`) y el registro de `GET /actions/public`.
  */
 export function usePointsConfig(): PointsConfig {
   const postalCode = useAppStore((s) => s.postalCode)
@@ -40,7 +39,6 @@ export function usePointsConfig(): PointsConfig {
           actions.find((a) => a.type === type && a.active)?.points ?? fallback
         setConfig({
           signup: pointsOf('signup', SERVER_DEFAULTS.signup),
-          birthday: pointsOf('birthday', SERVER_DEFAULTS.birthday),
           scan: town.default_visit_points,
         })
       })

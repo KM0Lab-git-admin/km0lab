@@ -8,23 +8,25 @@ import type {
 
 type ActionKeys = {
   id: PointActionId
+  /** Lo que las pantallas comparan (`apiType`): el nombre que usa la maqueta. */
+  uiType: string
   typeKey: TKey
   titleKey: TKey
   descriptionKey: TKey
   icon: PointActionIcon
 }
 
-/** Mapa type de API → ids/claves i18n + icono de UI. */
+/**
+ * Las formas de ganar puntos que la App sabe enseñar, por el `type` que da
+ * la API. En el piloto son tres: registrarse, escanear el QR de un comercio
+ * e invitar a un amigo (encargo 13 de Lovable). Una acción de otro tipo que
+ * un municipio tuviera encendida no se pinta: la App no tiene pantalla ni
+ * textos para ella.
+ */
 export const TYPE_TO_KEYS: Record<string, ActionKeys> = {
-  birthday: {
-    id: 'birthday',
-    typeKey: 'points.actions.type.birthday',
-    titleKey: 'points.actions.birthday.title',
-    descriptionKey: 'points.actions.birthday.description',
-    icon: 'cake',
-  },
   signup: {
     id: 'signup',
+    uiType: 'signup',
     typeKey: 'points.actions.type.signup',
     titleKey: 'points.actions.signup.title',
     descriptionKey: 'points.actions.signup.description',
@@ -32,122 +34,47 @@ export const TYPE_TO_KEYS: Record<string, ActionKeys> = {
   },
   qr_scan: {
     id: 'scan',
-    typeKey: 'points.actions.type.qr_scan',
-    titleKey: 'points.actions.qr_scan.title',
-    descriptionKey: 'points.actions.qr_scan.description',
-    icon: 'qr',
-  },
-  first_scan: {
-    id: 'first_scan',
-    typeKey: 'points.actions.type.first_scan',
-    titleKey: 'points.actions.first_scan.title',
-    descriptionKey: 'points.actions.first_scan.description',
-    icon: 'star',
-  },
-  scan: {
-    id: 'scan',
+    uiType: 'scan',
     typeKey: 'points.actions.type.scan',
     titleKey: 'points.actions.scan.title',
     descriptionKey: 'points.actions.scan.description',
     icon: 'qr',
   },
-  web_visit: {
-    id: 'web_visit',
-    typeKey: 'points.actions.type.web_visit',
-    titleKey: 'points.actions.web_visit.title',
-    descriptionKey: 'points.actions.web_visit.description',
-    icon: 'globe',
-  },
-  web_signup: {
-    id: 'newsletter',
-    typeKey: 'points.actions.type.web_signup',
-    titleKey: 'points.actions.web_signup.title',
-    descriptionKey: 'points.actions.web_signup.description',
-    icon: 'mail',
-  },
-  newsletter: {
-    id: 'newsletter',
-    typeKey: 'points.actions.type.newsletter',
-    titleKey: 'points.actions.newsletter.title',
-    descriptionKey: 'points.actions.newsletter.description',
-    icon: 'mail',
-  },
-  event: {
-    id: 'event_signup',
-    typeKey: 'points.actions.type.event',
-    titleKey: 'points.actions.event.title',
-    descriptionKey: 'points.actions.event.description',
-    icon: 'calendar-check',
-  },
-  event_signup: {
-    id: 'event_signup',
-    typeKey: 'points.actions.type.event_signup',
-    titleKey: 'points.actions.event_signup.title',
-    descriptionKey: 'points.actions.event_signup.description',
-    icon: 'calendar-check',
-  },
-  custom: {
-    id: 'survey',
-    typeKey: 'points.actions.type.custom',
-    titleKey: 'points.actions.custom.title',
-    descriptionKey: 'points.actions.custom.description',
-    icon: 'clipboard-list',
-  },
-  survey: {
-    id: 'survey',
-    typeKey: 'points.actions.type.survey',
-    titleKey: 'points.actions.survey.title',
-    descriptionKey: 'points.actions.survey.description',
-    icon: 'clipboard-list',
+  scan: {
+    id: 'scan',
+    uiType: 'scan',
+    typeKey: 'points.actions.type.scan',
+    titleKey: 'points.actions.scan.title',
+    descriptionKey: 'points.actions.scan.description',
+    icon: 'qr',
   },
   invite_person: {
-    id: 'invite_person',
-    typeKey: 'points.actions.type.invite_person',
-    titleKey: 'points.actions.invite_person.title',
-    descriptionKey: 'points.actions.invite_person.description',
-    icon: 'share',
-  },
-  invite_business: {
-    id: 'invite_business',
-    typeKey: 'points.actions.type.invite_business',
-    titleKey: 'points.actions.invite_business.title',
-    descriptionKey: 'points.actions.invite_business.description',
+    id: 'invite_friend',
+    uiType: 'invite_friend',
+    typeKey: 'points.actions.type.invite_friend',
+    titleKey: 'points.actions.invite_friend.title',
+    descriptionKey: 'points.actions.invite_friend.description',
     icon: 'share',
   },
 }
 
-const FALLBACK: ActionKeys = {
-  id: 'scan',
-  typeKey: 'points.actions.type.scan',
-  titleKey: 'points.actions.scan.title',
-  descriptionKey: 'points.actions.scan.description',
-  icon: 'star',
-}
-
-/** Ledger `type` que completa cada acción de catálogo. */
+/** Ledger `type` que completa cada acción (por su tipo de pantalla). */
 const ACTION_TYPE_TO_LEDGER: Record<string, string[]> = {
   signup: ['welcome', 'signup'],
-  birthday: ['birthday'],
-  qr_scan: ['scan', 'qr_scan'],
-  first_scan: ['first_scan'],
   scan: ['scan', 'qr_scan'],
-  web_visit: ['web_visit'],
-  web_signup: ['web_signup'],
-  newsletter: ['web_signup'],
-  event: ['event', 'event_signup'],
-  event_signup: ['event', 'event_signup'],
-  custom: ['action', 'custom'],
-  survey: ['action', 'custom'],
-  invite_person: ['invite_person'],
-  invite_business: ['invite_business'],
+  invite_friend: ['invite_person'],
 }
 
-/** Mapea PointActionOut de API a PointAction de UI (completed=false). */
-export function toPointAction(out: PointActionOut): PointAction {
-  const keys = TYPE_TO_KEYS[out.type] ?? FALLBACK
+/**
+ * Mapea PointActionOut de API a PointAction de UI (completed=false), o null
+ * si es un tipo que la App no enseña.
+ */
+export function toPointAction(out: PointActionOut): PointAction | null {
+  const keys = TYPE_TO_KEYS[out.type]
+  if (!keys) return null
   return {
     id: out.id,
-    apiType: out.type,
+    apiType: keys.uiType,
     title: out.name?.trim() ?? '',
     description: out.description?.trim() ?? '',
     titleKey: keys.titleKey,
@@ -157,6 +84,13 @@ export function toPointAction(out: PointActionOut): PointAction {
     completed: false,
     icon: keys.icon,
   }
+}
+
+/** Las acciones que la App enseña, en el orden que las da la API. */
+export function toPointActions(rows: PointActionOut[]): PointAction[] {
+  return rows
+    .map(toPointAction)
+    .filter((action): action is PointAction => action !== null)
 }
 
 /** Marca completadas las acciones con movimiento positivo en el ledger. */

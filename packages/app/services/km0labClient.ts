@@ -127,6 +127,8 @@ export const pointActionOutSchema = z.object({
   url: z.string().nullable().optional(),
   event_id: z.string().nullable().optional(),
   cooldown_days: z.number().nullable().optional(),
+  /** En «invitar a un vecino»: a cuántos amigos se premia (null = sin tope). */
+  per_user_limit: z.number().nullable().optional(),
 })
 export type PointActionOut = z.infer<typeof pointActionOutSchema>
 

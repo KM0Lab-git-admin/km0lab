@@ -1,5 +1,4 @@
 import {
-  usePointsConfig,
   updateProfile,
   useProfile,
   useAuth,
@@ -39,7 +38,6 @@ type ProfileForm = {
 }
 
 const Profile = () => {
-  const pointsConfig = usePointsConfig()
   const navigate = useNavigate()
   const { lang } = useLang()
   const { user, signOut } = useAuth()
@@ -219,12 +217,6 @@ const Profile = () => {
                   autoComplete="bday"
                   className={inputCls}
                 />
-                <span className="font-body text-[11px] text-km0-blue-800/60 px-1 mt-0.5">
-                  {t('profile.birth_date_hint', lang).replace(
-                    '{n}',
-                    String(pointsConfig.birthday)
-                  )}
-                </span>
               </Field>
 
               <Field label={t('territory.myTown', lang)}>

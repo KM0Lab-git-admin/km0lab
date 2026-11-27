@@ -1,3 +1,4 @@
+import type { Town, ScopedItem } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
@@ -11,8 +12,6 @@ import {
   tf,
   type Lang,
   type Noticia,
-  Town,
-  ScopedItem,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'

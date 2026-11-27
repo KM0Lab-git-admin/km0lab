@@ -1,11 +1,10 @@
 import { getShareLink } from '@km0lab/app'
 
+/** Pilot example: points per rewarded friend and default rewarded-friend limit. */
 export const INVITE_REWARDS = {
-  person: 100,
-  business: 500,
+  person: 50,
+  friendLimit: 3,
 } as const
-
-export type InviteKind = keyof typeof INVITE_REWARDS
 
 /**
  * Referencia de invitación asociada al usuario identificado.

@@ -79,7 +79,11 @@ const CheckEmail = () => {
   const verify = async (code: string) => {
     if (verifying) return
     setVerifying(true)
-    const { error, notice } = await verifyOtp(email, code)
+    const { error, notice } = await verifyOtp(
+      email,
+      code,
+      state.referralReference
+    )
     if (error) {
       toast.error(t(otpErrorKey(error.kind), lang))
       // Con el código caducado o agotado, lo siguiente es pedir otro: ya.

@@ -4,10 +4,10 @@ import { getMyInviteLink } from '../services/invites'
 import { useAppStore } from '../stores/useAppStore'
 import { getCanonicalWebLink, getShareLink } from '../utils/shareUrl'
 
-import type { InvitationKind } from '../types/invitation'
-
 export interface InviteLinkResult {
   link: string | null
+  /** El código del que invita: el mismo que lleva el enlace, para dictarlo. */
+  code: string | null
   loading: boolean
   error: string | null
   reload: () => void
@@ -19,9 +19,11 @@ export interface InviteLinkResult {
  * Costura con Lovable. Con sesión, el código lo emite el servidor
  * (`GET /invites/me/link`) y el enlace es `/i/{código}`, el único que
  * permite atribuir el registro. Sin sesión se comparte el enlace genérico
- * de la app, que no da puntos.
+ * de la app, que no da puntos. Solo se invita a amigos: la invitación a
+ * negocios está apagada en el piloto.
  */
-export function useInviteLink(kind: InvitationKind): InviteLinkResult {
+export function useInviteLink(): InviteLinkResult {
+  const kind = 'person'
   const token = useAppStore((s) => s.token)
   const town = useAppStore((s) => s.town)
   const lang = useAppStore((s) => s.lang)
@@ -57,7 +59,7 @@ export function useInviteLink(kind: InvitationKind): InviteLinkResult {
     return () => {
       cancelled = true
     }
-  }, [token, kind, tick])
+  }, [token, tick])
 
   const link = !token
     ? getShareLink('/home', { town, lang })
@@ -65,5 +67,5 @@ export function useInviteLink(kind: InvitationKind): InviteLinkResult {
       ? getCanonicalWebLink(`/i/${code}`, { town, lang, invite: kind })
       : null
 
-  return { link, loading, error, reload }
+  return { link, code: token ? code : null, loading, error, reload }
 }

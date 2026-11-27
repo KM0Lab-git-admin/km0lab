@@ -1,4 +1,5 @@
-import { t, type Lang, AccountAccessTarget } from '@km0lab/app'
+import type { AccountAccessTarget } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { Button, Input, Label } from '@km0lab/ui'
 import { Lock, Loader2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'

@@ -416,9 +416,9 @@ const D = {
     en: 'Keep earning',
   } as Dict,
   'how_it_works.step4.desc': {
-    ca: 'Aconsegueix més punts participant en esdeveniments, respondent enquestes, completant accions o celebrant moments especials com el teu aniversari.',
-    es: 'Consigue más puntos participando en eventos, respondiendo encuestas, completando acciones o celebrando momentos especiales como tu cumpleaños.',
-    en: 'Earn more points by taking part in events, answering surveys, completing actions or celebrating special moments like your birthday.',
+    ca: 'Aconsegueix més punts escanejant el QR dels comerços adherits i convidant els teus amics.',
+    es: 'Consigue más puntos escaneando el QR de los comercios adheridos e invitando a tus amigos.',
+    en: 'Earn more points by scanning the QR code at participating shops and inviting your friends.',
   } as Dict,
   'how_it_works.step5.title': {
     ca: 'Gaudeix dels teus punts',
@@ -938,57 +938,15 @@ const D = {
     es: 'No hay acciones disponibles.',
     en: 'No actions available.',
   } as Dict,
-
-  'points.actions.type.birthday': {
-    ca: 'Aniversari',
-    es: 'Aniversario',
-    en: 'Birthday',
-  } as Dict,
   'points.actions.type.signup': {
     ca: "Registre en l'app",
     es: 'Registro en la app',
     en: 'App sign-up',
   } as Dict,
-  'points.actions.type.first_scan': {
-    ca: "Primer escaneig d'un comerç",
-    es: 'Primer escaneo de un comercio',
-    en: 'First shop scan',
-  } as Dict,
   'points.actions.type.scan': {
     ca: "Escaneig d'un comerç",
     es: 'Escaneo de un comercio',
     en: 'Shop scan',
-  } as Dict,
-  'points.actions.type.web_visit': {
-    ca: 'Visita web',
-    es: 'Visita web',
-    en: 'Web visit',
-  } as Dict,
-  'points.actions.type.newsletter': {
-    ca: 'Registre web',
-    es: 'Registro web',
-    en: 'Web sign-up',
-  } as Dict,
-  'points.actions.type.event_signup': {
-    ca: 'Inscripció a esdeveniment',
-    es: 'Inscripción a evento',
-    en: 'Event sign-up',
-  } as Dict,
-  'points.actions.type.survey': {
-    ca: 'Enquesta',
-    es: 'Encuesta',
-    en: 'Survey',
-  } as Dict,
-
-  'points.actions.birthday.title': {
-    ca: 'Perquè avui és el teu aniversari!',
-    es: '¡Porque hoy es tu aniversario!',
-    en: "Because it's your birthday!",
-  } as Dict,
-  'points.actions.birthday.description': {
-    ca: 'Perquè avui és el teu aniversari!',
-    es: '¡Porque hoy es tu aniversario!',
-    en: "Because it's your birthday!",
   } as Dict,
   'points.actions.signup.title': {
     ca: "Primer registre a l'app",
@@ -1000,16 +958,6 @@ const D = {
     es: 'Los vecinos reciben un impulso inicial al darse de alta.',
     en: 'Neighbours get an initial boost when signing up.',
   } as Dict,
-  'points.actions.first_scan.title': {
-    ca: "Primer escaneig d'un comerç",
-    es: 'Primer escaneo de un comercio',
-    en: 'First shop scan',
-  } as Dict,
-  'points.actions.first_scan.description': {
-    ca: "Bonificació única la primera vegada que el veí escaneja el QR d'un comerç KM0 LAB.",
-    es: 'Bonificación única la primera vez que el vecino escanea el QR de un comercio KM0 LAB.',
-    en: 'One-time bonus the first time a neighbour scans a KM0 LAB shop QR.',
-  } as Dict,
   'points.actions.scan.title': {
     ca: "Escaneig d'un comerç",
     es: 'Escaneo de un comercio',
@@ -1019,46 +967,6 @@ const D = {
     ca: 'Bonificació en escanejar el QR d’un comerç.',
     es: 'Bonificación al escanear el QR de un comercio.',
     en: 'Bonus for scanning a shop QR code.',
-  } as Dict,
-  'points.actions.web_visit.title': {
-    ca: 'Visita la web de turisme',
-    es: 'Visita la web de turismo',
-    en: 'Visit the tourism website',
-  } as Dict,
-  'points.actions.web_visit.description': {
-    ca: 'Descobreix els punts d’interès del teu municipi.',
-    es: 'Descubre los puntos de interés de tu municipio.',
-    en: 'Discover places of interest in your town.',
-  } as Dict,
-  'points.actions.newsletter.title': {
-    ca: 'Registre al butlletí municipal',
-    es: 'Registro al boletín municipal',
-    en: 'Sign up to the municipal newsletter',
-  } as Dict,
-  'points.actions.newsletter.description': {
-    ca: 'Rep les novetats del teu ajuntament al correu.',
-    es: 'Recibe las novedades de tu ayuntamiento en el correo.',
-    en: 'Get the latest news from your town hall by email.',
-  } as Dict,
-  'points.actions.event_signup.title': {
-    ca: 'Inscripció a la Festa Major',
-    es: 'Inscripción a la Festa Major',
-    en: 'Sign up for the Festa Major',
-  } as Dict,
-  'points.actions.event_signup.description': {
-    ca: 'Inscriu-te a les activitats oficials de la Festa Major.',
-    es: 'Inscríbete a las actividades oficiales de la Festa Major.',
-    en: 'Sign up for official Festa Major activities.',
-  } as Dict,
-  'points.actions.survey.title': {
-    ca: 'Enquesta de satisfacció',
-    es: 'Encuesta de satisfacción',
-    en: 'Satisfaction survey',
-  } as Dict,
-  'points.actions.survey.description': {
-    ca: 'Respon una enquesta breu sobre el programa KM0 LAB.',
-    es: 'Responde una encuesta breve sobre el programa KM0 LAB.',
-    en: 'Answer a short survey about the KM0 LAB programme.',
   } as Dict,
 
   // ── Merchants (Comerços) screen ──────────────────────────
@@ -1605,11 +1513,6 @@ const D = {
     es: 'Fecha de nacimiento',
     en: 'Birth date',
   } as Dict,
-  'profile.birth_date_hint': {
-    ca: 'Rebràs {n} punts pel teu aniversari',
-    es: 'Recibirás {n} puntos por tu cumpleaños',
-    en: 'You will receive {n} points on your birthday',
-  } as Dict,
 
   'profile.error_phone': {
     ca: 'Telèfon no vàlid',
@@ -2057,52 +1960,11 @@ const D = {
     es: 'Invita y gana puntos',
     en: 'Invite and earn points',
   } as Dict,
-  'invite.home.description': {
-    ca: 'Comparteix KM0 Lab amb persones i negocis del teu municipi',
-    es: 'Comparte KM0 Lab con personas y negocios de tu municipio',
-    en: 'Share KM0 Lab with people and businesses in your town',
-  } as Dict,
   'invite.home.cta': { ca: 'Invitar', es: 'Invitar', en: 'Invite' } as Dict,
   'invite.home.note': {
     ca: 'Guanyes punts quan completen el registre amb la teva invitació',
     es: 'Ganas puntos cuando completan el registro con tu invitación',
     en: 'You earn points when they complete registration with your invitation',
-  } as Dict,
-  'invite.person.short': { ca: 'Persona', es: 'Persona', en: 'Person' } as Dict,
-  'invite.business.short': {
-    ca: 'Negoci',
-    es: 'Negocio',
-    en: 'Business',
-  } as Dict,
-  'invite.person.title': {
-    ca: 'Invita una persona',
-    es: 'Invitar a una persona',
-    en: 'Invite a person',
-  } as Dict,
-  'invite.person.description': {
-    ca: 'Els rebràs quan es registri amb la teva invitació',
-    es: 'Los recibirás cuando se registre con tu invitación',
-    en: 'You will receive them when they register with your invitation',
-  } as Dict,
-  'invite.business.title': {
-    ca: 'Invita un negoci',
-    es: 'Invitar a un negocio',
-    en: 'Invite a business',
-  } as Dict,
-  'invite.business.description': {
-    ca: "Els rebràs quan completi l'alta del seu negoci",
-    es: 'Los recibirás cuando complete el alta de su negocio',
-    en: 'You will receive them when they complete their business registration',
-  } as Dict,
-  'invite.share.person_title': {
-    ca: 'La teva invitació per a una persona',
-    es: 'Tu invitación para una persona',
-    en: 'Your invitation for a person',
-  } as Dict,
-  'invite.share.business_title': {
-    ca: 'La teva invitació per a un negoci',
-    es: 'Tu invitación para un negocio',
-    en: 'Your invitation for a business',
   } as Dict,
   'invite.share.explanation': {
     ca: 'Aquest enllaç permet saber que la invitació ve de tu',
@@ -2113,11 +1975,6 @@ const D = {
     ca: "Descobreix el que tens a prop amb KM0 Lab: comerços, activitats i premis al teu municipi. Registra't amb la meva invitació: {link}",
     es: 'Descubre lo que tienes cerca con KM0 Lab: comercios, actividades y premios en tu municipio. Regístrate con mi invitación: {link}',
     en: 'Discover what is near you with KM0 Lab: shops, activities and rewards in your town. Sign up with my invitation: {link}',
-  } as Dict,
-  'invite.share.business_text': {
-    ca: "Tens un negoci? Suma't a KM0 Lab i dona a conèixer el teu establiment al municipi. Registra el teu negoci aquí: {link}",
-    es: '¿Tienes un negocio? Súmate a KM0 Lab y da a conocer tu establecimiento en el municipio. Registra tu negocio aquí: {link}',
-    en: 'Do you own a business? Join KM0 Lab and promote your establishment locally. Register your business here: {link}',
   } as Dict,
   'invite.copied': {
     ca: 'Enllaç copiat',
@@ -2158,16 +2015,6 @@ const D = {
     ca: 'Tornar-ho a provar',
     es: 'Reintentar',
     en: 'Try again',
-  } as Dict,
-  'invite.action.description': {
-    ca: 'Convida persones o negocis i guanya punts quan completin el registre',
-    es: 'Invita a personas o negocios y gana puntos cuando completen el registro',
-    en: 'Invite people or businesses and earn points when they complete registration',
-  } as Dict,
-  'invite.action.type': {
-    ca: 'Invitacions',
-    es: 'Invitaciones',
-    en: 'Invitations',
   } as Dict,
   'share.title': {
     ca: 'Comparteix KM0 Lab',
@@ -2211,34 +2058,14 @@ const D = {
     en: 'Sign in or create your account to get your personal link and earn points when someone registers.',
   } as Dict,
   'invite.home.description_authed': {
-    ca: 'Comparteix KM0 Lab amb altres persones i negocis del municipi',
-    es: 'Comparte KM0 Lab con otras personas y negocios del municipio',
-    en: 'Share KM0 Lab with other people and businesses in your town',
+    ca: 'Comparteix KM0 Lab amb els teus amics del municipi',
+    es: 'Comparte KM0 Lab con tus amigos del municipio',
+    en: 'Share KM0 Lab with your friends in town',
   } as Dict,
   'invite.header.subtitle': {
-    ca: 'Tria a qui vols convidar i com vols enviar la invitació',
-    es: 'Elige a quién quieres invitar y cómo quieres enviar la invitación',
-    en: 'Choose who you want to invite and how to send the invitation',
-  } as Dict,
-  'invite.select.person': {
-    ca: 'Una persona',
-    es: 'Una persona',
-    en: 'A person',
-  } as Dict,
-  'invite.select.business': {
-    ca: 'Un negoci',
-    es: 'Un negocio',
-    en: 'A business',
-  } as Dict,
-  'invite.explain.person': {
-    ca: 'Guanyaràs {points} punts quan una persona nova completi el registre amb la teva invitació',
-    es: 'Ganarás {points} puntos cuando una persona nueva complete el registro con tu invitación',
-    en: 'You will earn {points} points when a new person completes registration with your invitation',
-  } as Dict,
-  'invite.explain.business': {
-    ca: "Guanyaràs {points} punts quan un negoci nou completi el formulari d'alta amb la teva invitació",
-    es: 'Ganarás {points} puntos cuando un negocio nuevo complete el formulario de alta con tu invitación',
-    en: 'You will earn {points} points when a new business completes the registration form with your invitation',
+    ca: 'Convida els teus amics i tria com vols enviar la invitació',
+    es: 'Invita a tus amigos y elige cómo enviar la invitación',
+    en: 'Invite your friends and choose how to send the invitation',
   } as Dict,
   'invite.channels.title': {
     ca: 'Com vols enviar la invitació?',
@@ -2528,31 +2355,10 @@ const D = {
     en: 'Registrations linked to your invitations',
   } as Dict,
   'invites.cta': { ca: 'Invitar', es: 'Invitar', en: 'Invite' } as Dict,
-  'invites.summary.persons': {
-    ca: 'Persones registrades',
-    es: 'Personas registradas',
-    en: 'People registered',
-  } as Dict,
-  'invites.summary.businesses': {
-    ca: 'Negocis registrats',
-    es: 'Negocios registrados',
-    en: 'Businesses registered',
-  } as Dict,
   'invites.summary.points': {
     ca: 'Punts guanyats',
     es: 'Puntos ganados',
     en: 'Points earned',
-  } as Dict,
-  'invites.filter.all': { ca: 'Totes', es: 'Todas', en: 'All' } as Dict,
-  'invites.filter.persons': {
-    ca: 'Persones',
-    es: 'Personas',
-    en: 'People',
-  } as Dict,
-  'invites.filter.businesses': {
-    ca: 'Negocis',
-    es: 'Negocios',
-    en: 'Businesses',
   } as Dict,
   'invites.status.started': {
     ca: 'Registre iniciat',
@@ -2573,11 +2379,6 @@ const D = {
     ca: 'Persona convidada',
     es: 'Persona invitada',
     en: 'Invited person',
-  } as Dict,
-  'invites.row.business': {
-    ca: 'Negoci convidat',
-    es: 'Negocio invitado',
-    en: 'Invited business',
   } as Dict,
   'invites.milestone.started': {
     ca: 'Registre iniciat',
@@ -2624,16 +2425,6 @@ const D = {
     es: 'Compartir un enlace no confirma que se haya enviado ni que alguien se haya registrado.',
     en: 'Sharing a link does not confirm it was sent or that anyone registered.',
   } as Dict,
-  'invites.filter_empty.title': {
-    ca: 'Cap registre amb aquest filtre',
-    es: 'Ningún registro con este filtro',
-    en: 'No registrations with this filter',
-  } as Dict,
-  'invites.filter_empty.description': {
-    ca: 'Prova amb «Totes» per veure tots els registres.',
-    es: 'Prueba con «Todas» para ver todos los registros.',
-    en: 'Try “All” to see every registration.',
-  } as Dict,
   'invites.error.title': {
     ca: 'No hem pogut carregar les teves invitacions',
     es: 'No hemos podido cargar tus invitaciones',
@@ -2648,32 +2439,6 @@ const D = {
     ca: 'Tornar-ho a provar',
     es: 'Reintentar',
     en: 'Try again',
-  } as Dict,
-  'invites.compact.person.one': {
-    ca: '{count} persona registrada',
-    es: '{count} persona registrada',
-    en: '{count} person registered',
-  } as Dict,
-  'invites.compact.person.other': {
-    ca: '{count} persones registrades',
-    es: '{count} personas registradas',
-    en: '{count} people registered',
-  } as Dict,
-  'invites.compact.business.one': {
-    ca: '{count} negoci registrat',
-    es: '{count} negocio registrado',
-    en: '{count} business registered',
-  } as Dict,
-  'invites.compact.business.other': {
-    ca: '{count} negocis registrats',
-    es: '{count} negocios registrados',
-    en: '{count} businesses registered',
-  } as Dict,
-  'invites.compact.and': { ca: 'i', es: 'y', en: 'and' } as Dict,
-  'invites.compact.points': {
-    ca: 'punts guanyats',
-    es: 'puntos ganados',
-    en: 'points earned',
   } as Dict,
   'invites.points.title': {
     ca: 'Punts per invitacions',
@@ -2844,6 +2609,158 @@ const D = {
     en: 'Loading towns…',
   } as Dict,
   'demo.retry': { ca: 'Reintentar', es: 'Reintentar', en: 'Retry' } as Dict,
+  // ── Invite a friend (pilot) ───────────────────────────────
+  'invite.friend.badge': {
+    ca: '+{points} punts per amic',
+    es: '+{points} puntos por amigo',
+    en: '+{points} points per friend',
+  } as Dict,
+  'invite.friend.progress': {
+    ca: 'Els teus amics premiats: {count} de {limit}',
+    es: 'Tus amigos premiados: {count} de {limit}',
+    en: 'Friends rewarded: {count} of {limit}',
+  } as Dict,
+  'invite.friend.in_progress.one': {
+    ca: '{count} amic amb el registre en curs',
+    es: '{count} amigo con el registro en curso',
+    en: '{count} friend still signing up',
+  } as Dict,
+  'invite.friend.in_progress.other': {
+    ca: '{count} amics amb el registre en curs',
+    es: '{count} amigos con el registro en curso',
+    en: '{count} friends still signing up',
+  } as Dict,
+  'invite.friend.limit_reached.one': {
+    ca: 'Has arribat al màxim de {limit} amic premiat',
+    es: 'Has llegado al máximo de {limit} amigo premiado',
+    en: 'You have reached the limit of {limit} rewarded friend',
+  } as Dict,
+  'invite.friend.limit_reached.other': {
+    ca: 'Has arribat al màxim de {limit} amics premiats',
+    es: 'Has llegado al máximo de {limit} amigos premiados',
+    en: 'You have reached the limit of {limit} rewarded friends',
+  } as Dict,
+  'invite.friend.limit_reached_note': {
+    ca: 'Pots continuar compartint l’app, però els nous amics ja no sumen punts.',
+    es: 'Puedes seguir compartiendo la App, pero los nuevos amigos ya no suman puntos.',
+    en: 'You can keep sharing the app, but new friends no longer earn points.',
+  } as Dict,
+  'invite.friend.no_points': {
+    ca: 'Pots compartir l’app amb els teus amics, però amb la teva invitació ja no es guanyen punts per convidar.',
+    es: 'Puedes compartir la App con tus amigos, pero con tu invitación ya no se ganan puntos por invitar.',
+    en: 'You can share the app with friends, but with your invitation inviting no longer earns points.',
+  } as Dict,
+  'invite.friend.how.one': {
+    ca: 'Guanyes {points} punts per cada amic que completi el registre, fins a {limit} amic. Els punts arriben quan el teu amic acaba de registrar-se, no en compartir l’enllaç.',
+    es: 'Ganas {points} puntos por cada amigo que complete su registro, hasta {limit} amigo. Los puntos llegan cuando tu amigo termina de registrarse, no al compartir el enlace.',
+    en: 'You earn {points} points for each friend who completes sign-up, up to {limit} friend. Points arrive when your friend finishes signing up, not when you share the link.',
+  } as Dict,
+  'invite.friend.how.other': {
+    ca: 'Guanyes {points} punts per cada amic que completi el registre, fins a {limit} amics. Els punts arriben quan el teu amic acaba de registrar-se, no en compartir l’enllaç.',
+    es: 'Ganas {points} puntos por cada amigo que complete su registro, hasta {limit} amigos. Los puntos llegan cuando tu amigo termina de registrarse, no al compartir el enlace.',
+    en: 'You earn {points} points for each friend who completes sign-up, up to {limit} friends. Points arrive when your friend finishes signing up, not when you share the link.',
+  } as Dict,
+  'invite.code.title': {
+    ca: 'El teu codi',
+    es: 'Tu código',
+    en: 'Your code',
+  } as Dict,
+  'invite.code.copy': { ca: 'Copiar', es: 'Copiar', en: 'Copy' } as Dict,
+  'invite.code.copied': {
+    ca: 'Codi copiat',
+    es: 'Código copiado',
+    en: 'Code copied',
+  } as Dict,
+  'invite.code.copy_failed': {
+    ca: 'No s’ha pogut copiar. Selecciona el codi i copia’l manualment.',
+    es: 'No se ha podido copiar. Selecciona el código y cópialo manualmente.',
+    en: 'Could not copy. Select the code and copy it manually.',
+  } as Dict,
+  'invite.code.help': {
+    ca: 'Si el teu amic no arriba per l’enllaç, que escrigui aquest codi en registrar-se.',
+    es: 'Si tu amigo no llega por el enlace, que escriba este código al registrarse.',
+    en: 'If your friend doesn’t arrive through the link, they can type this code when signing up.',
+  } as Dict,
+  'invites.summary.friends': {
+    ca: 'Amics premiats',
+    es: 'Amigos premiados',
+    en: 'Friends rewarded',
+  } as Dict,
+  'invites.summary.pending': {
+    ca: 'Punts pendents',
+    es: 'Puntos pendientes',
+    en: 'Pending points',
+  } as Dict,
+  'invites.summary.of_limit': {
+    ca: '{count} de {limit}',
+    es: '{count} de {limit}',
+    en: '{count} of {limit}',
+  } as Dict,
+  'invites.compact.friends.one': {
+    ca: '{count} de {limit} amic premiat',
+    es: '{count} de {limit} amigo premiado',
+    en: '{count} of {limit} friend rewarded',
+  } as Dict,
+  'invites.compact.friends.other': {
+    ca: '{count} de {limit} amics premiats',
+    es: '{count} de {limit} amigos premiados',
+    en: '{count} of {limit} friends rewarded',
+  } as Dict,
+  'invites.compact.points_only': {
+    ca: '{points} punts',
+    es: '{points} puntos',
+    en: '{points} points',
+  } as Dict,
+  'points.actions.type.invite_friend': {
+    ca: 'Invitació',
+    es: 'Invitación',
+    en: 'Invitation',
+  } as Dict,
+  'points.actions.invite_friend.title': {
+    ca: 'Convida un amic',
+    es: 'Invita a un amigo',
+    en: 'Invite a friend',
+  } as Dict,
+  'points.actions.invite_friend.description': {
+    ca: 'Guanyes punts quan el teu amic completa el registre.',
+    es: 'Ganas puntos cuando tu amigo completa su registro.',
+    en: 'You earn points when your friend completes sign-up.',
+  } as Dict,
+  'points.actions.invite_friend.progress': {
+    ca: '{count} de {limit}',
+    es: '{count} de {limit}',
+    en: '{count} of {limit}',
+  } as Dict,
+  'points.actions.invite_friend.no_points': {
+    ca: 'No suma punts en el teu cas',
+    es: 'No suma puntos en tu caso',
+    en: 'Doesn’t earn points in your case',
+  } as Dict,
+  'pilot.full.title': {
+    ca: 'El pilot està complet',
+    es: 'El piloto está completo',
+    en: 'The pilot is full',
+  } as Dict,
+  'pilot.full.description': {
+    ca: 'Ara mateix no admetem més comptes. Pots seguir mirant l’app sense compte.',
+    es: 'Ahora mismo no admitimos más cuentas. Puedes seguir mirando la App sin cuenta.',
+    en: 'We’re not accepting more accounts right now. You can keep browsing the app without an account.',
+  } as Dict,
+  'pilot.full.explore': {
+    ca: 'Explorar l’app',
+    es: 'Explorar la App',
+    en: 'Explore the app',
+  } as Dict,
+  'login.invite.toggle': {
+    ca: 'T’ha convidat algú?',
+    es: '¿Te ha invitado alguien?',
+    en: 'Did someone invite you?',
+  } as Dict,
+  'login.invite.label': {
+    ca: 'Codi d’invitació',
+    es: 'Código de invitación',
+    en: 'Invitation code',
+  } as Dict,
 } as const
 
 export type TKey = keyof typeof D

@@ -14,7 +14,9 @@ import { toast } from 'sonner'
 import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import InviteCodeField from '@/components/InviteCodeField'
 import { LegalLine } from '@/components/LegalText'
+import PilotFullNotice from '@/components/PilotFullNotice'
 import { useLang } from '@/contexts/LangContext'
 
 /**
@@ -38,6 +40,13 @@ const Login = () => {
   const [submitting, setSubmitting] = useState(false)
   // Casilla de Legal: desmarcada y obligatoria. Sin ella no se pide código.
   const [accepted, setAccepted] = useState(false)
+  // Código de invitación (encargo 13 de Lovable). Llega con el enlace o lo
+  // escribe la persona: una app recién instalada no recibe el enlace. El
+  // escrito gana al del enlace; si vale o no lo decide el servidor.
+  const linkInviteCode = currentInviteCode() ?? searchParams.get('ref')
+  const [inviteCode, setInviteCode] = useState(linkInviteCode ?? '')
+  // El municipio ya no admite más cuentas: en vez del formulario, el aviso.
+  const [pilotFull, setPilotFull] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -51,13 +60,19 @@ const Login = () => {
     }
 
     setSubmitting(true)
-    const inviteCode =
-      currentInviteCode() ?? searchParams.get('ref') ?? undefined
+    const referralReference =
+      inviteCode.trim().toLowerCase() || linkInviteCode || undefined
     const { error } = await requestOtp(email.trim(), {
       postal_code: postalCode,
       town,
-      invite_code: inviteCode,
+      invite_code: referralReference,
     })
+
+    if (error?.kind === 'pilot_full') {
+      setPilotFull(true)
+      setSubmitting(false)
+      return
+    }
 
     if (error) {
       // El motivo, en el idioma del vecino; el texto crudo del servidor
@@ -88,8 +103,29 @@ const Login = () => {
         email: email.trim(),
         mode: 'login',
         returnTo,
+        referralReference,
       },
     })
+  }
+
+  if (pilotFull) {
+    return (
+      <BrandedFrame
+        onBack={() => navigate(-1)}
+        backAriaLabel={t('common.back', lang)}
+      >
+        <div className="min-h-full flex flex-col justify-center">
+          <PilotFullNotice
+            title={t('pilot.full.title', lang)}
+            description={t('pilot.full.description', lang)}
+            exploreLabel={t('pilot.full.explore', lang)}
+            backLabel={t('common.back', lang)}
+            onExplore={() => navigate('/home')}
+            onBack={() => navigate(-1)}
+          />
+        </div>
+      </BrandedFrame>
+    )
   }
 
   return (
@@ -132,6 +168,14 @@ const Login = () => {
               autoComplete="email"
               inputMode="email"
               className="h-12 px-4 rounded-xl border-2 border-km0-blue-700/20 bg-background font-body text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-km0-blue-700 transition-colors"
+            />
+
+            <InviteCodeField
+              value={inviteCode}
+              onChange={setInviteCode}
+              initiallyOpen={Boolean(linkInviteCode)}
+              toggleLabel={t('login.invite.toggle', lang)}
+              label={t('login.invite.label', lang)}
             />
 
             <label className="flex items-start gap-2.5 text-left font-body text-sm text-foreground">

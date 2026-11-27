@@ -1,4 +1,3 @@
-import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 import {
   useDragScroll,
   useNotificationsPanel,
@@ -22,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 
 import HomeHero from '@/components/HomeHero'
 import NotificationsOverlay from '@/components/NotificationsOverlay'

@@ -3,22 +3,24 @@ import {
   useDragScroll,
   useAuth,
   useInviteLink,
+  useInvitations,
+  getFriendProgress,
   useInviteRewards,
   t,
+  tf,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
+import { Button, Progress } from '@km0lab/ui'
 import {
   AlertCircle,
-  Building2,
   ChevronLeft,
+  Copy,
+  Info,
   Loader2,
   RefreshCw,
-  UserRound,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-
-import type { InvitationKind } from '@km0lab/app'
+import { toast } from 'sonner'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import ShareChannelList from '@/components/ShareChannelList'
@@ -28,6 +30,8 @@ import { cn } from '@/lib/utils'
 /** Identificador de la demo: `/home-registered` fuerza el estado registrado
  *  sin sesión real (misma convención que RequireAuth y las otras pantallas). */
 const PREVIEW_USER_ID = 'preview-user'
+/** Above this many rewarded friends the bar becomes continuous. */
+const MAX_SEGMENTS = 10
 
 const Invite = () => {
   const navigate = useNavigate()
@@ -37,13 +41,18 @@ const Invite = () => {
   const { user, loading } = useAuth()
   const { lang } = useLang()
   const { town } = useLocationContext()
-  const [kind, setKind] = useState<InvitationKind>('person')
   const {
     link: inviteLink,
+    code,
     loading: linkLoading,
     error: linkError,
     reload,
-  } = useInviteLink(kind)
+  } = useInviteLink()
+  const { records, summary, loading: invitationsLoading } = useInvitations()
+  const progress = getFriendProgress(summary)
+  const inProgressCount = records.filter(
+    (record) => record.status === 'started'
+  ).length
   const link = inviteLink ?? ''
   const forcedState = searchParams.get('state')
 
@@ -63,12 +72,7 @@ const Invite = () => {
   const townLabel = town ?? t('share.town_fallback', lang)
 
   const message = isAuthed
-    ? t(
-        kind === 'person'
-          ? 'invite.share.person_text'
-          : 'invite.share.business_text',
-        lang
-      ).replace('{link}', link)
+    ? t('invite.share.person_text', lang).replace('{link}', link)
     : t('share.message', lang)
         .replace('{town}', townLabel)
         .replace('{link}', link)
@@ -123,56 +127,142 @@ const Invite = () => {
     </section>
   )
 
+  const copyCode = async () => {
+    if (!code) return
+    try {
+      await navigator.clipboard.writeText(code)
+      toast.success(t('invite.code.copied', lang))
+    } catch {
+      toast.error(t('invite.code.copy_failed', lang))
+    }
+  }
+
+  const renderProgressBar = () =>
+    progress.limit <= MAX_SEGMENTS ? (
+      <div className="mt-2 flex gap-1" aria-hidden>
+        {Array.from({ length: progress.limit }, (_, index) => (
+          <span
+            key={index}
+            className={cn(
+              'h-2 flex-1 rounded-full',
+              index < progress.count ? 'bg-km0-teal-600' : 'bg-km0-blue-100'
+            )}
+          />
+        ))}
+      </div>
+    ) : (
+      <Progress
+        value={(progress.count / progress.limit) * 100}
+        className="mt-2 h-2 bg-km0-blue-100"
+        aria-hidden
+      />
+    )
+
+  const renderStatus = () => {
+    if (!progress.rewarding) {
+      return (
+        <p
+          role="note"
+          className="flex items-start gap-2 rounded-xl bg-km0-yellow-100 px-3 py-3 font-body text-sm leading-snug text-km0-blue-900"
+        >
+          <Info aria-hidden size={16} className="mt-0.5 shrink-0" />
+          {t('invite.friend.no_points', lang)}
+        </p>
+      )
+    }
+    return (
+      <>
+        <section
+          className="rounded-2xl border border-km0-blue-100 bg-card p-3"
+          data-testid="invite-friend-status"
+        >
+          <p className="font-ui text-sm font-bold text-km0-blue-900">
+            {progress.reached
+              ? tf(
+                  progress.limit === 1
+                    ? 'invite.friend.limit_reached.one'
+                    : 'invite.friend.limit_reached.other',
+                  lang,
+                  { limit: progress.limit }
+                )
+              : tf('invite.friend.progress', lang, {
+                  count: progress.count,
+                  limit: progress.limit,
+                })}
+          </p>
+          {renderProgressBar()}
+          {inProgressCount > 0 ? (
+            <p className="mt-2 font-body text-xs text-km0-blue-800/65">
+              {tf(
+                inProgressCount === 1
+                  ? 'invite.friend.in_progress.one'
+                  : 'invite.friend.in_progress.other',
+                lang,
+                { count: inProgressCount }
+              )}
+            </p>
+          ) : null}
+          {progress.reached ? (
+            <p className="mt-2 font-body text-xs text-km0-blue-800/80">
+              {t('invite.friend.limit_reached_note', lang)}
+            </p>
+          ) : null}
+        </section>
+        <p className="rounded-xl bg-km0-beige-100 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
+          {tf(
+            progress.limit === 1
+              ? 'invite.friend.how.one'
+              : 'invite.friend.how.other',
+            lang,
+            {
+              points: inviteRewards.person,
+              limit: progress.limit,
+            }
+          )}
+        </p>
+      </>
+    )
+  }
+
+  const renderCode = () =>
+    code ? (
+      <section>
+        <h2 className="font-ui text-sm font-bold text-km0-blue-900">
+          {t('invite.code.title', lang)}
+        </h2>
+        <div className="mt-2 flex items-center gap-2 rounded-2xl border border-km0-blue-100 bg-card p-2 pl-3">
+          <span
+            className="min-w-0 flex-1 truncate font-ui text-base font-black tracking-wide text-km0-blue-900"
+            data-testid="invite-code"
+          >
+            {code}
+          </span>
+          <Button
+            type="button"
+            variant="bubbleSecondary"
+            size="sm"
+            onClick={copyCode}
+            className="shrink-0"
+          >
+            <Copy aria-hidden />
+            {t('invite.code.copy', lang)}
+          </Button>
+        </div>
+        <p className="mt-1.5 font-body text-xs leading-snug text-km0-blue-800/65">
+          {t('invite.code.help', lang)}
+        </p>
+      </section>
+    ) : null
+
   const renderAuthed = () => (
     <div className="flex flex-col gap-6">
-      <div
-        className="grid grid-cols-1 gap-3"
-        role="radiogroup"
-        aria-label={t('invite.home.title', lang)}
-      >
-        {(['person', 'business'] as const).map((option) => {
-          const selected = kind === option
-          const Icon = option === 'person' ? UserRound : Building2
-          return (
-            <Button
-              key={option}
-              type="button"
-              variant="outline"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => setKind(option)}
-              className={cn(
-                'flex h-auto w-full items-center gap-3 whitespace-normal rounded-2xl border-2 bg-card p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                selected ? 'border-km0-yellow-400' : 'border-km0-blue-100'
-              )}
-            >
-              <span
-                className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                  selected
-                    ? 'bg-km0-yellow-100 text-km0-blue-900'
-                    : 'bg-km0-blue-50 text-km0-blue-700'
-                )}
-              >
-                <Icon aria-hidden size={20} />
-              </span>
-              <span className="min-w-0 flex-1 font-ui text-sm font-bold text-km0-blue-900">
-                {t(`invite.select.${option}`, lang)}
-              </span>
-              <span className="shrink-0 rounded-full bg-km0-teal-100 px-2 py-1 font-ui text-xs font-black text-km0-teal-700">
-                +{inviteRewards[option]} {t('common.points', lang)}
-              </span>
-            </Button>
-          )
-        })}
-      </div>
+      {progress.rewarding ? (
+        <p className="self-start rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-black text-km0-teal-700">
+          {tf('invite.friend.badge', lang, { points: inviteRewards.person })}
+        </p>
+      ) : null}
 
-      <p className="rounded-xl bg-km0-beige-100 px-3 py-3 font-body text-xs leading-snug text-km0-blue-800/80">
-        {t(`invite.explain.${kind}`, lang).replace(
-          '{points}',
-          String(inviteRewards[kind])
-        )}
-      </p>
+      {renderStatus()}
 
       <section>
         <h2 className="font-ui text-sm font-bold text-km0-blue-900">
@@ -182,6 +272,8 @@ const Invite = () => {
           <ShareChannelList link={link} message={message} subject={subject} />
         </div>
       </section>
+
+      {renderCode()}
 
       <Button
         variant="bubbleSurface"
@@ -233,7 +325,12 @@ const Invite = () => {
   )
 
   const renderMain = () => {
-    if (loading || linkLoading || forcedState === 'loading')
+    if (
+      loading ||
+      linkLoading ||
+      (isAuthed && invitationsLoading) ||
+      forcedState === 'loading'
+    )
       return renderLoading()
     if (linkError || forcedState === 'error')
       return renderError('invite.error.title')
