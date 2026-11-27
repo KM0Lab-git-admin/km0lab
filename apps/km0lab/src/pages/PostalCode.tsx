@@ -2,8 +2,8 @@ import {
   DEMO_POSTAL_CODE,
   DEMO_TOWN_NAME,
   isDemoPostalCode,
+  leaveDemo,
   lookupTown,
-  sideNoticeFor,
   t,
   updateProfile,
   useAppStore,
@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import postalCodeMapAsset from '@/assets/postal-code-map.png.asset.json'
 import BrandedFrame from '@/components/BrandedFrame'
 import BubbleSheet from '@/components/BubbleSheet'
+import LeaveDemoSheet from '@/components/LeaveDemoSheet'
 import TownArt from '@/components/TownArt'
 import TownChoiceList from '@/components/TownChoiceList'
 import { TownTag } from '@/components/TownTag'
@@ -49,6 +50,12 @@ const PostalCode = () => {
   const [selectedChoice, setSelectedChoice] = useState<TownChoice | null>(null)
   const [frame, setFrame] = useState<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // Cuenta de demostración que teclea un pueblo real: se pregunta antes.
+  const [leaving, setLeaving] = useState<{
+    town: string
+    postalCode: string
+  } | null>(null)
+  const [leaveBusy, setLeaveBusy] = useState(false)
   // Se pide al abrir la pantalla: al teclear el código la lista ya está.
   const townChoices = useTownChoices()
 
@@ -164,31 +171,44 @@ const PostalCode = () => {
     }
   }
 
-  const handleSubmit = async () => {
-    if (!isComplete || !cityName) return
-    // Con sesión abierta el pueblo es de la cuenta: se cambia en el
-    // servidor, que es quien decide (salir de la demostración deja el
-    // saldo a cero) y la app sigue lo que conteste.
-    const account = accountLocation()
-    const session = useAppStore.getState().session
-    if (session && account && account.postalCode !== value) {
-      await updateProfile(session.user.id, { postal_code: value })
-      const now = accountLocation()
-      const notice = sideNoticeFor(
-        { accountPostalCode: account.postalCode, appPostalCode: value },
-        { postalCode: now?.postalCode ?? null, town: now?.town ?? cityName }
-      )
-      if (notice?.kind === 'left_demo') {
-        toast.info(
-          t('demo.notice.left_demo', lang).replace('{town}', notice.town),
-          { duration: 12000 }
-        )
-      }
-    }
+  const enterTown = (postalCode: string, town: string) => {
     // Zustand es la máquina de setup de producción. RequireSetup lee
     // postalCode del store, no las claves sueltas de Lovable.
     setShowcase(null)
-    setLocation(value, cityName)
+    setLocation(postalCode, town)
+    navigate('/home')
+  }
+
+  const handleSubmit = async () => {
+    if (!isComplete || !cityName) return
+    // Con sesión abierta el pueblo es de la cuenta y lo decide el servidor.
+    const account = accountLocation()
+    const session = useAppStore.getState().session
+    if (session && account && account.postalCode !== value) {
+      // Una cuenta de demostración no pasa a un pueblo real sin preguntar.
+      if (isDemoPostalCode(account.postalCode)) {
+        setLeaving({ town: cityName, postalCode: value })
+        return
+      }
+      await updateProfile(session.user.id, { postal_code: value })
+    }
+    enterTown(value, cityName)
+  }
+
+  const confirmLeaveDemo = async () => {
+    if (!leaving) return
+    setLeaveBusy(true)
+    const moved = await leaveDemo(leaving.postalCode)
+    setLeaveBusy(false)
+    if (!moved) {
+      toast.error(t('demo.leave.failed', lang))
+      return
+    }
+    toast.info(
+      t('demo.notice.left_demo', lang).replace('{town}', leaving.town),
+      { duration: 12000 }
+    )
+    setLeaving(null)
     navigate('/home')
   }
 
@@ -417,6 +437,15 @@ const PostalCode = () => {
           lang={lang}
         />
       </BubbleSheet>
+      <LeaveDemoSheet
+        open={leaving !== null}
+        town={leaving?.town ?? ''}
+        busy={leaveBusy}
+        onConfirm={confirmLeaveDemo}
+        onStay={() => setLeaving(null)}
+        lang={lang}
+        container={frame}
+      />
     </BrandedFrame>
   )
 }

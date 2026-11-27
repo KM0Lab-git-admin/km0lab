@@ -2,6 +2,7 @@ import {
   clearPendingReward,
   isFixedOtpEmail,
   isPendingScanFresh,
+  leaveDemo,
   otpErrorKey,
   readPendingReward,
   requestOtp,
@@ -25,6 +26,7 @@ import { toast } from 'sonner'
 import type { KeyboardEvent, ClipboardEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import LeaveDemoSheet from '@/components/LeaveDemoSheet'
 import { useLang } from '@/contexts/LangContext'
 
 const RESEND_COOLDOWN_SECONDS = 30
@@ -52,6 +54,12 @@ const CheckEmail = () => {
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS)
   const [resending, setResending] = useState(false)
   const [verifying, setVerifying] = useState(false)
+  const [leaving, setLeaving] = useState<{
+    town: string
+    postalCode: string
+  } | null>(null)
+  const [leaveBusy, setLeaveBusy] = useState(false)
+  const [frame, setFrame] = useState<HTMLDivElement | null>(null)
   const inputsRef = useRef<Array<HTMLInputElement | null>>([])
 
   useEffect(() => {
@@ -82,14 +90,24 @@ const CheckEmail = () => {
       return
     }
     toast.success(t('otp.welcome', lang))
-    // La cuenta no cruza entre la demostración y un pueblo real: si al
-    // entrar ha quedado en otro sitio del que se veía, se dice.
-    if (notice) {
+    // La cuenta no cruza sola entre la demostración y un pueblo real.
+    if (notice?.kind === 'account_is_real') {
       toast.info(
-        t(`demo.notice.${notice.kind}`, lang).replace('{town}', notice.town),
+        t('demo.notice.account_is_real', lang).replace('{town}', notice.town),
         { duration: 12000 }
       )
     }
+    if (notice?.kind === 'confirm_leave_demo') {
+      // Se entró desde un pueblo real con una cuenta de demostración: se
+      // pregunta, y hasta que conteste no se sigue.
+      setLeaving({ town: notice.town, postalCode: notice.postalCode })
+      return
+    }
+    finishLogin()
+  }
+
+  /** Lo que sigue a entrar: a la visita pendiente, a donde iba, o a Inicio. */
+  const finishLogin = () => {
     // El aviso de puntos de bienvenida solo sale si el servidor acaba de
     // abonarlos (un alta). Entrar con una cuenta que ya existía no lo abre.
     const rewarded = readPendingReward() !== null
@@ -108,6 +126,29 @@ const CheckEmail = () => {
           ? '/home?welcome=1'
           : '/home')
     navigate(safeReturnTo, { replace: true })
+  }
+
+  const confirmLeaveDemo = async () => {
+    if (!leaving) return
+    setLeaveBusy(true)
+    const moved = await leaveDemo(leaving.postalCode)
+    setLeaveBusy(false)
+    if (!moved) {
+      toast.error(t('demo.leave.failed', lang))
+      return
+    }
+    toast.info(
+      t('demo.notice.left_demo', lang).replace('{town}', leaving.town),
+      { duration: 12000 }
+    )
+    setLeaving(null)
+    finishLogin()
+  }
+
+  const stayInDemo = () => {
+    // El acceso ya dejó la app donde está la cuenta: en la demostración.
+    setLeaving(null)
+    finishLogin()
   }
 
   const handleChange = (idx: number, value: string) => {
@@ -173,6 +214,7 @@ const CheckEmail = () => {
     <BrandedFrame
       onBack={() => navigate(-1)}
       backAriaLabel={t('common.back', lang)}
+      frameRef={setFrame}
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -237,6 +279,15 @@ const CheckEmail = () => {
           {t('otp.footer_hint', lang)}
         </p>
       </motion.div>
+      <LeaveDemoSheet
+        open={leaving !== null}
+        town={leaving?.town ?? ''}
+        busy={leaveBusy}
+        onConfirm={confirmLeaveDemo}
+        onStay={stayInDemo}
+        lang={lang}
+        container={frame}
+      />
     </BrandedFrame>
   )
 }

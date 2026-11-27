@@ -96,45 +96,34 @@ describe('agenda y noticias de la demostración', () => {
   })
 })
 
-describe('una cuenta no cambia de lado sin que se diga', () => {
-  it('cuenta de un pueblo real que entra estando en la demostración', () => {
-    expect(
-      sideNoticeFor(
-        { accountPostalCode: '08380', appPostalCode: '00000' },
-        { postalCode: '08380', town: 'Malgrat de Mar' }
-      )
-    ).toEqual({ kind: 'account_is_real', town: 'Malgrat de Mar' })
+describe('la cuenta y la app en lados distintos', () => {
+  const demo = { postalCode: '00000', town: 'Demo KM0' }
+  const malgrat = { postalCode: '08380', town: 'Malgrat de Mar' }
+
+  it('app en la demo, cuenta de un pueblo real: la cuenta se queda y se avisa', () => {
+    expect(sideNoticeFor(demo, malgrat)).toEqual({
+      kind: 'account_is_real',
+      town: 'Malgrat de Mar',
+    })
   })
 
-  it('cuenta de demostración que entra desde un pueblo real: sale de la demo', () => {
-    expect(
-      sideNoticeFor(
-        { accountPostalCode: '00000', appPostalCode: '08380' },
-        { postalCode: '08380', town: 'Malgrat de Mar' }
-      )
-    ).toEqual({ kind: 'left_demo', town: 'Malgrat de Mar' })
+  it('app en un pueblo real, cuenta de demo: no se mueve, se pregunta', () => {
+    expect(sideNoticeFor(malgrat, demo)).toEqual({
+      kind: 'confirm_leave_demo',
+      town: 'Malgrat de Mar',
+      postalCode: '08380',
+    })
   })
 
   it('lo normal no avisa de nada', () => {
-    // Demo con cuenta de demo.
+    expect(sideNoticeFor(demo, demo)).toBeUndefined()
+    expect(sideNoticeFor(malgrat, malgrat)).toBeUndefined()
+    // Cuenta recién creada sin pueblo todavía, o app sin código postal.
     expect(
-      sideNoticeFor(
-        { accountPostalCode: '00000', appPostalCode: '00000' },
-        { postalCode: '00000', town: 'Demo KM0' }
-      )
-    ).toBeUndefined()
-    // Vecino real en su pueblo, y cuenta nueva que nace en un pueblo real.
-    expect(
-      sideNoticeFor(
-        { accountPostalCode: '08380', appPostalCode: '08380' },
-        { postalCode: '08380', town: 'Malgrat de Mar' }
-      )
+      sideNoticeFor(malgrat, { postalCode: null, town: null })
     ).toBeUndefined()
     expect(
-      sideNoticeFor(
-        { accountPostalCode: null, appPostalCode: '08380' },
-        { postalCode: '08380', town: 'Malgrat de Mar' }
-      )
+      sideNoticeFor({ postalCode: null, town: null }, demo)
     ).toBeUndefined()
   })
 })

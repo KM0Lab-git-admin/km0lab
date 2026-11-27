@@ -43,34 +43,68 @@ export type OtpErrorKind =
 type Result = { error: { message: string; kind: OtpErrorKind } | null }
 
 /**
- * Lo que pasó con la cuenta al entrar, cuando no es lo que la persona
- * esperaba. Una cuenta no cruza entre la demostración y un pueblo real con
- * sus puntos (lo decide el servidor):
- * - `account_is_real`: entró estando en la demostración con una cuenta de
- *   un pueblo real. La cuenta se queda en su pueblo y la app la lleva allí.
- * - `left_demo`: entró desde un pueblo real con una cuenta de demostración.
- *   Pasa a ser vecina de ese pueblo, con el saldo a cero.
+ * Cuando la cuenta y la app no están en el mismo lado. Una cuenta no cruza
+ * sola entre la demostración y un pueblo real (lo decide el servidor):
+ * - `account_is_real`: se entró estando en la demostración con una cuenta
+ *   de un pueblo real. La cuenta se queda en su pueblo y la app va allí.
+ * - `confirm_leave_demo`: se entró desde un pueblo real con una cuenta de
+ *   demostración. No se mueve: hay que preguntar, y solo con el sí pasa a
+ *   ser la cuenta de vecino de ese pueblo (`leaveDemo`).
  */
-export type SideNotice = {
-  kind: 'account_is_real' | 'left_demo'
-  town: string
-}
+export type SideNotice =
+  | { kind: 'account_is_real'; town: string }
+  | { kind: 'confirm_leave_demo'; town: string; postalCode: string }
 type VerifyResult = Result & { notice?: SideNotice }
 
-/** Compara dónde estaba la cuenta y la app con dónde ha quedado la cuenta. */
+type Place = { postalCode: string | null; town: string | null }
+
+/** Compara dónde está la app con dónde está la cuenta según el servidor. */
 export const sideNoticeFor = (
-  before: { accountPostalCode: string | null; appPostalCode: string | null },
-  after: { postalCode: string | null; town: string | null }
+  app: Place,
+  account: Place
 ): SideNotice | undefined => {
-  if (!after.postalCode || isDemoPostalCode(after.postalCode)) return undefined
-  const town = after.town ?? ''
-  if (isDemoPostalCode(before.accountPostalCode)) {
-    return { kind: 'left_demo', town }
+  if (!app.postalCode || !account.postalCode) return undefined
+  const appInDemo = isDemoPostalCode(app.postalCode)
+  const accountInDemo = isDemoPostalCode(account.postalCode)
+  if (appInDemo && !accountInDemo) {
+    return { kind: 'account_is_real', town: account.town ?? '' }
   }
-  if (isDemoPostalCode(before.appPostalCode)) {
-    return { kind: 'account_is_real', town }
+  if (!appInDemo && accountInDemo) {
+    return {
+      kind: 'confirm_leave_demo',
+      town: app.town ?? '',
+      postalCode: app.postalCode,
+    }
   }
   return undefined
+}
+
+/**
+ * «Seguir»: la cuenta de demostración pasa a ser la de vecino de ese pueblo.
+ * Su saldo de la demo queda a cero y recibe los puntos de bienvenida del
+ * pueblo. No tiene vuelta atrás. Devuelve si el servidor la movió.
+ */
+export const leaveDemo = async (postalCode: string): Promise<boolean> => {
+  try {
+    const store = useAppStore.getState()
+    const user = await apiFetch('/users/me', {
+      method: 'PATCH',
+      auth: true,
+      body: { postal_code: postalCode, leave_demo: true },
+      schema: userSchema,
+    })
+    if (!user.postal_code || isDemoPostalCode(user.postal_code)) return false
+    store.setUserPoints(user.points ?? 0)
+    store.upsertProfile(user.id, {
+      postal_code: user.postal_code,
+      town: user.town ?? null,
+    })
+    store.setShowcase(null)
+    store.setLocation(user.postal_code, user.town ?? null)
+    return true
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -263,13 +297,11 @@ export const verifyOtp = async (
     if (user.postal_code || user.town) {
       store.setLocation(user.postal_code ?? postal, user.town ?? town)
     }
-    // La cuenta manda: si es de un pueblo real, la app sale de la
-    // demostración aunque se entrara desde ella.
+    // La cuenta manda: la app va adonde esté. Si es de un pueblo real, sale
+    // de la demostración aunque se entrara desde ella; si es de demostración
+    // y se entró desde un pueblo real, se pregunta antes de moverla.
     const notice = sideNoticeFor(
-      {
-        accountPostalCode: auth.user.postal_code ?? null,
-        appPostalCode: postal,
-      },
+      { postalCode: postal, town },
       { postalCode: user.postal_code ?? null, town: user.town ?? null }
     )
     if (user.postal_code && !isDemoPostalCode(user.postal_code)) {

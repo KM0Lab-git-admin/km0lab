@@ -176,9 +176,34 @@ const DP = {
     en: 'This account already belongs to {town}: taking you there. To try the demo, sign in with another email.',
   } as Dict,
   'demo.notice.left_demo': {
-    ca: 'El teu compte era de demostració. Ara ets de {town} i comences amb 0 punts: els de la demostració no compten.',
-    es: 'Tu cuenta era de demostración. Ahora eres de {town} y empiezas con 0 puntos: los de la demostración no cuentan.',
-    en: 'Your account was a demo one. You now belong to {town} and start with 0 points: demo points do not count.',
+    ca: 'Ja ets de {town}. Els punts de la demostració no compten: comences amb els de benvinguda.',
+    es: 'Ya eres de {town}. Los puntos de la demostración no cuentan: empiezas con los de bienvenida.',
+    en: 'You now belong to {town}. Demo points do not count: you start with the welcome ones.',
+  } as Dict,
+  'demo.leave.title': {
+    ca: 'Aquest compte és de la demo',
+    es: 'Esta cuenta es de la demo',
+    en: 'This is a demo account',
+  } as Dict,
+  'demo.leave.body': {
+    ca: 'Si entres a {town}, passarà a ser el teu compte de veí i començarà de zero: els punts i els premis de la demostració no t’hi acompanyen. No es pot desfer.',
+    es: 'Si entras en {town}, pasará a ser tu cuenta de vecino y empezará de cero: los puntos y los premios de la demostración no te acompañan. No se puede deshacer.',
+    en: 'If you enter {town}, it becomes your resident account and starts over: demo points and rewards do not come with you. This cannot be undone.',
+  } as Dict,
+  'demo.leave.confirm': {
+    ca: 'Seguir',
+    es: 'Seguir',
+    en: 'Continue',
+  } as Dict,
+  'demo.leave.stay': {
+    ca: 'Tornar a la demo',
+    es: 'Volver a la demo',
+    en: 'Back to the demo',
+  } as Dict,
+  'demo.leave.failed': {
+    ca: 'No hem pogut canviar el compte. Torna-ho a provar.',
+    es: 'No hemos podido cambiar la cuenta. Inténtalo de nuevo.',
+    en: 'We could not change the account. Please try again.',
   } as Dict,
   'demo.notice.real_account_blocked': {
     ca: 'Has entrat amb un compte de {town}. Per provar la demostració, tanca la sessió i entra amb un altre correu.',
