@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KM0 LAB</string>
+    <string name="title_activity_main">KM0 LAB</string>
+    <string name="package_name">com.km0lab.app</string>
+    <string name="custom_url_scheme">com.km0lab.app</string>
+</resources>

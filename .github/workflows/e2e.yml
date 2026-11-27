@@ -1,0 +1,147 @@
+name: Recorridos
+
+# Los recorridos de vecino (packages/e2e). Son el tramo lento: no corren
+# en la máquina de quien desarrolla, sino aquí, cuando el cambio ya está
+# publicado. En local solo corre el tramo rápido (lefthook pre-push).
+#
+#  1. Tras subir a develop (push): espera a que UAT sirva el commit nuevo y
+#     recorre la app desplegada. Si falla, avisa por correo.
+#  2. Cada cuatro horas (schedule): lo mismo, por si lo que cambia es un
+#     servidor o un dato y no la app.
+#  3. Paso a producción (pull_request a main): se compila lo que va a
+#     entrar y se recorre contra la API de UAT. Es la barrera de producción.
+#  4. A mano (workflow_dispatch): contra UAT o contra producción.
+#
+# Las pruebas que escriben lo hacen solo en el territorio de pruebas
+# (CP 99999, cuentas qa+…@km0lab.com). En producción solo corren las de
+# lectura. Sin el secreto E2E_QA_TOKEN también corren solo las de lectura.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [develop]
+  schedule:
+    - cron: '17 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Entorno
+        type: choice
+        options: [uat, production]
+        default: uat
+      scope:
+        description: Qué pruebas
+        type: choice
+        options: [todas, lectura]
+        default: todas
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UAT_APP_URL: https://app.uat.km0lab.com
+  E2E_QA_TOKEN: ${{ secrets.E2E_QA_TOKEN }}
+
+jobs:
+  recorridos:
+    name: Recorridos (${{ github.event_name }})
+    # Versión fija: `playwright install --with-deps` solo conoce las
+    # distribuciones que existían cuando salió esa versión de Playwright.
+    # Con ubuntu-latest el paso fallaba al cambiar GitHub de imagen.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser
+        run: pnpm --filter @km0lab/e2e exec playwright install --with-deps chromium
+
+      - name: Decidir destino y alcance
+        id: plan
+        run: |
+          target="uat"
+          scope="todas"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            target="${{ inputs.target }}"
+            scope="${{ inputs.scope }}"
+          fi
+          if [ "$target" = "production" ] || [ -z "$E2E_QA_TOKEN" ]; then
+            scope="lectura"
+          fi
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "scope=$scope" >> "$GITHUB_OUTPUT"
+          echo "Destino: $target · alcance: $scope" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$E2E_QA_TOKEN" ] && [ "$target" != "production" ]; then
+            echo "Sin E2E_QA_TOKEN: solo pruebas de lectura." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── Paso a producción: lo que va a entrar, servido aquí, contra la API de UAT
+      - name: Compilar la rama
+        if: github.event_name == 'pull_request'
+        run: pnpm --filter km0lab build
+
+      - name: Servir la rama
+        if: github.event_name == 'pull_request'
+        run: |
+          pnpm --filter km0lab exec vite preview --port 4173 --strictPort &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:4173/ > /dev/null && exit 0
+            sleep 1
+          done
+          echo "La app compilada no arrancó" && exit 1
+
+      # ── Tras subir a develop: esperar a que UAT sirva este commit
+      - name: Esperar al despliegue de UAT
+        if: github.event_name == 'push'
+        run: |
+          for i in $(seq 1 60); do
+            served=$(curl -sf "$UAT_APP_URL/version.json?t=$i" | grep -o '"commit": *"[0-9a-f]*"' | grep -o '[0-9a-f]\{40\}' || true)
+            if [ "$served" = "${{ github.sha }}" ]; then
+              echo "UAT sirve ${{ github.sha }}" && exit 0
+            fi
+            sleep 15
+          done
+          echo "UAT no sirve el commit ${{ github.sha }} tras 15 minutos (sirve: ${served:-desconocido})"
+          exit 1
+
+      - name: Recorridos
+        working-directory: packages/e2e
+        env:
+          CI: 'true'
+          E2E_TARGET: ${{ steps.plan.outputs.target }}
+          E2E_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://localhost:4173' || '' }}
+          E2E_SCOPE: ${{ steps.plan.outputs.scope }}
+          E2E_RUN_ID: gh${{ github.run_id }}a${{ github.run_attempt }}
+        run: |
+          if [ -z "$E2E_BASE_URL" ]; then unset E2E_BASE_URL; fi
+          pnpm exec playwright test
+
+      - name: Guardar informe
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: recorridos-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            packages/e2e/playwright-report
+            packages/e2e/test-results
+          retention-days: 14
+          if-no-files-found: ignore

@@ -1,0 +1,775 @@
+# Guía de porte: Lovable → producción (km0lab)
+
+> **Lectura obligatoria** para cualquier agente o desarrollador que vaya a portar pantallas, componentes, assets o lógica desde el repo de Lovable al monorepo de producción `km0lab`. Si saltas esta guía vas a romper exactamente las mismas cosas que ya hemos roto antes.
+
+Esta guía es **operativa**: pasos concretos, comandos exactos, anti-patrones aprendidos y caso de estudio resuelto. Para reglas generales del proyecto, consulta `AGENTS.md`. Para tabla de breakpoints y tokens, `docs/CONVENTIONS.md`.
+
+---
+
+## 1. Contexto: por qué hay dos repos
+
+| Repo                                            | Rol                                                           | Stack                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lovable** — `KM0Lab-git-admin/km0lab-lovable` | **Source of truth** de maqueta visual, design system y assets | Vite + React 18 + Tailwind v3 + shadcn + Framer Motion + React Router v6                                                                    |
+| **Producción** — `KM0Lab-git-admin/km0lab`      | App final, deploy a web (Vercel) y móvil (Capacitor)          | Vite + React 19 + Tailwind v3 + shadcn + Framer Motion + React Router v7 + Capacitor 7 (shell Android commiteada en `apps/km0lab/android/`) |
+
+Los dos repos comparten el mismo stack web. Las pantallas de Lovable se portan **casi 1:1** al monorepo. Los componentes en `packages/components` (`@km0lab/ui`) se mantienen en sintonía con `src/components/ui/` de Lovable (estilo shadcn).
+
+**Source of truth por tipo de archivo:**
+
+| Tipo                                                   | Source of truth                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------- |
+| Pantallas, componentes UI específicos, layout          | Lovable. Producción es consumidor.                                  |
+| Tokens del design system (`tokens.ts`, `aiContext.ts`) | Lovable. En producción viven en `packages/app/design-system/`.      |
+| Assets visuales (PNG, SVG, fonts)                      | Lovable. Producción los sincroniza con `pnpm sync:assets` (ver §6). |
+| `tailwind.config.{ts,js}`                              | Espejo. Tienen que coincidir en variantes y tokens (ver §7.1).      |
+| Lógica de negocio (hooks, services, integraciones API) | Producción. Lovable solo maqueta.                                   |
+
+---
+
+## 2. Pre-flight checklist (antes de portar nada)
+
+Antes de copiar un solo archivo, ejecuta estos pasos en orden:
+
+### 2.1. Traer el `main` remoto de Lovable — PASO OBLIGATORIO Y VERIFICABLE
+
+**Esto es lo primero que se hace en cualquier porte, sin excepción.** Lovable
+commitea constantemente y tu clon local puede llevar semanas parado. Si analizas
+el alcance sobre un clon viejo, _todo lo que decidas después estará mal_: darás
+por portado lo que no existe, no verás pantallas nuevas y el manifest quedará
+incompleto. El fallo es silencioso — no hay ningún error, simplemente portas un
+estado que ya no existe.
+
+```bash
+# si es la primera vez:
+git clone git@github.com:KM0Lab-git-admin/km0lab.git produccion
+git clone git@github.com:KM0Lab-git-admin/km0lab-lovable.git lovable
+
+# si ya están clonados:
+cd produccion && git checkout develop && git pull
+cd ../lovable && git checkout main && git pull
+```
+
+**Verificación obligatoria antes de seguir.** No sirve con "creo que hice pull":
+los dos comandos tienen que devolver **salida vacía**.
+
+```bash
+cd lovable     && git fetch origin main    && git log HEAD..origin/main --oneline
+cd ../produccion && git fetch origin develop && git log HEAD..origin/develop --oneline
+```
+
+Si alguno devuelve commits, **no sigas**: haz el pull y repite la verificación.
+
+Anota el hash de `HEAD` de Lovable antes de empezar: es el alcance congelado del
+porte y lo que hay que citar en el PR. Si durante el porte aparecen commits
+nuevos en Lovable, no los mezcles — van a la ronda siguiente.
+
+Dos avisos sobre el pull, aprendidos a base de tropezar:
+
+- Si el `pull` falla con _"Your local changes would be overwritten"_ y los
+  archivos señalados no tienen diff real (`git diff -w --stat -- <archivos>`
+  vacío), es ruido de finales de línea CRLF/LF: `git checkout -- <archivos>` y
+  reintenta.
+- Si git se queja de `.git/index.lock` (`Operation not permitted` al borrarlo),
+  hay un lock huérfano del montaje de disco: bórralo a mano y reintenta.
+
+**El changelog de Lovable no sustituye al diff.** `docs/PORTABILITY-CHANGELOG.md`
+va por detrás del código: en septiembre de 2026 tres pantallas nuevas
+(`HowItWorks`, `howItWorksSteps`, `EmailOtpTemplate`) y los rediseños de
+`Language` y `PostalCode` no estaban documentados ahí. La fuente de verdad del
+alcance es siempre `git diff <hash-del-ultimo-porte>..<HEAD>`.
+
+### 2.2. Comparar `tailwind.config` de los dos repos
+
+Esto es **crítico**: los breakpoints custom (`vertical-mobile`, `wide-landscape`, etc.) y los tokens deben existir en los dos lados, o las clases responsive del archivo portado se ignorarán silenciosamente.
+
+```bash
+# Lovable usa el archivo en .ts; producción en .js.
+diff <(grep -E "addVariant|screens:" lovable/tailwind.config.ts | sort) \
+     <(grep -E "addVariant|screens:" produccion/apps/km0lab/tailwind.config.js | sort)
+```
+
+Si el diff muestra variantes presentes en Lovable y ausentes en producción, **añádelas a producción antes de portar**. Variantes que históricamente han faltado: `short-landscape`, `wide-landscape`, `tablet-portrait`, `sm`, `md`, `lg`, `xl`.
+
+### 2.3. Comparar fuentes y `@font-face`
+
+Lovable carga Inter desde Google Fonts en `src/index.css`. Producción debe tener el mismo `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');` al inicio de `apps/km0lab/src/styles/global.css`. Sin Inter, las fuentes `font-body` y `font-ui` caen en fallback del sistema y todos los textos quedan más anchos → desbordes y layouts rotos.
+
+Verificar también que los `@font-face` de Antique Olive están en producción con paths que Vite pueda resolver (`../assets/fonts/...` desde `src/styles/global.css`).
+
+### 2.4. Comparar dependencias
+
+Si Lovable añadió librerías nuevas (ej. nueva dep en `package.json`), tienen que existir en `apps/km0lab/package.json` antes de portar archivos que las usen.
+
+```bash
+diff <(grep -E '"[a-z@]' lovable/package.json | sort) \
+     <(grep -E '"[a-z@]' produccion/apps/km0lab/package.json | sort)
+```
+
+Decisión: si una dep en Lovable no aporta valor en producción (p. ej. `@radix-ui/react-aspect-ratio` cuando ninguna pantalla portada lo usa), no la añadas. Solo lo necesario.
+
+### 2.5. Identificar lista de archivos a portar
+
+Coordina con el humano. La lista típica:
+
+- Pantallas en `lovable/src/pages/` que NO existan en `produccion/apps/km0lab/src/pages/`.
+- Componentes en `lovable/src/components/` (no `ui/`) que NO existan en `produccion/apps/km0lab/src/components/`.
+- Primitivos en `lovable/src/components/ui/` que NO existan en `produccion/packages/components/ui/`.
+- Hooks, data, locales, services nuevos.
+- Assets nuevos en `lovable/src/assets/` que NO estén en `produccion/scripts/assets-manifest.json`.
+
+---
+
+## 3. Mapping de archivos (regla mecánica)
+
+Aplica este mapping sin pensarlo. Si dudas, mira la versión actual del Onboarding o Language como referencia.
+
+| Lovable (`src/`)                       | Producción                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `pages/<Pantalla>.tsx`                 | `apps/km0lab/src/pages/<Pantalla>.tsx` (mismo nombre, PascalCase)                                                  |
+| `components/<Componente>.tsx`          | `apps/km0lab/src/components/<Componente>.tsx` (mismo nombre)                                                       |
+| `components/ui/<nombre>.tsx`           | `packages/components/ui/<nombre>.tsx` (mismo nombre kebab)                                                         |
+| `hooks/use-<x>.tsx`                    | `packages/app/hooks/use-<x>.ts` o `.tsx` (según contenido)                                                         |
+| `data/<x>.ts`                          | `apps/km0lab/src/data/<x>.ts` (si solo lo usa una pantalla) o `packages/app/data/<x>.ts` (si compartido)           |
+| `services/<x>.ts`                      | `packages/app/services/<x>.ts`                                                                                     |
+| `stores/<x>.ts`                        | `packages/app/stores/<x>.ts` (Zustand)                                                                             |
+| `machines/<x>.ts`                      | `packages/app/machines/<x>.ts` (XState)                                                                            |
+| `types/<x>.ts`                         | `packages/app/types/<x>.ts`                                                                                        |
+| `contexts/<X>.tsx`                     | `apps/km0lab/src/contexts/<X>.tsx`                                                                                 |
+| `lib/i18n.ts` (y otros `lib/` ≠ utils) | `packages/app/utils/<x>.ts`                                                                                        |
+| `lib/utils.ts`                         | ya existe en `apps/km0lab/src/lib/utils.ts` Y en `packages/components/lib/utils.ts` (ojo: dos copias por contexto) |
+| `assets/<archivo>.png` o `.svg`        | `apps/km0lab/src/assets/images/<archivo>` (renombrado a kebab-case si tiene underscore)                            |
+| `assets/fonts/<archivo>.ttf`           | `apps/km0lab/src/assets/fonts/<archivo>` (sin sufijos numéricos)                                                   |
+| `index.css` (variables CSS, fuentes)   | `apps/km0lab/src/styles/global.css`                                                                                |
+
+**Decisiones obligatorias al portar archivos:**
+
+- **`@/` alias**: Lovable y producción usan `@/` para `src/`. Los imports relativos no necesitan cambio en pantallas y componentes que viven dentro de `apps/km0lab/src/`. Los componentes en `packages/` NO tienen alias `@/` y deben usar paths relativos (`../lib/utils`).
+- **Imports cross-package**: si la pantalla portada importa de `@km0lab/ui` o `@km0lab/app`, déjalo tal cual.
+
+---
+
+## 4. Receta: portar una pantalla
+
+### 4.1. Pre-checks específicos del archivo
+
+Antes de copiar `src/pages/X.tsx`, ejecuta estos greps para detectar lo que necesitas en producción:
+
+```bash
+# 1. Breakpoints responsive usados.
+grep -oE ':(sm|md|lg|xl|2xl|landscape|portrait|vertical-mobile|vertical-tablet|horizontal-mobile|horizontal-desktop|wide-landscape|short-landscape|tablet-portrait):' lovable/src/pages/X.tsx | sort -u
+
+# 2. Imports.
+grep "^import" lovable/src/pages/X.tsx
+```
+
+Para cada breakpoint que aparezca: verifica que está definido en `apps/km0lab/tailwind.config.js`. Si falta alguno, añádelo (ver §7.1).
+
+Para cada import:
+
+- Si es de `react`, `react-router-dom`, `framer-motion`, `lucide-react`, `clsx`: ya están en producción.
+- Si es de `@/components/...`, `@/lib/utils`, `@/data/...`, `@/assets/...`: verifica que el componente/dato/asset destino existe en producción. Si no, pórtalos primero (recursivamente).
+- Si es de un primitivo shadcn (`@/components/ui/X`): verifica que existe en `packages/components/ui/X.tsx`. Si no, pórtalo (ver §5).
+
+### 4.2. Copiar y adaptar
+
+```bash
+cp lovable/src/pages/X.tsx produccion/apps/km0lab/src/pages/X.tsx
+```
+
+Adapta paths de assets si los nombres cambiaron (Lovable suele tener underscore, producción dash):
+
+```bash
+# Sustitución típica:
+sed -i 's|@/assets/km0_robot_icon_v2.png|@/assets/images/km0-robot.png|g' produccion/apps/km0lab/src/pages/X.tsx
+sed -i 's|@/assets/flags/flag-|@/assets/images/flags/flag-|g' produccion/apps/km0lab/src/pages/X.tsx
+```
+
+Verifica que cada import resuelve:
+
+```bash
+cd produccion && grep "^import" apps/km0lab/src/pages/X.tsx
+```
+
+### 4.3. Añadir la pantalla al router
+
+Edita `apps/km0lab/src/App.tsx` y añade la ruta:
+
+```tsx
+const X = lazy(() => import('./pages/X'))
+
+// Dentro de <Routes>:
+<Route path="/<x-kebab>" element={<X />} />
+```
+
+El path en kebab-case. El componente lazy-loaded.
+
+### 4.4. Validación local
+
+```bash
+cd produccion
+pnpm install                          # si añadiste deps
+pnpm dev                              # arranca http://localhost:5173
+```
+
+Visita `http://localhost:5173/<x-kebab>` en navegador (NO en modo responsive de DevTools — ver §7.5).
+
+Verifica las **4 resoluciones canónicas** redimensionando la ventana real:
+
+- 375 × 667 (vertical-mobile)
+- 768 × 1024 (vertical-tablet)
+- 667 × 375 (horizontal-mobile)
+- 1280 × 550 (horizontal-desktop)
+
+Compara cada resolución con `<dominio-publicado-de-lovable>.lovable.app/<x-kebab>`. Deben verse idénticas.
+
+### 4.5. Validación CI
+
+```bash
+pnpm validate                         # type:check + lint + format:check
+```
+
+Resuelve cualquier error antes de commitear.
+
+---
+
+## 5. Receta: portar un primitivo shadcn nuevo
+
+Cuando una pantalla portada importa de `@km0lab/ui` un primitivo que aún no existe (p. ej. `Tabs`, `Dialog`, `Sheet`):
+
+### 5.1. Decidir si lo creamos en `@km0lab/ui` o solo en la app
+
+- Si el primitivo lo va a usar **más de una pantalla**: créalo en `packages/components/ui/<nombre>.tsx` (compartido).
+- Si solo lo usa **esa pantalla concreta**: créalo en `apps/km0lab/src/components/<NombrePascal>.tsx`.
+
+Ante la duda: shared en `@km0lab/ui`. Es más fácil moverlo a app-specific después que al revés.
+
+### 5.2. Copiar y adaptar
+
+```bash
+cp lovable/src/components/ui/<nombre>.tsx produccion/packages/components/ui/<nombre>.tsx
+```
+
+Cambia el import de `cn`:
+
+```bash
+sed -i 's|from "@/lib/utils"|from "../lib/utils"|g' produccion/packages/components/ui/<nombre>.tsx
+```
+
+Si el primitivo depende de `@radix-ui/react-<xxx>` que no esté en `packages/components/package.json`, añádelo:
+
+```bash
+cd produccion && pnpm --filter "@km0lab/ui" add @radix-ui/react-<xxx>@<version>
+```
+
+(Usa la misma versión que tenga Lovable.)
+
+### 5.3. Re-exportar desde el barrel
+
+Edita `packages/components/index.ts` y añade:
+
+```ts
+export * from './ui/<nombre>'
+```
+
+Sin esto, `import { X } from '@km0lab/ui'` no encuentra el componente.
+
+### 5.4. Validación
+
+```bash
+pnpm install                          # si añadiste @radix-ui
+pnpm validate                         # debe pasar typecheck
+```
+
+---
+
+## 6. Receta: portar/sincronizar assets binarios
+
+Los binarios (PNG, SVG, fonts) viven en Lovable. Producción los sincroniza con `pnpm sync:assets`.
+
+### 6.1. Para añadir un asset nuevo
+
+1. Edita `produccion/scripts/assets-manifest.json` y añade una entrada `{ from, to }`:
+
+```json
+{
+  "from": "src/assets/<nombre-en-lovable>.png",
+  "to": "apps/km0lab/src/assets/images/<nombre-en-produccion>.png"
+}
+```
+
+Convención de nombres: en producción usa **kebab-case** (`km0-robot.png`, no `km0_robot_icon_v2.png`). El script de sync respeta los nombres del `to`.
+
+2. Ejecuta el sync:
+
+```bash
+pnpm sync:assets
+```
+
+3. Commitea el binario resultante.
+
+### 6.2. Si un asset ya existente cambió en Lovable
+
+Mismo `pnpm sync:assets` re-descarga el binario. El script **sobrescribe siempre** (decisión documentada en `AGENTS.md` §10). Commitea el cambio.
+
+### 6.3. Para fuentes
+
+Las fuentes Antique Olive ya están en producción. Si Lovable añade una fuente nueva (peso o variante):
+
+1. Copia el TTF de Lovable a `apps/km0lab/src/assets/fonts/` (renombra quitando sufijos numéricos: `Antique-Olive-Std-X_NNNN.ttf` → `Antique-Olive-Std-X.ttf`).
+2. Añade el `@font-face` correspondiente en `apps/km0lab/src/styles/global.css`.
+
+Patrón:
+
+```css
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-<X>.ttf') format('truetype');
+  font-weight: <peso>;
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+---
+
+## 7. Anti-patrones aprendidos
+
+Estas son lecciones aprendidas a las malas. Si las ignoras, las pantallas portadas se romperán.
+
+### 7.1. Aliases de breakpoints en código de Lovable
+
+Aunque la knowledge de Lovable diga "usa solo los 4 breakpoints semánticos", el **código existente** en Lovable sigue usando aliases viejos:
+
+```
+sm:                  ← Tailwind default 640px
+md: lg: xl:          ← Tailwind defaults
+short-landscape:     ← alias custom de Lovable, equivale a horizontal-mobile
+wide-landscape:      ← equivale a horizontal-desktop
+tablet-portrait:     ← equivale a vertical-tablet
+landscape:           ← Tailwind default
+portrait:            ← Tailwind default
+```
+
+Estos aliases viven en el `tailwind.config.ts` de Lovable (`addVariant` calls al final del archivo) y se usan libremente en componentes. **Mi `tailwind.config.js` los tiene replicados** en producción. Si los quitamos algún día, hay que refactorizar TODO el código portado primero.
+
+**Verificación al portar**: ejecuta el grep de §4.1 y compara con la lista de variantes definidas en `apps/km0lab/tailwind.config.js`. Si una variante falta, añádela como alias antes de portar:
+
+```js
+// dentro del plugin function en tailwind.config.js:
+addVariant('<nombre>', '@media <regla>')
+```
+
+### 7.2. Inter via Google Fonts es obligatorio
+
+Lovable carga Inter via `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');` al inicio de `src/index.css`. Producción debe replicarlo en `apps/km0lab/src/styles/global.css` (ya está desde commit `1d07281`).
+
+Sin Inter, todos los textos `font-body` y `font-ui` caen en fallback del sistema (Helvetica/Arial), que tiene **métricas más anchas**: líneas más altas, texto que ocupa más espacio, **layouts que se desbordan** y footers que se superponen al contenido.
+
+### 7.3. Paths de fuentes Antique Olive son distintos en cada repo
+
+| Repo       | Path                                                                                |
+| ---------- | ----------------------------------------------------------------------------------- |
+| Lovable    | `public/Antique-Olive-Std-<X>_<NNNN>.ttf` (servidos desde root público)             |
+| Producción | `apps/km0lab/src/assets/fonts/Antique-Olive-Std-<X>.ttf` (servidos vía Vite import) |
+
+Cuando portas el `@font-face` de Lovable a producción, **cambia el `url()` a path relativo** (`../assets/fonts/...`) y **renombra el archivo** quitando el sufijo numérico (`Antique-Olive-Std-Black_3861.ttf` → `Antique-Olive-Std-Black.ttf`). Si dejas los nombres de Lovable o el path absoluto, las fuentes no cargan en producción.
+
+### 7.4. SVG como import: URL string, no React component
+
+En Vite default, `import flagCa from '@/assets/flags/flag-ca.svg'` da una **URL string** (path al SVG). Se usa como `<img src={flagCa}>`. Eso es lo que Lovable hace y producción replica.
+
+NO instales `vite-plugin-svgr` para que SVG sean componentes React: Lovable no lo usa, y romperías la compatibilidad de los imports.
+
+### 7.5. NO valides en modo responsive de DevTools
+
+El modo responsive de Chrome/Edge DevTools renderiza dentro de un iframe simulado donde `100dvh` y media queries pueden interpretarse de forma distinta. **Las pantallas se pueden ver mal en modo responsive y bien en ventana real**, o al revés.
+
+Para QA visual usa **ventana real del navegador** redimensionada manualmente:
+
+```js
+// en la consola del navegador:
+window.resizeTo(667, 375) // horizontal-mobile
+window.resizeTo(375, 667) // vertical-mobile
+window.resizeTo(768, 1024) // vertical-tablet
+window.resizeTo(1280, 550) // horizontal-desktop
+```
+
+Si la pantalla se ve bien en ventana real pero mal en modo responsive, **es un falso positivo**. No corrijas el código basándote solo en el modo responsive.
+
+### 7.6. Lovable evoluciona — sincroniza antes de portar
+
+Lovable es un editor visual con commits frecuentes. Entre tu sesión anterior y la actual, Lovable puede haber cambiado pantallas, componentes, tokens. **Siempre haz `git pull` en el repo de Lovable antes de portar** para tener la última versión.
+
+Verificación rápida:
+
+```bash
+cd lovable && git fetch origin main
+git log HEAD..origin/main --oneline | head -10
+```
+
+Si hay commits nuevos, decide qué hacer: incorporarlos al porte o portar la versión vieja a propósito.
+
+### 7.7. Reescribir un archivo portado puede regresar lo viejo
+
+Si el agente humano dice "porta la pantalla X otra vez porque cambió en Lovable", asegúrate de **eliminar primero la versión vieja en producción**. Un porte parcial sobre un archivo viejo deja restos y rompe el render.
+
+---
+
+## 8. Checklist de validación post-porte
+
+Antes de hacer commit (o de pedir merge), confirma todos:
+
+- [ ] `pnpm install` sin errores.
+- [ ] `pnpm validate` (type:check + lint + format:check) verde.
+- [ ] `pnpm dev` arranca y la nueva ruta no muestra errores en consola.
+- [ ] Las 4 resoluciones canónicas se ven igual que en `<dominio>.lovable.app/<ruta>` (verificación en **ventana real**, no en DevTools responsive).
+- [ ] No hay clases responsive ignoradas (verificar con `grep -oE ':(sm|md|...):' src/pages/X.tsx` que todas existen en `tailwind.config.js`).
+- [ ] Si es shared en `@km0lab/ui`, está re-exportado desde `packages/components/index.ts`.
+- [ ] Si añadiste assets binarios, están sincronizados via `pnpm sync:assets` y commiteados.
+- [ ] Si añadiste deps, `pnpm-lock.yaml` regenerado.
+- [ ] Commit con formato Conventional (subject ≤50 chars, imperativo).
+- [ ] Si el cambio es sustancial (port de pantalla completa, refactor multi-fichero, deps nuevas): rama + PR. Si es trivial (typo, ajuste menor): push directo a develop con bypass (ver `AGENTS.md` §8.3).
+
+---
+
+## 9. Caso de estudio: porte del Onboarding (lecciones reales)
+
+Este es el porte donde aprendimos los anti-patrones documentados arriba. Sirve como referencia para no repetirlos.
+
+### Contexto
+
+Migración del repo de producción de Expo + React Native + NativeWind a Vite + React + Tailwind v3 puro. Como parte de la migración, se portó el `Onboarding.tsx` desde Lovable (era idéntico al de Lovable).
+
+### Síntoma
+
+En `localhost:5173/onboarding` a 667×375 (horizontal-mobile):
+
+- El footer (1/5 + dots de paginación + botón SALTAR) aparecía **superpuesto al texto** del slide.
+- El texto de la descripción quedaba **cortado** detrás del footer.
+- En `char-con-todos.lovable.app/onboarding` (Lovable publicado) a la misma resolución, se veía **correctamente**: footer abajo, texto completo, todo en su sitio.
+
+### Diagnóstico paso a paso
+
+**1. ¿El código es idéntico?**
+
+```bash
+diff lovable/src/pages/Onboarding.tsx produccion/apps/km0lab/src/pages/Onboarding.tsx
+diff lovable/src/components/BrandedFrame.tsx produccion/apps/km0lab/src/components/BrandedFrame.tsx
+```
+
+Resultado: cero diferencias. El código copiado era idéntico.
+
+**2. ¿Es problema de fuentes?**
+Verificación en DevTools → Network filtrando "font". En localhost no aparecía request a Inter (Google Fonts). En Lovable sí.
+
+Causa: Lovable carga Inter via `@import` en `src/index.css`. Mi `apps/km0lab/src/styles/global.css` no lo tenía. Sin Inter, `font-body` (declarado como `['DM Sans', 'Inter', 'sans-serif']`) caía en fallback.
+
+Fix: commit `1d07281` añade el `@import` de Google Fonts.
+
+**3. Después del fix de Inter, el problema persistía.**
+
+Causa real (más profunda): el `Onboarding.tsx` usa muchas clases con `wide-landscape:`, `short-landscape:` y `sm:` (visibles con `grep -oE ':(sm|wide|short|md):' Onboarding.tsx`). Cuando reescribí el `tailwind.config.js` durante la migración a Vite, **eliminé esas variantes** asumiendo que solo se usaban los 4 semánticos. Tailwind ignoraba esas clases sin warning, y el viewport horizontal-mobile renderizaba con valores default (los más grandes), causando overflow.
+
+Fix: commit `ebb8e41` re-añade los aliases (`short-landscape`, `wide-landscape`, `tablet-portrait`) y screens estándar (`sm`, `md`, `lg`, `xl`, `2xl`) al `tailwind.config.js`.
+
+### Lecciones extraídas
+
+- **No confíes en la knowledge declarativa de Lovable** ("solo usar los 4 breakpoints"). El código existente en Lovable ignora esa regla. Replica el config tal cual.
+- **Verifica las fuentes cargan** en Network antes de asumir que el porte está bien.
+- **Valida en ventana real**, no en DevTools responsive — al menos en algún punto.
+- **Cada nueva pantalla portada hace `grep` de breakpoints** y los compara con el config. Si falta alguno, añádelo antes de copiar.
+
+### Segundo caso: el clon desactualizado (septiembre 2026)
+
+**Síntoma:** se analizó el alcance del porte y se concluyó que solo faltaba una
+pantalla nueva. El análisis era minucioso —comparación archivo a archivo del
+código portable contra el manifest, revisión del changelog— y aun así estaba
+equivocado de raíz.
+
+**Causa:** nadie hizo `git fetch` en el repo de Lovable antes de analizar. El
+clon local estaba **66 commits por detrás** (del 3 de agosto al 13 de
+septiembre). El alcance real incluía dos pantallas nuevas, el rediseño completo
+del onboarding y del selector de idioma, y 12 assets nuevos.
+
+**Cómo se detectó:** no fue por ninguna herramienta, sino porque el usuario miró
+la lista de commits en GitHub y preguntó si el clon estaba al día.
+
+**Lección:** el rigor en el análisis no compensa partir de datos viejos, y un
+clon desactualizado no da ningún error — simplemente produce conclusiones
+seguras y falsas. Por eso §2.1 es ahora una verificación con salida esperada, no
+un "acuérdate de hacer pull".
+
+---
+
+## 10. Plantillas de prompt para agentes nuevos
+
+Cuando arranques un chat nuevo (Sonnet, Opus, otro modelo) y le quieras pedir que porte:
+
+### 10.1. Prompt para portar una pantalla
+
+> Tengo dos repos: `KM0Lab-git-admin/km0lab-lovable` (Lovable, source of truth visual) y `KM0Lab-git-admin/km0lab` (producción). Quiero portar la pantalla `<X>` desde Lovable al monorepo de producción.
+>
+> Tu primera acción, antes de analizar nada: `git fetch` en los dos repos y comprobar que `git log HEAD..origin/main` (Lovable) y `git log HEAD..origin/develop` (producción) devuelven salida vacía. Si no, haz pull. Dime el hash de HEAD de Lovable con el que vas a trabajar.
+>
+> Después: lee `docs/PORTING-FROM-LOVABLE.md` del repo de producción, `AGENTS.md` y `docs/CONVENTIONS.md`. Sigue la receta de la sección 4 paso a paso. Si dudas, pregunta antes de actuar.
+>
+> Cuando termines, pásame el commit/PR para revisar.
+
+### 10.2. Prompt para portar varios archivos a la vez
+
+> Quiero portar de Lovable a producción los siguientes archivos: `<lista>`.
+>
+> Tu primera acción, antes de analizar nada: `git fetch` en los dos repos y comprobar que `git log HEAD..origin/main` (Lovable) y `git log HEAD..origin/develop` (producción) devuelven salida vacía. Si no, haz pull. Dime el hash de HEAD de Lovable con el que vas a trabajar, y saca el alcance del `git diff` contra el último porte, no del changelog.
+>
+> Después: lee `docs/PORTING-FROM-LOVABLE.md`, `AGENTS.md` y `docs/CONVENTIONS.md`. Ejecuta primero la sección 2 (pre-flight checklist) entera. Después porta uno por uno siguiendo §4 (pantallas) o §5 (componentes shadcn). Para los assets, usa la receta §6.
+>
+> Si descubres alguna divergencia entre los configs (Tailwind, fuentes, deps), repórtamela antes de avanzar.
+
+---
+
+## 11. Cuándo este documento queda desactualizado
+
+Esta guía cubre el porte tal como funciona hoy. **Quedará desactualizada si**:
+
+- Se elimina un alias de breakpoint del `tailwind.config.js` de Lovable o producción (cambia §7.1).
+- Se cambia el bundler (de Vite a otro) en producción.
+- Se cambia el sistema de fuentes (auto-host de Inter en lugar de Google Fonts CDN).
+- Se introduce un nuevo tipo de archivo en Lovable (animaciones Lottie, vídeos, etc.) que aún no tiene receta aquí.
+- Se decide refactorizar Lovable para eliminar los aliases viejos (cambiaría §7.1).
+
+Cuando ocurra alguno de esos cambios, **actualiza este documento en el mismo PR** que introduzca el cambio. Documentación viva.
+
+---
+
+## 12. Porte automatizado: `pnpm sync:lovable` y `pnpm sync:check`
+
+Desde noviembre de 2026 el porte funciona **por regla**: ya no hay una
+lista de ficheros que mantener a mano. Sustituye a las recetas manuales de
+§4–§6, que quedan como referencia histórica.
+
+### 12.0. El contrato en una página
+
+Tres tipos de fichero, cada uno con un solo dueño:
+
+| Tipo        | Qué es                                                                                                     | Dueño      | Qué hace el porte                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
+| **Visual**  | Pantallas, componentes, primitivos ui, tipos, máquinas, datos de presentación, imágenes, traducciones      | Lovable    | Los trae y **sobrescribe** siempre      |
+| **Costura** | Hook / service / store que en Lovable se apoya en datos de ejemplo (`@/data`, `services/mock`, `useMock*`) | Producción | **No los trae.** Exige que existan aquí |
+| **Candado** | Lo listado en `locked` de `scripts/lovable-manifest.json`                                                  | Producción | Ni los toca ni sigue sus imports        |
+
+Reglas duras:
+
+1. **En producción no se edita un fichero visual.** Un arreglo de aspecto
+   o de texto se hace en Lovable y llega con el siguiente porte. Si se
+   edita aquí, el porte siguiente lo detecta (estado en
+   `scripts/lovable-sync-state.json`) y se niega a pisarlo sin `--force`.
+2. **Los datos entran por costuras.** Una pantalla pide `useAccount()`,
+   `useShops()`, `redeemReward()`… Lovable contesta con ejemplos y
+   producción con la API. El nombre y la forma de respuesta son el
+   contrato (`docs/LOVABLE-KNOWLEDGE.md` §5.1).
+3. **En el front de producción no hay datos de ejemplo.** Lo que no dé la
+   API se oculta y se anota como hueco del backend; no se inventa.
+4. **Antes de portar, `pnpm sync:check`.** Si no dice «PASA», no se porta.
+
+### 12.1. Uso
+
+```bash
+pnpm sync:check                               # ensayo completo en una copia
+pnpm sync:lovable -- --dry-run                # informe de lo que cambiaría
+pnpm sync:lovable                             # porte real
+pnpm sync:lovable -- --prune                  # además borra huérfanos
+pnpm sync:lovable -- --source ../km0lab-lovable   # checkout local
+```
+
+Sin `--source`, el porte clona en superficial el `main` de Lovable de
+GitHub: siempre porta lo último. Con un checkout local, **haz `git pull`
+antes** (el clon desactualizado ya costó un porte en septiembre de 2026).
+
+`sync:check` copia el repo a una carpeta temporal, porta ahí, comprueba
+tipos (y compila con `--build`) y contesta `PASA` o `NO PASA`. No toca el
+repo real. Hay un workflow de GitHub (`sync-check.yml`) que lo lanza a
+mano y cada noche.
+
+### 12.2. Cómo decide qué viaja
+
+1. Raíces: todas las pantallas de `src/pages` de Lovable (menos las
+   excluidas por contrato y las que tienen candado), `src/lib/i18n.ts` y
+   lo que monta `src/App.tsx` alrededor de las pantallas.
+2. Desde ahí sigue los imports. Cada fichero alcanzado se clasifica como
+   visual (viaja), lógica pura sin datos de ejemplo (viaja, salvo candado)
+   o costura (no viaja).
+3. Para cada costura comprueba que producción la tiene: por **nombre**
+   exportado en `@km0lab/app` si la pide una pantalla o componente; por
+   **ruta** si la pide otro fichero de `packages/app`.
+
+Además:
+
+- Reescribe los imports `@/…` a `@km0lab/ui` y `@km0lab/app`, fusiona los
+  duplicados y formatea con prettier antes y después de `lint:fix`.
+- En `packages/app`, `@/lib/i18n` se reescribe a `../utils/i18nProd` para
+  que los tipos usen el diccionario fusionado (§12.4).
+- **Imágenes**: copia las que Lovable versiona y descarga las que guarda
+  como puntero `*.asset.json` (desde `assetHost` del manifest). Ya no hace
+  falta `sync:assets` para lo que importa el código portado.
+- **Estilos**: compara las variables CSS de `src/index.css` de Lovable con
+  las de producción y falla si falta alguna (antes era un fallo
+  silencioso).
+- **Huérfanos**: avisa de los ficheros de `pages`, `components` y `data`
+  de la app que ya no vienen de Lovable ni tienen candado.
+- Comprueba dependencias npm, variantes responsive y el uso de
+  `localStorage` para la ubicación, como antes.
+
+### 12.3. Qué queda a mano
+
+- **Una costura nueva.** Si Lovable crea un hook de datos que producción
+  no tiene, el porte lo dice con su nombre (`costura sin versión real`).
+  Se escribe aquí la versión real, con la misma forma, y se vuelve a
+  portar.
+- **Una pantalla nueva.** Viaja sola, pero hay que darla de alta en
+  `apps/km0lab/src/App.tsx` (candado), con su `RequireSetup`, su
+  `RequireAuth` si es privada y su `DeviceShell` si Lovable se lo pone.
+- **Una variable de estilo nueva.** El porte dice cuál; se añade a
+  `apps/km0lab/src/styles/global.css`.
+- **Pantallas con candado.** `Login`, `CheckEmail`, `PostalCode` y
+  `Scanner` son de producción (acceso real, ubicación en el store, cámara).
+  Un rediseño en Lovable se copia a mano conservando su lógica.
+- **Textos de producción.** Lo que producción dice distinto que la
+  maqueta, y los avisos de «demostración» que deben quedar vacíos, van en
+  `packages/app/utils/i18nProd.ts`.
+
+Costuras que existen hoy (todas contra `km0lab-api` o `events-query`):
+`useAccount`, `redeemReward`, `usePointsActions`, `useHomeActions`,
+`usePointsConfig`, `useInviteSummary`, `useInvitations`,
+`useInviteRewards`, `useInviteLink`, `useShops`, `useShop`,
+`useShopPromotions`, `usePublicRewards`, `useFeaturedPromos`,
+`useNotifications`, `useLocationContext`, `usePreviewState`,
+`listMunicipalEvents`, `listMunicipalNews`, `createBusinessRegistration`,
+`requestOtp`, `verifyOtp`, `getProfile`, `updateProfile`, `getShareLink`,
+`getCanonicalWebLink` y `openShareChannel`.
+
+---
+
+### 12.4. i18n: overlay de claves propias de producción
+
+`packages/app/utils/i18n.ts` es **propiedad de Lovable** (está en `files`, no en
+`locked`): cada `pnpm sync:lovable` lo sobrescribe entero. Durante la ronda de
+septiembre de 2026 se descubrió que producción había ido añadiendo claves
+propias a ese archivo y **el sync se llevaba 52 por delante** en cada pase.
+
+Las claves afectadas eran de módulos que solo existen en producción y que
+Lovable no maqueta: `shopCategories.*`, `merchant.day.*`, `merchant.hours.*`,
+`merchants.scan_filter.*`, `points.actions.type.*`, `rewards.scope.*`,
+`scanner.camera.*`, `scanner.upload.*`, `home.demo.badge`.
+
+El caso peligroso no era el ruidoso sino el silencioso: `shopCategories.*` se
+construye dinámicamente en `packages/app/utils/shopMapper.ts` con
+`` `shopCategories.${slug}` as TKey ``, así que **no da error de compilación**:
+la UI simplemente pasaba a mostrar `shopCategories.bakery` en vez de `Fleca`.
+
+**Solución adoptada — overlay:**
+
+- `packages/app/utils/i18nProd.ts` contiene el diccionario de claves propias de
+  producción. Está en `locked`: el sync nunca lo toca.
+- Ese módulo importa `t` y `TKey` de `./i18n` (lo de Lovable), expone
+  `TKey = TKeyBase | TKeyProd` y un `t` que resuelve primero contra el
+  diccionario propio y **delega** en el de Lovable si la clave no es suya. El
+  fallback es el mismo: idioma pedido → castellano → la propia clave.
+- `packages/app/utils/index.ts` reexporta `t` y `TKey` **desde el overlay**:
+
+  ```ts
+  export * from './i18n'
+  export { t, type TKey } from './i18nProd'
+  ```
+
+  El re-export explícito tiene precedencia sobre el `export *` según la
+  semántica de módulos ES, así que los consumidores siguen importando lo mismo
+  de `@km0lab/app` y reciben el diccionario fusionado. No hay que tocar ningún
+  componente portado.
+
+**No borres la línea `export * from './i18n'` de ese barrel**: `ensureBarrelExport`
+en `scripts/sync-lovable.mjs` comprueba si esa cadena existe y la volvería a
+añadir al final del archivo en el siguiente sync, dejando el `export *` por
+debajo del explícito y cambiando la precedencia.
+
+**Dónde va cada clave nueva a partir de ahora:**
+
+| La clave la usa…                                                                 | Va en                                        |
+| -------------------------------------------------------------------------------- | -------------------------------------------- |
+| una pantalla que Lovable maqueta                                                 | Lovable (`src/lib/i18n.ts`) y llega por sync |
+| código que solo existe en producción (servicios reales, mappers, escáner nativo) | `packages/app/utils/i18nProd.ts`             |
+
+**Verificación tras cada sync** (§8): comparar las claves antes y después y
+comprobar que el diff de `i18n.ts` solo **añade**:
+
+```bash
+git show HEAD:packages/app/utils/i18n.ts \
+  | grep -oE "^\s*['\"][a-zA-Z0-9_.]+['\"]\s*:" | tr -d " '\":" | sort -u > /tmp/antes.txt
+grep -oE "^\s*['\"][a-zA-Z0-9_.]+['\"]\s*:" packages/app/utils/i18n.ts \
+  | tr -d " '\":" | sort -u > /tmp/despues.txt
+comm -23 /tmp/antes.txt /tmp/despues.txt   # debe salir vacío
+```
+
+Si sale algo, son claves que Lovable ya no tiene: decide si se han eliminado a
+propósito o si son propias de producción y deben moverse a `i18nProd.ts`.
+
+---
+
+### 12.5. Setup guest: Zustand, no la máquina de Lovable
+
+Hay **dos máquinas de estado** para el funnel idioma → onboarding → CP → Home.
+No se mezclan.
+
+|                      | Lovable (maqueta)                                    | KM0lab (producción)                     |
+| -------------------- | ---------------------------------------------------- | --------------------------------------- |
+| Persistencia         | `localStorage` suelto: `km0_postal_code`, `km0_town` | Zustand persistido en `km0_app`         |
+| Idioma elegido       | `setLang` del context de maqueta                     | `langChosen` vía `chooseLang`           |
+| Ubicación            | esas dos claves                                      | `postalCode` + `town` vía `setLocation` |
+| Candado de pantallas | no existe                                            | `RequireSetup` lee **solo** el store    |
+
+`RequireSetup` (`need="location"`) redirige a `/onboarding` si `postalCode`
+es `null`. No mira `km0_postal_code`. Por eso un `PostalCode` que solo haga
+`localStorage.setItem` deja Home inaccesible.
+
+**Cómo se separó (y cómo no):**
+
+- **Idioma — seam locked.** Las pantallas de Lovable llaman a `useLang().setLang()`.
+  `LangContext.tsx` está locked y traduce esa llamada a `chooseLang()`.
+  `Language.tsx` **sí se sincroniza**: el visual viene de Lovable; la escritura
+  al store la intercepta producción.
+- **Ubicación — no hay seam equivalente.** Lovable escribe `localStorage` a
+  pelo. Un adapter no puede interceptar `setItem`. El `setLocation` de
+  producción tiene que vivir **en la pantalla**. Si `PostalCode.tsx` está en
+  `files` sin `locked`, el próximo `pnpm sync:lovable` restaura el escritor
+  de Lovable y el funnel se rompe (pasó en septiembre de 2026).
+
+Por eso `PostalCode.tsx` y `Login.tsx` están **locked**. Un rediseño visual
+en Lovable se porta a mano: se copia el JSX y se conserva `setLocation` /
+lectura del store. `Language.tsx` no hace falta lockearlo.
+
+`setLocation` en el store también escribe las claves de Lovable (puente
+**unidireccional**, para no romper previews). El camino inverso no existe:
+escribir `km0_postal_code` no rellena Zustand.
+
+**Contrato para el próximo sync:**
+
+1. No quites de `locked` `PostalCode.tsx`, `Login.tsx`, `RequireSetup.tsx`,
+   `App.tsx`, `LangContext.tsx` ni `useAppStore.ts`.
+2. `scripts/sync-lovable.mjs` **no escribe** el archivo si toca
+   `localStorage` `km0_postal_code` / `km0_town` (salvo el store). Si
+   Lovable reintroduce esas claves en `Home.tsx` u otra pantalla, el
+   sync las deja fuera: sustituye la lectura/escritura por `useAppStore`
+   (`postalCode`, `town`, `setLocation`) y reintenta. Hoy `Home.tsx` de
+   Lovable aún lee `km0_town`; hasta que lo quiten, ese archivo no entra
+   por sync.
+3. Tras un rediseño de PostalCode/Login en Lovable: copiar visual a mano,
+   no desbloquear el candado para “traer el archivo entero”.
+
+### 12.6. Compartir: canales nativos en `@km0lab/app`
+
+`ShareChannelList` y `inviteConfig` viven en `files` (visual de Lovable).
+La URL y el intent no: `shareUrl.ts` / `openShareChannel.ts` / `env.ts`
+están locked. El contrato es “solo pinta botones y llama a
+`openShareChannel` / `getShareLink`”. No reintroducir `https://wa.me` +
+`window.open` ni `window.location.origin` a pelo (en Capacitor es
+localhost). Si el sync restaura eso, volver a cablear el helper.

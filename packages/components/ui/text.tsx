@@ -1,38 +1,25 @@
-import { cn } from '@km0lab/ui/lib/utils'
-import * as Slot from '@rn-primitives/slot'
 import * as React from 'react'
-import { Text as RNText } from 'react-native'
 
+import { cn } from '../lib/utils'
 
-import type { TextProps } from 'react-native'
+/**
+ * Text — wrapper neutro para texto.
+ *
+ * En el legacy RN+NativeWind, Text era el primitivo obligatorio para
+ * cualquier string visible. En web no hace falta (usar <p>, <span>,
+ * <h*> según semántica), pero mantenemos el componente con un <span>
+ * por defecto para que las pantallas portadas desde Lovable no se
+ * rompan al importarlo.
+ *
+ * Para títulos / párrafos / etc. usar HTML semántico directamente.
+ */
+type TextProps = React.HTMLAttributes<HTMLSpanElement>
 
-const TextClassContext = React.createContext<string | undefined>(undefined)
-
-function Text({
-  className,
-  asChild = false,
-  ...props
-}: TextProps & {
-  className?: string
-  ref?: React.Ref<RNText>
-  asChild?: boolean
-}) {
-  const textClass = React.useContext(TextClassContext)
-  const Component = asChild ? Slot.Text : RNText
-  const value = props.children
-  const isEmpty = !value || (typeof value === 'string' && value.trim() === '')
-
-  return (
-    <Component
-      className={cn(
-        'text-foreground web:select-text leading-4.5 font-sans text-sm',
-        isEmpty && 'text-placeholder font-sans-italic',
-        textClass,
-        className
-      )}
-      {...props}
-    />
+const Text = React.forwardRef<HTMLSpanElement, TextProps>(
+  ({ className, ...props }, ref) => (
+    <span ref={ref} className={cn(className)} {...props} />
   )
-}
+)
+Text.displayName = 'Text'
 
-export { Text, TextClassContext }
+export { Text }

@@ -1,15 +1,12 @@
-import { cn } from '@km0lab/ui/lib/utils'
-import * as React from 'react'
-import { View } from 'react-native'
-
+import { cn } from '../lib/utils'
 
 function Skeleton({
   className,
   ...props
-}: React.ComponentProps<typeof View> & React.RefAttributes<View>) {
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <View
-      className={cn('bg-accent animate-pulse rounded-md', className)}
+    <div
+      className={cn('animate-pulse rounded-md bg-muted', className)}
       {...props}
     />
   )

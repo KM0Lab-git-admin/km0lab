@@ -13,6 +13,7 @@
       "dependsOn": ["^type:check"]
     },
     "lint": {},
+    "test": {},
     "lint:fix": {
       "cache": false
     },

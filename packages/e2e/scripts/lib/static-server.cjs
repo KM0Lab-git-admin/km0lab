@@ -25,7 +25,10 @@ const MIME_TYPES = {
 }
 
 function getMimeType(filePath) {
-  return MIME_TYPES[path.extname(filePath).toLowerCase()] ?? 'application/octet-stream'
+  return (
+    MIME_TYPES[path.extname(filePath).toLowerCase()] ??
+    'application/octet-stream'
+  )
 }
 
 async function fileExists(filePath) {
@@ -83,7 +86,8 @@ function startStaticServer({ rootDir, port }) {
     server.on('error', reject)
     server.listen(port, '127.0.0.1', () => {
       const address = server.address()
-      const resolvedPort = typeof address === 'object' && address ? address.port : port
+      const resolvedPort =
+        typeof address === 'object' && address ? address.port : port
       resolve({
         url: `http://127.0.0.1:${resolvedPort}`,
         close: () =>

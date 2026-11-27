@@ -1,0 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Fuentes Antique Olive (servidas localmente desde apps/km0lab/assets/fonts) ── */
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Roman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Compact.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Antique Olive';
+  src: url('../assets/fonts/Antique-Olive-Std-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Sombras del acabado Burbuja (espejo de Lovable src/index.css). */
+    --shadow-bubble: 0 10px 30px -18px hsl(var(--km0-blue-800) / 0.35);
+    --shadow-bubble-yellow: 0 8px 18px -10px hsl(var(--km0-yellow-600) / 0.8);
+    --shadow-bubble-blue: 0 8px 18px -10px hsl(var(--km0-blue-700) / 0.8);
+    --km0-blue-50: 214 69% 97%;
+    --km0-blue-100: 228 60% 91%;
+    --km0-blue-200: 222 64% 82%;
+    --km0-blue-300: 218 60% 73%;
+    --km0-blue-400: 214 49% 62%;
+    --km0-blue-500: 215 43% 49%;
+    --km0-blue-600: 217 56% 40%;
+    --km0-blue-700: 220 73% 33%;
+    --km0-blue-800: 214 61% 19%;
+    --km0-blue-900: 214 63% 15%;
+    --km0-beige-50: 36 100% 97%;
+    --km0-beige-100: 33 100% 90%;
+    --km0-beige-200: 51 96% 83%;
+    --km0-beige-300: 47 93% 73%;
+    --km0-beige-400: 44 90% 64%;
+    --km0-beige-500: 41 92% 56%;
+    --km0-beige-600: 39 73% 49%;
+    --km0-beige-700: 38 72% 43%;
+    --km0-beige-800: 37 72% 37%;
+    --km0-beige-900: 36 72% 31%;
+    --km0-yellow-50: 44 100% 97%;
+    --km0-yellow-100: 45 95% 93%;
+    --km0-yellow-200: 44 91% 84%;
+    --km0-yellow-300: 44 91% 76%;
+    --km0-yellow-400: 43 91% 69%;
+    --km0-yellow-500: 43 89% 61%;
+    --km0-yellow-600: 39 73% 49%;
+    --km0-yellow-700: 38 72% 43%;
+    --km0-yellow-800: 37 72% 37%;
+    --km0-yellow-900: 36 72% 31%;
+    --km0-teal-50: 178 100% 97%;
+    --km0-teal-100: 178 100% 90%;
+    --km0-teal-200: 177 80% 73%;
+    --km0-teal-300: 177 72% 57%;
+    --km0-teal-400: 177 100% 42%;
+    --km0-teal-500: 177 100% 36%;
+    --km0-teal-600: 177 100% 30%;
+    --km0-teal-700: 177 100% 24%;
+    --km0-teal-800: 177 100% 18%;
+    --km0-teal-900: 177 100% 13%;
+    --km0-coral-50: 5 100% 93%;
+    --km0-coral-100: 5 100% 86%;
+    --km0-coral-200: 5 100% 79%;
+    --km0-coral-300: 5 100% 72%;
+    --km0-coral-400: 7 100% 65%;
+    --km0-coral-500: 13 100% 48%;
+    --km0-coral-600: 13 100% 43%;
+    --km0-coral-700: 13 100% 38%;
+    --km0-coral-800: 13 100% 32%;
+    --km0-coral-900: 13 100% 27%;
+
+    --background: var(--km0-beige-50);
+    --foreground: var(--km0-blue-800);
+    --card: 0 0% 100%;
+    --card-foreground: var(--km0-blue-800);
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--km0-blue-800);
+    --primary: var(--km0-blue-700);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--km0-beige-100);
+    --secondary-foreground: var(--km0-blue-800);
+    --muted: var(--km0-beige-50);
+    --muted-foreground: 220 9% 46%;
+    --accent: var(--km0-teal-500);
+    --accent-foreground: 0 0% 100%;
+    --destructive: var(--km0-coral-400);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--km0-beige-200);
+    --input: var(--km0-beige-200);
+    --ring: var(--km0-blue-700);
+    --radius: 0.75rem;
+    --device-frame-max-width: 26.25rem;
+    --device-frame-max-height: 57.5rem;
+    --device-frame-viewport-gap: 1.5rem;
+    --shadow-device-frame: 0 24px 60px -20px hsl(var(--km0-blue-700) / 0.3);
+
+    /* Sidebar tokens */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: var(--km0-blue-900);
+    --foreground: var(--km0-beige-50);
+    --card: var(--km0-blue-800);
+    --card-foreground: var(--km0-beige-50);
+    --popover: var(--km0-blue-800);
+    --popover-foreground: var(--km0-beige-50);
+    --primary: var(--km0-beige-100);
+    --primary-foreground: var(--km0-blue-800);
+    --secondary: var(--km0-blue-700);
+    --secondary-foreground: var(--km0-beige-50);
+    --muted: var(--km0-blue-800);
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: var(--km0-teal-500);
+    --accent-foreground: 0 0% 100%;
+    --destructive: var(--km0-coral-500);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--km0-blue-700);
+    --input: var(--km0-blue-700);
+    --ring: var(--km0-beige-100);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .device-shell,
+  .device-frame,
+  .safe-area-inset {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* La app no enseña barras de desplazamiento (espejo de Lovable). */
+  #root * {
+    scrollbar-width: none;
+  }
+
+  #root *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .reward-cover-img {
+    @apply absolute inset-0 w-full h-full object-cover;
+  }
+
+  .reward-cover-thumb {
+    @apply relative overflow-hidden shrink-0 flex items-center justify-center;
+  }
+
+  /*
+   * Marco "teléfono": por defecto sin halo (móvil web y nativo).
+   * En desktop/tablet web (html:not(.is-native) + viewport grande) aparece
+   * el borde azul centrado para previsualizar la app.
+   */
+  .device-shell {
+    @apply flex h-dvh max-h-dvh w-full flex-col overflow-hidden bg-gradient-to-b from-km0-beige-50 to-km0-beige-100;
+  }
+
+  .device-frame {
+    @apply relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-0 bg-km0-beige-50 shadow-none;
+  }
+
+  .device-frame-branded {
+    @apply bg-gradient-to-b from-km0-beige-50 to-km0-beige-100;
+  }
+
+  /* Filtros / chips: envuelven; nunca carril horizontal. */
+  .chip-row {
+    @apply flex min-w-0 flex-wrap items-center gap-2 overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  /* Insets del sistema (status bar / notch / gesture bar) en WebView nativo */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /*
+   * Los carriles horizontales (carruseles de la principal, filtro de
+   * poblaciones) se desplazan con el dedo: `overflow-x-auto` tiene que
+   * conservar su efecto. El desbordamiento accidental de la página lo
+   * cortan html, body, #root y el marco, más arriba.
+   */
+
+  /*
+   * Halo azul del marco: solo desktop/tablet en navegador.
+   * Móvil (portrait ≤767 / landscape ≤1279) y Capacitor (html.is-native):
+   * el borde queda invisible y el contenido ocupa el viewport.
+   */
+  @media (orientation: portrait) and (min-width: 768px),
+    (orientation: landscape) and (min-width: 1280px) {
+    html:not(.is-native) .device-shell {
+      height: auto;
+      max-height: none;
+      min-height: 100dvh;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      padding-block: var(--device-frame-viewport-gap);
+    }
+
+    html:not(.is-native) .device-frame {
+      flex: none;
+      width: min(100vw, var(--device-frame-max-width));
+      height: min(
+        calc(
+          100dvh - (2 * var(--device-frame-viewport-gap)) -
+            env(safe-area-inset-top) - env(safe-area-inset-bottom)
+        ),
+        var(--device-frame-max-height)
+      );
+      border-radius: 1.5rem;
+      border-width: 2px;
+      border-style: solid;
+      border-color: hsl(var(--km0-blue-700) / 0.8);
+      box-shadow: var(--shadow-device-frame);
+    }
+  }
+}

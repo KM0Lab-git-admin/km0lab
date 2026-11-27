@@ -5,3 +5,9 @@ build
 coverage
 .expo
 pnpm-lock.yaml
+
+# Copia web de Capacitor (generada por cap:sync; gitignored)
+apps/km0lab/android/app/src/main/assets/public
+apps/km0lab/android/app/src/main/assets/capacitor.config.json
+apps/km0lab/android/app/src/main/assets/capacitor.plugins.json
+apps/km0lab/ios/App/App/public

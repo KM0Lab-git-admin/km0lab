@@ -18,16 +18,12 @@ async function distExists() {
 
 function runBuild() {
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      'pnpm',
-      ['--filter', 'km0lab', 'build:web'],
-      {
-        cwd: REPO_ROOT,
-        stdio: 'inherit',
-        shell: true,
-        env: process.env,
-      }
-    )
+    const child = spawn('pnpm', ['--filter', 'km0lab', 'build:web'], {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      shell: true,
+      env: process.env,
+    })
 
     child.on('error', reject)
     child.on('close', (code) => {

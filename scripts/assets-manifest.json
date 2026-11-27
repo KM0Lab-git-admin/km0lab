@@ -1,21 +1,162 @@
 {
-  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/speak-spanish-easily/main",
+  "$docs": "Sync de assets binarios Lovable -> produccion. Ver docs/PORTING-FROM-LOVABLE.md §6. Espejamos la estructura de src/assets de Lovable en apps/km0lab/src/assets (mismos nombres/rutas) porque el codigo portado importa esas rutas via @/assets. El script sobrescribe siempre. Algunos assets no estan versionados como binario en el repo de Lovable, sino como puntero <nombre>.<ext>.asset.json hacia su CDN; para esos, \"from\" es la URL absoluta del CDN (el codigo portado importa la ruta .asset.json y vite.config.ts la resuelve al binario local).",
+  "source": "https://raw.githubusercontent.com/KM0Lab-git-admin/km0lab-lovable/main",
   "assets": [
     {
       "from": "src/assets/km0_robot_icon_v2.png",
-      "to": "apps/km0lab/assets/images/km0-robot.png"
+      "to": "apps/km0lab/src/assets/km0_robot_icon_v2.png"
+    },
+    {
+      "from": "src/assets/coupon-icon.png",
+      "to": "apps/km0lab/src/assets/coupon-icon.png"
+    },
+    {
+      "from": "src/assets/agenda-icon.png",
+      "to": "apps/km0lab/src/assets/agenda-icon.png"
+    },
+    {
+      "from": "src/assets/chat-mascot.png",
+      "to": "apps/km0lab/src/assets/chat-mascot.png"
+    },
+    {
+      "from": "src/assets/cityhall-icon.png",
+      "to": "apps/km0lab/src/assets/cityhall-icon.png"
+    },
+    {
+      "from": "src/assets/shop-icon.png",
+      "to": "apps/km0lab/src/assets/shop-icon.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/3677aad3-9599-4638-a169-b14ed6e650f7/rewards-icon.png",
+      "to": "apps/km0lab/src/assets/rewards-icon.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/cb965bb3-081b-4c2a-82f7-6201f299242f/shop-services-icon.png",
+      "to": "apps/km0lab/src/assets/shop-services-icon.png"
+    },
+    {
+      "from": "src/assets/icon-star-rewards.png",
+      "to": "apps/km0lab/src/assets/icon-star-rewards.png"
+    },
+    {
+      "from": "src/assets/icon-gift.png",
+      "to": "apps/km0lab/src/assets/icon-gift.png"
+    },
+    {
+      "from": "src/assets/icon-hand-star.png",
+      "to": "apps/km0lab/src/assets/icon-hand-star.png"
+    },
+    {
+      "from": "src/assets/coat-malgrat.png",
+      "to": "apps/km0lab/src/assets/coat-malgrat.png"
+    },
+    {
+      "from": "src/assets/skyline-malgrat.png",
+      "to": "apps/km0lab/src/assets/skyline-malgrat.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-bakery.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-bakery.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-cafe.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-cafe.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-fashion.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-fashion.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-florist.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-florist.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-hardware.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-hardware.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-pharmacy.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-pharmacy.png"
+    },
+    {
+      "from": "src/assets/shop-logos/shop-wine.png",
+      "to": "apps/km0lab/src/assets/shop-logos/shop-wine.png"
     },
     {
       "from": "src/assets/flags/flag-ca.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-ca.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-ca.svg"
     },
     {
       "from": "src/assets/flags/flag-es.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-es.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-es.svg"
     },
     {
       "from": "src/assets/flags/flag-en.svg",
-      "to": "apps/km0lab/assets/images/flags/flag-en.svg"
+      "to": "apps/km0lab/src/assets/flags/flag-en.svg"
+    },
+    {
+      "from": "src/assets/news-icon.png",
+      "to": "apps/km0lab/src/assets/news-icon.png"
+    },
+    {
+      "from": "src/assets/services-icon.png",
+      "to": "apps/km0lab/src/assets/services-icon.png"
+    },
+    {
+      "from": "src/assets/onboarding/01_connecta_barri.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/01_connecta_barri.jpg"
+    },
+    {
+      "from": "src/assets/onboarding/02_agenda_avisos.jpg",
+      "to": "apps/km0lab/src/assets/onboarding/02_agenda_avisos.jpg"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/dcb290e0-de9c-4748-a4c5-19059c27d779/how-it-works-step1.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step1.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/56ab9de5-a294-477d-bcc1-173f8fd9dca3/how-it-works-step2.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step2.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/606643e6-e028-4d54-b336-b32d916445d9/how-it-works-step3.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step3.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/d7dd328c-b5c4-466d-b317-1e432e4d8140/how-it-works-step4.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step4.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/0e455669-ebbc-4c50-b674-5f02cd62941a/how-it-works-step5.png",
+      "to": "apps/km0lab/src/assets/how-it-works/step5.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/8331304a-67e2-4a42-bd9c-2ef7ff232f47/language-selection.png",
+      "to": "apps/km0lab/src/assets/language-selection.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/a4c98754-a813-49bf-bcc8-d9362a5f05ba/postal-code-map.png",
+      "to": "apps/km0lab/src/assets/postal-code-map.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/17ec3fa1-81b4-4f9a-b883-ead35d747435/onboarding-neighborhood-shop.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-neighborhood-shop.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/71e565a8-a36e-4968-8036-c7558b9f6062/onboarding-local-updates.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-local-updates.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/3680578f-30e6-48d0-b4ae-5bdedc0fc50e/onboarding-slide-3.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-3.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/8582e63c-db1a-4fd6-a927-d9e2c0add612/onboarding-slide-4.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-4.png"
+    },
+    {
+      "from": "https://id-preview-3abd47d5--e1c45761-2b09-4860-8947-e5d4e745134c.lovable.app/__l5e/assets-v1/dfa5daac-28e5-44bf-832d-9799f1c11205/onboarding-slide-5.png",
+      "to": "apps/km0lab/src/assets/onboarding/onboarding-slide-5.png"
     }
   ]
 }

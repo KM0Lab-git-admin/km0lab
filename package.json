@@ -2,26 +2,35 @@
   "name": "@km0lab/repo",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter km0lab web",
+    "dev": "pnpm --filter km0lab dev",
     "dev:all": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "type:check": "turbo run type:check",
+    "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:assets": "node scripts/sync-assets.mjs",
-    "validate": "turbo run type:check lint && pnpm format:check"
+    "sync:lovable": "node scripts/sync-lovable.mjs",
+    "sync:check": "node scripts/sync-check.mjs",
+    "release": "node scripts/release.mjs",
+    "e2e": "pnpm --filter @km0lab/e2e e2e",
+    "e2e:lectura": "pnpm --filter @km0lab/e2e e2e:lectura",
+    "design:doc": "node scripts/generate-design-doc.mjs",
+    "validate": "turbo run type:check lint && pnpm format:check",
+    "prepare": "lefthook install"
   },
   "packageManager": "pnpm@10.19.0",
   "engines": {
-    "node": ">=20.19.4",
+    "node": "24.x",
     "pnpm": ">=8.6.5"
   },
   "devDependencies": {
     "@km0lab/eslint-config": "workspace:*",
     "@km0lab/jest-config": "workspace:*",
     "eslint": "^9.36.0",
+    "lefthook": "^1.13.6",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "~5.9.3"

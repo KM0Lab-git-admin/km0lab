@@ -17,43 +17,63 @@ Consulta `docs/CONVENTIONS.md` para detalles y ejemplos largos.
 - Estructura:
   - `apps/*` — aplicaciones.
   - `packages/*` — librerías compartidas.
-- App principal: **`apps/km0lab`** (Expo SDK 55 + React Native 0.83 +
-  React 19 + expo-router + NativeWind 4 + TypeScript ~5.9).
-- UI compartida: **`@km0lab/ui`** → `packages/components`.
-- Lógica compartida: **`@km0lab/app`** → `packages/app`.
-- Tema web (Next.js/Vite): **`@km0lab/web-theme`** → `packages/km0lab-web-theme`.
-- Solo existen entornos `development` y `production`.
+- App principal: **`apps/km0lab`** (Vite + React 19 + Tailwind v3 +
+  shadcn/ui + Radix + Framer Motion + React Router DOM v7 +
+  TypeScript ~5.9). Capacitor preparado para builds móviles
+  (iOS/Android) cuando se necesiten — los shells nativos NO se
+  generan hasta que se ejecute `pnpm cap:add:android` / `pnpm
+cap:add:ios`.
+- UI compartida: **`@km0lab/ui`** → `packages/components` (primitivos
+  shadcn web puros).
+- Lógica compartida: **`@km0lab/app`** → `packages/app` (incluye
+  `design-system/` con tokens y aiContext).
+- Tema web (Next.js/Vite): **`@km0lab/web-theme`** →
+  `packages/km0lab-web-theme` (en uso para back-office cuando se
+  active).
+- Modos de build de Vite: solo `development` y `production`
+  (`apps/km0lab/env/`). Entornos de despliegue: tres, **local**, **UAT**
+  (`develop`) y **producción** (`main`); UAT y producción se distinguen por
+  las variables `VITE_*`, no por un tercer modo. Ver `docs/ENVIRONMENTS.md`.
 
 Comandos estándar (siempre desde la raíz del monorepo):
 
 ```bash
 pnpm install
-npx turbo run dev
+pnpm dev                       # arranca apps/km0lab con vite
+pnpm --filter km0lab build     # build de producción a apps/km0lab/dist
 npx turbo run type:check lint
-pnpm --filter km0lab build:web
 ```
 
-Para arrancar dev global: **usar `npx turbo run dev`**, no `npm run dev`.
-Si solo se necesita la app web de `km0lab`, usar
-**`pnpm --filter km0lab web`** para evitar levantar todo el monorepo.
+Para arrancar dev de toda la app: **`pnpm dev`** (usa Vite). Si quieres
+tareas turbo orquestadas (lint, type:check), `npx turbo run <task>`.
+
+Comandos Capacitor (cuando se necesiten builds móviles):
+
+```bash
+pnpm --filter km0lab cap:add:android      # genera apps/km0lab/android/
+pnpm --filter km0lab cap:add:ios          # genera apps/km0lab/ios/ (mac)
+pnpm --filter km0lab build && pnpm --filter km0lab cap:sync
+pnpm --filter km0lab cap:open:android     # abre Android Studio
+pnpm --filter km0lab cap:open:ios         # abre Xcode (mac)
+```
 
 ---
 
 ## 2. Dónde va cada cosa
 
-| Tipo de archivo | Ubicación | Extensión |
-|---|---|---|
-| Pantalla / ruta de la app | `apps/km0lab/app/<segmento-kebab>/index.tsx` | `.tsx` |
-| Layout de ruta | `apps/km0lab/app/.../_layout.tsx` | `.tsx` |
-| Componente específico de una pantalla | `apps/km0lab/components/<Componente>.tsx` | `.tsx` |
-| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx` |
-| Componente compartido (UI) | `packages/components/ui/<nombre-kebab>.tsx` | `.tsx` |
-| Utilidad compartida | `packages/app/utils/<nombre>.ts` | `.ts` |
-| Hook compartido | `packages/app/hooks/use<Nombre>.ts` | `.ts` |
-| Icono compartido | `packages/components/icons/<nombre>.tsx` | `.tsx` |
-| Estilos CSS globales | `apps/km0lab/styles/global.css` | `.css` |
-| Tokens de tema | `apps/km0lab/tailwind.config.js` (`theme.extend`) | `.js` |
-| Variables de entorno | `apps/km0lab/env/.env.development` / `.env.production` | — |
+| Tipo de archivo                                                   | Ubicación                                                           | Extensión |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------- | --------- |
+| Pantalla / ruta de la app                                         | `apps/km0lab/src/pages/<NombrePascal>.tsx`                          | `.tsx`    |
+| Layout / wrapper de pantalla                                      | `apps/km0lab/src/components/<Wrapper>.tsx` (p. ej. BrandedFrame)    | `.tsx`    |
+| Componente específico de una pantalla                             | `apps/km0lab/src/components/<Componente>.tsx`                       | `.tsx`    |
+| Componentes auxiliares de una pantalla con varios sub-componentes | `apps/km0lab/src/components/<ComponentePadre>/<ComponenteHijo>.tsx` | `.tsx`    |
+| Componente compartido (UI)                                        | `packages/components/ui/<nombre-kebab>.tsx`                         | `.tsx`    |
+| Utilidad compartida                                               | `packages/app/utils/<nombre>.ts`                                    | `.ts`     |
+| Hook compartido                                                   | `packages/app/hooks/use<Nombre>.ts`                                 | `.ts`     |
+| Icono compartido                                                  | `packages/components/icons/<nombre>.tsx`                            | `.tsx`    |
+| Estilos CSS globales                                              | `apps/km0lab/src/styles/global.css`                                 | `.css`    |
+| Tokens de tema                                                    | `apps/km0lab/tailwind.config.js` (`theme.extend`)                   | `.js`     |
+| Variables de entorno                                              | `apps/km0lab/env/.env.development` / `.env.production`              | —         |
 
 Cada componente nuevo en `@km0lab/ui` **debe** exportarse en
 `packages/components/index.ts`.
@@ -67,18 +87,40 @@ tiene varios componentes auxiliares propios.
 
 Mapping fijo entre Lovable y producción:
 
-| Lovable (`src/`) | Producción |
-|---|---|
-| `components/<Componente>.tsx` | `apps/km0lab/components/<Componente>.tsx` |
-| `components/ui/<nombre>.tsx` | `packages/components/ui/<nombre>.tsx` |
-| `pages/<Pantalla>.tsx` | `apps/km0lab/app/<pantalla-kebab>/index.tsx` |
-| `hooks/use-<x>.tsx` | `packages/app/hooks/use-<x>.ts` |
-| `services/<x>.ts` | `packages/app/services/<x>.ts` |
-| `data/<x>.ts` | `packages/app/data/<x>.ts` |
-| `lib/utils.ts` | ya existe en `packages/components/lib/utils.tsx` |
+| Lovable (`src/`)              | Producción                                       |
+| ----------------------------- | ------------------------------------------------ |
+| `components/<Componente>.tsx` | `apps/km0lab/src/components/<Componente>.tsx`    |
+| `components/ui/<nombre>.tsx`  | `packages/components/ui/<nombre>.tsx`            |
+| `pages/<Pantalla>.tsx`        | `apps/km0lab/src/pages/<Pantalla>.tsx`           |
+| `hooks/use-<x>.tsx`           | `packages/app/hooks/use-<x>.ts`                  |
+| `services/<x>.ts`             | `packages/app/services/<x>.ts`                   |
+| `data/<x>.ts`                 | `packages/app/data/<x>.ts`                       |
+| `stores/<x>.ts`               | `packages/app/stores/<x>.ts`                     |
+| `machines/<x>.ts`             | `packages/app/machines/<x>.ts`                   |
+| `types/<x>.ts`                | `packages/app/types/<x>.ts`                      |
+| `contexts/<X>.tsx`            | `apps/km0lab/src/contexts/<X>.tsx`               |
+| `lib/i18n.ts` (y otros lib/)  | `packages/app/utils/<x>.ts`                      |
+| `lib/utils.ts`                | ya existe en `packages/components/lib/utils.tsx` |
+
+No se sincronizan nunca (piezas solo-Lovable): `src/integrations/`,
+`supabase/`, `src/design-system/`, las páginas de preview (`PreviewAll`,
+`DesignSystem`, `Components`) y los componentes `DeviceShell` y
+`SimulatedDevice`. Los destinos listados en `"locked"` del manifest son
+propiedad de producción (implementación real) y el sync se niega a
+sobrescribirlos. El funnel guest (idioma + CP) es de Zustand, no del
+`localStorage` de Lovable: ver `docs/PORTING-FROM-LOVABLE.md` §12.5.
+`Language.tsx` se sincroniza (el seam es `LangContext`); `PostalCode.tsx`
+y `Login.tsx` están locked porque escriben/leen ubicación.
 
 La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 `/index.tsx` en producción. La conversión nunca se discute caso a caso.
+
+Este mapping lo automatiza `pnpm sync:lovable`
+(`scripts/sync-lovable.mjs` + `scripts/lovable-manifest.json`): deriva el
+destino, reescribe imports y verifica deps y breakpoints. Las reglas que
+Lovable debe cumplir para que el sync funcione están en
+`docs/LOVABLE-KNOWLEDGE.md` (se pegan en la Knowledge del proyecto de
+Lovable). Ver receta completa en `docs/PORTING-FROM-LOVABLE.md` §12.
 
 ---
 
@@ -94,7 +136,9 @@ La regla para rutas es mecánica: PascalCase de Lovable → kebab-case +
 - **Utilidades**: `camelCase` (`formatDate.ts`, `buildQuery.ts`).
 - **Tipos** exportados: `PascalCase`, sin prefijo `I`.
 - **Assets / iconos**: nombres en `kebab-case`.
-- **Rutas de Expo Router**: segmentos en `kebab-case`.
+- **Rutas de React Router**: paths en `kebab-case` (p. ej.
+  `/language-selection`, `/postal-code`). Archivos del page van en
+  `apps/km0lab/src/pages/<NombrePascal>.tsx`.
 
 No uses abreviaturas oscuras. Usa inglés para el código y los identificadores.
 La copy de producto puede ir en el idioma que indique la pantalla.
@@ -118,8 +162,9 @@ Obligatorio cumplir TODAS:
    `background`, `muted`, `accent`, `destructive`, `success`, `info`,
    `warning`, `card`, `border`, `ring`.
 6. Si falta un valor → **primero** añade token/variable, **después** usa la clase.
-7. Las preferencias de NativeWind `web:`, `native:`, `ios:`, `android:`
-   son la forma correcta de diferenciar plataformas; no crees ramas JS para estilos.
+7. Diferencia responsive con los breakpoints del proyecto (`vertical-mobile:`,
+   `vertical-tablet:`, `horizontal-mobile:`, `horizontal-desktop:`); no crees
+   ramas JS para estilos.
 
 ### Breakpoints del proyecto
 
@@ -127,7 +172,7 @@ Hay que distinguir dos cosas:
 
 **1. Breakpoints CSS (rangos)** — definidos en `apps/km0lab/tailwind.config.js`
 como `screens`. Cubren rangos amplios de viewport y se aplican vía clases
-NativeWind:
+Tailwind:
 
 - `vertical-mobile` — `(orientation: portrait) and (max-width: 767px)`.
 - `vertical-tablet` — `(orientation: portrait) and (min-width: 768px)`.
@@ -164,14 +209,12 @@ Consulta `docs/CONVENTIONS.md` para la tabla completa.
 - Composición explícita (`<Card>`, `<CardHeader>`, `<CardContent>`...)
   antes que props mágicas.
 - Props tipadas en TypeScript. **No `any`**. Si es inevitable, documenta por qué.
-- React Native por defecto: **no** añadas `"use client"`.
-- Iconos: `cssInterop` ya está centralizado en `lib/utils.tsx` (`interopIcon`).
+- Iconos: `interopIcon` centralizado en `lib/utils.tsx`.
 
 Patrón de un componente nuevo en `@km0lab/ui`:
 
 ```tsx
 import { cva } from 'class-variance-authority'
-import { View } from 'react-native'
 
 import { cn } from '@km0lab/ui/lib/utils'
 
@@ -187,11 +230,11 @@ const widgetVariants = cva('rounded-2xl border border-border bg-card p-4', {
   defaultVariants: { tone: 'default' },
 })
 
-type WidgetProps = React.ComponentProps<typeof View> &
+type WidgetProps = React.ComponentProps<'div'> &
   VariantProps<typeof widgetVariants>
 
 function Widget({ className, tone, ...props }: WidgetProps) {
-  return <View className={cn(widgetVariants({ tone }), className)} {...props} />
+  return <div className={cn(widgetVariants({ tone }), className)} {...props} />
 }
 
 export { Widget, widgetVariants }
@@ -200,16 +243,18 @@ export type { WidgetProps }
 
 ---
 
-## 6. Pantallas (expo-router)
+## 6. Pantallas (React Router DOM)
 
-- Una ruta = un archivo dentro de `apps/km0lab/app/`.
-- Layouts comunes: `_layout.tsx` al nivel adecuado.
+- Una ruta = un archivo dentro de `apps/km0lab/src/pages/`.
+- Las rutas se declaran en `apps/km0lab/src/App.tsx` con `<Routes>`
+  y `<Route>`. Layout compartido: envolver en `<BrandedFrame>` (las
+  pantallas de marca) o componer libremente.
 - Cada pantalla debe contemplar: **loading**, **empty**, **error** y
   **estado feliz**.
 - La copy de producto no va hardcodeada en componentes de `@km0lab/ui`
   (vive en pantallas o en features).
-- Navegación: usar `expo-router` (`<Link>`, `useRouter`). No mezclar con
-  otra librería de navegación.
+- Navegación: usar **React Router DOM v7** (`<Link>`, `useNavigate`,
+  `useParams`). No mezclar con otra librería de navegación.
 
 ---
 
@@ -217,7 +262,7 @@ export type { WidgetProps }
 
 Orden obligatorio, **sin** líneas en blanco dentro del mismo grupo:
 
-1. Librerías externas (`react`, `react-native`, `expo-*`, `clsx`, …).
+1. Librerías externas (`react`, `react-router-dom`, `framer-motion`, `clsx`, …).
 2. Paquetes del monorepo (`@km0lab/ui`, `@km0lab/app`, `@km0lab/web-theme`).
 3. Imports relativos (`./...`, `../...`).
 4. Tipos con `import type` (al final de cada bloque si aplica).
@@ -278,13 +323,28 @@ Ejemplos válidos:
 - `docs(agents): actualiza reglas de estilos`
 - `refactor(app): simplifica capa de fetch`
 
-### 8.3. Reglas extra
+### 8.3. Push y PRs — política
+
+- **`main` está blindada**: NUNCA push directo. Solo recibe merges desde
+  `develop` vía PR aprobado por humano.
+- **`develop` permite push directo con criterio**:
+  - Cambios triviales (typo, ajuste de un fichero pequeño, fix de config,
+    actualizar copy, bump de versión menor): push directo OK.
+  - Cambios sustanciales (feature nueva, refactor multi-fichero, port de
+    pantalla completa, eliminación de archivos, cambios de schema, nueva
+    dependencia): rama + PR para que el humano revise antes de mergear.
+  - En la duda: rama + PR. Es preferible un PR de más que un commit
+    inesperado en develop.
+- Cada commit directo a develop debe pasar igualmente por:
+  - El CI (que se dispara también en push a develop, no solo en PR).
+  - El formato Conventional Commits sin excepciones.
+- Avisar al humano del commit en el chat en cuanto se haga, con SHA y
+  resumen de qué cambió.
+
+### 8.4. Reglas extra
 
 - No edites `git config` global.
 - No uses `--amend` ni `--force` salvo petición explícita.
-- No hagas push a `main` bajo ninguna circunstancia.
-- No hagas push a `develop` bajo ninguna circunstancia: siempre vía PR
-  desde una rama de trabajo.
 
 ## 9. Antes de cerrar una tarea
 
@@ -303,9 +363,9 @@ Checklist obligatorio antes de pedir merge / terminar la tarea:
 ## 10. Assets visuales (sincronización con Lovable)
 
 Los assets visuales (imágenes, iconos, banderas, ilustraciones) **viven
-como source of truth en el repo de Lovable** (`speak-spanish-easily`).
-En este repo se consumen sincronizados a `apps/km0lab/assets/` para que
-Expo pueda hacer `require()` estático en build.
+como source of truth en el repo de Lovable** (`km0lab-lovable`).
+En este repo se consumen sincronizados a `apps/km0lab/src/assets/` para que
+Vite los resuelva como imports estáticos en build.
 
 ### 10.1. Cómo sincronizar
 
@@ -327,7 +387,7 @@ se perderá en la próxima ejecución.
 
 ### 10.3. Reglas duras
 
-- **PROHIBIDO** editar los binarios en `apps/km0lab/assets/` directamente:
+- **PROHIBIDO** editar los binarios en `apps/km0lab/src/assets/` directamente:
   modifícalos en Lovable y resincroniza.
 - **PROHIBIDO** committear configuración personal (paths absolutos del
   sistema operativo, credenciales, comandos `curl` improvisados) en
@@ -345,5 +405,7 @@ se perderá en la próxima ejecución.
   bundle, mantenimiento). Preferir lo que ya existe.
 - No mezclar sistemas de estilos (p. ej. StyleSheet.create + Tailwind).
 - No usar colores en hex o rgb en el markup; siempre tokens.
-- No romper la regla de solo dos entornos (`development`, `production`).
+- No añadir un tercer modo de build de Vite (solo `development` y
+  `production`) ni un entorno desplegado más allá de UAT y producción
+  (`docs/ENVIRONMENTS.md`).
 - No crear documentación nueva en `.md` si no se pide.
