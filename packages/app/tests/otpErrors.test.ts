@@ -4,7 +4,13 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { otpErrorKey, otpErrorKind, requestOtp } from '../services/auth'
+import {
+  otpErrorKey,
+  otpErrorKind,
+  otpErrorText,
+  otpRetryMinutes,
+  requestOtp,
+} from '../services/auth'
 import { ApiError } from '../services/km0labClient'
 import { useAppStore } from '../stores/useAppStore'
 import { t } from '../utils/i18nProd'
@@ -104,5 +110,61 @@ describe('texto de «ya has visitado este comercio»', () => {
       expect(text).toContain('{nom}')
       expect(text).not.toMatch(/un sol cop|una sola vez|only once/)
     }
+  })
+})
+
+describe('«demasiados intentos» dice cuándo volver a probar', () => {
+  const limited = (seconds: unknown) =>
+    new ApiError(429, 'Massa intents', {
+      code: 'rate_limited',
+      retry_after_seconds: seconds,
+    })
+
+  it('lee la espera que manda el servidor, en minutos enteros', () => {
+    expect(otpRetryMinutes(limited(3600))).toBe(60)
+    expect(otpRetryMinutes(limited(61))).toBe(2)
+    expect(otpRetryMinutes(limited(5))).toBe(1)
+  })
+
+  it('sin ese dato no inventa una espera', () => {
+    expect(otpRetryMinutes(limited(undefined))).toBeUndefined()
+    expect(otpRetryMinutes(limited(0))).toBeUndefined()
+    expect(
+      otpRetryMinutes(new ApiError(429, 'Too Many Requests'))
+    ).toBeUndefined()
+    expect(otpRetryMinutes(new TypeError('Failed to fetch'))).toBeUndefined()
+  })
+
+  it('el aviso lleva los minutos en los tres idiomas', () => {
+    const error = { kind: 'too_many' as const, retryMinutes: 20 }
+    expect(otpErrorText(error, 'ca')).toContain('20 min')
+    expect(otpErrorText(error, 'es')).toContain('20 min')
+    expect(otpErrorText(error, 'en')).toContain('20 min')
+    // Sin el dato (servidor antiguo, o intentos agotados de un código), el de siempre.
+    expect(otpErrorText({ kind: 'too_many' }, 'es')).toBe(
+      t('otp.toast_too_many', 'es')
+    )
+    expect(otpErrorText({ kind: 'expired' }, 'ca')).toBe(
+      t('otp.toast_expired', 'ca')
+    )
+  })
+
+  it('pedir un código con el límite alcanzado trae la espera', async () => {
+    useAppStore.setState({ lang: 'ca' })
+    mockApi({
+      'POST /auth/request-otp': {
+        status: 429,
+        json: {
+          detail: {
+            code: 'otp_email_limit',
+            message: 'Massa intents.',
+            retry_after_seconds: 1200,
+          },
+        },
+      },
+    })
+    const { error } = await requestOtp('marta@example.com')
+    expect(error?.kind).toBe('too_many')
+    expect(error?.retryMinutes).toBe(20)
   })
 })

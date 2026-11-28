@@ -1,7 +1,7 @@
 import {
   currentInviteCode,
   isPendingScanFresh,
-  otpErrorKey,
+  otpErrorText,
   requestOtp,
   t,
   useAppStore,
@@ -78,9 +78,7 @@ const Login = () => {
       // El motivo, en el idioma del vecino; el texto crudo del servidor
       // solo cuando no se reconoce.
       toast.error(
-        error.kind === 'unknown'
-          ? error.message
-          : t(otpErrorKey(error.kind), lang)
+        error.kind === 'unknown' ? error.message : otpErrorText(error, lang)
       )
       setSubmitting(false)
       return

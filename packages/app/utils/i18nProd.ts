@@ -138,6 +138,12 @@ const DP = {
     es: 'Demasiados intentos. Espera unos minutos y pide un código nuevo.',
     en: 'Too many attempts. Wait a few minutes and request a new code.',
   } as Dict,
+  // El servidor dice cuánto falta (límite por conexión o por correo).
+  'otp.toast_too_many_wait': {
+    ca: 'Massa intents. Podràs tornar-ho a provar d’aquí a {minutes} min.',
+    es: 'Demasiados intentos. Podrás volver a probar dentro de {minutes} min.',
+    en: 'Too many attempts. You can try again in {minutes} min.',
+  } as Dict,
   'otp.toast_offline': {
     ca: 'Sense connexió. Comprova la xarxa i torna-ho a provar.',
     es: 'Sin conexión. Comprueba la red e inténtalo de nuevo.',

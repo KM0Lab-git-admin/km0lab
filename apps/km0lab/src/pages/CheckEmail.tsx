@@ -3,7 +3,7 @@ import {
   isFixedOtpEmail,
   isPendingScanFresh,
   leaveDemo,
-  otpErrorKey,
+  otpErrorText,
   readPendingReward,
   requestOtp,
   scannerPathFor,
@@ -85,7 +85,7 @@ const CheckEmail = () => {
       state.referralReference
     )
     if (error) {
-      toast.error(t(otpErrorKey(error.kind), lang))
+      toast.error(otpErrorText(error, lang))
       // Con el código caducado o agotado, lo siguiente es pedir otro: ya.
       if (error.kind === 'expired' || error.kind === 'too_many') setCooldown(0)
       setDigits(Array(CODE_LENGTH).fill(''))
@@ -201,12 +201,9 @@ const CheckEmail = () => {
     setResending(false)
     if (error) {
       toast.error(
-        t(
-          error.kind === 'unknown'
-            ? 'otp.toast_resend_fail'
-            : otpErrorKey(error.kind),
-          lang
-        )
+        error.kind === 'unknown'
+          ? t('otp.toast_resend_fail', lang)
+          : otpErrorText(error, lang)
       )
       return
     }

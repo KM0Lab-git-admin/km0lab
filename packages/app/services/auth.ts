@@ -16,6 +16,7 @@ import {
   type AppUser,
 } from '../stores/useAppStore'
 import { isDemoPostalCode } from '../utils/demoTown'
+import { t, tf, type Lang, type TKey } from '../utils/i18nProd'
 import { TERMS_VERSION } from '../utils/legalText'
 import { clearPendingInvite, currentInviteCode } from '../utils/pendingInvite'
 
@@ -26,8 +27,6 @@ import {
   messageSchema,
   userSchema,
 } from './km0labClient'
-
-import type { TKey } from '../utils/i18nProd'
 
 export type MockUser = AppUser
 export type MockSession = AppSession
@@ -42,7 +41,13 @@ export type OtpErrorKind =
   | 'pilot_full'
   | 'unknown'
 
-type Result = { error: { message: string; kind: OtpErrorKind } | null }
+/** `retryMinutes`: cuánto falta para poder volver a probar, si se sabe. */
+export type OtpError = {
+  message: string
+  kind: OtpErrorKind
+  retryMinutes?: number
+}
+type Result = { error: OtpError | null }
 
 /**
  * Cuando la cuenta y la app no están en el mismo lado. Una cuenta no cruza
@@ -145,6 +150,32 @@ const OTP_ERROR_KEYS: Record<OtpErrorKind, TKey> = {
 /** Clave del texto que explica ese motivo al vecino. */
 export const otpErrorKey = (kind: OtpErrorKind): TKey => OTP_ERROR_KEYS[kind]
 
+/**
+ * Minutos que hay que esperar, cuando el servidor lo dice: los límites de
+ * peticiones (por conexión o por correo) llegan con
+ * `detail.retry_after_seconds`.
+ */
+export const otpRetryMinutes = (e: unknown): number | undefined => {
+  if (!(e instanceof ApiError) || !e.detail || typeof e.detail !== 'object')
+    return undefined
+  const seconds = (e.detail as { retry_after_seconds?: unknown })
+    .retry_after_seconds
+  if (typeof seconds !== 'number' || !(seconds > 0)) return undefined
+  return Math.max(1, Math.ceil(seconds / 60))
+}
+
+/**
+ * El texto del fallo en el idioma del vecino. Con «demasiados intentos»
+ * dice cuándo puede volver a probar, si el servidor lo ha dicho.
+ */
+export const otpErrorText = (
+  error: Pick<OtpError, 'kind' | 'retryMinutes'>,
+  lang: Lang
+): string =>
+  error.kind === 'too_many' && error.retryMinutes
+    ? tf('otp.toast_too_many_wait', lang, { minutes: error.retryMinutes })
+    : t(otpErrorKey(error.kind), lang)
+
 const PENDING_REWARD_KEY = 'km0_pending_reward'
 
 export type PendingReward = {
@@ -229,6 +260,7 @@ export const requestOtp = async (
       error: {
         message: toMessage(e, 'No se pudo enviar el código'),
         kind: otpErrorKind(e),
+        retryMinutes: otpRetryMinutes(e),
       },
     }
   }
