@@ -1,3 +1,4 @@
+import type { Town, ComercAdherit, CategoriaAdherit } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
@@ -11,12 +12,10 @@ import {
   tf,
   type Lang,
   useShops,
-  Town,
-  ComercAdherit,
-  CategoriaAdherit,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
+
 import {
   Search,
   QrCode,
@@ -33,8 +32,9 @@ import BottomTabs from '@/components/AccountBottomTabs'
 import CategoryFilterMenu, {
   type CategoryFilterOption,
 } from '@/components/CategoryFilterMenu'
-import HomeHero from '@/components/HomeHero'
+import NotificationBell from '@/components/NotificationBell'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenHeader from '@/components/ScreenHeader'
 import SectionHeader from '@/components/SectionHeader'
 import { TownTag } from '@/components/TownTag'
 import { useLang } from '@/contexts/LangContext'
@@ -258,29 +258,39 @@ const Comercos = () => {
           ref={notifications.setContainer}
           className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
         >
-          <HomeHero
-            cityName={town}
-            hasAlerts={notifications.hasUnread}
-            onToggleAlerts={notifications.show}
+          <ScreenHeader
+            title={t('merchants.header.title', lang)}
+            subtitle={
+              isGrouped
+                ? tf('territory.townAndNeighbours', lang, {
+                    town: homeTown?.name ?? town,
+                  })
+                : town
+            }
             onBack={() => navigate('/home')}
-            showGreeting={false}
+            backAriaLabel={t('common.back', lang)}
+            actions={
+              <NotificationBell
+                hasAlerts={notifications.hasUnread}
+                onClick={notifications.show}
+                ariaLabel={t(
+                  notifications.hasUnread
+                    ? 'notifications.unread'
+                    : 'notifications.none',
+                  lang
+                )}
+              />
+            }
           />
 
           {/* Body */}
           <section className="relative flex-1 min-h-0 flex flex-col px-4 pt-3 pb-2 overflow-hidden">
             {/* Títol + subtítol */}
             <header className="shrink-0 mb-3">
-              <h2 className="font-brand text-lg leading-tight text-km0-blue-900">
-                {t('merchants.title', lang)}
-              </h2>
               <p className="font-ui text-xs text-km0-blue-700/70 mt-0.5">
-                {isGrouped
-                  ? tf('territory.townAndNeighbours', lang, {
-                      town: homeTown?.name ?? town,
-                    })
-                  : interpolate(t('merchants.subtitle', lang), {
-                      count: totalPrograma,
-                    })}
+                {interpolate(t('merchants.subtitle', lang), {
+                  count: totalPrograma,
+                })}
               </p>
               <p className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-km0-coral-500 text-primary-foreground text-[11px] font-ui font-bold">
                 <QrCode size={12} strokeWidth={2.4} />

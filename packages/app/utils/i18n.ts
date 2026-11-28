@@ -13,9 +13,32 @@ export type Lang = 'ca' | 'es' | 'en'
 
 export const LANGS: Lang[] = ['ca', 'es', 'en']
 
+/** One localized phrase for interior screen date subtitles. */
+export const formatScreenDate = (date: Date, lang: Lang): string => {
+  const locales: Record<Lang, string> = {
+    ca: 'ca-ES',
+    es: 'es-ES',
+    en: 'en-GB',
+  }
+  const phrase = date
+    .toLocaleDateString(locales[lang], {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    })
+    .replace(',', '')
+  return phrase.charAt(0).toUpperCase() + phrase.slice(1)
+}
+
 type Dict = Record<Lang, string>
 
 const D = {
+  'merchants.header.title': {
+    ca: 'Comerços',
+    es: 'Comercios',
+    en: 'Shops',
+  } as Dict,
+  'scanner.header.title': { ca: 'Escaneja', es: 'Escanea', en: 'Scan' } as Dict,
   'catalog.error': {
     ca: 'No s’han pogut carregar els premis.',
     es: 'No se han podido cargar los premios.',

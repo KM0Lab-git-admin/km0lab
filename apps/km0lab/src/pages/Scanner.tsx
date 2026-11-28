@@ -23,13 +23,12 @@ import {
   Loader2,
   ScanLine,
   WifiOff,
-  X,
 } from 'lucide-react'
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import BrandedFrame from '@/components/BrandedFrame'
-import Km0Logo from '@/components/Km0Logo'
+import ScreenHeader from '@/components/ScreenHeader'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -340,116 +339,110 @@ const Scanner = () => {
   return (
     <BrandedFrame
       hideHeader
-      portraitContentClassName="relative p-0 overflow-hidden"
-      landscapeContentClassName="relative p-0 overflow-hidden"
+      portraitContentClassName="relative !p-0 overflow-hidden"
+      landscapeContentClassName="relative !p-0 overflow-hidden"
     >
-      {/* Header ── cierre + logo ─────────────────────────── */}
-      <header className="relative z-30 shrink-0 flex items-center justify-between px-4 pt-5 pb-3">
-        <button
-          type="button"
-          onClick={close}
-          aria-label={t('scanner.close', lang)}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-km0-blue-900/5 text-km0-blue-900 hover:bg-km0-blue-900/10 transition-colors"
-        >
-          <X size={20} strokeWidth={2.4} />
-        </button>
-        <Km0Logo className="h-7 w-auto" />
-        <div className="w-10" aria-hidden="true" />
-      </header>
+      {/* Cabecera ── la misma de todas las pantallas interiores, pegada
+          arriba (encargo 15). Esta pantalla es de producción: se coloca a
+          mano igual que en el prototipo. */}
+      <ScreenHeader
+        title={t('scanner.header.title', lang)}
+        onBack={close}
+        backAriaLabel={t('scanner.close', lang)}
+      />
 
-      {/* Títol ── marca + hint ─────────────────────────── */}
-      <div className="shrink-0 px-6 pb-4">
-        <h1 className="font-brand text-2xl text-km0-blue-900">
-          {t('scanner.title', lang)}
-        </h1>
-        <p className="mt-1 font-body text-sm text-km0-blue-900/70">
-          {t('scanner.hint', lang)}
-        </p>
-      </div>
-
-      {/* Visor ── càmera real + esquines teal ─────────── */}
-      <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-km0-blue-900">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className={cn(
-            'absolute inset-0 w-full h-full object-cover',
-            cameraError ? 'hidden' : 'opacity-100'
-          )}
-        />
-
-        {debug && (
-          <div className="absolute left-2 top-2 z-40 rounded-lg bg-km0-blue-900/85 px-3 py-2 font-ui text-xs leading-snug text-km0-beige-50">
-            <div>cam: {scanInfo.current.gum}</div>
-            <div>det: {scanInfo.current.detector}</div>
-            <div>
-              res: {scanInfo.current.vw}×{scanInfo.current.vh}
-            </div>
-            <div>rs: {scanInfo.current.ready}</div>
-            <div>scan: {scanInfo.current.ticks}</div>
-            <div>err: {scanInfo.current.lastErr || '-'}</div>
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="relative aspect-square w-full max-w-[260px]">
-            {/* Esquines */}
-            {[
-              'top-0 left-0 border-t-4 border-l-4 rounded-tl-2xl',
-              'top-0 right-0 border-t-4 border-r-4 rounded-tr-2xl',
-              'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-2xl',
-              'bottom-0 right-0 border-b-4 border-r-4 rounded-br-2xl',
-            ].map((pos) => (
-              <span
-                key={pos}
-                className={cn('absolute w-10 h-10 border-km0-teal-400', pos)}
-              />
-            ))}
-
-            {/* Línia d'escaneig animada (només durant lectura) */}
-            {status === 'reading' && !cameraError && (
-              <motion.div
-                aria-hidden
-                className="absolute left-3 right-3 h-[2px] rounded-full bg-km0-teal-400 shadow-[0_0_12px_hsl(var(--km0-teal-400))]"
-                initial={{ top: '12%' }}
-                animate={{ top: ['12%', '88%', '12%'] }}
-                transition={{
-                  duration: 2.4,
-                  ease: 'easeInOut',
-                  repeat: Infinity,
-                }}
-              />
-            )}
-          </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        {/* Hint */}
+        <div className="shrink-0 px-6 pt-3 pb-4">
+          <p className="font-body text-sm text-km0-blue-900/70">
+            {t('scanner.hint', lang)}
+          </p>
         </div>
 
-        {/* Overlay error de càmera */}
-        {cameraError && status === 'reading' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/80 backdrop-blur-sm px-6 text-center">
-            <ImageUp size={36} className="text-km0-teal-400" />
-            <p className="text-sm font-ui text-km0-beige-50">
-              {t(
-                cameraError === 'denied'
-                  ? 'scanner.camera.permission_denied'
-                  : 'scanner.camera.unavailable',
-                lang
-              )}
-            </p>
-            <ImageUploadButton onPick={onPickImage} />
-          </div>
-        )}
+        {/* Visor ── càmera real + esquines teal ─────────── */}
+        <div className="relative flex-1 min-h-0 mx-6 mb-4 rounded-3xl overflow-hidden bg-km0-blue-900">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={cn(
+              'absolute inset-0 w-full h-full object-cover',
+              cameraError ? 'hidden' : 'opacity-100'
+            )}
+          />
 
-        {/* Overlay VALIDANT */}
-        {status === 'validating' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/60 backdrop-blur-sm">
-            <Loader2 size={40} className="animate-spin text-km0-teal-400" />
-            <p className="text-sm font-ui font-semibold text-km0-beige-50">
-              {t('scanner.validating.title', lang)}
-            </p>
+          {debug && (
+            <div className="absolute left-2 top-2 z-40 rounded-lg bg-km0-blue-900/85 px-3 py-2 font-ui text-xs leading-snug text-km0-beige-50">
+              <div>cam: {scanInfo.current.gum}</div>
+              <div>det: {scanInfo.current.detector}</div>
+              <div>
+                res: {scanInfo.current.vw}×{scanInfo.current.vh}
+              </div>
+              <div>rs: {scanInfo.current.ready}</div>
+              <div>scan: {scanInfo.current.ticks}</div>
+              <div>err: {scanInfo.current.lastErr || '-'}</div>
+            </div>
+          )}
+
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="relative aspect-square w-full max-w-[260px]">
+              {/* Esquines */}
+              {[
+                'top-0 left-0 border-t-4 border-l-4 rounded-tl-2xl',
+                'top-0 right-0 border-t-4 border-r-4 rounded-tr-2xl',
+                'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-2xl',
+                'bottom-0 right-0 border-b-4 border-r-4 rounded-br-2xl',
+              ].map((pos) => (
+                <span
+                  key={pos}
+                  className={cn('absolute w-10 h-10 border-km0-teal-400', pos)}
+                />
+              ))}
+
+              {/* Línia d'escaneig animada (només durant lectura) */}
+              {status === 'reading' && !cameraError && (
+                <motion.div
+                  aria-hidden
+                  className="absolute left-3 right-3 h-[2px] rounded-full bg-km0-teal-400 shadow-[0_0_12px_hsl(var(--km0-teal-400))]"
+                  initial={{ top: '12%' }}
+                  animate={{ top: ['12%', '88%', '12%'] }}
+                  transition={{
+                    duration: 2.4,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                  }}
+                />
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Overlay error de càmera */}
+          {cameraError && status === 'reading' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/80 backdrop-blur-sm px-6 text-center">
+              <ImageUp size={36} className="text-km0-teal-400" />
+              <p className="text-sm font-ui text-km0-beige-50">
+                {t(
+                  cameraError === 'denied'
+                    ? 'scanner.camera.permission_denied'
+                    : 'scanner.camera.unavailable',
+                  lang
+                )}
+              </p>
+              <ImageUploadButton onPick={onPickImage} />
+            </div>
+          )}
+
+          {/* Overlay VALIDANT */}
+          {status === 'validating' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-km0-blue-900/60 backdrop-blur-sm">
+              <Loader2 size={40} className="animate-spin text-km0-teal-400" />
+              <p className="text-sm font-ui font-semibold text-km0-beige-50">
+                {t('scanner.validating.title', lang)}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Footer ── estatus + pujar imatge ─────────────────── */}
@@ -519,7 +512,7 @@ const ImageUploadButton = ({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-km0-yellow-400 text-km0-blue-900 font-ui font-bold text-sm px-4 py-2.5 hover:bg-km0-yellow-300 active:scale-[0.99] transition-transform"
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-km0-yellow-500 text-km0-blue-900 font-ui font-bold text-sm px-4 py-2.5 hover:bg-km0-yellow-300 active:scale-[0.99] transition-transform"
       >
         <ImageUp size={16} strokeWidth={2.4} />
         {t('scanner.upload.cta', lang)}
@@ -596,7 +589,7 @@ const ErrorOverlay = ({
               'w-full rounded-xl font-ui font-bold text-sm py-3 transition-colors',
               isJaVisitat
                 ? 'bg-transparent text-km0-blue-900 border-2 border-km0-blue-900/20 hover:bg-km0-blue-900/5'
-                : 'bg-km0-yellow-400 text-km0-blue-900 hover:bg-km0-yellow-300'
+                : 'bg-km0-yellow-500 text-km0-blue-900 hover:bg-km0-yellow-300'
             )}
           >
             {isJaVisitat
@@ -636,7 +629,7 @@ const SuccessOverlay = ({
         transition={{ type: 'spring', stiffness: 240, damping: 18 }}
         className="w-full rounded-3xl bg-card text-km0-blue-900 p-6 text-center shadow-2xl"
       >
-        <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-km0-yellow-400 flex items-center justify-center">
+        <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-km0-yellow-500 flex items-center justify-center">
           <Check size={32} strokeWidth={3} className="text-km0-blue-900" />
         </div>
         <p className="font-ui font-bold text-lg">

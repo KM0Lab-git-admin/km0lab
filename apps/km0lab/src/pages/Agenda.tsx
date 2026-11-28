@@ -1,7 +1,5 @@
-import type { Town } from '@km0lab/app'
 import {
   useNotificationsPanel,
-  useLocationContext,
   useDragScroll,
   useScopeEvents,
   useScopeCategories,
@@ -11,6 +9,7 @@ import {
   countEventCategories,
   t,
   tf,
+  formatScreenDate,
   type Lang,
   type AgendaEvent as Evento,
 } from '@km0lab/app'
@@ -39,14 +38,15 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { Town } from '@km0lab/app'
 
 import CategoryFilterMenu, {
   type CategoryFilterOption,
 } from '@/components/CategoryFilterMenu'
-import HomeHero from '@/components/HomeHero'
+import NotificationBell from '@/components/NotificationBell'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
-import ScreenTitle from '@/components/ScreenTitle'
 import { TownTag } from '@/components/TownTag'
 import WhenTabs, { type WhenKey } from '@/components/WhenTabs'
 import { useLang } from '@/contexts/LangContext'
@@ -203,7 +203,7 @@ const EventListCard = ({
               {t('agenda.badge.free', lang)}
             </span>
           ) : evento.precio_euros != null ? (
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold bg-km0-yellow-400 text-km0-blue-900 shadow-sm">
+            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-ui font-bold bg-km0-yellow-500 text-km0-blue-900 shadow-sm">
               {evento.precio_euros.toFixed(2)} €
             </span>
           ) : null}
@@ -274,9 +274,6 @@ const Agenda = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [price] = useState<Price>('todos')
   const [when, setWhen] = useState<WhenKey>('mes')
-
-  // Población elegida por el usuario (CP → población), con fallback.
-  const { town } = useLocationContext()
 
   const { territory, homeTown, isGrouped } = useTerritory()
   const [selectedTown, setSelectedTown] = useState<string | null>(null)
@@ -415,23 +412,27 @@ const Agenda = () => {
 
   /* ─── Render ─────────────────────────────────────── */
   const content = (
-    <div className="flex flex-col gap-3 w-full h-full min-h-0">
-      {/* ── Hero superior reutilizado del Home ─── */}
-      <div className="-mx-4 -mt-5 shrink-0">
-        <HomeHero
-          cityName={town}
-          hasAlerts={notifications.hasUnread}
-          onToggleAlerts={notifications.show}
-          onBack={() => navigate('/home')}
-          backAriaLabel={t('agenda.back', lang)}
-          showGreeting={false}
-          greetingSlot={<ScreenTitle title={t('agenda.title', lang)} />}
-        />
-      </div>
+    <>
+      <ScreenHeader
+        title={t('agenda.title', lang)}
+        subtitle={formatScreenDate(new Date(), lang)}
+        onBack={() => navigate('/home')}
+        backAriaLabel={t('agenda.back', lang)}
+        actions={
+          <NotificationBell
+            hasAlerts={notifications.hasUnread}
+            onClick={notifications.show}
+            ariaLabel={t(
+              notifications.hasUnread
+                ? 'notifications.unread'
+                : 'notifications.none',
+              lang
+            )}
+          />
+        }
+      />
 
-      {/* ── Contenido no-hero: relative z-10 para pintarse SOBRE el
-           HomeHero decorativo (que en landscape es absolute inset-0). ─── */}
-      <div className="relative z-10 flex-1 min-h-0 flex flex-col gap-3">
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 px-4 pt-3">
         {/* ── Rango temporal + menú de categorías en la misma fila ─── */}
         <div className="flex shrink-0 items-center gap-2">
           <WhenTabs
@@ -563,7 +564,7 @@ const Agenda = () => {
           </AnimatePresence>
         </section>
       </div>
-    </div>
+    </>
   )
 
   return (
@@ -573,9 +574,7 @@ const Agenda = () => {
           ref={notifications.setContainer}
           className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
         >
-          <div className="flex-1 min-h-0 w-full flex flex-col px-4 pt-5 pb-0 overflow-y-auto overflow-x-hidden">
-            {content}
-          </div>
+          {content}
           <NotificationsOverlay
             open={notifications.open}
             items={notifications.items}

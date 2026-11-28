@@ -9,8 +9,9 @@ import {
   Redemption,
   RedemptionStatus,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Gift,
   PackageCheck,
@@ -21,14 +22,15 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'
 import RewardCardFrame from '@/components/RewardCardFrame'
 import ScreenHeader from '@/components/ScreenHeader'
+
+import { Button } from '@km0lab/ui'
+
 import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
@@ -281,7 +283,14 @@ const PremisCanjats = () => {
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           {/* Header */}
-          <ScreenHeader title={t('redemptions.title', lang)} />
+          <ScreenHeader
+            title={t('redemptions.title', lang)}
+            onBack={() => {
+              if (window.history.state?.idx > 0) navigate(-1)
+              else navigate('/home')
+            }}
+            backAriaLabel={t('common.back', lang)}
+          />
 
           {/* Lista */}
           <div

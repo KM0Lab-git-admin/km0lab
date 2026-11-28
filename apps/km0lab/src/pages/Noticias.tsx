@@ -1,4 +1,3 @@
-import type { Town, ScopedItem } from '@km0lab/app'
 import {
   useNotificationsPanel,
   useLocationContext,
@@ -10,23 +9,27 @@ import {
   visibleHomeNews,
   t,
   tf,
+  formatScreenDate,
   type Lang,
   type Noticia,
 } from '@km0lab/app'
+import type { Town, ScopedItem } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import FilterChip from '@/components/FilterChip'
-import HomeHero from '@/components/HomeHero'
 import NoticiaCard, { formatNewsDate } from '@/components/NoticiaCard'
+import NotificationBell from '@/components/NotificationBell'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
-import ScreenTitle from '@/components/ScreenTitle'
 import SectionHeader from '@/components/SectionHeader'
 import { TownTag } from '@/components/TownTag'
+
+import { useNavigate, useSearchParams } from 'react-router-dom'
+
 import { useLang } from '@/contexts/LangContext'
 
 /* ─── Detalle ───────────────────────────────────────────────── */
@@ -201,150 +204,161 @@ const Noticias = () => {
   }
 
   const content = (
-    <div className="flex flex-col gap-3 w-full h-full min-h-0">
-      <div className="-mx-4 -mt-2 shrink-0">
-        <HomeHero
-          cityName={town}
-          hasAlerts={notifications.hasUnread}
-          onToggleAlerts={notifications.show}
-          onBack={() => navigate('/home')}
-          backAriaLabel={t('common.back', lang)}
-          showGreeting={false}
-          greetingSlot={
-            <div className="w-full min-w-0">
-              <ScreenTitle title={t('news.title', lang)} />
-              {isGrouped && (
-                <p className="mt-1 font-body text-xs text-km0-blue-800">
-                  {tf('territory.townAndNeighbours', lang, {
-                    town: homeTown?.name ?? town,
-                  })}
-                </p>
-              )}
-            </div>
-          }
-        />
-      </div>
-
-      <AnimatePresence mode="wait" initial={false}>
-        {opened && state === 'ready' ? (
-          <NoticiaDetail
-            key={`detail-${opened.item.id}`}
-            noticia={opened.item}
-            origin={isGrouped ? opened.town : undefined}
-            lang={lang}
-            onBack={closeDetail}
+    <>
+      <ScreenHeader
+        title={t('news.title', lang)}
+        subtitle={
+          isGrouped
+            ? [
+                formatScreenDate(new Date(), lang),
+                tf('territory.townAndNeighbours', lang, {
+                  town: homeTown?.name ?? town,
+                }),
+              ]
+            : formatScreenDate(new Date(), lang)
+        }
+        onBack={() => navigate('/home')}
+        backAriaLabel={t('common.back', lang)}
+        actions={
+          <NotificationBell
+            hasAlerts={notifications.hasUnread}
+            onClick={notifications.show}
+            ariaLabel={t(
+              notifications.hasUnread
+                ? 'notifications.unread'
+                : 'notifications.none',
+              lang
+            )}
           />
-        ) : (
-          <div className="flex min-h-0 flex-1 flex-col gap-3">
-            {isGrouped && (
-              <div
-                ref={filtersRef}
-                className="flex shrink-0 gap-2 overflow-x-auto touch-pan-x"
-              >
-                <div className="shrink-0">
-                  <FilterChip
-                    label={t('territory.allFeminine', lang)}
-                    active={selectedTown === null}
-                    onClick={() => setSelectedTown(null)}
-                  />
-                </div>
-                {territory?.towns.map((origin) => (
-                  <div key={origin.id} className="shrink-0">
+        }
+      />
+
+      <div className="flex min-h-0 flex-1 flex-col px-4 pt-3">
+        <AnimatePresence mode="wait" initial={false}>
+          {opened && state === 'ready' ? (
+            <NoticiaDetail
+              key={`detail-${opened.item.id}`}
+              noticia={opened.item}
+              origin={isGrouped ? opened.town : undefined}
+              lang={lang}
+              onBack={closeDetail}
+            />
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col gap-3">
+              {isGrouped && (
+                <div
+                  ref={filtersRef}
+                  className="flex shrink-0 gap-2 overflow-x-auto touch-pan-x"
+                >
+                  <div className="shrink-0">
                     <FilterChip
-                      label={origin.name}
-                      active={selectedTown === origin.id}
-                      onClick={() => setSelectedTown(origin.id)}
+                      label={t('territory.allFeminine', lang)}
+                      active={selectedTown === null}
+                      onClick={() => setSelectedTown(null)}
                     />
                   </div>
-                ))}
-              </div>
-            )}
-            <motion.section
-              key="list"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4 space-y-3"
-              ref={scrollRef}
-            >
-              {isSample && (
-                <p
-                  role="status"
-                  className="font-ui text-xs font-bold text-km0-coral-700"
-                >
-                  {t('territory.sampleContent', lang)}
-                </p>
-              )}
-              <ScreenStatus
-                state={state}
-                emptyKey="news.empty.title"
-                onRetry={load}
-              />
-              {state !== 'loading' &&
-                state !== 'error' &&
-                (!isGrouped || selectedTown !== null) && (
-                  <>
-                    {failures.map(renderFailure)}
-                    {state === 'ready' &&
-                      visible.map((entry) => renderCard(entry))}
-                  </>
-                )}
-              {state === 'empty' &&
-                isGrouped &&
-                selectedTown === null &&
-                failures.map(renderFailure)}
-              {state === 'ready' && isGrouped && selectedTown === null && (
-                <>
-                  {(scope.home.length > 0 ||
-                    failures.some((origin) => origin.id === homeTown?.id)) && (
-                    <section className="space-y-3">
-                      <SectionHeader
-                        title={tf('territory.newsFrom', lang, {
-                          town: homeTown?.name ?? town,
-                        })}
-                        aside={
-                          <TownTag
-                            townName={homeTown?.name ?? town}
-                            isHome
-                            lang={lang}
-                          />
-                        }
+                  {territory?.towns.map((origin) => (
+                    <div key={origin.id} className="shrink-0">
+                      <FilterChip
+                        label={origin.name}
+                        active={selectedTown === origin.id}
+                        onClick={() => setSelectedTown(origin.id)}
                       />
-                      {failures
-                        .filter((origin) => origin.id === homeTown?.id)
-                        .map(renderFailure)}
-                      {visibleHomeNews(scope.home, expanded).map((entry) =>
-                        renderCard(entry, false)
-                      )}
-                      {!expanded && scope.home.length > 5 && (
-                        <Button
-                          variant="bubbleLink"
-                          onClick={() => setExpanded(true)}
-                        >
-                          {tf('territory.moreNewsFrom', lang, {
+                    </div>
+                  ))}
+                </div>
+              )}
+              <motion.section
+                key="list"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain -mx-4 px-4 pb-4 space-y-3"
+                ref={scrollRef}
+              >
+                {isSample && (
+                  <p
+                    role="status"
+                    className="font-ui text-xs font-bold text-km0-coral-700"
+                  >
+                    {t('territory.sampleContent', lang)}
+                  </p>
+                )}
+                <ScreenStatus
+                  state={state}
+                  emptyKey="news.empty.title"
+                  onRetry={load}
+                />
+                {state !== 'loading' &&
+                  state !== 'error' &&
+                  (!isGrouped || selectedTown !== null) && (
+                    <>
+                      {failures.map(renderFailure)}
+                      {state === 'ready' &&
+                        visible.map((entry) => renderCard(entry))}
+                    </>
+                  )}
+                {state === 'empty' &&
+                  isGrouped &&
+                  selectedTown === null &&
+                  failures.map(renderFailure)}
+                {state === 'ready' && isGrouped && selectedTown === null && (
+                  <>
+                    {(scope.home.length > 0 ||
+                      failures.some(
+                        (origin) => origin.id === homeTown?.id
+                      )) && (
+                      <section className="space-y-3">
+                        <SectionHeader
+                          title={tf('territory.newsFrom', lang, {
                             town: homeTown?.name ?? town,
                           })}
-                        </Button>
-                      )}
-                    </section>
-                  )}
-                  {(scope.nearby.length > 0 ||
-                    failures.some((origin) => origin.id !== homeTown?.id)) && (
-                    <section className="space-y-3">
-                      <SectionHeader title={t('territory.nearYou', lang)} />
-                      {failures
-                        .filter((origin) => origin.id !== homeTown?.id)
-                        .map(renderFailure)}
-                      {scope.nearby.map((entry) => renderCard(entry))}
-                    </section>
-                  )}
-                </>
-              )}
-            </motion.section>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+                          aside={
+                            <TownTag
+                              townName={homeTown?.name ?? town}
+                              isHome
+                              lang={lang}
+                            />
+                          }
+                        />
+                        {failures
+                          .filter((origin) => origin.id === homeTown?.id)
+                          .map(renderFailure)}
+                        {visibleHomeNews(scope.home, expanded).map((entry) =>
+                          renderCard(entry, false)
+                        )}
+                        {!expanded && scope.home.length > 5 && (
+                          <Button
+                            variant="bubbleLink"
+                            onClick={() => setExpanded(true)}
+                          >
+                            {tf('territory.moreNewsFrom', lang, {
+                              town: homeTown?.name ?? town,
+                            })}
+                          </Button>
+                        )}
+                      </section>
+                    )}
+                    {(scope.nearby.length > 0 ||
+                      failures.some(
+                        (origin) => origin.id !== homeTown?.id
+                      )) && (
+                      <section className="space-y-3">
+                        <SectionHeader title={t('territory.nearYou', lang)} />
+                        {failures
+                          .filter((origin) => origin.id !== homeTown?.id)
+                          .map(renderFailure)}
+                        {scope.nearby.map((entry) => renderCard(entry))}
+                      </section>
+                    )}
+                  </>
+                )}
+              </motion.section>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   )
 
   return (
@@ -353,7 +367,7 @@ const Noticias = () => {
         ref={notifications.setContainer}
         className="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
       >
-        <div className="min-h-0 flex-1 px-4 pt-5">{content}</div>
+        {content}
         <NotificationsOverlay
           open={notifications.open}
           items={notifications.items}

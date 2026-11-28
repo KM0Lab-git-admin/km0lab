@@ -1,7 +1,6 @@
 import {
   useDragScroll,
   useNotificationsPanel,
-  useLocationContext,
   useShop,
   t,
   type Lang,
@@ -23,8 +22,9 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 
-import HomeHero from '@/components/HomeHero'
+import NotificationBell from '@/components/NotificationBell'
 import NotificationsOverlay from '@/components/NotificationsOverlay'
+import ScreenHeader from '@/components/ScreenHeader'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -166,7 +166,7 @@ const PointsCard = ({
         variant="bubbleSurface"
         type="button"
         onClick={onScan}
-        className="relative mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-km0-yellow-400 text-km0-blue-900 font-ui text-sm font-bold active:scale-[0.98] transition-transform"
+        className="relative mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-km0-yellow-500 text-km0-blue-900 font-ui text-sm font-bold active:scale-[0.98] transition-transform"
       >
         <ScanLine size={16} strokeWidth={2.4} />
         {t('merchant.points.scan_cta', lang)}
@@ -210,7 +210,7 @@ const PromoRow = ({ p, lang }: { p: PromocioInfo; lang: Lang }) => {
   const pill = p.condicio?.[k] ?? 'Info'
   return (
     <li className="flex items-center gap-3 py-3">
-      <span className="shrink-0 min-w-[46px] h-10 px-2 rounded-lg bg-km0-yellow-400 text-km0-blue-900 flex items-center justify-center font-brand font-black text-xs">
+      <span className="shrink-0 min-w-[46px] h-10 px-2 rounded-lg bg-km0-yellow-500 text-km0-blue-900 flex items-center justify-center font-brand font-black text-xs">
         {p.etiqueta}
       </span>
       <div className="min-w-0 flex-1">
@@ -250,7 +250,6 @@ const ComercDetallPage = () => {
   const [params] = useSearchParams()
   const { lang } = useLang()
   const notifications = useNotificationsPanel()
-  const { town } = useLocationContext()
   const { shop, loading, error, reload } = useShop(id ?? '')
 
   const visitatOverride = params.get('visitat')
@@ -289,13 +288,23 @@ const ComercDetallPage = () => {
           ref={notifications.setContainer}
           className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50"
         >
-          <HomeHero
-            cityName={town}
-            hasAlerts={notifications.hasUnread}
-            onToggleAlerts={notifications.show}
+          <ScreenHeader
+            title={t('merchants.header.title', lang)}
+            subtitle={comerc?.nom ?? ''}
             onBack={goBack}
             backAriaLabel={t('merchant.back', lang)}
-            showGreeting={false}
+            actions={
+              <NotificationBell
+                hasAlerts={notifications.hasUnread}
+                onClick={notifications.show}
+                ariaLabel={t(
+                  notifications.hasUnread
+                    ? 'notifications.unread'
+                    : 'notifications.none',
+                  lang
+                )}
+              />
+            }
           />
 
           {/* Body scroll */}

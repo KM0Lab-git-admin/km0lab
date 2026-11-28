@@ -12,9 +12,7 @@ import {
   Reward,
   RewardCategory,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
-import { Package, Tag } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -22,10 +20,15 @@ import AccountAccessFlow from '@/components/AccountAccessFlow'
 import AccountBottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
-import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import RewardCardFrame from '@/components/RewardCardFrame'
 import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
+import { Package, Tag } from 'lucide-react'
+
+import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
+
+import { Button } from '@km0lab/ui'
+
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -143,7 +146,14 @@ const Premis = () => {
             ref={setContainer}
             className="relative flex h-full w-full min-h-0 flex-col overflow-hidden bg-km0-beige-50"
           >
-            <ScreenHeader title={t('rewards.title', lang)} />
+            <ScreenHeader
+              title={t('rewards.title', lang)}
+              onBack={() => {
+                if (window.history.state?.idx > 0) navigate(-1)
+                else navigate('/home')
+              }}
+              backAriaLabel={t('common.back', lang)}
+            />
             <div
               ref={scrollRef}
               className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"

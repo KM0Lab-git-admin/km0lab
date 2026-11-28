@@ -13,7 +13,6 @@ import {
 import { Button } from '@km0lab/ui'
 import {
   AlertCircle,
-  ChevronLeft,
   ChevronRight,
   Clock,
   Coins,
@@ -30,6 +29,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import type { HomeTab } from '@/components/BottomTabs'
 
 import BottomTabs from '@/components/AccountBottomTabs'
+import ScreenHeader from '@/components/ScreenHeader'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -342,40 +342,26 @@ const MyInvitations = () => {
     <>
       <div className="flex h-full w-full justify-center overflow-hidden bg-km0-beige-50">
         <div className="relative flex h-full w-full max-w-[430px] flex-col overflow-hidden bg-km0-beige-50">
-          <header className="shrink-0 border-b border-km0-blue-100 bg-card px-3 pb-3 pt-4">
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={goBack}
-                aria-label={t('common.back', lang)}
-                className="shrink-0 rounded-xl border-km0-blue-100"
-              >
-                <ChevronLeft aria-hidden />
-              </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="font-brand text-xl font-black text-km0-blue-900">
-                  {t('invites.title', lang)}
-                </h1>
-                <p className="font-body text-xs text-km0-blue-800/65">
-                  {t('invites.subtitle', lang)}
-                </p>
-              </div>
-              <Button
-                type="button"
-                onClick={goInvite}
-                className="shrink-0 bg-km0-blue-600 font-ui text-xs font-bold text-km0-yellow-400 hover:bg-km0-blue-700"
-              >
-                {t('invites.cta', lang)}
-              </Button>
-            </div>
-          </header>
+          <ScreenHeader
+            title={t('invites.title', lang)}
+            onBack={goBack}
+            backAriaLabel={t('common.back', lang)}
+          />
 
           <main
             ref={scrollRef}
             className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"
           >
+            <p className="mb-4 font-body text-sm text-km0-blue-800/65">
+              {t('invites.subtitle', lang)}
+            </p>
+            <Button
+              type="button"
+              onClick={goInvite}
+              className="mb-4 bg-km0-blue-600 font-ui text-xs font-bold text-km0-yellow-400 hover:bg-km0-blue-700"
+            >
+              {t('invites.cta', lang)}
+            </Button>
             {renderContent()}
           </main>
 

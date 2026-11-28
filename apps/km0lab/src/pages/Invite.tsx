@@ -10,19 +10,13 @@ import {
   tf,
 } from '@km0lab/app'
 import { Button, Progress } from '@km0lab/ui'
-import {
-  AlertCircle,
-  ChevronLeft,
-  Copy,
-  Info,
-  Loader2,
-  RefreshCw,
-} from 'lucide-react'
+import { AlertCircle, Copy, Info, Loader2, RefreshCw } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import BottomTabs from '@/components/AccountBottomTabs'
+import ScreenHeader from '@/components/ScreenHeader'
 import ShareChannelList from '@/components/ShareChannelList'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
@@ -344,38 +338,22 @@ const Invite = () => {
     <>
       <div className="flex h-full w-full justify-center overflow-hidden bg-km0-beige-50">
         <div className="relative flex h-full w-full max-w-[430px] flex-col overflow-hidden bg-km0-beige-50">
-          <header className="shrink-0 border-b border-km0-blue-100 bg-card px-3 pb-3 pt-4">
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => navigate(-1)}
-                aria-label={t('common.back', lang)}
-                className="shrink-0 rounded-xl border-km0-blue-100"
-              >
-                <ChevronLeft aria-hidden />
-              </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="font-brand text-xl font-black text-km0-blue-900">
-                  {t(isAuthed ? 'invite.home.title' : 'share.title', lang)}
-                </h1>
-                <p className="font-body text-xs text-km0-blue-800/65">
-                  {t(
-                    isAuthed
-                      ? 'invite.header.subtitle'
-                      : 'share.home.description',
-                    lang
-                  )}
-                </p>
-              </div>
-            </div>
-          </header>
+          <ScreenHeader
+            title={t(isAuthed ? 'invite.home.title' : 'share.title', lang)}
+            onBack={() => navigate(-1)}
+            backAriaLabel={t('common.back', lang)}
+          />
 
           <main
             ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4"
           >
+            <p className="mb-4 font-body text-sm text-km0-blue-800/65">
+              {t(
+                isAuthed ? 'invite.header.subtitle' : 'share.home.description',
+                lang
+              )}
+            </p>
             {renderMain()}
           </main>
 

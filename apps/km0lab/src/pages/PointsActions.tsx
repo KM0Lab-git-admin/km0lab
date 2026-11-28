@@ -139,7 +139,7 @@ const ActionRow = ({
             'shrink-0 rounded-full px-2.5 py-1.5 font-ui font-black text-xs tabular-nums',
             action.completed
               ? 'bg-km0-teal-100 text-km0-teal-700'
-              : 'bg-km0-yellow-400/90 text-km0-blue-900'
+              : 'bg-km0-yellow-500/90 text-km0-blue-900'
           )}
         >
           +{fmtInt(action.earnedPoints ?? action.points)} pts
@@ -247,7 +247,14 @@ const PointsActions = () => {
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           {/* Header */}
-          <ScreenHeader title={t('points.actions.title', lang)} />
+          <ScreenHeader
+            title={t('points.actions.title', lang)}
+            onBack={() => {
+              if (window.history.state?.idx > 0) navigate(-1)
+              else navigate('/home')
+            }}
+            backAriaLabel={t('common.back', lang)}
+          />
           {/* Lista */}
           <div
             ref={scrollRef}

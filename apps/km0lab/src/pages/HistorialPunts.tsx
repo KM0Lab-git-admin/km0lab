@@ -7,8 +7,16 @@ import {
   type Lang,
   useInviteSummary,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
+import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 import { motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import BottomTabs from '@/components/AccountBottomTabs'
+import FilterChip from '@/components/FilterChip'
+import ScreenHeader from '@/components/ScreenHeader'
+import ScreenStatus from '@/components/ScreenStatus'
+
 import {
   UserPlus,
   Star,
@@ -24,14 +32,8 @@ import {
   Share2,
   type LucideIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import type { PointsTransaction, PointsTxType } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 
-import BottomTabs from '@/components/AccountBottomTabs'
-import FilterChip from '@/components/FilterChip'
-import ScreenHeader from '@/components/ScreenHeader'
-import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 
@@ -238,7 +240,14 @@ const HistorialPunts = () => {
       <div className="w-full h-full bg-km0-beige-50 overflow-hidden flex justify-center">
         <div className="relative w-full max-w-[430px] h-full flex flex-col overflow-hidden bg-km0-beige-50">
           {/* Header fijo */}
-          <ScreenHeader title={t('points.history.title', lang)} />
+          <ScreenHeader
+            title={t('points.history.title', lang)}
+            onBack={() => {
+              if (window.history.state?.idx > 0) navigate(-1)
+              else navigate('/home')
+            }}
+            backAriaLabel={t('common.back', lang)}
+          />
           {/* Lista */}
           <div
             ref={scrollRef}

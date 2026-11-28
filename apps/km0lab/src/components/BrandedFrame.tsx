@@ -95,7 +95,7 @@ const BrandedFrame = ({
         )}
         {!hideHeader && (
           <header className="relative shrink-0 flex items-center justify-center pt-5 pb-4 px-16">
-            {renderBackButton('left-4 w-10 h-10', 20)}
+            {renderBackButton('left-4 w-11 h-11', 20)}
             <Km0Logo className="h-9 w-auto max-w-full" />
           </header>
         )}
