@@ -366,3 +366,81 @@ export const verifyOtp = async (
 export const signOut = async (): Promise<void> => {
   useAppStore.getState().signOut()
 }
+
+/*
+ * ── Se entra una vez ──────────────────────────────────────────────────
+ * La sesión vale un año desde la última vez que se renovó, y la App la
+ * renueva sola al abrirse: quien la usa no vuelve a identificarse. Solo
+ * vuelve a entrar quien pasa un año sin abrirla, o a quien se le cierra la
+ * sesión desde el servidor (móvil perdido, «cerrar en todos mis
+ * dispositivos»).
+ *
+ * Regla que no se puede romper: **una mala conexión no echa a nadie.**
+ * Renovar no gasta la credencial que ya se tiene; si la petición falla o la
+ * respuesta se pierde, se sigue con la de antes y se reintenta otro día.
+ * La sesión solo se cierra cuando el servidor contesta que ya no vale
+ * (401), y eso lo hace `apiFetch`.
+ */
+const RENEW_EVERY_MS = 24 * 60 * 60 * 1000
+let lastRenewalAt = 0
+let watchingReturn = false
+
+/** Qué pasó al renovar: se cambió la credencial o se sigue con la que había. */
+export type RenewResult = 'renewed' | 'kept'
+
+export const renewSession = async (): Promise<RenewResult> => {
+  const before = useAppStore.getState().token
+  if (!before) return 'kept'
+  try {
+    const auth = await apiFetch('/auth/renew', {
+      method: 'POST',
+      auth: true,
+      schema: authSchema,
+    })
+    const store = useAppStore.getState()
+    // Si mientras tanto la persona cerró sesión o entró con otra cuenta,
+    // esta respuesta ya no es la suya.
+    if (store.token !== before) return 'kept'
+    store.setToken(auth.access_token)
+    store.setUserPoints(auth.user.points ?? 0)
+    return 'renewed'
+  } catch (e) {
+    // Un servidor anterior a esta llamada: se comprueba la sesión como
+    // antes, que es lo que hacía la App al abrirse.
+    if (e instanceof ApiError && (e.status === 404 || e.status === 405)) {
+      await apiFetch('/users/me', { schema: userSchema, auth: true }).catch(
+        () => {
+          /* un 401 ya cerró la sesión en apiFetch */
+        }
+      )
+    }
+    return 'kept'
+  }
+}
+
+/** Renueva si hay sesión y hace más de un día de la última vez. */
+const renewIfDue = (): void => {
+  if (!useAppStore.getState().token) return
+  if (Date.now() - lastRenewalAt < RENEW_EVERY_MS) return
+  lastRenewalAt = Date.now()
+  void renewSession()
+}
+
+/**
+ * Mantiene viva la sesión: renueva ahora (si toca) y cada vez que la App
+ * vuelve a primer plano, que es lo que pasa con una app que se queda
+ * abierta días en el móvil. Llamarla muchas veces no hace nada de más.
+ */
+export const keepSessionAlive = (): void => {
+  renewIfDue()
+  if (watchingReturn || typeof document === 'undefined') return
+  watchingReturn = true
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') renewIfDue()
+  })
+}
+
+/** Solo para las pruebas: olvida cuándo se renovó por última vez. */
+export const forgetLastRenewal = (): void => {
+  lastRenewalAt = 0
+}
