@@ -149,10 +149,12 @@ const DP = {
     es: 'Sin conexión. Comprueba la red e inténtalo de nuevo.',
     en: 'No connection. Check your network and try again.',
   } as Dict,
+  // Vale igual para un fallo pasajero que para el cupo de envíos agotado:
+  // no promete «unos minutos».
   'otp.toast_send_failed': {
-    ca: "No hem pogut enviar el correu. Torna-ho a provar d'aquí a uns minuts.",
-    es: 'No hemos podido enviar el correo. Inténtalo de nuevo en unos minutos.',
-    en: "We couldn't send the email. Please try again in a few minutes.",
+    ca: 'Ara mateix no podem enviar correus. Prova-ho més tard.',
+    es: 'Ahora mismo no podemos enviar correos. Prueba más tarde.',
+    en: 'We can’t send emails right now. Please try later.',
   } as Dict,
   'otp.toast_error': {
     ca: "Alguna cosa ha fallat. Torna-ho a provar d'aquí a una estona.",
