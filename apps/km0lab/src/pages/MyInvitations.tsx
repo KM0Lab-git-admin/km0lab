@@ -1,4 +1,3 @@
-import type { InvitationRecord, InvitationStatus } from '@km0lab/app'
 import {
   useDragScroll,
   useAuth,
@@ -26,6 +25,7 @@ import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { HomeTab } from '@/components/BottomTabs'
+import type { InvitationRecord, InvitationStatus } from '@km0lab/app'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import ScreenHeader from '@/components/ScreenHeader'

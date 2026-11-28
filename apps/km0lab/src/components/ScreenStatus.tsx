@@ -1,6 +1,6 @@
-import type { ScreenState } from '@km0lab/app'
 import { t, type TKey } from '@km0lab/app'
 import { Button, Skeleton } from '@km0lab/ui'
+import type { ScreenState } from '@km0lab/app'
 
 import { useLang } from '@/contexts/LangContext'
 

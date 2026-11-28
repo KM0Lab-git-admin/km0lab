@@ -1,11 +1,10 @@
+import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 import {
   useDragScroll,
   useNotificationsPanel,
   useShop,
   t,
   type Lang,
-  ComercDetall,
-  PromocioInfo,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'

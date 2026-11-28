@@ -1,3 +1,4 @@
+import type { PointsTransaction, PointsTxType } from '@km0lab/app'
 import {
   useDragScroll,
   useAccount,
@@ -6,8 +7,6 @@ import {
   t,
   type Lang,
   useInviteSummary,
-  PointsTransaction,
-  PointsTxType,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
