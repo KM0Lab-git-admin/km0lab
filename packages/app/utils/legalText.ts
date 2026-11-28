@@ -2,7 +2,7 @@
  * Textos legales: condiciones del piloto y política de privacidad.
  *
  * Los textos los escribe Legal y viven en ficheros de contenido por idioma
- * (`apps/km0lab/src/content/legal/*.md`), copiados tal cual. Aquí está solo
+ * (`packages/app/content/legal/*.md`), copiados tal cual. Aquí está solo
  * lo justo para pintarlos: un lector del poco formato que usan (títulos,
  * párrafos, listas, tablas, negrita, cursiva y enlaces). No es un Markdown
  * completo a propósito: lo que no reconoce sale como texto, nunca como HTML.
@@ -11,7 +11,7 @@
 /** Versión vigente de condiciones y política. Subirla hace que todos vuelvan a aceptar. */
 export const TERMS_VERSION = '2'
 
-export type LegalBlock =
+export type LegalTextBlock =
   | { type: 'heading'; text: string; id?: string }
   | { type: 'paragraph'; text: string }
   | { type: 'list'; items: string[] }
@@ -34,8 +34,8 @@ const cells = (line: string): string[] =>
 const isTableRule = (line: string) => /^\|?[\s:|-]+\|?$/.test(line.trim())
 
 /** Convierte el texto de Legal en bloques para pintar. */
-export function parseLegalText(source: string): LegalBlock[] {
-  const blocks: LegalBlock[] = []
+export function parseLegalText(source: string): LegalTextBlock[] {
+  const blocks: LegalTextBlock[] = []
   let paragraph: string[] = []
   let list: string[] | null = null
   let table: { head: string[]; rows: string[][] } | null = null

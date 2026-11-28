@@ -130,7 +130,7 @@ it('la casilla no habla de la edad, en ningún idioma', () => {
 })
 
 describe('los textos de Legal que publica la App', () => {
-  const dir = resolve(__dirname, '../../../apps/km0lab/src/content/legal')
+  const dir = resolve(__dirname, '../content/legal')
   const docs = ['condicions', 'privacitat'] as const
   const langs = ['ca', 'es', 'en'] as const
 

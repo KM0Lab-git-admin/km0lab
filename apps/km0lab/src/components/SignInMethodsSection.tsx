@@ -1,9 +1,14 @@
+import { networkName, t, tf } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 
-import { networkName, t, tf, type Lang } from '@km0lab/app'
-import type { AccessProvider, AccessResult, SignInMethods } from '@km0lab/app'
+import type {
+  AccessProvider,
+  AccessResult,
+  Lang,
+  SignInMethods,
+} from '@km0lab/app'
 
 import BubbleSheet from '@/components/BubbleSheet'
 import SocialSignInButton, {

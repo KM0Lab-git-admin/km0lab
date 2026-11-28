@@ -1,13 +1,13 @@
 /*
  * Viene del prototipo (encargo 14b/14c) y la importa solo `Login.tsx`, que es
  * de producción: se copia a mano y queda con candado. Cambios respecto al
- * prototipo: solo las rutas de importación.
+ * prototipo (hasta feaf75e, con la fila de iconos): solo las rutas de importación.
  */
-import { useAccessConsent } from '@km0lab/app'
-import { t, type Lang, AccessProvider } from '@km0lab/app'
-import { Button, cn } from '@km0lab/ui'
+import { t, useAccessConsent } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 
 import type { SocialNoticeValue } from '@/components/SocialSignInButton'
+import type { AccessProvider, Lang } from '@km0lab/app'
 import type { ReactNode } from 'react'
 
 import AccessConsent from '@/components/AccessConsent'
@@ -67,10 +67,7 @@ const AccessDoorChoice = ({
         onClick={consent.guard(onEmail)}
         disabled={busyProvider !== null}
         aria-disabled={!termsAccepted || undefined}
-        className={cn(
-          'h-12 w-full shrink-0 rounded-xl bg-km0-yellow-500 font-ui text-base text-km0-blue-700 hover:bg-km0-yellow-600 disabled:opacity-60',
-          !termsAccepted && 'opacity-50'
-        )}
+        className="h-12 w-full shrink-0 rounded-xl bg-km0-yellow-500 font-ui text-base text-km0-blue-700 hover:bg-km0-yellow-600 disabled:opacity-60"
       >
         {t('access.email.cta', lang)}
       </Button>
@@ -79,6 +76,7 @@ const AccessDoorChoice = ({
         providers={providers}
         busyProvider={busyProvider}
         ariaDisabled={!termsAccepted}
+        iconOnly
         onProvider={(provider) => consent.guard(() => onProvider(provider))()}
         notice={notice}
       />

@@ -21,7 +21,6 @@
     "apps/km0lab/src/contexts/LangContext.tsx",
     "apps/km0lab/src/pages/CheckEmail.tsx",
     "apps/km0lab/src/pages/InviteLanding.tsx",
-    "apps/km0lab/src/pages/Legal.tsx",
     "apps/km0lab/src/pages/Login.tsx",
     "apps/km0lab/src/pages/PostalCode.tsx",
     "apps/km0lab/src/pages/ScanDeepLink.tsx",
@@ -64,6 +63,8 @@
     "packages/app/utils/pendingScan.ts",
     "packages/app/utils/showcase.ts",
     "packages/app/utils/postalCodes.ts",
-    "packages/app/utils/shareUrl.ts"
+    "packages/app/utils/shareUrl.ts",
+    "packages/app/hooks/use-legal-document.ts",
+    "apps/km0lab/src/components/LegalPlatformNotice.tsx"
   ]
 }

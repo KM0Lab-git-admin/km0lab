@@ -32,6 +32,7 @@ import { z } from 'zod'
 import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import LegalLink from '@/components/LegalLink'
 import SignInMethodsSection from '@/components/SignInMethodsSection'
 import TownPickerSheet from '@/components/TownPickerSheet'
 import { useLang } from '@/contexts/LangContext'
@@ -348,23 +349,19 @@ const Profile = () => {
               </Button>
               <footer className="whitespace-normal text-center font-body text-xs leading-5 text-km0-blue-800/70">
                 <p>
-                  <a
-                    href={LEGAL_ROUTES.terms}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <LegalLink
+                    to={LEGAL_ROUTES.terms}
                     className="underline underline-offset-2"
                   >
                     {t('profile.legal.terms', lang)}
-                  </a>
+                  </LegalLink>
                   {t('profile.legal.separator', lang)}
-                  <a
-                    href={LEGAL_ROUTES.privacy}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <LegalLink
+                    to={LEGAL_ROUTES.privacy}
                     className="underline underline-offset-2"
                   >
                     {t('profile.legal.privacy', lang)}
-                  </a>
+                  </LegalLink>
                 </p>
                 <p>
                   {t('profile.legal.delete', lang)}

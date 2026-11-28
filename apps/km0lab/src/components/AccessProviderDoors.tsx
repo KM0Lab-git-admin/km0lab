@@ -5,6 +5,7 @@ import SocialSignInButton, {
   SocialNotice,
   type SocialNoticeValue,
 } from '@/components/SocialSignInButton'
+import { cn } from '@/lib/utils'
 
 interface AccessProviderDoorsProps {
   lang: Lang
@@ -12,6 +13,8 @@ interface AccessProviderDoorsProps {
   busyProvider: AccessProvider | null
   disabled?: boolean
   ariaDisabled?: boolean
+  /** One compact row of brand marks instead of one full-width button per network. */
+  iconOnly?: boolean
   onProvider: (provider: AccessProvider) => void
   notice: SocialNoticeValue | null
 }
@@ -21,6 +24,7 @@ const AccessProviderDoors = ({
   busyProvider,
   disabled = false,
   ariaDisabled = false,
+  iconOnly = false,
   onProvider,
   notice,
 }: AccessProviderDoorsProps) =>
@@ -33,7 +37,9 @@ const AccessProviderDoors = ({
         </span>
         <div className="h-px flex-1 bg-km0-blue-700/15" />
       </div>
-      <div className="flex flex-col gap-2">
+      <div
+        className={cn('flex gap-2', iconOnly ? 'justify-center' : 'flex-col')}
+      >
         {providers.map((provider) => (
           <SocialSignInButton
             key={provider}
@@ -46,6 +52,7 @@ const AccessProviderDoors = ({
               disabled || (busyProvider !== null && busyProvider !== provider)
             }
             ariaDisabled={ariaDisabled}
+            iconOnly={iconOnly}
             onClick={() => onProvider(provider)}
           />
         ))}

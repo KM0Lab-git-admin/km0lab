@@ -111,10 +111,7 @@ const AccountAccessSheet = ({
               type="submit"
               disabled={busy}
               aria-disabled={!termsAccepted || undefined}
-              className={cn(
-                'h-12 min-h-12 w-full',
-                !termsAccepted && 'opacity-50'
-              )}
+              className={cn('h-12 min-h-12 w-full')}
             >
               {submitting && <Loader2 aria-hidden className="animate-spin" />}
               {t(
@@ -226,6 +223,7 @@ const AccountAccessSheet = ({
             busyProvider={busyProvider}
             disabled={submitting}
             ariaDisabled={!termsAccepted}
+            iconOnly
             onProvider={(provider) =>
               consent.guard(() => onProvider(provider, referralReference))()
             }

@@ -16,4 +16,9 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv
+  /** Carga perezosa de ficheros (Vite y Vitest); la usan los textos legales. */
+  glob<T>(
+    pattern: string,
+    options: { query: string; import: string }
+  ): Record<string, () => Promise<T>>
 }

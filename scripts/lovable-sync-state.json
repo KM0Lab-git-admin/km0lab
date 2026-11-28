@@ -1,21 +1,21 @@
 {
-  "source": "46bf97d 2026-11-28T10:37:03Z",
+  "source": "feaf75e 2026-11-28T11:26:17Z",
   "files": {
     "apps/km0lab/src/components/AccessConsent.tsx": {
-      "generated": "d1725481da527d4d67162615763381454034afe43298330cc8bee88c39f3facc",
-      "final": "c3551916098f59e8d98e169a0378ac7fbc9d9267c93498cb52792688ac923ff6"
+      "generated": "67efa43d9cc11c09e4ba9edc9c8931f2018f0c02b6e2dba69ca35a192e8230a2",
+      "final": "fe5a634312632f116e8ea77fe666ee0bc882cc093c6be758487a097fed7242d7"
     },
     "apps/km0lab/src/components/AccessProviderDoors.tsx": {
-      "generated": "974e4a57ef768e3907a62f149ecb396f8806714b045e3bdee27ba5bfd3c9f85e",
-      "final": "769a1d1f216c40cf3dbfcafb65c34a66f1ae2e1f383397ecd7b2e61ea238e3a4"
+      "generated": "588c71b41d1d97fb718cd1444d9e0a42de2a0890257123a61fd2bacf7d7b8297",
+      "final": "208b73c05d38ab9dd703df22802e66f70938257c1596742ae7e198737d057aed"
     },
     "apps/km0lab/src/components/AccountAccessFlow.tsx": {
-      "generated": "bb5c8c65c00130cbcc783e793fc681ffa54addddb86528c6f6def9893eb1c1d3",
-      "final": "6d10a7f7a15e7698fda55bb2edc3cf34b318be79f8413359609a75146214a22d"
+      "generated": "dd9f916366591813ba658f64e97e9d6c2c427a88aca90e766a1dd1ca4f1cd5cb",
+      "final": "acb89ad56250c7bb52b08ea8eb0fff24c8d50267faa0f67ca951282a82a393ea"
     },
     "apps/km0lab/src/components/AccountAccessSheet.tsx": {
-      "generated": "e60f0f9699069f5fb2b55faca680fc9ea9481cacc6d039424396e692acc0917a",
-      "final": "329cb723c04b6c39d810f201ad7389eafd8eb940b766c300b380895945588770"
+      "generated": "919d7b6d9215080df0546ebc23a2f129213568f7877c80ba77f0b784639a133b",
+      "final": "20c229d66af2b2b9694152b5f6643778a17e41f84b2886c6852423ce908b123f"
     },
     "apps/km0lab/src/components/AccountBottomTabs.tsx": {
       "generated": "ecdf9666e05ef7806609e933793b14ad1df3f6873dca5489b095abf9201947c3",
@@ -81,6 +81,18 @@
       "generated": "676012e1f8c8f39da39dff656486de18b8f6a93c3506086141ab1812aade5445",
       "final": "a43c53a29dddd127213f219e3b647d7084b8b904d7c6229f617b0b0e78db1ef2"
     },
+    "apps/km0lab/src/components/LegalDocumentView.tsx": {
+      "generated": "b16301e58e86108ed5fca9f753af9d8db4eb3bb0265adeed8a82b23a00986dec",
+      "final": "2f7476a77ad9908423c381c2e03e49d806584b316ebe565f8dd87416dbd54c33"
+    },
+    "apps/km0lab/src/components/LegalLink.tsx": {
+      "generated": "b9554fc40bf502b3187081b8e93163cf08b6e2dad36d46a9b9e18bf1c2e5640a",
+      "final": "efb72307fcac3fe4c81f35c1eacfeaa0bd0bc5ec40305265c4afdd1ff0b907ce"
+    },
+    "apps/km0lab/src/components/LegalRichText.tsx": {
+      "generated": "38768b5a1704c405d4fd3e40826e094731549c39b8d99493df5cea30642c2343",
+      "final": "38768b5a1704c405d4fd3e40826e094731549c39b8d99493df5cea30642c2343"
+    },
     "apps/km0lab/src/components/MerchantPromosPreview.tsx": {
       "generated": "ba4ee784b6516e95a5fc5b92c6a248c0aca6d5ad30dffd2a49f827759036df29",
       "final": "65db53ef987498c526946a3e92e0c0503efd829d5d19c86f1002d007ed354eda"
@@ -95,7 +107,7 @@
     },
     "apps/km0lab/src/components/NotificationsOverlay.tsx": {
       "generated": "4c8da1f1d031764ef3c028f276c27dd62f05d12588428aae6508a45105fbc575",
-      "final": "4140c81fe5604b5f9a791c3bcc01f5672e8e0d8d14f9b1cf67a6d2d42ed5f744"
+      "final": "a94ac8c408c302e0f60754e38e628ec24edbfbe1c24c5fe98cd9d3399f4d9e67"
     },
     "apps/km0lab/src/components/PointsCard.tsx": {
       "generated": "efe4907b8993437c6cacf24a667f1b34a6bb7c347a28b2a2fd7f7bb3dd38fa27",
@@ -135,7 +147,7 @@
     },
     "apps/km0lab/src/components/ScreenStatus.tsx": {
       "generated": "a72c99146d59fb3a192b45421fa2720c4575f279a4b7db318b152464850ace07",
-      "final": "a24360532605d74f84a4acb19b44897f575468898ed759fef479270acba2ba49"
+      "final": "aa648a167b61f8ddaa4f9318d200c552e306ba340ba722043eca01d331114135"
     },
     "apps/km0lab/src/components/SectionHeader.tsx": {
       "generated": "f08c850161f249baf3d8185fcc49d48f4718510500775520f476c522fa095c59",
@@ -154,8 +166,8 @@
       "final": "5e2561f55f190823dfb1f326aeb737304ae4b213e44c224dacfaf0ec323fe412"
     },
     "apps/km0lab/src/components/SocialSignInButton.tsx": {
-      "generated": "e94fb8c9392c87a872fc313ce71de653b1d26fa0e766986f122ecf7e910d5cfc",
-      "final": "6aa3e79d1829723ef68fb18cfd25d3ace78d3814108539cdee0c8110a0fa85ee"
+      "generated": "8f4a9261f9470a2f26a7bba0f2a086f518acd51525825f74f58138f9c58e349c",
+      "final": "65a99da3dc21448a541cd013da5408e90097bd366582331e992208eb699610a7"
     },
     "apps/km0lab/src/components/StackCarousel.tsx": {
       "generated": "3e795db028239f493ac0a739580b75d43df85883689ae1cd34855ec6d8325df1",
@@ -171,7 +183,7 @@
     },
     "apps/km0lab/src/components/TownPickerSheet.tsx": {
       "generated": "a8a6348b56de0cf2cd91ed90b85590ab9e9102ec7d542cca759dbd34953062bd",
-      "final": "94a123a5e5879926f25356838f905416ce219a264183149d7c94b952c77a26b3"
+      "final": "3a1491e178663c9a9788caba074afc38c5af76232c465ce58bf4dfb5ec4dfc9f"
     },
     "apps/km0lab/src/components/TownTag.tsx": {
       "generated": "318ecec6f7b8f92c8d67027c58a6fe4303428fc882c8a8dc25271856c4dd67ee",
@@ -198,8 +210,8 @@
       "final": "9ec247bf0d161321d05183ef23854ea63bfb417469d1c70a691bfb061c876968"
     },
     "apps/km0lab/src/data/legalRoutes.ts": {
-      "generated": "21c78b4027425bcc79a5143fbca06e2cd0e78352e36d7ad06f3f042b1781f86d",
-      "final": "21c78b4027425bcc79a5143fbca06e2cd0e78352e36d7ad06f3f042b1781f86d"
+      "generated": "b4e6a818a9c692c6f84ecc2970e4703a0200959a888b9296e4c5a6872da8f174",
+      "final": "b4e6a818a9c692c6f84ecc2970e4703a0200959a888b9296e4c5a6872da8f174"
     },
     "apps/km0lab/src/data/onboardingSlides.ts": {
       "generated": "5054d627d0f48f59825baebcb0096e4eeeda76b68d9e891bf6485ae14c927d4d",
@@ -215,19 +227,19 @@
     },
     "apps/km0lab/src/pages/Agenda.tsx": {
       "generated": "b247f46e82403ca50b7b04fad2838e3ecb9cdf3e3f2e6a38e76f7fdaa85988fd",
-      "final": "f8ed63ad29af155d541f1173bd79e133b1f2c91d914ad0577554eba39c963721"
+      "final": "f1541ca402ff0c6d052227c0311e44d039b45ce7a0f92f9732e1b921d4800464"
     },
     "apps/km0lab/src/pages/BusinessSignup.tsx": {
-      "generated": "9d816b1a8baed2a3b373ab35a19aebc3cdd6fe3b0aee15e53f86a7e3d90befd5",
-      "final": "52b05e70ebb1c80e450e803efb25737d130d4ed84123dc256d3e9d9c0533dfb9"
+      "generated": "6ec2db35a69081e89cbe42eb5b8e503b2deb8accca5f6890708a3dc07921492a",
+      "final": "739b60c8ddab2f435b70668cb87fa92680dc0511dd438acd6d9176d8bb064d8c"
     },
     "apps/km0lab/src/pages/ComercDetall.tsx": {
       "generated": "3b2ae5529fad3eb892ff4e07f8710b7efd10a828a9594ca9b81b1d4c3fa2e17f",
-      "final": "ad996f568e9b7172090a1dccf05dc400b14709ceeb4997a21555c3bd66dc1f05"
+      "final": "8673f75b6c4e7232fdcc8d186492be0452bee90f385fdc9c6fd6f2859423a134"
     },
     "apps/km0lab/src/pages/Comercos.tsx": {
       "generated": "e5a18c79050ecf134f4796b016fa38520b242b203be193969e93f503e3a0787f",
-      "final": "246ae84949ea56cdf61ca68e3dbda9546b09c94738da274f7d9d6b61a4943bd2"
+      "final": "0c569972e8782f32c14f789731a2466dc4dab5acda2a4b25bc7d78814ba52f3c"
     },
     "apps/km0lab/src/pages/EmailOtpTemplate.tsx": {
       "generated": "788e8067db02da9b2a6c5d6c24f85c3cecfa4fac0c15a1a1b7c21cb9b0c23e73",
@@ -239,7 +251,7 @@
     },
     "apps/km0lab/src/pages/HistorialPunts.tsx": {
       "generated": "e294b33ebc4492117024791abe026a0c928dfb045a0e05ebd3641e31accfb079",
-      "final": "2d59bea2f0cb474a63971640dff6d4f41531dff376a6789834aa5ce1ecf58fd3"
+      "final": "51305cff6a091952c3c039f8f7ddf6d4089a19c4bb84a1b863f3572e9ad6c5ce"
     },
     "apps/km0lab/src/pages/Home.tsx": {
       "generated": "b41199a03acbb0a950261f0da726969f883ff45a864009a466c43ad358cf6bd9",
@@ -261,9 +273,13 @@
       "generated": "0a401131a7cc283a2e59f858f401956e6b31a344b9b0183e38e0694f3c4ac4ea",
       "final": "67b9807c124b719e937eb4c1857145b335b89db36dc0c3d399fbd69a9c79ce6a"
     },
+    "apps/km0lab/src/pages/LegalDocument.tsx": {
+      "generated": "b1e1347e5c45ac9fe1b3d44a0444277f0a80fbef33103d38fc45fa07693edacd",
+      "final": "99257c3feb15f593903033eeaa0a2774a9360d9b780c760e6767ce773cbbfa7c"
+    },
     "apps/km0lab/src/pages/MyInvitations.tsx": {
       "generated": "c447f94bdfd42ecd2681a4c41b1404d59779c50fd085a81629e49d3e8c30a87f",
-      "final": "ecc104de20c3318b20cc0a5446f24e63a9a022b289bcdfea75671aed857d8b5a"
+      "final": "1f95bc2358bacc994ff91a843642c89679235f4d5344537d8c6122bb32cf116c"
     },
     "apps/km0lab/src/pages/NotFound.tsx": {
       "generated": "310bcef38acce31422b3751f6de0bfc581966ae2a4d5eefadbf4731d29edfb58",
@@ -271,7 +287,7 @@
     },
     "apps/km0lab/src/pages/Noticias.tsx": {
       "generated": "79a35f823d44fe23dd70f7c62d0d5b6cced256bd31f8ed27697d2e4c56a9f14f",
-      "final": "e345e3deb9d4c3870624da95f3995410049a9396dadc24bb8c9ef6d2e3a013b8"
+      "final": "cec688669a58a5e075f98ed7c87b3e6703657b47a68220a213257cfd7c61be5a"
     },
     "apps/km0lab/src/pages/Onboarding.tsx": {
       "generated": "2ae33fcffce24570a57fd256c96b7689d304f0f23ad06768952c397b88304637",
@@ -283,19 +299,19 @@
     },
     "apps/km0lab/src/pages/PointsActions.tsx": {
       "generated": "c6b1dc052b180db6c82bc9f13b437d4767f373a74d33de31841b8d39e775d905",
-      "final": "183b9732e9e8f5cd267022574ff53811ef0f18007911dbba4e720053951dd18c"
+      "final": "d993331b1b1e151445de07109de5478f10a3312d2f0d03a92e3cd22f23c1bb73"
     },
     "apps/km0lab/src/pages/Premis.tsx": {
       "generated": "3db5693794ce618733923845a36383a794408541566b9165579d6c704571ea62",
-      "final": "fce1827566bed124777a008323c9afc08709cb72d12e571675edacd28e5deeee"
+      "final": "e762d0cc4880074cbf4c625ba9bb44bb30c520d6671960c2cd5fc58d16c208b3"
     },
     "apps/km0lab/src/pages/PremisCanjats.tsx": {
       "generated": "c057ea997b5daaaf3f49c877eecccd1febc832d7e92579459e0956dc2d199bfb",
-      "final": "010944066ca141a94aee1f512db975b2d1ddce23c8dfc6f94538229bb407fcf7"
+      "final": "9392a734cd1d2d8e36577bc40bd076e3ad2418e767eb228e3787329a49ce6017"
     },
     "apps/km0lab/src/pages/Profile.tsx": {
-      "generated": "74ac74f1c397060139abeb88376dcddd880426b08f772f221bda099d30a8f443",
-      "final": "c514978e616c9138c5d3787998855b7ddd7df1eb96ddec1925d122fed568d7f7"
+      "generated": "0747710a9d8b5bc08187d51f3e699e64967bda33e4afd44233143e216bd2ec98",
+      "final": "9bd8154a5073a7baf1f54e3990bd3eae59c40eae5b373b8ca18f361fdf0ea6b5"
     },
     "apps/km0lab/src/pages/ScannerSuccess.tsx": {
       "generated": "29c1108753968b9cb82db2dab7991800edff1e8ec13d1fb819ca57cf45211112",
@@ -337,6 +353,10 @@
       "generated": "09c3bf3e677c0da9d4e22f02b67918eff31a1e959596b0820375ddfc21885872",
       "final": "09c3bf3e677c0da9d4e22f02b67918eff31a1e959596b0820375ddfc21885872"
     },
+    "packages/app/types/legal.ts": {
+      "generated": "24e5d0336bf5b8287cac949bc25d29c9da1313860be240fbc7deb7411b3cc28b",
+      "final": "24e5d0336bf5b8287cac949bc25d29c9da1313860be240fbc7deb7411b3cc28b"
+    },
     "packages/app/types/points.ts": {
       "generated": "c938245b795b157f34bf99ed0a8785388fb968dab3a2b01712b94f138223d350",
       "final": "c938245b795b157f34bf99ed0a8785388fb968dab3a2b01712b94f138223d350"
@@ -366,8 +386,8 @@
       "final": "a661bb20d7eecf2b0289f3a2cac95857aea0e5d7148dd5d3da1496bae2033a38"
     },
     "packages/app/utils/i18n.ts": {
-      "generated": "e0524d8684a00e5035d95371b2f791a8790b811c7ab1879bb4d369a03a472698",
-      "final": "e0524d8684a00e5035d95371b2f791a8790b811c7ab1879bb4d369a03a472698"
+      "generated": "766a0bf1c61c75ed5f46dc178235e406970f24ad003d841102f7b3cf1633cadf",
+      "final": "766a0bf1c61c75ed5f46dc178235e406970f24ad003d841102f7b3cf1633cadf"
     },
     "packages/app/utils/inviteProgress.ts": {
       "generated": "5131719e2f8e927cc9ef501660c9561536e55b4eb79b1a263151a851a913f615",

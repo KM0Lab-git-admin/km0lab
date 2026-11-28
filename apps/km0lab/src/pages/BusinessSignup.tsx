@@ -30,7 +30,9 @@ import { z } from 'zod'
 import type { BusinessRegistrationInput } from '@km0lab/app'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import LegalLink from '@/components/LegalLink'
 import { useLang } from '@/contexts/LangContext'
+import { LEGAL_ROUTES } from '@/data/legalRoutes'
 
 type ScreenState =
   | 'loading'
@@ -70,6 +72,10 @@ const BusinessSignup = () => {
   const [logoName, setLogoName] = useState<string | null>(null)
   const referralReference = searchParams.get('ref')
   const invitedTown = searchParams.get('town') ?? ''
+  const [termsBefore, termsRest = ''] = t('business.terms', lang).split(
+    '{terms}'
+  )
+  const [termsMiddle, termsAfter = ''] = termsRest.split('{privacy}')
 
   const schema = useMemo(
     () =>
@@ -508,7 +514,21 @@ const BusinessSignup = () => {
                         />
                       </FormControl>
                       <FormLabel className="font-body text-xs font-normal leading-snug text-km0-blue-800">
-                        {t('business.terms', lang)}
+                        {termsBefore}
+                        <LegalLink
+                          to={`${LEGAL_ROUTES.terms}#comercos`}
+                          className="font-bold underline underline-offset-2"
+                        >
+                          {t('business.terms.terms_link', lang)}
+                        </LegalLink>
+                        {termsMiddle}
+                        <LegalLink
+                          to={LEGAL_ROUTES.privacy}
+                          className="font-bold underline underline-offset-2"
+                        >
+                          {t('business.terms.privacy_link', lang)}
+                        </LegalLink>
+                        {termsAfter}
                       </FormLabel>
                     </div>
                     <FormMessage />

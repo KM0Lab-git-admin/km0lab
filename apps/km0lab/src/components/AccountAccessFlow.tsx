@@ -11,6 +11,7 @@ import type {
 
 import AccountAccessSheet from '@/components/AccountAccessSheet'
 import { useLang } from '@/contexts/LangContext'
+import { isLegalRoute } from '@/data/legalRoutes'
 
 const DESTINATIONS: Record<AccountAccessTarget, string> = {
   points: '/points-history',
@@ -67,6 +68,8 @@ const AccountAccessFlow = ({
   const requestVersion = useRef(0)
 
   const close = () => {
+    // A legal overlay sits above this sheet; its Back click must not dismiss the sheet below.
+    if (isLegalRoute(window.location.pathname)) return
     requestVersion.current += 1
     busy.current = false
     setSubmitting(false)

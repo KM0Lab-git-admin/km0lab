@@ -33,11 +33,6 @@ export const formatScreenDate = (date: Date, lang: Lang): string => {
 type Dict = Record<Lang, string>
 
 const D = {
-  'access.preview.note': {
-    ca: 'Vista prèvia de disseny · codi {code}',
-    es: 'Vista previa de diseño · código {code}',
-    en: 'Design preview · code {code}',
-  } as Dict,
   'profile.legal.contact_label': {
     ca: 'Compartir el meu telèfon de contacte',
     es: 'Compartir mi teléfono de contacto',
@@ -65,6 +60,76 @@ const D = {
   } as Dict,
   'profile.legal.separator': { ca: ' · ', es: ' · ', en: ' · ' } as Dict,
   'profile.legal.period': { ca: '.', es: '.', en: '.' } as Dict,
+  'legal.conditions.title': {
+    ca: 'Condicions del pilot',
+    es: 'Condiciones del piloto',
+    en: 'Pilot terms',
+  } as Dict,
+  'legal.privacy.title': {
+    ca: 'Política de privacitat',
+    es: 'Política de privacidad',
+    en: 'Privacy policy',
+  } as Dict,
+  'legal.error': {
+    ca: 'No s’ha pogut carregar el document.',
+    es: 'No se ha podido cargar el documento.',
+    en: 'The document could not be loaded.',
+  } as Dict,
+  'legal.empty': {
+    ca: 'Aquest document no té contingut.',
+    es: 'Este documento no tiene contenido.',
+    en: 'This document has no content.',
+  } as Dict,
+  'legal.platform.title': {
+    ca: 'Informació tècnica d’aquest lloc',
+    es: 'Información técnica de este sitio',
+    en: 'Technical information about this site',
+  } as Dict,
+  'legal.platform.analytics_intro': {
+    ca: 'Lovable recull aquestes dades per a nosaltres. La',
+    es: 'Lovable recoge estos datos por nosotros. La',
+    en: 'Lovable collects this data for us.',
+  } as Dict,
+  'legal.platform.lovable_link': {
+    ca: 'política de privacitat de Lovable',
+    es: 'política de privacidad de Lovable',
+    en: 'Lovable’s privacy policy',
+  } as Dict,
+  'legal.platform.analytics_intro_end': {
+    ca: ' explica com les tracta.',
+    es: ' explica cómo las trata.',
+    en: ' explains how it handles it.',
+  } as Dict,
+  'legal.platform.analytics_privacy': {
+    ca: 'La seva analítica no utilitza galetes, no desa res al dispositiu del visitant, no conserva adreces IP i no identifica els visitants.',
+    es: 'Su analítica no utiliza cookies, no guarda nada en el dispositivo del visitante, no conserva direcciones IP y no identifica a los visitantes.',
+    en: 'Its analytics uses no cookies, stores nothing on the visitor’s device, doesn’t keep IP addresses and doesn’t identify visitors.',
+  } as Dict,
+  'legal.platform.analytics_records': {
+    ca: 'Registra les pàgines visitades, la procedència dels visitants, el país, el navegador, el sistema operatiu i el tipus de dispositiu, quant temps hi romanen, la velocitat de càrrega de les pàgines, els errors i els clics.',
+    es: 'Registra las páginas visitadas, la procedencia de los visitantes, su país, navegador, sistema operativo y tipo de dispositivo, cuánto tiempo permanecen, la velocidad de carga de las páginas, los errores y los clics.',
+    en: 'It records the pages visited, where visitors came from, their country, browser, operating system and device type, how long they stay, how fast pages load, errors and clicks.',
+  } as Dict,
+  'legal.platform.analytics_clicks': {
+    ca: 'Registrem clics i altres accions de cada visitant, tret que el navegador enviï un senyal Global Privacy Control.',
+    es: 'Registramos clics y otras acciones de cada visitante, salvo que su navegador envíe una señal Global Privacy Control.',
+    en: 'We record clicks and other actions for every visitor, unless their browser sends a Global Privacy Control signal.',
+  } as Dict,
+  'legal.platform.analytics_basic': {
+    ca: 'Comptem estadístiques bàsiques de visita de tots els visitants: pàgines visitades, temps a la pàgina, velocitat i errors. Això no utilitza galetes i no t’identifica.',
+    es: 'Contamos estadísticas básicas de visita de todos los visitantes: páginas visitadas, tiempo en la página, velocidad y errores. Esto no utiliza cookies y no te identifica.',
+    en: 'We count basic visit statistics for every visitor: pages visited, time on page, page speed and errors. This uses no cookies and doesn’t identify you.',
+  } as Dict,
+  'legal.platform.analytics_retention': {
+    ca: 'Les dades detallades es conserven 90 dies i els resums diaris, un any.',
+    es: 'Los datos detallados se conservan 90 días y los resúmenes diarios, un año.',
+    en: 'Detailed data is kept for 90 days and daily summaries for a year.',
+  } as Dict,
+  'legal.platform.hosting_cookie': {
+    ca: 'El nostre proveïdor d’allotjament estableix una galeta estrictament necessària. Garanteix que cada pàgina que carregues provingui de la mateixa versió del lloc. No conté informació sobre tu i caduca en un termini de 7 dies.',
+    es: 'Nuestro proveedor de alojamiento instala una cookie estrictamente necesaria. Garantiza que cada página que cargas proceda de la misma versión del sitio. No contiene información sobre ti y caduca en un plazo de 7 días.',
+    en: 'Our hosting provider sets one strictly necessary cookie. It makes sure every page you load comes from the same version of the site. It holds no information about you and expires within 7 days.',
+  } as Dict,
 
   'merchants.header.title': {
     ca: 'Comerços',
@@ -2477,9 +2542,19 @@ const D = {
     en: 'Phone (optional)',
   } as Dict,
   'business.terms': {
-    ca: "Accepto les condicions d'ús i la política de privacitat",
-    es: 'Acepto las condiciones de uso y la política de privacidad',
-    en: 'I accept the terms of use and privacy policy',
+    ca: 'Accepto les {terms} i la {privacy}',
+    es: 'Acepto las {terms} y la {privacy}',
+    en: 'I accept the {terms} and {privacy}',
+  } as Dict,
+  'business.terms.terms_link': {
+    ca: "condicions d'ús",
+    es: 'condiciones de uso',
+    en: 'terms of use',
+  } as Dict,
+  'business.terms.privacy_link': {
+    ca: 'política de privacitat',
+    es: 'política de privacidad',
+    en: 'privacy policy',
   } as Dict,
   'business.submit': {
     ca: 'Crear el meu negoci',

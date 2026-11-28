@@ -15,33 +15,50 @@ export interface SocialSignInButtonProps {
   disabled: boolean
   /** Looks unavailable but stays focusable and clickable, so the caller can explain why. */
   ariaDisabled?: boolean
+  /** Icon only: the brand mark replaces the visible label, which stays as the accessible name. */
+  iconOnly?: boolean
   onClick: () => void
 }
 
 /** Official brand treatment per network; colours come from the brand tokens in index.css. */
 const BRAND: Record<
   AccessProvider,
-  { logo: string; button: string; logoClass: string; text: string }
+  {
+    logo: string
+    button: string
+    buttonIcon: string
+    logoClass: string
+    iconLogoClass: string
+    text: string
+  }
 > = {
   google: {
     logo: googleLogo,
     button:
       'border border-[hsl(var(--brand-google-border))] bg-[hsl(var(--brand-google-surface))] text-[hsl(var(--brand-google-text))]',
+    // The official 40×40 mark already carries its own hairline, so the icon keeps a single outline.
+    buttonIcon: 'bg-[hsl(var(--brand-google-surface))]',
     logoClass: '-left-px h-10 w-10',
+    iconLogoClass: 'h-10 w-10',
     text: 'font-[family-name:var(--brand-google-font)] text-sm leading-5',
   },
   facebook: {
     logo: facebookLogo,
     button:
       'bg-[hsl(var(--brand-facebook))] text-[hsl(var(--brand-network-text))]',
+    buttonIcon: 'bg-[hsl(var(--brand-facebook))]',
     logoClass: 'left-1 h-8 w-8',
+    iconLogoClass: 'h-7 w-7',
     text: 'text-sm leading-5',
   },
   apple: {
     logo: appleLogo,
     button:
       'bg-[hsl(var(--brand-apple))] text-[hsl(var(--brand-network-text))]',
+    buttonIcon: 'bg-[hsl(var(--brand-apple))]',
     logoClass: 'left-0 h-full w-auto',
+    // The official mark carries wide transparent padding, so it is drawn larger and clipped by the button.
+    iconLogoClass: 'h-14 w-auto',
     text: 'text-[length:var(--brand-apple-font-size)] leading-5',
   },
 }
@@ -52,6 +69,7 @@ const SocialSignInButton = ({
   loading,
   disabled,
   ariaDisabled = false,
+  iconOnly = false,
   onClick,
 }: SocialSignInButtonProps) => {
   const brand = BRAND[provider]
@@ -63,25 +81,37 @@ const SocialSignInButton = ({
       disabled={disabled || loading}
       aria-disabled={ariaDisabled || undefined}
       aria-busy={loading || undefined}
+      aria-label={iconOnly ? label : undefined}
       data-provider={provider}
       className={cn(
-        'relative h-10 w-full shrink-0 overflow-hidden rounded-[var(--brand-signin-radius)] px-11 font-ui font-medium disabled:opacity-60',
-        brand.button,
-        brand.text,
-        ariaDisabled && 'opacity-50'
+        'relative h-10 shrink-0 overflow-hidden rounded-[var(--brand-signin-radius)] font-ui font-medium disabled:opacity-60',
+        iconOnly ? 'w-10 px-0' : 'w-full px-11',
+        iconOnly ? brand.buttonIcon : brand.button,
+        !iconOnly && brand.text
       )}
     >
       {loading ? (
-        <Loader2 aria-hidden className="absolute left-3 h-5 w-5 animate-spin" />
+        <Loader2
+          aria-hidden
+          className={cn(
+            'animate-spin',
+            iconOnly ? 'h-5 w-5' : 'absolute left-3 h-5 w-5'
+          )}
+        />
       ) : (
         <img
           src={brand.logo}
           alt=""
           aria-hidden="true"
-          className={cn('absolute top-1/2 -translate-y-1/2', brand.logoClass)}
+          className={cn(
+            'absolute top-1/2 -translate-y-1/2',
+            iconOnly
+              ? cn('left-1/2 -translate-x-1/2', brand.iconLogoClass)
+              : brand.logoClass
+          )}
         />
       )}
-      <span className="truncate">{label}</span>
+      {!iconOnly && <span className="truncate">{label}</span>}
     </Button>
   )
 }

@@ -2,6 +2,7 @@ import { t, type Lang } from '@km0lab/app'
 import { Checkbox } from '@km0lab/ui'
 import { useId, type RefObject } from 'react'
 
+import LegalLink from '@/components/LegalLink'
 import { cn } from '@/lib/utils'
 
 interface AccessConsentProps {
@@ -47,27 +48,23 @@ const AccessConsent = ({
           className="font-body text-sm leading-snug text-km0-blue-800"
         >
           {before}
-          <a
-            href={termsHref}
-            target="_blank"
-            rel="noopener"
+          <LegalLink
+            to={termsHref}
             className="font-bold underline underline-offset-2"
           >
             {t('access.terms.link', lang)}
-          </a>
+          </LegalLink>
           {after}
         </label>
       </div>
       <p className="font-body text-[11px] leading-snug text-muted-foreground">
         {t('access.terms.small', lang)}
-        <a
-          href={privacyHref}
-          target="_blank"
-          rel="noopener"
+        <LegalLink
+          to={privacyHref}
           className="font-bold underline underline-offset-2"
         >
           {t('access.terms.privacy_link', lang)}
-        </a>
+        </LegalLink>
         {t('access.terms.privacy_after', lang)}
       </p>
       {error && (
