@@ -1,4 +1,4 @@
-**Versió 1 · 27 de novembre de 2026**
+**Versió 2 · 28 de novembre de 2026**
 
 KM0 LAB (nom amb què opera Albert Malleu Poch, Calle del Mar 65, local bajo, 08380 Malgrat de Mar,
 info@km0lab.com) organitza a la teva població un programa pilot per premiar les visites al
@@ -13,7 +13,7 @@ condicions expliquen com funciona. En registrar-te, les acceptes.
   mentre dura. Si un canvi t'afecta (per exemple, en els punts o els premis), t'ho direm a
   l'App abans d'aplicar-lo.
 - Participar és gratuït i no obliga a comprar res.
-- Cal tenir **18 anys o més**. Un compte per persona.
+- Cal tenir **14 anys o més**. Un compte per persona, sigui quina sigui la manera d'entrar.
 - Cada pilot admet un màxim de **200 comptes**, per ordre de registre. Quan s'omple, no se
   n'admeten més.
 
@@ -27,8 +27,6 @@ condicions expliquen com funciona. En registrar-te, les acceptes.
 - Per cada persona que convidis reps **50 punts**, quan aquesta persona completa el registre.
   Hi ha un nombre màxim d'amics que et sumen punts, que depèn de com vas entrar al pilot (pot
   ser zero). L'App te'l mostra.
-- Si l'App ofereix punts d'aniversari, es donen un cop l'any, amb la teva **data de naixement
-  real**.
 
 ### 3. Premis
 
@@ -66,9 +64,9 @@ condicions expliquen com funciona. En registrar-te, les acceptes.
 
 Podem **anul·lar punts, vals o el compte**, després d'avisar-te i escoltar el que tinguis a
 dir, si veiem que:
-- tens més d'un compte o fas servir correus d'altres persones o inventats;
+- tens més d'un compte o fas servir correus o comptes de xarxes socials d'altres persones o
+  inventats;
 - escaneges el codi d'un comerç sense haver-hi estat (per exemple, des d'una foto);
-- canvies la data de naixement per cobrar els punts d'aniversari;
 - et convides a tu mateix amb un altre compte;
 - aprofites errors de l'App per guanyar punts.
 
@@ -76,7 +74,8 @@ Si un error de l'App et dona punts que no toquen, els podem corregir.
 
 ### 6. El teu compte
 
-- Entres amb el teu correu i un codi que t'enviem. Vigila l'accés al teu correu.
+- Entres amb el teu correu i un codi que t'enviem, o amb Google, Facebook o Apple. Vigila
+  l'accés al teu correu i a aquests comptes.
 - Et pots donar de baixa quan vulguis escrivint a info@km0lab.com. En donar-te de baixa perds
   els punts que no hagis bescanviat.
 - Les teves dades es tracten com explica la política de privacitat.
@@ -95,12 +94,14 @@ domicili. Per a qualsevol dubte o queixa: info@km0lab.com.
 ### Per a comerços {#comercos}
 
 Si registres un comerç, a més:
+- Has de ser major d'edat i titular del comerç, o tenir permís del titular.
 - Les dades de la fitxa (nom, adreça, telèfon, web, horari, descripció i fotos) es publiquen
   a l'App. El correu de contacte i el NIF, no.
 - Et comprometes que la informació sigui certa i a tenir el codi del comerç a la vista al
   taulell, només allà.
 - No pots escanejar el teu propi codi ni validar vals teus o de la teva família.
 - Valides els vals que t'ensenyin a l'App, mentre siguin vàlids.
+- Si un menor d'edat et presenta un val, no el pots bescanviar per alcohol ni tabac.
 - KM0 LAB t'abona l'import dels vals de saldo que validis, de la manera que acordem quan
   t'adhereixis.
 - Pots sortir del pilot quan vulguis avisant-nos. La teva fitxa deixa de veure's.

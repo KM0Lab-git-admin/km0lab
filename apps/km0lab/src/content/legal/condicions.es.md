@@ -1,4 +1,4 @@
-**Versión 1 · 27 de noviembre de 2026**
+**Versión 2 · 28 de noviembre de 2026**
 
 KM0 LAB (nombre con el que opera Albert Malleu Poch, Calle del Mar 65, local bajo, 08380 Malgrat de Mar,
 info@km0lab.com) organiza en tu población un programa piloto para premiar las visitas al
@@ -14,7 +14,7 @@ condiciones explican cómo funciona. Al registrarte, las aceptas.
   cosas mientras dura. Si un cambio te afecta (por ejemplo, en los puntos o los premios), te
   lo diremos en la App antes de aplicarlo.
 - Participar es gratis y no obliga a comprar nada.
-- Hay que tener **18 años o más**. Una cuenta por persona.
+- Hay que tener **14 años o más**. Una cuenta por persona, sea cual sea la forma de entrar.
 - Cada piloto admite un máximo de **200 cuentas**, por orden de registro. Cuando se llena, no
   se admiten más.
 
@@ -28,8 +28,6 @@ condiciones explican cómo funciona. Al registrarte, las aceptas.
 - Por cada persona que invites recibes **50 puntos**, cuando esa persona completa su
   registro. Hay un número máximo de amigos que te suman puntos, que depende de cómo entraste
   en el piloto (puede ser cero). La App te lo enseña.
-- Si la App ofrece puntos de cumpleaños, se dan una vez al año, con tu **fecha de nacimiento
-  real**.
 
 ### 3. Premios
 
@@ -67,9 +65,8 @@ condiciones explican cómo funciona. Al registrarte, las aceptas.
 
 Podemos **anular puntos, vales o la cuenta**, después de avisarte y escuchar lo que tengas
 que decir, si vemos que:
-- tienes más de una cuenta o usas correos ajenos o inventados;
+- tienes más de una cuenta o usas correos o cuentas de redes sociales ajenos o inventados;
 - escaneas el código de un comercio sin haber estado allí (por ejemplo, desde una foto);
-- cambias tu fecha de nacimiento para cobrar los puntos de cumpleaños;
 - te invitas a ti mismo con otra cuenta;
 - usas fallos de la App para ganar puntos.
 
@@ -77,7 +74,8 @@ Si un error de la App te da puntos que no tocan, podemos corregirlos.
 
 ### 6. Tu cuenta
 
-- Entras con tu correo y un código que te enviamos. Cuida el acceso a tu correo.
+- Entras con tu correo y un código que te enviamos, o con Google, Facebook o Apple. Cuida el
+  acceso a tu correo y a esas cuentas.
 - Puedes darte de baja cuando quieras escribiendo a info@km0lab.com. Al darte de baja pierdes
   los puntos que no hayas canjeado.
 - Tus datos se tratan como explica la política de privacidad.
@@ -96,12 +94,14 @@ domicilio. Para cualquier duda o queja: info@km0lab.com.
 ### Para comercios {#comercos}
 
 Si registras un comercio, además:
+- Tienes que ser mayor de edad y titular del comercio, o tener permiso del titular.
 - Los datos de la ficha (nombre, dirección, teléfono, web, horario, descripción y fotos) se
   publican en la App. El correo de contacto y el NIF no.
 - Te comprometes a que la información sea cierta y a tener el código del comercio a la vista
   en el mostrador, solo ahí.
 - No puedes escanear tu propio código ni validar vales tuyos o de tu familia.
 - Validas los vales que te enseñen en la App, mientras sean válidos.
+- Si un menor de edad te presenta un vale, no puedes canjearlo por alcohol ni tabaco.
 - KM0 LAB te abona el importe de los vales de saldo que valides, de la forma que acordemos
   cuando te adhieras.
 - Puedes salir del piloto cuando quieras avisándonos. Tu ficha deja de verse.

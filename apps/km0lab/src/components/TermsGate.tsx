@@ -62,9 +62,11 @@ export default function TermsGate() {
     if (!accepted || saving) return
     setSaving(true)
     setFailed(false)
-    const ok = await acceptTerms()
+    const result = await acceptTerms()
     setSaving(false)
-    if (ok) {
+    // `not_recorded`: un servidor más antiguo que la App. No se deja a nadie
+    // detrás de esta pantalla por eso; volverá a salir cuando toque.
+    if (result !== 'failed') {
       queryClient.setQueryData(queryKey, false)
       setAccepted(false)
     } else {

@@ -25,8 +25,19 @@ export const fetchTermsPending = async (): Promise<boolean> => {
   return needsTerms(user.terms_version)
 }
 
-/** «Continuar»: deja apuntada la versión aceptada. Devuelve si quedó. */
-export const acceptTerms = async (): Promise<boolean> => {
+/**
+ * Qué pasó al aceptar:
+ * - `accepted`: quedó apuntada la versión vigente.
+ * - `not_recorded`: el servidor contestó bien pero no la apuntó. Pasa si el
+ *   servidor es más antiguo que la App y todavía no conoce esta versión
+ *   (solo cuenta la que él tiene por vigente). No es culpa de la persona:
+ *   se la deja pasar y el servidor volverá a preguntar cuando la conozca.
+ * - `failed`: no se pudo guardar (sin red, error): se puede reintentar.
+ */
+export type AcceptTermsResult = 'accepted' | 'not_recorded' | 'failed'
+
+/** «Continuar»: deja apuntada la versión aceptada. */
+export const acceptTerms = async (): Promise<AcceptTermsResult> => {
   try {
     const user = await apiFetch('/users/me', {
       method: 'PATCH',
@@ -34,8 +45,8 @@ export const acceptTerms = async (): Promise<boolean> => {
       body: { terms_version: TERMS_VERSION },
       schema: userSchema,
     })
-    return !needsTerms(user.terms_version)
+    return needsTerms(user.terms_version) ? 'not_recorded' : 'accepted'
   } catch {
-    return false
+    return 'failed'
   }
 }

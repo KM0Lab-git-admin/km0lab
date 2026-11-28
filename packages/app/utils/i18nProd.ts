@@ -218,12 +218,14 @@ const DP = {
     es: 'Has entrado con una cuenta de {town}. Para probar la demostración, cierra la sesión y entra con otro correo.',
     en: 'You are signed in with an account from {town}. To try the demo, sign out and use another email.',
   } as Dict,
-  // Textos de Legal, versión 1 (Docs/marketing/piloto/legal/consentimiento-alta.md).
+  // Textos de Legal, versión 2 del 28-11-2026
+  // (Docs/marketing/piloto/legal/consentimiento-alta.md). La casilla no habla
+  // de la edad: los 14 años están en las condiciones.
   // Los enlaces van como [texto](/ruta) y los pinta `LegalLine`.
   'legal.accept.label': {
-    ca: 'Tinc 18 anys o més i accepto les [condicions del pilot](/condicions).',
-    es: 'Tengo 18 años o más y acepto las [condiciones del piloto](/condicions).',
-    en: 'I am 18 or older and I accept the [pilot terms](/condicions).',
+    ca: 'Accepto les [condicions del pilot](/condicions).',
+    es: 'Acepto las [condiciones del piloto](/condicions).',
+    en: 'I accept the [pilot terms](/condicions).',
   } as Dict,
   'legal.accept.info': {
     ca: 'KM0 LAB tracta les teves dades per gestionar el teu compte i els teus punts. L’entitat que impulsa el pilot les veu per gestionar-lo. Pots consultar-les, corregir-les o esborrar-les quan vulguis. Més informació a la [política de privacitat](/privacitat).',

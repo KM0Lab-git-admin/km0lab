@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { t } from '../utils/i18nProd'
 import {
   parseLegalInline,
   parseLegalText,
@@ -91,21 +92,17 @@ describe('textos legales', () => {
 
 describe('negritas, cursivas y enlaces dentro de una línea', () => {
   it('la casilla del alta enlaza a las condiciones', () => {
-    expect(
-      parseLegalInline(
-        'Tinc 18 anys o més i accepto les [condicions del pilot](/condicions).'
-      )
-    ).toEqual([
-      { type: 'text', text: 'Tinc 18 anys o més i accepto les ' },
+    expect(parseLegalInline(t('legal.accept.label', 'ca'))).toEqual([
+      { type: 'text', text: 'Accepto les ' },
       { type: 'link', text: 'condicions del pilot', href: '/condicions' },
       { type: 'text', text: '.' },
     ])
   })
 
   it('negrita y cursiva', () => {
-    expect(parseLegalInline('Cal **18 anys** i *res més*')).toEqual([
+    expect(parseLegalInline('Cal **14 anys** i *res més*')).toEqual([
       { type: 'text', text: 'Cal ' },
-      { type: 'bold', text: '18 anys' },
+      { type: 'bold', text: '14 anys' },
       { type: 'text', text: ' i ' },
       { type: 'italic', text: 'res més' },
     ])
@@ -119,7 +116,17 @@ describe('negritas, cursivas y enlaces dentro de una línea', () => {
 })
 
 it('la versión de las condiciones que acepta el vecino', () => {
-  expect(TERMS_VERSION).toBe('1')
+  expect(TERMS_VERSION).toBe('2')
+})
+
+it('la casilla no habla de la edad, en ningún idioma', () => {
+  // Albert no la quiere ahí («parece una página para adultos») y Legal lo
+  // respalda: los 14 años están en las condiciones, enlazadas en la casilla.
+  for (const lang of ['ca', 'es', 'en'] as const) {
+    const label = t('legal.accept.label', lang)
+    expect(label).not.toMatch(/\d/)
+    expect(label).toContain('](/condicions)')
+  }
 })
 
 describe('los textos de Legal que publica la App', () => {

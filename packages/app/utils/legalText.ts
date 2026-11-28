@@ -9,7 +9,7 @@
  */
 
 /** Versión vigente de condiciones y política. Subirla hace que todos vuelvan a aceptar. */
-export const TERMS_VERSION = '1'
+export const TERMS_VERSION = '2'
 
 export type LegalBlock =
   | { type: 'heading'; text: string; id?: string }

@@ -1,4 +1,4 @@
-**Version 1 · 27 November 2026**
+**Version 2 · 28 November 2026**
 
 KM0 LAB (the name under which Albert Malleu Poch operates,
 Calle del Mar 65, local bajo, 08380 Malgrat de Mar, info@km0lab.com) runs a pilot programme in your town to reward
@@ -13,7 +13,7 @@ terms explain how it works. By signing up, you accept them.
   while it runs. If a change affects you (for example, points or rewards), we will tell you in
   the App before it applies.
 - Taking part is free and does not require you to buy anything.
-- You must be **18 or older**. One account per person.
+- You must be **14 or older**. One account per person, whichever way you sign in.
 - Each pilot accepts up to **200 accounts**, in order of sign-up. Once it is full, no more are
   accepted.
 
@@ -27,8 +27,6 @@ terms explain how it works. By signing up, you accept them.
 - For each person you invite you get **50 points**, once that person completes sign-up. There
   is a maximum number of friends who earn you points, which depends on how you joined the
   pilot (it may be zero). The App shows it to you.
-- If the App offers birthday points, they are given once a year, using your **real date of
-  birth**.
 
 ### 3. Rewards
 
@@ -68,9 +66,9 @@ terms explain how it works. By signing up, you accept them.
 
 We may **cancel points, vouchers or the account**, after telling you and hearing what you
 have to say, if we see that you:
-- have more than one account or use other people's or made-up email addresses;
+- have more than one account or use other people's or made-up email addresses or social
+  network accounts;
 - scan a shop's code without having been there (for example, from a photo);
-- change your date of birth to collect birthday points;
 - invite yourself with another account;
 - exploit App errors to earn points.
 
@@ -78,7 +76,8 @@ If an App error gives you points you should not have, we may correct them.
 
 ### 6. Your account
 
-- You sign in with your email and a code we send you. Keep access to your email safe.
+- You sign in with your email and a code we send you, or with Google, Facebook or Apple.
+  Keep access to your email and those accounts safe.
 - You can leave at any time by writing to info@km0lab.com. If you leave, you lose any points
   you have not redeemed.
 - Your data is processed as explained in the privacy policy.
@@ -97,12 +96,14 @@ place of residence. For any question or complaint: info@km0lab.com.
 ### For shops {#comercos}
 
 If you register a shop, in addition:
+- You must be an adult and the shop's owner, or have the owner's permission.
 - The listing details (name, address, phone, website, opening hours, description and photos)
   are published in the App. The contact email and tax ID are not.
 - You undertake that the information is true and to display the shop's code at the counter,
   and only there.
 - You may not scan your own code or validate your own or your family's vouchers.
 - You validate the vouchers shown to you in the App, while they are valid.
+- If a minor shows you a voucher, you may not redeem it for alcohol or tobacco.
 - KM0 LAB pays you the amount of the credit vouchers you validate, in the way agreed when you
   join.
 - You may leave the pilot at any time by telling us. Your listing will no longer be shown.

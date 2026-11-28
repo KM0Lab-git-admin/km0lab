@@ -1,4 +1,4 @@
-**Última actualización: 27 de noviembre de 2026**
+**Última actualización: 28 de noviembre de 2026**
 
 ### 1. Quién trata tus datos
 
@@ -14,9 +14,13 @@ punto 5.
 ### 2. Qué datos tratamos
 
 **Si te registras como vecino o vecina**
-- Tu correo electrónico, para entrar con un código.
+- Para entrar: tu correo electrónico, si entras con un código; o, si entras con Google,
+  Facebook o Apple, tu nombre, tu correo y un identificador de tu cuenta en esa red. Si
+  Apple oculta tu correo, guardamos la dirección de reenvío que nos da Apple.
+- Por dónde entraste la primera vez (correo, Google, Facebook o Apple), con qué formas
+  puedes entrar y cuándo usaste cada una por última vez.
 - Tu código postal, que dice a qué población perteneces, y tu idioma.
-- Si los añades tú: nombre y apellidos, teléfono y fecha de nacimiento.
+- Si los añades tú: nombre y apellidos y teléfono.
 - Lo que haces en el programa: puntos ganados y gastados, comercios cuyo código has
   escaneado y cuándo, premios canjeados y su código de vale, y las invitaciones que has
   enviado o con las que te has registrado.
@@ -49,13 +53,12 @@ bancarios.
 
 | Para qué | Datos | Base legal |
 |---|---|---|
-| Crear tu cuenta, dejarte entrar y hacer funcionar el programa: sumar puntos, canjear premios, invitar a otras personas | Cuenta, actividad, correo | Las condiciones del piloto que aceptas al registrarte: es necesario para darte el servicio (RGPD, art. 6.1.b) |
-| Darte los puntos de cumpleaños | Fecha de nacimiento, si la das | Igual que el anterior. Es opcional: sin ella no hay puntos de cumpleaños |
+| Crear tu cuenta, dejarte entrar y hacer funcionar el programa: sumar puntos, canjear premios, invitar a otras personas | Cuenta, actividad, correo y formas de entrar | Las condiciones del piloto que aceptas al registrarte: es necesario para darte el servicio (RGPD, art. 6.1.b) |
 | Que la entidad pueda llamarte por algo del programa | Teléfono | Tu consentimiento: solo si activas «compartir mi teléfono» en tu perfil. Lo puedes desactivar cuando quieras (RGPD, art. 6.1.a) |
 | Enviarte el código de acceso y avisos del programa (cambios, fin del piloto) | Correo | Necesario para el servicio (art. 6.1.b). **No te enviamos publicidad** |
-| Evitar trampas: cuentas repetidas, escaneos sin pasar por el comercio, fechas de cumpleaños cambiadas para ganar puntos | Cuenta y actividad | Nuestro interés legítimo en que el programa sea justo para todos (art. 6.1.f) |
+| Evitar trampas: cuentas repetidas, escaneos sin pasar por el comercio | Cuenta y actividad | Nuestro interés legítimo en que el programa sea justo para todos (art. 6.1.f) |
 | Mostrar la ficha del comercio en la App | Datos del negocio | Las condiciones que acepta el comercio al registrarse (art. 6.1.b). El correo de contacto y el NIF **no** se publican |
-| Saber si el piloto funciona: cifras de visitas, registros, escaneos y canjes por población y día | Siempre agregados, nunca por persona | Nuestro interés legítimo en medir el piloto (art. 6.1.f) |
+| Saber si el piloto funciona: cifras de visitas, registros (y por dónde entran: correo o cada red), escaneos y canjes por población y día | Siempre agregados, nunca por persona | Nuestro interés legítimo en medir el piloto (art. 6.1.f) |
 | Organizar la reunión que reservas desde la web | Datos de la reserva | Tu petición (art. 6.1.b) |
 | Responder a quien escribe desde la web | Datos del formulario | Tu petición (art. 6.1.b) y nuestro interés en atenderla (art. 6.1.f) |
 | Proponer el programa a ayuntamientos y asociaciones | Contacto publicado por la entidad | Nuestro interés legítimo en relacionarnos con la entidad (art. 6.1.f; LOPDGDD, art. 19). Si nos dices que no, dejamos de contactarte. Lo guardamos hasta 24 meses desde el último contacto |
@@ -73,6 +76,8 @@ No tomamos decisiones automáticas sobre ti ni hacemos perfiles para publicidad.
   máximo.
 - **Códigos de acceso:** caducan a los 10 minutos. Solo guardamos una huella del código,
   nunca el código.
+- **Conexión con Google, Facebook o Apple:** mientras tengas la cuenta. Las claves que nos
+  envían al entrar las comprobamos y las descartamos: no las guardamos.
 - **Formulario de la web:** hasta 24 meses desde el último contacto.
 - **Registros técnicos de los servidores y del envío de correo:** los que fija cada proveedor,
   normalmente días o semanas (el de correo, 30 días).
@@ -105,6 +110,11 @@ datos para darnos su servicio:
 | Calendly | Gestiona las reservas de reuniones desde la web | EE. UU. |
 | Brevo SAS | Guarda los contactos de ayuntamientos y asociaciones y les envía los correos | Francia (UE) |
 
+**Si entras con Google, Facebook o Apple.** Google, Meta (Facebook) y Apple no trabajan para
+nosotros: gestionan tu cuenta con sus propias políticas de privacidad. Cuando eliges entrar
+con una de ellas, nos confirma quién eres y nos pasa los datos del punto 2, y sabe que has
+entrado en KM0 LAB. No les enviamos nada más tuyo ni publicamos nada en tu nombre.
+
 **Transferencias fuera de la Unión Europea.** Algunos de estos proveedores son empresas de
 EE. UU. Esas transferencias se amparan en las cláusulas contractuales tipo de la Comisión
 Europea que incluyen sus contratos y, cuando el proveedor está adherido, en el Marco de
@@ -117,6 +127,9 @@ Privacidad de Datos UE-EE. UU.
 Solo lo necesario para que la App funcione: tu sesión, el idioma, el código postal y la
 población, y, si llegas por una invitación, su código durante 30 días para que la persona que
 te invitó reciba sus puntos. Nada de esto sirve para publicidad.
+
+Los botones de Google, Facebook y Apple solo se cargan cuando pulsas uno. Entonces esa
+empresa puede guardar cookies suyas para hacer la entrada, según su política.
 
 Para saber cuántas visitas recibe la App, contamos cada visita con la población y el día. No
 guardamos nada en tu dispositivo para hacerlo, ni ningún dato que te identifique.
@@ -135,19 +148,26 @@ Puedes pedirnos en cualquier momento:
 - **Retirar tu consentimiento** para compartir el teléfono, desactivándolo en el perfil.
 
 **Cómo:** escribe a **info@km0lab.com** desde el correo con el que te registraste, diciendo
-qué quieres. Es gratis. Te contestamos en un mes como máximo (RGPD, art. 12.3).
+qué quieres. Si no sabes cuál es (por ejemplo, porque Apple lo ocultó), escríbenos igualmente y te
+diremos cómo confirmar que eres tú. Es gratis. Te contestamos en un mes como máximo (RGPD, art. 12.3).
+
+**Borrar la cuenta si entraste con Google, Facebook o Apple:** pídelo igual, en
+info@km0lab.com. Borramos la cuenta y la conexión con la red. Para quitarnos también el
+permiso desde la red, hazlo en la configuración de tu cuenta de Google, Facebook o Apple.
 
 Si crees que no hemos respetado tus derechos, puedes reclamar ante la **Agencia Española de
 Protección de Datos** (www.aepd.es).
 
 ### 8. Edad mínima
 
-Para participar en el piloto hay que tener **18 años o más**. Si sabemos que se ha registrado
-una persona menor, borramos su cuenta.
+Para participar en el piloto hay que tener **14 años o más**. Si sabemos que se ha registrado
+una persona más pequeña, borramos su cuenta.
 
 ### 9. Seguridad
 
-Entras con un código de un solo uso que caduca a los 10 minutos, sin contraseña. Las
+Entras con un código de un solo uso que te enviamos por correo y caduca a los 10 minutos, o
+con tu cuenta de Google, Facebook o Apple. No te pedimos ninguna contraseña ni vemos la de
+tu red. Las
 conexiones van cifradas. Solo pueden ver tus datos las personas que los necesitan para el
 programa. Si hubiera un fallo de seguridad que pusiera en riesgo tus datos, lo comunicaríamos
 a la autoridad en 72 horas (RGPD, art. 33) y, si el riesgo fuera alto, también a ti.
