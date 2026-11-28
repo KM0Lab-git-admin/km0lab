@@ -14,6 +14,7 @@
  */
 export * from './km0labClient'
 export * from './auth'
+export * from './terms'
 export * from './profile'
 export * from './points'
 export * from './rewards'

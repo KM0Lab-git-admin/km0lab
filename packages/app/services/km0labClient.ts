@@ -56,6 +56,8 @@ const userSchemaRaw = z.object({
   phone: z.string().nullable().optional(),
   birth_date: z.string().nullable().optional(),
   contact_shared: z.boolean().optional(),
+  /** Versión de las condiciones que aceptó; null si ninguna. */
+  terms_version: z.string().nullable().optional(),
   is_fake: z.boolean().optional(),
   created_at: z.string(),
 })

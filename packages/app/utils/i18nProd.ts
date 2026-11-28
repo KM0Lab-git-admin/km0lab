@@ -242,6 +242,32 @@ const DP = {
     es: 'No hemos podido cargar el texto. Inténtalo de nuevo.',
     en: 'We could not load the text. Please try again.',
   } as Dict,
+  // «Antes de continuar» (apartado 2): quien ya tenía cuenta.
+  'legal.gate.title': {
+    ca: 'Abans de continuar',
+    es: 'Antes de continuar',
+    en: 'Before you continue',
+  } as Dict,
+  'legal.gate.body': {
+    ca: 'Hem publicat les condicions del pilot i la política de privacitat. Llegeix-les i accepta-les per seguir fent servir l’App.',
+    es: 'Hemos publicado las condiciones del piloto y la política de privacidad. Léelas y acéptalas para seguir usando la App.',
+    en: 'We have published the pilot terms and the privacy policy. Please read and accept them to keep using the App.',
+  } as Dict,
+  'legal.gate.cta': {
+    ca: 'Continuar',
+    es: 'Continuar',
+    en: 'Continue',
+  } as Dict,
+  'legal.gate.leave': {
+    ca: 'No vull continuar: esborrar el meu compte',
+    es: 'No quiero continuar: borrar mi cuenta',
+    en: 'I don’t want to continue: delete my account',
+  } as Dict,
+  'legal.gate.error': {
+    ca: 'No ho hem pogut desar. Torna-ho a provar.',
+    es: 'No hemos podido guardarlo. Inténtalo de nuevo.',
+    en: 'We could not save it. Please try again.',
+  } as Dict,
   'otp.footer_hint': {
     ca: 'No el trobes? Mira a la carpeta de spam o promocions.',
     es: '¿No lo encuentras? Mira en spam o promociones.',

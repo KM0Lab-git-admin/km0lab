@@ -9,6 +9,7 @@ import DeviceShell from '@/components/DeviceShell'
 import RequireAuth from '@/components/RequireAuth'
 import RequireSetup from '@/components/RequireSetup'
 import ResumePendingScan from '@/components/ResumePendingScan'
+import TermsGate from '@/components/TermsGate'
 import TopLoadingBar from '@/components/TopLoadingBar'
 import UpdateRequired from '@/components/UpdateRequired'
 import { LangProvider } from '@/contexts/LangContext'
@@ -59,6 +60,7 @@ export default function App() {
           <Router>
             <CaptureInviteFromUrl />
             <ResumePendingScan />
+            <TermsGate />
             <TopLoadingBar />
             <Suspense fallback={null}>
               <Routes>
