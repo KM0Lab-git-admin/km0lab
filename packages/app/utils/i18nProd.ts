@@ -18,6 +18,10 @@
 
 import { t as tBase, type Lang, type TKey as TKeyBase } from './i18n'
 
+// El nombre de cada red, del diccionario de Lovable: lo usan los avisos del
+// acceso (`utils/accessNotice`), que el porte apunta aquí.
+export { networkName } from './i18n'
+
 /** Reexportado para los tipos que el porte trae de Lovable. */
 export type { Lang }
 
@@ -143,6 +147,12 @@ const DP = {
     ca: 'Massa intents. Podràs tornar-ho a provar d’aquí a {minutes} min.',
     es: 'Demasiados intentos. Podrás volver a probar dentro de {minutes} min.',
     en: 'Too many attempts. You can try again in {minutes} min.',
+  } as Dict,
+  // Solo con las cuentas de código fijo (demostración y pruebas).
+  'otp.demo_hint': {
+    ca: 'Compte de demostració: fes servir el codi 123456.',
+    es: 'Cuenta de demostración: usa el código 123456.',
+    en: 'Demo account: use the code 123456.',
   } as Dict,
   'otp.toast_offline': {
     ca: 'Sense connexió. Comprova la xarxa i torna-ho a provar.',

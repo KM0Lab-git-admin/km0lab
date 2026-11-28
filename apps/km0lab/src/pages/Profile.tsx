@@ -6,8 +6,22 @@ import {
   useSetHomeTown,
   useTerritory,
   useLocationContext,
+  useAccessDoors,
+  useSignInMethods,
+  logoutEverywhere,
 } from '@km0lab/app'
-import { Button } from '@km0lab/ui'
+import {
+  Button,
+  Switch,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import { LogOut, Loader2, ChevronRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -18,8 +32,11 @@ import { z } from 'zod'
 import type { FormEvent } from 'react'
 
 import BrandedFrame from '@/components/BrandedFrame'
+import SignInMethodsSection from '@/components/SignInMethodsSection'
 import TownPickerSheet from '@/components/TownPickerSheet'
 import { useLang } from '@/contexts/LangContext'
+import { LEGAL_ROUTES } from '@/data/legalRoutes'
+import { SUPPORT_EMAIL } from '@/data/supportContact'
 
 /**
  * Profile — Edición y visualización del perfil del usuario.
@@ -34,7 +51,7 @@ type ProfileForm = {
   first_name: string
   last_name: string
   phone: string
-  birth_date: string
+  contact_shared: boolean
 }
 
 const Profile = () => {
@@ -43,14 +60,14 @@ const Profile = () => {
   const { user, signOut } = useAuth()
   const { profile, loading } = useProfile()
   const [saving, setSaving] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const [loggingOutEverywhere, setLoggingOutEverywhere] = useState(false)
   const [form, setForm] = useState<ProfileForm>({
     first_name: '',
     last_name: '',
     phone: '',
-    birth_date: '',
+    contact_shared: false,
   })
-
-  const todayIso = new Date().toISOString().slice(0, 10)
 
   const profileSchema = z.object({
     first_name: z
@@ -68,13 +85,7 @@ const Profile = () => {
       .trim()
       .regex(/^[+\d][\d\s]{5,19}$|^$/, t('profile.error_phone', lang))
       .optional(),
-    birth_date: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$|^$/)
-      .refine((v) => !v || v <= todayIso, {
-        message: t('profile.error_max', lang),
-      })
-      .optional(),
+    contact_shared: z.boolean(),
   })
 
   useEffect(() => {
@@ -84,7 +95,7 @@ const Profile = () => {
         first_name: data.first_name ?? '',
         last_name: data.last_name ?? '',
         phone: data.phone ?? '',
-        birth_date: data.birth_date ?? '',
+        contact_shared: data.contact_shared ?? false,
       })
     }
   }, [profile])
@@ -111,7 +122,7 @@ const Profile = () => {
       first_name: form.first_name.trim() || null,
       last_name: form.last_name.trim() || null,
       phone: form.phone.trim() || null,
-      birth_date: form.birth_date.trim() || null,
+      contact_shared: form.contact_shared,
     })
 
     setSaving(false)
@@ -122,6 +133,8 @@ const Profile = () => {
     toast.success(t('profile.toast_saved', lang))
   }
 
+  const { providers } = useAccessDoors()
+  const signInMethods = useSignInMethods()
   const territory = useTerritory()
   const { town } = useLocationContext()
   const setHomeTown = useSetHomeTown()
@@ -134,7 +147,37 @@ const Profile = () => {
   const handleLogout = async () => {
     await signOut()
     toast.success(t('profile.toast_logout', lang))
-    navigate('/home')
+    navigate('/login')
+  }
+
+  const handleLogoutEverywhere = async () => {
+    if (loggingOutEverywhere) return
+    setLoggingOutEverywhere(true)
+    const fail = () => {
+      setLogoutDialogOpen(false)
+      toast.error(t('profile.logout_all.error', lang), {
+        action: {
+          label: t('profile.logout_all.retry', lang),
+          onClick: () => {
+            void handleLogoutEverywhere()
+          },
+        },
+      })
+    }
+    try {
+      const result = await logoutEverywhere()
+      if (result.error) {
+        fail()
+        return
+      }
+      setLogoutDialogOpen(false)
+      toast.success(t('profile.logout_all.success', lang))
+      navigate('/login')
+    } catch {
+      fail()
+    } finally {
+      setLoggingOutEverywhere(false)
+    }
   }
 
   return (
@@ -208,16 +251,34 @@ const Profile = () => {
                 />
               </Field>
 
-              <Field label={t('profile.birth_date', lang)}>
-                <input
-                  type="date"
-                  value={form.birth_date}
-                  onChange={handleChange('birth_date')}
-                  max={todayIso}
-                  autoComplete="bday"
-                  className={inputCls}
-                />
-              </Field>
+              <div className="flex flex-col gap-1">
+                <div className="flex min-h-11 items-center justify-between gap-3">
+                  <label
+                    htmlFor="contact-shared"
+                    className="whitespace-normal font-ui text-sm text-km0-blue-800"
+                  >
+                    {t('profile.legal.contact_label', lang)}
+                  </label>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center">
+                    <Switch
+                      id="contact-shared"
+                      aria-describedby="contact-shared-help"
+                      className="relative before:absolute before:inset-x-0 before:-inset-y-2.5"
+                      checked={form.phone.trim() ? form.contact_shared : false}
+                      onCheckedChange={(contact_shared) =>
+                        setForm((previous) => ({ ...previous, contact_shared }))
+                      }
+                      disabled={!form.phone.trim() || saving}
+                    />
+                  </div>
+                </div>
+                <p
+                  id="contact-shared-help"
+                  className="whitespace-normal font-body text-xs leading-snug text-km0-blue-800/70"
+                >
+                  {t('profile.legal.contact_help', lang)}
+                </p>
+              </div>
 
               <Field label={t('territory.myTown', lang)}>
                 <Button
@@ -238,6 +299,16 @@ const Profile = () => {
                 </Button>
               </Field>
 
+              <SignInMethodsSection
+                lang={lang}
+                methods={signInMethods.methods}
+                loading={signInMethods.loading}
+                error={signInMethods.error}
+                onRetry={signInMethods.reload}
+                providers={providers}
+                onLink={signInMethods.linkProvider}
+              />
+
               <Button
                 variant="bubbleSurface"
                 type="submit"
@@ -252,15 +323,103 @@ const Profile = () => {
                 variant="bubbleSurface"
                 type="button"
                 onClick={handleLogout}
+                disabled={loggingOutEverywhere}
                 className="h-11 mt-1 rounded-xl border-2 border-km0-blue-700/20 hover:bg-km0-beige-100 active:scale-[0.98] transition-all font-ui text-sm text-km0-blue-700 flex items-center justify-center gap-2"
               >
                 <LogOut size={16} />
                 {t('profile.logout', lang)}
               </Button>
+              <Button
+                variant="bubbleLink"
+                type="button"
+                disabled={loggingOutEverywhere}
+                onClick={() => setLogoutDialogOpen(true)}
+                className="h-auto min-h-9 whitespace-normal px-1 font-body text-xs underline underline-offset-2"
+              >
+                {loggingOutEverywhere && (
+                  <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
+                )}
+                {t(
+                  loggingOutEverywhere
+                    ? 'profile.logout_all.loading'
+                    : 'profile.logout_all.label',
+                  lang
+                )}
+              </Button>
+              <footer className="whitespace-normal text-center font-body text-xs leading-5 text-km0-blue-800/70">
+                <p>
+                  <a
+                    href={LEGAL_ROUTES.terms}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    {t('profile.legal.terms', lang)}
+                  </a>
+                  {t('profile.legal.separator', lang)}
+                  <a
+                    href={LEGAL_ROUTES.privacy}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    {t('profile.legal.privacy', lang)}
+                  </a>
+                </p>
+                <p>
+                  {t('profile.legal.delete', lang)}
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="underline underline-offset-2"
+                  >
+                    {SUPPORT_EMAIL}
+                  </a>
+                  {t('profile.legal.period', lang)}
+                </p>
+              </footer>
             </form>
           )}
         </motion.div>
       </BrandedFrame>
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent className="w-[calc(100%_-_2rem)] max-w-sm rounded-lg border-km0-blue-700/20 bg-km0-beige-50 text-km0-blue-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-ui">
+              {t('profile.logout_all.title', lang)}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-body text-km0-blue-800/70">
+              {t('profile.logout_all.description', lang)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="bubbleSurface" disabled={loggingOutEverywhere}>
+                {t('profile.logout_all.cancel', lang)}
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="bubblePrimary"
+                disabled={loggingOutEverywhere}
+                onClick={(event) => {
+                  event.preventDefault()
+                  void handleLogoutEverywhere()
+                }}
+              >
+                {loggingOutEverywhere && (
+                  <Loader2 aria-hidden className="animate-spin" />
+                )}
+                {t(
+                  loggingOutEverywhere
+                    ? 'profile.logout_all.loading'
+                    : 'profile.logout_all.confirm',
+                  lang
+                )}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {territory.territory && territory.isGrouped && (
         <TownPickerSheet
           open={townPickerOpen}

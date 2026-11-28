@@ -1,6 +1,12 @@
-import { t, useDragScroll, useAppStore } from '@km0lab/app'
+import {
+  t,
+  useDragScroll,
+  useAppStore,
+  shouldShowShowcaseBadge,
+} from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { ChevronLeft } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 
 import type { ReactNode } from 'react'
 
@@ -59,6 +65,7 @@ const BrandedFrame = ({
 }: BrandedFrameProps) => {
   const { lang } = useLang()
   const isShowcase = useAppStore((s) => s.isShowcase)
+  const { pathname } = useLocation()
   const scrollRef = useDragScroll('vertical')
   const renderBackButton = (sizeClasses: string, iconSize: number) => {
     if (!onBack) return null
@@ -88,7 +95,7 @@ const BrandedFrame = ({
           !showDeviceChrome && 'h-dvh w-full'
         )}
       >
-        {isShowcase && (
+        {shouldShowShowcaseBadge(isShowcase, pathname) && (
           <span className="pointer-events-none absolute left-1/2 top-1 z-30 -translate-x-1/2 rounded-full bg-muted/90 px-2 py-0.5 font-ui text-[10px] font-semibold leading-none text-muted-foreground">
             {t('demo.badge', lang)}
           </span>

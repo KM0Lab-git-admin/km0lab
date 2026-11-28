@@ -6,17 +6,11 @@ import {
   t,
   type Lang,
   useInviteSummary,
+  PointsTransaction,
+  PointsTxType,
 } from '@km0lab/app'
-import type { PointsTransaction, PointsTxType } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import BottomTabs from '@/components/AccountBottomTabs'
-import FilterChip from '@/components/FilterChip'
-import ScreenHeader from '@/components/ScreenHeader'
-import ScreenStatus from '@/components/ScreenStatus'
-
 import {
   UserPlus,
   Star,
@@ -32,8 +26,13 @@ import {
   Share2,
   type LucideIcon,
 } from 'lucide-react'
-import { Button } from '@km0lab/ui'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import BottomTabs from '@/components/AccountBottomTabs'
+import FilterChip from '@/components/FilterChip'
+import ScreenHeader from '@/components/ScreenHeader'
+import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 

@@ -6,8 +6,9 @@ import { toPointsTransaction } from '../utils/pointsHistoryMapper'
 
 describe('textos de producción sobre los de Lovable', () => {
   it('un texto propio de producción gana al de la maqueta', () => {
-    expect(tLovable('postal.placeholder', 'es')).toBe('08380')
-    expect(t('postal.placeholder', 'es')).toBe('00000')
+    // La maqueta avisa de que sus datos son de ejemplo; producción, no.
+    expect(tLovable('account.demo', 'es')).not.toBe('')
+    expect(t('account.demo', 'es')).toBe('')
   })
 
   it('lo que producción no redefine sale del diccionario de Lovable', () => {

@@ -221,7 +221,7 @@ const CheckEmail = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="min-h-full flex flex-col items-center justify-center gap-4"
+        className="min-h-0 flex-1 flex flex-col items-center justify-center gap-4"
       >
         <div className="w-14 h-14 rounded-full bg-km0-yellow-500/20 flex items-center justify-center mt-2">
           <Mail className="w-7 h-7 text-km0-blue-700" />

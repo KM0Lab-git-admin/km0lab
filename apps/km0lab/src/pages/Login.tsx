@@ -1,109 +1,243 @@
 import {
+  clearPendingReward,
   currentInviteCode,
+  isEmailFormat,
   isPendingScanFresh,
-  otpErrorText,
+  leaveDemo,
+  loginWithProvider,
+  getAccessNotice,
+  networkName,
+  readPendingReward,
   requestOtp,
+  scannerPathFor,
   t,
+  tf,
+  useAccessDoors,
   useAppStore,
 } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
-import type { FormEvent } from 'react'
+import type { SocialNoticeValue } from '@/components/SocialSignInButton'
+import type { AccessProvider } from '@km0lab/app'
 
+import AccessDoorChoice from '@/components/AccessDoorChoice'
+import AccessEmailForm, {
+  type AccessEmailError,
+} from '@/components/AccessEmailForm'
 import BrandedFrame from '@/components/BrandedFrame'
+import EmailRequestStep from '@/components/EmailRequestStep'
 import InviteCodeField from '@/components/InviteCodeField'
-import { LegalLine } from '@/components/LegalText'
+import LeaveDemoSheet from '@/components/LeaveDemoSheet'
 import PilotFullNotice from '@/components/PilotFullNotice'
 import { useLang } from '@/contexts/LangContext'
+import { LEGAL_ROUTES } from '@/data/legalRoutes'
+
+type Step = 'choose' | 'email' | 'email-request'
+
+const EMAIL_ERROR_KEYS = {
+  required: 'login.error_email',
+  invalid: 'access.email.invalid',
+  send_failed: 'access.email.send_failed',
+  ip_limited: 'access.email.ip_limited',
+  offline: 'access.offline',
+} as const
 
 /**
- * Pantalla única de entrada (login + registro unificados).
+ * Pantalla única de entrada (alta y acceso). De producción (candado).
  *
- * Flujo passwordless OTP de 4 dígitos. Recupera CP/población del store
- * Zustand (escritos en /postal-code vía setLocation) y los adjunta al
- * alta para que km0lab-api pueble el perfil.
+ * La estructura es la del prototipo (encargos 14, 14b y 14c): primero se
+ * elige por dónde entrar (correo o una red), con la casilla de las
+ * condiciones y el código de invitación; después el correo, o el paso «Un
+ * darrer pas» si una red no dio un correo de fiar. Lo de producción:
+ *
+ * - Las redes que salen las dice el servidor (`useAccessDoors`). Sin ninguna
+ *   encendida, solo el correo.
+ * - Entrar con una red es como el código: si la cuenta es de demostración y
+ *   se entró desde un pueblo real, se pregunta antes de moverla.
+ * - Lo de siempre: el aviso de invitación aplicada o de visita pendiente, el
+ *   aforo del piloto y adónde se vuelve después.
  */
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { lang } = useLang()
+  const { providers } = useAccessDoors()
   const postalCode = useAppStore((s) => s.postalCode) ?? undefined
   const town = useAppStore((s) => s.town) ?? undefined
   const pendingInvite = useAppStore((s) => s.pendingInvite)
   const pendingScan = useAppStore((s) => s.pendingScan)
   const scanPending = isPendingScanFresh(pendingScan, Date.now())
-  const [email, setEmail] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  // Casilla de Legal: desmarcada y obligatoria. Sin ella no se pide código.
-  const [accepted, setAccepted] = useState(false)
-  // Código de invitación (encargo 13 de Lovable). Llega con el enlace o lo
-  // escribe la persona: una app recién instalada no recibe el enlace. El
-  // escrito gana al del enlace; si vale o no lo decide el servidor.
+
+  // El código de invitación llega con el enlace o lo escribe la persona: una
+  // app recién instalada no recibe el enlace. El escrito gana al del enlace;
+  // si vale o no lo decide el servidor.
   const linkInviteCode = currentInviteCode() ?? searchParams.get('ref')
   const [inviteCode, setInviteCode] = useState(linkInviteCode ?? '')
-  // El municipio ya no admite más cuentas: en vez del formulario, el aviso.
+
+  const [step, setStep] = useState<Step>('choose')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [email, setEmail] = useState('')
+  const [sending, setSending] = useState(false)
+  const [emailError, setEmailError] = useState<AccessEmailError | null>(null)
+  const [busyProvider, setBusyProvider] = useState<AccessProvider | null>(null)
+  const [socialNotice, setSocialNotice] = useState<SocialNoticeValue | null>(
+    null
+  )
+  const [emailRequestProvider, setEmailRequestProvider] =
+    useState<AccessProvider | null>(null)
   const [pilotFull, setPilotFull] = useState(false)
+  const [leaving, setLeaving] = useState<{
+    town: string
+    postalCode: string
+  } | null>(null)
+  const [leaveBusy, setLeaveBusy] = useState(false)
+  const frameRef = useRef<HTMLDivElement>(null)
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!accepted) {
-      toast.error(t('legal.accept.error', lang))
+  const referralReference =
+    inviteCode.trim().toLowerCase() || linkInviteCode || null
+  // `?returnTo=` o el destino que guardó RequireAuth al mandar aquí.
+  const from = (
+    location.state as { from?: { pathname?: string; search?: string } } | null
+  )?.from
+  const fromPath = from?.pathname
+    ? `${from.pathname}${from.search ?? ''}`
+    : null
+  const returnTo =
+    searchParams.get('returnTo') ??
+    fromPath ??
+    (pendingInvite?.kind === 'business' ? '/business-signup' : null)
+
+  const goToEmail = () => {
+    setSocialNotice(null)
+    setStep('email')
+  }
+
+  /** Lo que sigue a entrar con una red: lo mismo que tras el código. */
+  const finishLogin = () => {
+    const rewarded = readPendingReward() !== null
+    clearPendingReward()
+    const scan = useAppStore.getState().pendingScan
+    const scanPath = isPendingScanFresh(scan, Date.now())
+      ? scannerPathFor(scan.code)
+      : null
+    const safeReturnTo =
+      scanPath ??
+      (returnTo?.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : rewarded
+          ? '/home?welcome=1'
+          : '/home')
+    navigate(safeReturnTo, { replace: true })
+  }
+
+  const handleProvider = async (provider: AccessProvider) => {
+    setSocialNotice(null)
+    setBusyProvider(provider)
+    const { error, cancelled, notice } = await loginWithProvider(provider, {
+      referralReference,
+    })
+    setBusyProvider(null)
+    if (cancelled) return
+    if (error?.code === 'pilot_full') {
+      setPilotFull(true)
       return
     }
-    if (!email.trim()) {
-      toast.error(t('login.error_email', lang))
+    if (error?.code === 'email_missing') {
+      // El camino normal con Facebook: la persona confirma un correo.
+      setEmailError(null)
+      setEmailRequestProvider(provider)
+      setStep('email-request')
       return
     }
+    if (error) {
+      setSocialNotice(getAccessNotice(provider, error, lang))
+      return
+    }
+    toast.success(t('otp.welcome', lang))
+    if (notice?.kind === 'account_is_real') {
+      toast.info(
+        t('demo.notice.account_is_real', lang).replace('{town}', notice.town),
+        { duration: 12000 }
+      )
+    }
+    if (notice?.kind === 'confirm_leave_demo') {
+      setLeaving({ town: notice.town, postalCode: notice.postalCode })
+      return
+    }
+    finishLogin()
+  }
 
-    setSubmitting(true)
-    const referralReference =
-      inviteCode.trim().toLowerCase() || linkInviteCode || undefined
-    const { error } = await requestOtp(email.trim(), {
+  const handleEmailSubmit = async () => {
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setEmailError('required')
+      return
+    }
+    if (!isEmailFormat(trimmed)) {
+      setEmailError('invalid')
+      return
+    }
+    setEmailError(null)
+    setSending(true)
+    const { error } = await requestOtp(trimmed, {
       postal_code: postalCode,
       town,
-      invite_code: referralReference,
+      invite_code: referralReference ?? undefined,
     })
-
-    if (error?.kind === 'pilot_full') {
+    setSending(false)
+    if (error?.code === 'pilot_full') {
       setPilotFull(true)
-      setSubmitting(false)
       return
     }
-
+    if (error?.code === 'ip_limited') {
+      setEmailError('ip_limited')
+      return
+    }
+    if (error?.code === 'offline') {
+      setEmailError('offline')
+      return
+    }
     if (error) {
-      // El motivo, en el idioma del vecino; el texto crudo del servidor
-      // solo cuando no se reconoce.
-      toast.error(
-        error.kind === 'unknown' ? error.message : otpErrorText(error, lang)
-      )
-      setSubmitting(false)
+      setEmailError('send_failed')
       return
     }
-
     toast.success(t('login.toast_sent', lang))
-    // `?returnTo=` o el destino que guardó RequireAuth al mandar aquí.
-    const from = (
-      location.state as { from?: { pathname?: string; search?: string } } | null
-    )?.from
-    const fromPath = from?.pathname
-      ? `${from.pathname}${from.search ?? ''}`
-      : null
-    const returnTo =
-      searchParams.get('returnTo') ??
-      fromPath ??
-      (pendingInvite?.kind === 'business' ? '/business-signup' : null)
     navigate('/check-email', {
-      state: {
-        email: email.trim(),
-        mode: 'login',
-        returnTo,
-        referralReference,
-      },
+      state: { email: trimmed, mode: 'login', returnTo, referralReference },
     })
+  }
+
+  const back = () => {
+    if (step !== 'choose') {
+      setEmailError(null)
+      setSocialNotice(null)
+      setEmailRequestProvider(null)
+      setStep('choose')
+      return
+    }
+    navigate(-1)
+  }
+
+  const confirmLeaveDemo = async () => {
+    if (!leaving) return
+    setLeaveBusy(true)
+    const moved = await leaveDemo(leaving.postalCode)
+    setLeaveBusy(false)
+    if (!moved) {
+      toast.error(t('demo.leave.failed', lang))
+      return
+    }
+    toast.info(
+      t('demo.notice.left_demo', lang).replace('{town}', leaving.town),
+      { duration: 12000 }
+    )
+    setLeaving(null)
+    finishLogin()
   }
 
   if (pilotFull) {
@@ -126,18 +260,13 @@ const Login = () => {
     )
   }
 
-  return (
-    <BrandedFrame
-      onBack={() => navigate(-1)}
-      backAriaLabel={t('common.back', lang)}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="min-h-full flex flex-col justify-center gap-4"
-      >
-        {(searchParams.get('ref') || pendingInvite || currentInviteCode()) && (
+  const invited = Boolean(
+    searchParams.get('ref') || pendingInvite || currentInviteCode()
+  )
+  const banner =
+    invited || scanPending ? (
+      <div className="flex flex-col items-center gap-2">
+        {invited && (
           <p className="mx-auto rounded-full bg-km0-teal-100 px-3 py-1 font-ui text-xs font-bold text-km0-teal-700">
             {t('invite.applied', lang)}
           </p>
@@ -147,111 +276,108 @@ const Login = () => {
             {t('login.scan_pending', lang)}
           </p>
         )}
-        <div className="flex flex-col gap-3 min-w-0">
-          <div className="text-center space-y-1 mt-2">
-            <h1 className="font-brand text-2xl text-km0-blue-700">
-              {t('login.title', lang)}
-            </h1>
-            <p className="font-body text-sm text-muted-foreground">
-              {t('login.subtitle', lang)}
-            </p>
-          </div>
+      </div>
+    ) : undefined
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-2">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('login.email_placeholder', lang)}
-              autoComplete="email"
-              inputMode="email"
-              className="h-12 px-4 rounded-xl border-2 border-km0-blue-700/20 bg-background font-body text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-km0-blue-700 transition-colors"
-            />
-
-            <InviteCodeField
-              value={inviteCode}
-              onChange={setInviteCode}
-              initiallyOpen={Boolean(linkInviteCode)}
-              toggleLabel={t('login.invite.toggle', lang)}
-              label={t('login.invite.label', lang)}
-            />
-
-            <label className="flex items-start gap-2.5 text-left font-body text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-                className="mt-0.5 h-5 w-5 shrink-0 accent-km0-blue-700"
+  return (
+    <BrandedFrame onBack={back} backAriaLabel={t('common.back', lang)}>
+      <motion.div
+        ref={frameRef}
+        key={step}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className={
+          step === 'email'
+            ? 'flex min-h-0 flex-1 flex-col'
+            : 'flex flex-1 flex-col'
+        }
+      >
+        {step === 'choose' ? (
+          <AccessDoorChoice
+            lang={lang}
+            providers={providers}
+            termsAccepted={termsAccepted}
+            onTermsChange={setTermsAccepted}
+            termsHref={LEGAL_ROUTES.terms}
+            privacyHref={LEGAL_ROUTES.privacy}
+            busyProvider={busyProvider}
+            notice={socialNotice}
+            onEmail={goToEmail}
+            onProvider={handleProvider}
+            banner={banner}
+            invite={
+              <InviteCodeField
+                value={inviteCode}
+                onChange={setInviteCode}
+                initiallyOpen={Boolean(linkInviteCode)}
+                toggleLabel={t('login.invite.toggle', lang)}
+                label={t('login.invite.label', lang)}
               />
-              <span>
-                <LegalLine text={t('legal.accept.label', lang)} />
-              </span>
-            </label>
-            <p className="font-body text-xs italic leading-relaxed text-muted-foreground">
-              <LegalLine text={t('legal.accept.info', lang)} />
-            </p>
-
-            <button
-              type="submit"
-              disabled={submitting || !accepted}
-              className="h-12 mt-1 rounded-xl bg-km0-yellow-500 hover:bg-km0-yellow-600 active:scale-[0.98] transition-all font-ui text-base text-km0-blue-700 disabled:opacity-50"
+            }
+          />
+        ) : step === 'email-request' && emailRequestProvider ? (
+          <div className="my-auto py-2">
+            <EmailRequestStep
+              title={t('access.email_request.title', lang)}
+              reason={tf('access.email_request.reason', lang, {
+                network: networkName(emailRequestProvider, lang),
+              })}
+              emailLabel={t('account.sheet.email', lang)}
+              placeholder={t('login.email_placeholder', lang)}
+              backLabel={t('access.email_request.back', lang)}
+              email={email}
+              error={emailError ? t(EMAIL_ERROR_KEYS[emailError], lang) : null}
+              submitting={sending}
+              onEmailChange={(value) => {
+                setEmail(value)
+                setEmailError(null)
+              }}
+              onSubmit={handleEmailSubmit}
+              onBack={back}
             >
-              {submitting
-                ? t('login.submitting', lang)
-                : t('login.submit', lang)}
-            </button>
-          </form>
-        </div>
-
-        <div className="flex flex-col gap-3 min-w-0">
-          <div className="flex items-center gap-3 my-1">
-            <div className="flex-1 h-px bg-km0-blue-700/15" />
-            <span className="font-body text-xs text-muted-foreground">
-              {t('login.divider', lang)}
-            </span>
-            <div className="flex-1 h-px bg-km0-blue-700/15" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 w-full" aria-disabled="true">
-            <button
-              type="button"
-              disabled
-              title={t('login.divider', lang)}
-              className="flex items-center justify-center gap-2 h-12 rounded-xl border-2 border-km0-blue-700/10 bg-muted/40 grayscale opacity-50 cursor-not-allowed font-ui text-sm text-muted-foreground"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 48 48"
-                aria-hidden="true"
+              <Button
+                type="submit"
+                variant="bubblePrimary"
+                disabled={sending}
+                className="h-12 w-full"
               >
-                <path
-                  fill="currentColor"
-                  d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
-                />
-              </svg>
-              <span>Google</span>
-            </button>
-            <button
-              type="button"
-              disabled
-              title={t('login.divider', lang)}
-              className="flex items-center justify-center gap-2 h-12 rounded-xl border-2 border-km0-blue-700/10 bg-muted/40 grayscale opacity-50 cursor-not-allowed font-ui text-sm text-muted-foreground"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M17.05 12.04c-.03-3.16 2.58-4.68 2.7-4.75-1.47-2.15-3.76-2.45-4.57-2.48-1.95-.2-3.8 1.15-4.79 1.15-.99 0-2.51-1.12-4.13-1.09-2.13.03-4.09 1.24-5.18 3.14-2.21 3.83-.57 9.5 1.59 12.6 1.05 1.52 2.31 3.23 3.97 3.17 1.59-.06 2.19-1.03 4.11-1.03s2.46 1.03 4.15 1c1.71-.03 2.79-1.55 3.84-3.07 1.21-1.76 1.71-3.47 1.74-3.56-.04-.02-3.34-1.28-3.37-5.08zM14.13 3.66c.88-1.07 1.47-2.55 1.31-4.03-1.27.05-2.79.84-3.7 1.91-.81.94-1.52 2.45-1.33 3.9 1.41.11 2.85-.72 3.72-1.78z" />
-              </svg>
-              <span>Apple</span>
-            </button>
+                {t(sending ? 'login.submitting' : 'login.submit', lang)}
+              </Button>
+            </EmailRequestStep>
           </div>
-        </div>
+        ) : (
+          <AccessEmailForm
+            lang={lang}
+            email={email}
+            onEmailChange={(value) => {
+              setEmail(value)
+              if (emailError === 'required' || emailError === 'invalid')
+                setEmailError(null)
+            }}
+            sending={sending}
+            error={emailError}
+            onSubmit={handleEmailSubmit}
+            onChangeMethod={back}
+            providers={providers}
+            busyProvider={busyProvider}
+            socialNotice={socialNotice}
+            onProvider={handleProvider}
+          />
+        )}
       </motion.div>
+      <LeaveDemoSheet
+        open={leaving !== null}
+        town={leaving?.town ?? ''}
+        busy={leaveBusy}
+        onConfirm={confirmLeaveDemo}
+        onStay={() => {
+          setLeaving(null)
+          finishLogin()
+        }}
+        lang={lang}
+        container={frameRef.current}
+      />
     </BrandedFrame>
   )
 }

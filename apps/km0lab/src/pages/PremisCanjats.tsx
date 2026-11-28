@@ -1,3 +1,4 @@
+import type { Redemption, RedemptionStatus } from '@km0lab/app'
 import {
   isPendingRedemption,
   useAccount,
@@ -6,12 +7,9 @@ import {
   useAuth,
   t,
   type Lang,
-  Redemption,
-  RedemptionStatus,
 } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Gift,
   PackageCheck,
@@ -22,15 +20,14 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import BottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'
 import RewardCardFrame from '@/components/RewardCardFrame'
 import ScreenHeader from '@/components/ScreenHeader'
-
-import { Button } from '@km0lab/ui'
-
 import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'

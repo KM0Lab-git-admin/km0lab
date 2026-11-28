@@ -12,12 +12,14 @@ import {
   formatScreenDate,
   type Lang,
   type Noticia,
+  Town,
+  ScopedItem,
 } from '@km0lab/app'
-import type { Town, ScopedItem } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import FilterChip from '@/components/FilterChip'
 import NoticiaCard, { formatNewsDate } from '@/components/NoticiaCard'
@@ -27,9 +29,6 @@ import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
 import SectionHeader from '@/components/SectionHeader'
 import { TownTag } from '@/components/TownTag'
-
-import { useNavigate, useSearchParams } from 'react-router-dom'
-
 import { useLang } from '@/contexts/LangContext'
 
 /* ─── Detalle ───────────────────────────────────────────────── */

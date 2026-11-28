@@ -33,6 +33,39 @@ export const formatScreenDate = (date: Date, lang: Lang): string => {
 type Dict = Record<Lang, string>
 
 const D = {
+  'access.preview.note': {
+    ca: 'Vista prèvia de disseny · codi {code}',
+    es: 'Vista previa de diseño · código {code}',
+    en: 'Design preview · code {code}',
+  } as Dict,
+  'profile.legal.contact_label': {
+    ca: 'Compartir el meu telèfon de contacte',
+    es: 'Compartir mi teléfono de contacto',
+    en: 'Share my contact phone number',
+  } as Dict,
+  'profile.legal.contact_help': {
+    ca: 'Compartir el meu telèfon amb l’entitat que impulsa el pilot, perquè em pugui trucar per alguna cosa del programa. Ho pots desactivar quan vulguis.',
+    es: 'Compartir mi teléfono con la entidad que impulsa el piloto, para que pueda llamarme por algo del programa. Puedes desactivarlo cuando quieras.',
+    en: 'Share my phone number with the organisation promoting the pilot, so it can call me about the programme. You can turn this off at any time.',
+  } as Dict,
+  'profile.legal.terms': {
+    ca: 'Condicions del pilot',
+    es: 'Condiciones del piloto',
+    en: 'Pilot terms',
+  } as Dict,
+  'profile.legal.privacy': {
+    ca: 'Política de privacitat',
+    es: 'Política de privacidad',
+    en: 'Privacy policy',
+  } as Dict,
+  'profile.legal.delete': {
+    ca: 'Per esborrar el teu compte, escriu a ',
+    es: 'Para borrar tu cuenta, escribe a ',
+    en: 'To delete your account, write to ',
+  } as Dict,
+  'profile.legal.separator': { ca: ' · ', es: ' · ', en: ' · ' } as Dict,
+  'profile.legal.period': { ca: '.', es: '.', en: '.' } as Dict,
+
   'merchants.header.title': {
     ca: 'Comerços',
     es: 'Comercios',
@@ -137,6 +170,7 @@ const D = {
   } as Dict,
   'brand.google': { ca: 'Google', es: 'Google', en: 'Google' } as Dict,
   'brand.apple': { ca: 'Apple', es: 'Apple', en: 'Apple' } as Dict,
+  'brand.facebook': { ca: 'Facebook', es: 'Facebook', en: 'Facebook' } as Dict,
   'home.welcome.reason': {
     ca: 'Per registrar-te a KM0 LAB',
     es: 'Por registrarte en KM0 LAB',
@@ -148,24 +182,19 @@ const D = {
     en: 'Create your account',
   } as Dict,
   'account.sheet.points': {
-    ca: 'Aquí veuràs els teus punts i d’on venen.',
-    es: 'Aquí verás tus puntos y de dónde vienen.',
-    en: 'Here you’ll see your points and where they come from.',
+    ca: 'Consulta els teus punts',
+    es: 'Consulta tus puntos',
+    en: 'View your points',
   } as Dict,
   'account.sheet.rewards': {
-    ca: 'Aquí veuràs els premis que has bescanviat.',
-    es: 'Aquí verás los premios que has canjeado.',
-    en: 'Here you’ll see the rewards you’ve redeemed.',
+    ca: 'Consulta els teus bescanvis',
+    es: 'Consulta tus canjes',
+    en: 'View your redemptions',
   } as Dict,
   'account.sheet.profile': {
-    ca: 'Aquí podràs canviar les teves dades, el teu idioma i el teu municipi.',
-    es: 'Aquí podrás cambiar tus datos, tu idioma y tu municipio.',
-    en: 'Here you can change your details, language and town.',
-  } as Dict,
-  'account.sheet.hint': {
-    ca: 'Només necessites un correu. Et portarà uns 30 segons.',
-    es: 'Solo necesitas un correo. Te llevará unos 30 segundos.',
-    en: 'You only need an email. It takes about 30 seconds.',
+    ca: 'Canvia les teves dades',
+    es: 'Cambia tus datos',
+    en: 'Update your details',
   } as Dict,
   'account.sheet.email': {
     ca: 'Correu electrònic',
@@ -181,11 +210,6 @@ const D = {
     ca: 'Ja tinc compte: inicia sessió',
     es: 'Ya tengo cuenta: iniciar sesión',
     en: 'Already have an account? Sign in',
-  } as Dict,
-  'account.sheet.demo': {
-    ca: 'Prototip: no s’envien correus. Fes servir el codi 123456.',
-    es: 'Prototipo: no se envían correos. Usa el código 123456.',
-    en: 'Prototype: no emails are sent. Use code 123456.',
   } as Dict,
   'navigation.main': {
     ca: 'Navegació principal',
@@ -470,7 +494,7 @@ const D = {
     es: 'Maqueta isométrica de una plaza mediterránea con fuente, comercios y ayuntamiento',
     en: 'Isometric model of a Mediterranean square with a fountain, shops and town hall',
   } as Dict,
-  'postal.placeholder': { ca: '08380', es: '08380', en: '08380' } as Dict,
+  'postal.placeholder': { ca: '00000', es: '00000', en: '00000' } as Dict,
   'postal.error_numeric': {
     ca: 'Només es permeten números',
     es: 'Solo se permiten números',
@@ -488,11 +512,6 @@ const D = {
     es: 'Entra o regístrate',
     en: 'Sign in or sign up',
   } as Dict,
-  'login.subtitle': {
-    ca: 'Prototip: entra amb qualsevol correu i el codi 123456.',
-    es: 'Prototipo: entra con cualquier correo y el código 123456.',
-    en: 'Prototype: use any email and code 123456.',
-  } as Dict,
   'login.email_placeholder': {
     ca: 'Correu electrònic',
     es: 'Email',
@@ -504,11 +523,6 @@ const D = {
     es: 'Preparando acceso…',
     en: 'Preparing access…',
   } as Dict,
-  'login.divider': {
-    ca: 'pròximament',
-    es: 'próximamente',
-    en: 'coming soon',
-  } as Dict,
   'login.error_email': {
     ca: 'Introdueix el teu correu.',
     es: 'Introduce tu email.',
@@ -518,6 +532,172 @@ const D = {
     ca: 'Accés de demostració preparat',
     es: 'Acceso de demostración preparado',
     en: 'Demo access ready',
+  } as Dict,
+
+  // ── Access doors (email + social networks) ───────────────
+  'access.email.cta': {
+    ca: 'Continuar amb el correu',
+    es: 'Continuar con el correo',
+    en: 'Continue with email',
+  } as Dict,
+  'access.divider': { ca: 'o', es: 'o', en: 'or' } as Dict,
+  'access.social.continue': {
+    ca: 'Continuar amb {network}',
+    es: 'Continuar con {network}',
+    en: 'Continue with {network}',
+  } as Dict,
+  'access.social.data': {
+    ca: 'Si entres amb una xarxa social, ens dona el teu nom, el teu correu i un identificador del teu compte. No veiem la teva contrasenya ni res més.',
+    es: 'Si entras con una red social, nos da tu nombre, tu correo y un identificador de tu cuenta. No vemos tu contraseña ni nada más.',
+    en: 'If you sign in with a social network, it gives us your name, your email and an identifier for your account. We do not see your password or anything else.',
+  } as Dict,
+  'access.social.failed': {
+    ca: 'No hem pogut entrar amb {network}. Prova amb una altra forma.',
+    es: 'No hemos podido entrar con {network}. Prueba con otra forma.',
+    en: 'We could not sign you in with {network}. Try another way.',
+  } as Dict,
+  'access.email_request.title': {
+    ca: 'Un darrer pas: escriu el teu correu',
+    es: 'Un último paso: escribe tu correo',
+    en: 'One last step: enter your email',
+  } as Dict,
+  'access.email_request.reason': {
+    ca: '{network} no ens l’ha facilitat.',
+    es: '{network} no nos lo ha facilitado.',
+    en: '{network} did not share it with us.',
+  } as Dict,
+  'access.email_request.back': {
+    ca: 'Tornar',
+    es: 'Volver',
+    en: 'Back',
+  } as Dict,
+  'access.offline': {
+    ca: 'Sense connexió. Comprova la teva xarxa i torna-ho a provar.',
+    es: 'Sin conexión. Comprueba tu red e inténtalo de nuevo.',
+    en: 'No connection. Check your network and try again.',
+  } as Dict,
+  'access.terms.checkbox': {
+    ca: 'Accepto les {terms}.',
+    es: 'Acepto las {terms}.',
+    en: 'I accept the {terms}.',
+  } as Dict,
+  'access.terms.link': {
+    ca: 'condicions del pilot',
+    es: 'condiciones del piloto',
+    en: 'pilot terms',
+  } as Dict,
+  'access.terms.small': {
+    ca: 'KM0 LAB tracta les teves dades per gestionar el teu compte i els teus punts. L’entitat que impulsa el pilot les veu per gestionar-lo. Pots consultar-les, corregir-les o esborrar-les quan vulguis. Més informació a la ',
+    es: 'KM0 LAB trata tus datos para gestionar tu cuenta y tus puntos. La entidad que impulsa el piloto los ve para gestionarlo. Puedes consultarlos, corregirlos o borrarlos cuando quieras. Más información en la ',
+    en: 'KM0 LAB processes your data to manage your account and your points. The organisation promoting the pilot can see it to manage the pilot. You can access, correct or delete it at any time. More information in the ',
+  } as Dict,
+  'access.terms.privacy_link': {
+    ca: 'política de privacitat',
+    es: 'política de privacidad',
+    en: 'privacy policy',
+  } as Dict,
+  'access.terms.privacy_after': { ca: '.', es: '.', en: '.' } as Dict,
+  'access.terms.error': {
+    ca: 'Has d’acceptar les condicions per continuar.',
+    es: 'Tienes que aceptar las condiciones para continuar.',
+    en: 'You need to accept the terms to continue.',
+  } as Dict,
+  'access.email.title': {
+    ca: 'Entra amb el correu',
+    es: 'Entra con el correo',
+    en: 'Sign in with email',
+  } as Dict,
+  'access.email.change': {
+    ca: 'Canviar la forma d’entrar',
+    es: 'Cambiar forma de entrar',
+    en: 'Change sign-in method',
+  } as Dict,
+  'access.email.invalid': {
+    ca: 'Aquest correu no és vàlid. Revisa’l.',
+    es: 'Este correo no es válido. Revísalo.',
+    en: 'This email is not valid. Please check it.',
+  } as Dict,
+  'access.email.send_failed': {
+    ca: 'No hem pogut continuar amb el correu. Torna-ho a provar.',
+    es: 'No hemos podido continuar con el correo. Inténtalo de nuevo.',
+    en: 'We could not continue with your email. Please try again.',
+  } as Dict,
+  'access.email.ip_limited': {
+    ca: 'Massa intents des d’aquesta connexió. Prova-ho més tard o entra amb una xarxa social.',
+    es: 'Demasiados intentos desde esta conexión. Prueba más tarde o entra con una red social.',
+    en: 'Too many attempts from this connection. Try later or sign in with a social network.',
+  } as Dict,
+  'access.methods.title': {
+    ca: 'Formes d’entrar',
+    es: 'Formas de entrar',
+    en: 'Sign-in methods',
+  } as Dict,
+  'access.methods.origin': {
+    ca: 'Vas entrar per primera vegada amb {method}',
+    es: 'Entraste por primera vez con {method}',
+    en: 'You first signed in with {method}',
+  } as Dict,
+  'access.methods.origin_email': {
+    ca: 'el correu',
+    es: 'el correo',
+    en: 'your email',
+  } as Dict,
+  'access.methods.email': { ca: 'Correu', es: 'Correo', en: 'Email' } as Dict,
+  'access.methods.linked_on': {
+    ca: 'Enllaçat el {date}',
+    es: 'Enlazado el {date}',
+    en: 'Linked on {date}',
+  } as Dict,
+  'access.methods.first': {
+    ca: 'Primera vegada',
+    es: 'Primera vez',
+    en: 'First time',
+  } as Dict,
+  'access.methods.add': { ca: 'Afegir', es: 'Añadir', en: 'Add' } as Dict,
+  'access.methods.add_aria': {
+    ca: 'Afegir {network}',
+    es: 'Añadir {network}',
+    en: 'Add {network}',
+  } as Dict,
+  'access.methods.added': {
+    ca: '{network} enllaçat. Ja pots entrar també amb aquesta xarxa.',
+    es: '{network} enlazado. Ya puedes entrar también con esta red.',
+    en: '{network} linked. You can now also sign in with it.',
+  } as Dict,
+  'access.methods.conflict': {
+    ca: 'Aquest compte de {network} ja entra en un altre compte.',
+    es: 'Esta cuenta de {network} ya entra en otra cuenta.',
+    en: 'This {network} account already signs in to another account.',
+  } as Dict,
+  'access.methods.loading': {
+    ca: 'Carregant les formes d’entrar…',
+    es: 'Cargando las formas de entrar…',
+    en: 'Loading sign-in methods…',
+  } as Dict,
+  'access.methods.error': {
+    ca: 'No hem pogut carregar les formes d’entrar.',
+    es: 'No hemos podido cargar las formas de entrar.',
+    en: 'We could not load your sign-in methods.',
+  } as Dict,
+  'access.methods.retry': {
+    ca: 'Tornar-ho a provar',
+    es: 'Reintentar',
+    en: 'Try again',
+  } as Dict,
+  'access.methods.empty': {
+    ca: 'Ara només entres amb el correu.',
+    es: 'Ahora solo entras con el correo.',
+    en: 'Right now you only sign in with email.',
+  } as Dict,
+  'access.methods.sheet_title': {
+    ca: 'Afegir {network}',
+    es: 'Añadir {network}',
+    en: 'Add {network}',
+  } as Dict,
+  'access.methods.sheet_description': {
+    ca: 'Enllaça {network} per entrar també amb aquesta xarxa al teu compte.',
+    es: 'Enlaza {network} para entrar también con esta red en tu cuenta.',
+    en: 'Link {network} to also sign in to your account with it.',
   } as Dict,
 
   // ── Email OTP (plantilla de correo) ──────────────────────
@@ -602,16 +782,6 @@ const D = {
     ca: 'Benvingut/da!',
     es: '¡Bienvenido!',
     en: 'Welcome!',
-  } as Dict,
-  'otp.footer_hint': {
-    ca: 'Fes servir 123456. No s’envia cap correu.',
-    es: 'Usa 123456. No se envía ningún correo.',
-    en: 'Use 123456. No email is sent.',
-  } as Dict,
-  'otp.demo_hint': {
-    ca: "Prototip: encara no s'envien correus. Fes servir el codi 123456.",
-    es: 'Prototipo: aún no se envían correos. Usa el código 123456.',
-    en: "Prototype: emails aren't sent yet. Use the code 123456.",
   } as Dict,
 
   // ── Home ─────────────────────────────────────────────────
@@ -1531,11 +1701,6 @@ const D = {
     es: '+34 600 000 000',
     en: '+34 600 000 000',
   } as Dict,
-  'profile.birth_date': {
-    ca: 'Data de naixement',
-    es: 'Fecha de nacimiento',
-    en: 'Birth date',
-  } as Dict,
 
   'profile.error_phone': {
     ca: 'Telèfon no vàlid',
@@ -1568,6 +1733,51 @@ const D = {
     ca: 'Tancar sessió',
     es: 'Cerrar sesión',
     en: 'Sign out',
+  } as Dict,
+  'profile.logout_all.label': {
+    ca: 'Tancar sessió a tots els meus dispositius',
+    es: 'Cerrar sesión en todos mis dispositivos',
+    en: 'Sign out of all my devices',
+  } as Dict,
+  'profile.logout_all.title': {
+    ca: 'Tancar sessió a tots els dispositius?',
+    es: '¿Cerrar sesión en todos los dispositivos?',
+    en: 'Sign out of all devices?',
+  } as Dict,
+  'profile.logout_all.description': {
+    ca: 'També es tancarà en aquest. Hauràs de tornar a entrar amb el teu correu o la teva xarxa.',
+    es: 'También se cerrará en este. Tendrás que volver a entrar con tu correo o tu red social.',
+    en: 'You will also be signed out on this device. You will need to sign in again with your email or social network.',
+  } as Dict,
+  'profile.logout_all.cancel': {
+    ca: 'Cancel·lar',
+    es: 'Cancelar',
+    en: 'Cancel',
+  } as Dict,
+  'profile.logout_all.confirm': {
+    ca: 'Tancar-les totes',
+    es: 'Cerrar todas',
+    en: 'Sign out everywhere',
+  } as Dict,
+  'profile.logout_all.loading': {
+    ca: 'Tancant sessions…',
+    es: 'Cerrando sesiones…',
+    en: 'Signing out…',
+  } as Dict,
+  'profile.logout_all.success': {
+    ca: 'Sessió tancada a tots els dispositius',
+    es: 'Sesión cerrada en todos los dispositivos',
+    en: 'Signed out of all devices',
+  } as Dict,
+  'profile.logout_all.error': {
+    ca: 'No s’han pogut tancar les sessions. Torna-ho a provar.',
+    es: 'No se han podido cerrar las sesiones. Inténtalo de nuevo.',
+    en: 'We could not sign out of all devices. Please try again.',
+  } as Dict,
+  'profile.logout_all.retry': {
+    ca: 'Reintentar',
+    es: 'Reintentar',
+    en: 'Retry',
   } as Dict,
   'profile.toast_saved': {
     ca: 'Perfil actualitzat',
@@ -2775,9 +2985,9 @@ const D = {
     en: 'Explore the app',
   } as Dict,
   'login.invite.toggle': {
-    ca: 'T’ha convidat algú?',
-    es: '¿Te ha invitado alguien?',
-    en: 'Did someone invite you?',
+    ca: 'T’ha convidat algú? (opcional)',
+    es: '¿Te ha invitado alguien? (opcional)',
+    en: 'Did someone invite you? (optional)',
   } as Dict,
   'login.invite.label': {
     ca: 'Codi d’invitació',
@@ -2792,6 +3002,20 @@ export const t = (key: TKey, lang: Lang): string => {
   const entry = D[key]
   return entry?.[lang] ?? entry?.es ?? String(key)
 }
+
+/** Brand name of a sign-in network, for `{network}` placeholders. */
+export const networkName = (
+  provider: 'google' | 'facebook' | 'apple',
+  lang: Lang
+): string =>
+  t(
+    provider === 'google'
+      ? 'brand.google'
+      : provider === 'facebook'
+        ? 'brand.facebook'
+        : 'brand.apple',
+    lang
+  )
 
 /** Translate and replace `{name}` placeholders. */
 export const tf = (

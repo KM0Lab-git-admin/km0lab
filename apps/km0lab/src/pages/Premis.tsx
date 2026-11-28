@@ -1,3 +1,4 @@
+import type { ShopPromotion, Reward, RewardCategory } from '@km0lab/app'
 import {
   useAccount,
   redeemReward,
@@ -8,11 +9,10 @@ import {
   t,
   type TKey,
   useShopPromotions,
-  ShopPromotion,
-  Reward,
-  RewardCategory,
 } from '@km0lab/app'
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
+import { Package, Tag } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -20,15 +20,10 @@ import AccountAccessFlow from '@/components/AccountAccessFlow'
 import AccountBottomTabs from '@/components/AccountBottomTabs'
 import FilterChip from '@/components/FilterChip'
 import RedeemBalanceOverlay from '@/components/RedeemBalanceOverlay'
+import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
 import RewardCardFrame from '@/components/RewardCardFrame'
 import ScreenHeader from '@/components/ScreenHeader'
 import ScreenStatus from '@/components/ScreenStatus'
-import { Package, Tag } from 'lucide-react'
-
-import RedeemMerchandiseOverlay from '@/components/RedeemMerchandiseOverlay'
-
-import { Button } from '@km0lab/ui'
-
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
 

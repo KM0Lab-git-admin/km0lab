@@ -4,6 +4,8 @@ import {
   useShop,
   t,
   type Lang,
+  ComercDetall,
+  PromocioInfo,
 } from '@km0lab/app'
 import { Button } from '@km0lab/ui'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -20,7 +22,6 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import type { ComercDetall, PromocioInfo } from '@km0lab/app'
 
 import NotificationBell from '@/components/NotificationBell'
 import NotificationsOverlay from '@/components/NotificationsOverlay'

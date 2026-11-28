@@ -16,7 +16,7 @@ describe('guardar el perfil', () => {
       first_name: '  Marta ',
       last_name: 'Puig',
       phone: null,
-      birth_date: '',
+      contact_shared: true,
     })
 
     expect(error).toBeNull()
@@ -25,8 +25,10 @@ describe('guardar el perfil', () => {
       first_name: 'Marta',
       last_name: 'Puig',
       phone: null,
-      birth_date: null,
+      contact_shared: true,
     })
+    // La fecha de nacimiento ya no se pide ni se manda (Legal, 28-11-2026).
+    expect(first().body).not.toHaveProperty('birth_date')
     // El fallo que esto evita: `postal_code: null` le quitaba el municipio.
     expect(first().body).not.toHaveProperty('postal_code')
   })

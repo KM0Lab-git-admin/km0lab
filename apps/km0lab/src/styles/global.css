@@ -50,6 +50,18 @@
 
 @layer base {
   :root {
+    /* Marca de las redes en los botones de entrar (encargo 14b, espejo de
+       Lovable src/index.css). El Roboto de Google no se sirve desde aquí
+       (el del prototipo vive en el CDN de Lovable): usa el del sistema. */
+    --brand-google-surface: 0 0% 100%;
+    --brand-google-border: 140 1.276596% 46.078431%;
+    --brand-google-text: 0 0% 12.156863%;
+    --brand-google-font: Roboto, sans-serif;
+    --brand-signin-radius: 4px;
+    --brand-apple-font-size: 17.2px;
+    --brand-network-text: 0 0% 100%;
+    --brand-facebook: 214 89% 52%;
+    --brand-apple: 0 0% 0%;
     /* Sombras del acabado Burbuja (espejo de Lovable src/index.css). */
     --shadow-bubble: 0 10px 30px -18px hsl(var(--km0-blue-800) / 0.35);
     --shadow-bubble-yellow: 0 8px 18px -10px hsl(var(--km0-yellow-600) / 0.8);

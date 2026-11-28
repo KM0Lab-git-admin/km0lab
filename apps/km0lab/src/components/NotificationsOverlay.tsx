@@ -1,4 +1,5 @@
-import { t, type Lang, NotificationItem } from '@km0lab/app'
+import type { NotificationItem } from '@km0lab/app'
+import { t, type Lang } from '@km0lab/app'
 import { Button, Skeleton } from '@km0lab/ui'
 import { ArrowRight, RefreshCw, Newspaper } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

@@ -1,3 +1,4 @@
+import type { PointAction, PointActionIcon } from '@km0lab/app'
 import {
   usePointsActions,
   usePreviewState,
@@ -9,17 +10,8 @@ import {
   getFriendProgress,
   type FriendProgress,
   useInviteSummary,
-  PointAction,
-  PointActionIcon,
 } from '@km0lab/app'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import BottomTabs from '@/components/AccountBottomTabs'
-import FilterChip from '@/components/FilterChip'
-import ScreenHeader from '@/components/ScreenHeader'
-import ScreenStatus from '@/components/ScreenStatus'
-
+import { Button } from '@km0lab/ui'
 import { motion } from 'framer-motion'
 import {
   UserPlus,
@@ -31,11 +23,15 @@ import {
   ChevronRight,
   type LucideIcon,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import BottomTabs from '@/components/AccountBottomTabs'
+import FilterChip from '@/components/FilterChip'
+import ScreenHeader from '@/components/ScreenHeader'
+import ScreenStatus from '@/components/ScreenStatus'
 import { useLang } from '@/contexts/LangContext'
 import { cn } from '@/lib/utils'
-
-import { Button } from '@km0lab/ui'
 
 /* ─── Filtros ────────────────────────────────────────────── */
 type Filter = 'all' | 'pending' | 'completed'

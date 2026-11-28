@@ -39,8 +39,11 @@ export interface AppProfile {
   email: string | null
   /** Solo local: km0lab-api todavía no expone teléfono. */
   phone: string | null
-  /** Solo local (ISO `YYYY-MM-DD`): km0lab-api todavía no expone fecha de nacimiento. */
-  birth_date: string | null
+  /**
+   * Compartir el teléfono con la entidad del piloto (desactivado por
+   * defecto). La fecha de nacimiento ya no se pide (Legal, 28-11-2026).
+   */
+  contact_shared: boolean
   postal_code: string | null
   town: string | null
   avatar_url: string | null
@@ -116,7 +119,7 @@ const emptyProfile = (email: string | null = null): AppProfile => ({
   last_name: null,
   email,
   phone: null,
-  birth_date: null,
+  contact_shared: false,
   postal_code: null,
   town: null,
   avatar_url: null,
@@ -264,9 +267,29 @@ export const useAppStore = create<AppState>()(
           current.pendingScan ??
           (p.pendingScan as typeof current.pendingScan) ??
           null
+        // Los perfiles guardados antes traen la fecha de nacimiento, que ya
+        // no se pide: se deja fuera, y el teléfono compartido es un sí o no.
+        const savedProfiles = (p.profiles ?? {}) as Record<
+          string,
+          Partial<AppProfile> & { birth_date?: unknown }
+        >
+        const profiles = Object.fromEntries(
+          Object.entries(savedProfiles).map(([id, saved]) => {
+            const { birth_date: _dropped, ...rest } = saved
+            return [
+              id,
+              {
+                ...emptyProfile(),
+                ...rest,
+                contact_shared: rest.contact_shared === true,
+              },
+            ]
+          })
+        )
         return {
           ...current,
           ...p,
+          profiles,
           pendingInvite: pending,
           pendingScan,
         }

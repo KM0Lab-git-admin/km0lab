@@ -27,6 +27,9 @@ import {
   messageSchema,
   userSchema,
 } from './km0labClient'
+import { clearPendingLinkToken, pendingLinkToken } from './linkToken'
+
+import type { z } from 'zod'
 
 export type MockUser = AppUser
 export type MockSession = AppSession
@@ -41,11 +44,16 @@ export type OtpErrorKind =
   | 'pilot_full'
   | 'unknown'
 
-/** `retryMinutes`: cuánto falta para poder volver a probar, si se sabe. */
+/**
+ * `retryMinutes`: cuánto falta para poder volver a probar, si se sabe.
+ * `code`: el mismo motivo con el nombre que usan las pantallas del acceso
+ * que vienen del prototipo (`AccessErrorCode`).
+ */
 export type OtpError = {
   message: string
   kind: OtpErrorKind
   retryMinutes?: number
+  code?: 'pilot_full' | 'offline' | 'ip_limited'
 }
 type Result = { error: OtpError | null }
 
@@ -146,6 +154,16 @@ const OTP_ERROR_KEYS: Record<OtpErrorKind, TKey> = {
   pilot_full: 'pilot.full.title',
   unknown: 'otp.toast_error',
 }
+
+/** El motivo con el nombre de las pantallas del acceso (`AccessErrorCode`). */
+export const otpAccessCode = (kind: OtpErrorKind): OtpError['code'] =>
+  kind === 'pilot_full'
+    ? 'pilot_full'
+    : kind === 'offline'
+      ? 'offline'
+      : kind === 'too_many'
+        ? 'ip_limited'
+        : undefined
 
 /** Clave del texto que explica ese motivo al vecino. */
 export const otpErrorKey = (kind: OtpErrorKind): TKey => OTP_ERROR_KEYS[kind]
@@ -260,6 +278,7 @@ export const requestOtp = async (
       error: {
         message: toMessage(e, 'No se pudo enviar el código'),
         kind: otpErrorKind(e),
+        code: otpAccessCode(otpErrorKind(e)),
         retryMinutes: otpRetryMinutes(e),
       },
     }
@@ -283,75 +302,16 @@ export const verifyOtp = async (
         invite_code: inviteCode,
         postal_code: store.postalCode ?? store.pendingOtp?.postal_code,
         terms_version: TERMS_VERSION,
+        // Una red que no dio correo espera a este código para enlazarse.
+        link_token: pendingLinkToken() ?? undefined,
       },
       schema: authSchema,
     })
-    store.setToken(auth.access_token)
-    store.setSession({
-      user: {
-        id: auth.user.id,
-        email: auth.user.email,
-        points: auth.user.points ?? 0,
-      },
-      createdAt: new Date().toISOString(),
+    clearPendingLinkToken()
+    const notice = await applyAuth(auth, {
+      postal: store.postalCode ?? store.pendingOtp?.postal_code ?? null,
+      town: store.town ?? store.pendingOtp?.town ?? null,
     })
-
-    if (auth.points_awarded && auth.points_awarded > 0) {
-      stashPendingReward(auth.points_awarded, auth.points_award_message ?? null)
-    }
-
-    const postal =
-      store.postalCode ??
-      store.pendingOtp?.postal_code ??
-      auth.user.postal_code ??
-      null
-    const town = store.town ?? store.pendingOtp?.town ?? auth.user.town ?? null
-
-    // Sincroniza preferencias locales del dispositivo a la BD.
-    let user = auth.user
-    try {
-      user = await apiFetch('/users/me', {
-        method: 'PATCH',
-        auth: true,
-        body: {
-          lang: store.lang,
-          postal_code: postal,
-        },
-        schema: userSchema,
-      })
-    } catch {
-      // Si el PATCH falla, seguimos con lo que devolvió verify-otp.
-    }
-
-    store.setUserPoints(user.points ?? 0)
-    store.upsertProfile(user.id, {
-      first_name: user.first_name ?? user.name,
-      last_name: user.last_name ?? null,
-      email: user.email,
-      phone: user.phone ?? null,
-      birth_date: user.birth_date ?? null,
-      postal_code: user.postal_code ?? postal,
-      town: user.town ?? town,
-      avatar_url: null,
-    })
-    if (user.lang === 'ca' || user.lang === 'es' || user.lang === 'en') {
-      store.setLang(user.lang)
-    }
-    if (user.postal_code || user.town) {
-      store.setLocation(user.postal_code ?? postal, user.town ?? town)
-    }
-    // La cuenta manda: la app va adonde esté. Si es de un pueblo real, sale
-    // de la demostración aunque se entrara desde ella; si es de demostración
-    // y se entró desde un pueblo real, se pregunta antes de moverla.
-    const notice = sideNoticeFor(
-      { postalCode: postal, town },
-      { postalCode: user.postal_code ?? null, town: user.town ?? null }
-    )
-    if (user.postal_code && !isDemoPostalCode(user.postal_code)) {
-      store.setShowcase(null)
-    }
-    store.setPendingOtp(null)
-    clearPendingInvite()
     return { error: null, notice }
   } catch (e) {
     return {
@@ -361,6 +321,82 @@ export const verifyOtp = async (
       },
     }
   }
+}
+
+/**
+ * Lo que pasa al entrar, con el código o con una red: la sesión, los
+ * puntos de bienvenida, las preferencias del dispositivo a la cuenta y
+ * dónde queda la App. Devuelve el aviso si la cuenta y la App no están en
+ * el mismo lado (demostración o pueblo real).
+ */
+export const applyAuth = async (
+  auth: z.infer<typeof authSchema>,
+  place: { postal: string | null; town: string | null }
+): Promise<SideNotice | undefined> => {
+  const store = useAppStore.getState()
+  store.setToken(auth.access_token)
+  store.setSession({
+    user: {
+      id: auth.user.id,
+      email: auth.user.email,
+      points: auth.user.points ?? 0,
+    },
+    createdAt: new Date().toISOString(),
+  })
+
+  if (auth.points_awarded && auth.points_awarded > 0) {
+    stashPendingReward(auth.points_awarded, auth.points_award_message ?? null)
+  }
+
+  const postal = place.postal ?? auth.user.postal_code ?? null
+  const town = place.town ?? auth.user.town ?? null
+
+  // Sincroniza preferencias locales del dispositivo a la BD.
+  let user = auth.user
+  try {
+    user = await apiFetch('/users/me', {
+      method: 'PATCH',
+      auth: true,
+      body: {
+        lang: store.lang,
+        postal_code: postal,
+      },
+      schema: userSchema,
+    })
+  } catch {
+    // Si el PATCH falla, seguimos con lo que devolvió verify-otp.
+  }
+
+  store.setUserPoints(user.points ?? 0)
+  store.upsertProfile(user.id, {
+    first_name: user.first_name ?? user.name,
+    last_name: user.last_name ?? null,
+    email: user.email,
+    phone: user.phone ?? null,
+    contact_shared: user.contact_shared === true,
+    postal_code: user.postal_code ?? postal,
+    town: user.town ?? town,
+    avatar_url: null,
+  })
+  if (user.lang === 'ca' || user.lang === 'es' || user.lang === 'en') {
+    store.setLang(user.lang)
+  }
+  if (user.postal_code || user.town) {
+    store.setLocation(user.postal_code ?? postal, user.town ?? town)
+  }
+  // La cuenta manda: la app va adonde esté. Si es de un pueblo real, sale
+  // de la demostración aunque se entrara desde ella; si es de demostración
+  // y se entró desde un pueblo real, se pregunta antes de moverla.
+  const notice = sideNoticeFor(
+    { postalCode: postal, town },
+    { postalCode: user.postal_code ?? null, town: user.town ?? null }
+  )
+  if (user.postal_code && !isDemoPostalCode(user.postal_code)) {
+    store.setShowcase(null)
+  }
+  store.setPendingOtp(null)
+  clearPendingInvite()
+  return notice
 }
 
 export const signOut = async (): Promise<void> => {

@@ -20,7 +20,7 @@ const toProfile = (u: ApiUser): AppProfile => ({
   last_name: u.last_name ?? null,
   email: u.email,
   phone: u.phone ?? null,
-  birth_date: u.birth_date ?? null,
+  contact_shared: u.contact_shared === true,
   postal_code: u.postal_code,
   town: u.town,
   avatar_url: null,
@@ -55,7 +55,7 @@ export const updateProfile = async (
     // Solo viaja lo que la pantalla ha pedido cambiar. El servidor deja
     // como está lo que no recibe; mandar `postal_code: null` cuando el
     // formulario no lo incluye le borraba el municipio al vecino.
-    const body: Record<string, string | null> = { lang: nextLang }
+    const body: Record<string, string | boolean | null> = { lang: nextLang }
     if ('first_name' in patch) {
       body.first_name = patch.first_name?.trim() || null
     }
@@ -64,7 +64,8 @@ export const updateProfile = async (
     }
     if ('postal_code' in patch) body.postal_code = patch.postal_code ?? null
     if ('phone' in patch) body.phone = patch.phone ?? null
-    if ('birth_date' in patch) body.birth_date = patch.birth_date || null
+    if ('contact_shared' in patch)
+      body.contact_shared = patch.contact_shared === true
     const u = await apiFetch('/users/me', {
       method: 'PATCH',
       auth: true,

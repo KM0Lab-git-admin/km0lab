@@ -343,7 +343,15 @@ function detailOf(json: unknown): unknown {
 
 /** JWT rejected or missing: drop the stale session so the UI becomes guest. */
 function isLostSession(status: number, json: unknown): boolean {
-  if (status === 401) return true
+  if (status === 401) {
+    const detail = detailOf(json)
+    const code =
+      detail && typeof detail === 'object'
+        ? (detail as { code?: unknown }).code
+        : undefined
+    // `provider_failed`: la red no confirmó quién es; la sesión sigue.
+    return code !== 'provider_failed'
+  }
   return status === 403 && errorMessage(json, status) === 'Not authenticated'
 }
 

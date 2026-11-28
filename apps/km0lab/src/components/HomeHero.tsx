@@ -62,7 +62,7 @@ const HomeHero = ({
         </div>
         <TownArt
           src={townArtSrc}
-          className="pointer-events-none absolute bottom-0 right-0 h-[86px] w-[44%] max-w-[190px] select-none object-contain object-right-bottom"
+          className="pointer-events-none absolute bottom-0 right-14 h-[86px] w-[44%] max-w-[190px] select-none object-contain object-right-bottom"
         />
         <NotificationBell
           hasAlerts={hasAlerts}

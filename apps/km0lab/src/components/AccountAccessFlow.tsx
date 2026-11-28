@@ -1,9 +1,13 @@
-import { t, requestOtp, useAppStore } from '@km0lab/app'
+import { t, requestOtp, loginWithProvider, useAppStore } from '@km0lab/app'
 import { useRef, useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { HomeTab } from '@/components/BottomTabs'
-import type { AccountAccessTarget } from '@km0lab/app'
+import type {
+  AccountAccessTarget,
+  AccessError,
+  AccessProvider,
+} from '@km0lab/app'
 
 import AccountAccessSheet from '@/components/AccountAccessSheet'
 import { useLang } from '@/contexts/LangContext'
@@ -20,7 +24,10 @@ export interface AccountAccessControls {
   error: string | null
   open: (tab?: HomeTab) => void
   close: () => void
-  continueWithEmail: (email: string) => Promise<void>
+  continueWithEmail: (
+    email: string,
+    referralReference?: string | null
+  ) => Promise<void>
   login: () => void
 }
 
@@ -48,6 +55,14 @@ const AccountAccessFlow = ({
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [busyProvider, setBusyProvider] = useState<AccessProvider | null>(null)
+  const [socialError, setSocialError] = useState<{
+    provider: AccessProvider
+    error: AccessError
+  } | null>(null)
+  const [pilotFull, setPilotFull] = useState(false)
+  const [emailRequestProvider, setEmailRequestProvider] =
+    useState<AccessProvider | null>(null)
   const busy = useRef(false)
   const requestVersion = useRef(0)
 
@@ -57,6 +72,10 @@ const AccountAccessFlow = ({
     setSubmitting(false)
     setError(null)
     setTarget(null)
+    setBusyProvider(null)
+    setSocialError(null)
+    setPilotFull(false)
+    setEmailRequestProvider(null)
     if (searchParams.has('access')) {
       const next = new URLSearchParams(searchParams)
       next.delete('access')
@@ -70,12 +89,18 @@ const AccountAccessFlow = ({
       return
     }
     setError(null)
+    setSocialError(null)
+    setPilotFull(false)
+    setEmailRequestProvider(null)
     setTarget(
       tab === 'puntos' ? 'points' : tab === 'perfil' ? 'profile' : 'rewards'
     )
   }
 
-  const continueWithEmail = async (email: string) => {
+  const continueWithEmail = async (
+    email: string,
+    referralReference?: string | null
+  ) => {
     if (!target || isAuthed || busy.current) return
     busy.current = true
     const version = ++requestVersion.current
@@ -89,11 +114,31 @@ const AccountAccessFlow = ({
         town: town ?? undefined,
       })
       if (version !== requestVersion.current) return
-      if (result.error) {
-        setError(t('login.error_email', lang))
+      if (result.error?.code === 'pilot_full') {
+        setPilotFull(true)
         return
       }
-      navigate('/check-email', { state: { email, mode: 'signup', returnTo } })
+      if (result.error) {
+        setError(
+          t(
+            result.error.code === 'offline'
+              ? 'access.offline'
+              : result.error.code === 'ip_limited'
+                ? 'access.email.ip_limited'
+                : 'access.email.send_failed',
+            lang
+          )
+        )
+        return
+      }
+      navigate('/check-email', {
+        state: {
+          email,
+          mode: 'signup',
+          returnTo,
+          ...(referralReference ? { referralReference } : {}),
+        },
+      })
     } catch {
       if (version === requestVersion.current)
         setError(t('login.error_email', lang))
@@ -101,6 +146,47 @@ const AccountAccessFlow = ({
       if (version === requestVersion.current) {
         busy.current = false
         setSubmitting(false)
+      }
+    }
+  }
+
+  const continueWithProvider = async (
+    provider: AccessProvider,
+    referralReference: string | null
+  ) => {
+    if (!target || isAuthed || busy.current) return
+    busy.current = true
+    const version = ++requestVersion.current
+    const destination = DESTINATIONS[target]
+    setBusyProvider(provider)
+    setSocialError(null)
+    try {
+      const result = await loginWithProvider(provider, { referralReference })
+      if (version !== requestVersion.current || result.cancelled) return
+      if (result.error?.code === 'pilot_full') {
+        setPilotFull(true)
+        return
+      }
+      if (result.error?.code === 'email_missing') {
+        setError(null)
+        setEmailRequestProvider(provider)
+        return
+      }
+      if (result.error) {
+        setSocialError({ provider, error: result.error })
+        return
+      }
+      navigate(destination, { replace: true })
+    } catch {
+      if (version === requestVersion.current)
+        setSocialError({
+          provider,
+          error: { code: 'provider_failed', message: 'Provider unavailable' },
+        })
+    } finally {
+      if (version === requestVersion.current) {
+        busy.current = false
+        setBusyProvider(null)
       }
     }
   }
@@ -130,6 +216,16 @@ const AccountAccessFlow = ({
         onClose={close}
         onContinue={continueWithEmail}
         onLogin={login}
+        busyProvider={busyProvider}
+        socialError={socialError}
+        pilotFull={pilotFull}
+        emailRequestProvider={emailRequestProvider}
+        onBackToDoors={() => {
+          setEmailRequestProvider(null)
+          setError(null)
+        }}
+        onProvider={continueWithProvider}
+        onExplore={() => navigate('/home')}
       />
     </>
   )
